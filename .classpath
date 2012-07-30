@@ -11,6 +11,7 @@
 	<classpathentry kind="lib" path="lib/jgroups-3.0.8.Final.jar"/>
 	<classpathentry kind="lib" path="lib/rhq-pluginAnnotations-3.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/iframework_2.3.jar"/>
+	<classpathentry kind="lib" path="lib/common_apache_fat.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -3,6 +3,7 @@ package net.ion.bleujin;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.RandomUtil;
 
@@ -18,6 +19,9 @@ import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryCreatedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryLoadedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.Event;
+import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStarted;
+import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStopped;
 
 import junit.framework.TestCase;
 
@@ -27,7 +31,7 @@ public class ReplCacheTest extends TestCase {
 	public void testStart() throws Exception {
 		DefaultCacheManager cm = new DefaultCacheManager(
 				GlobalConfigurationBuilder.defaultClusteredBuilder().transport().addProperty("configurationFile", "resource/config/jgroups-tcp.xml").build(), 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).build());
+				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).hash().numOwners(2).build());
 
 		cm.start();
 
@@ -89,4 +93,49 @@ public class ReplCacheTest extends TestCase {
 	
 	
 	
+	public void testConfigLoader() throws Exception {
+		final DefaultCacheManager cacheManager = new DefaultCacheManager("resource/config/distributed-simple.xml");
+		cacheManager.start() ;
+
+		new Thread(){
+			public void run(){
+				Cache<Object, Object> cache = cacheManager.getCache("workspace");
+				while (true) {
+					Debug.line(cache.get("key")) ;
+					try {
+						Thread.sleep(1000) ;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start() ;
+		
+		Cache<Object, Object> cache = cacheManager.getCache("workspace");
+		while (true) {
+			cache.put("key", "hero " + new Date());
+			Thread.sleep(900);
+		}
+
+	}
+	
+	
+	@Listener
+	public class SampleListener {
+
+		@CacheStarted
+		public void handleStart(Event event) {
+			System.out.println("Cache Started... ");
+		}
+
+		@CacheStopped
+		public void handleStop(Event event) {
+			System.out.println("Cache shudown.... ");
+		}
+
+		@CacheEntryModified
+		public void cacheEntryModified(CacheEntryModifiedEvent e) {
+			System.out.println("Added a entry to cache..." + e.getKey() + " " +  e.toString());
+		}
+	}
 }
