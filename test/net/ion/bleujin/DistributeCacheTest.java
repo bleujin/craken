@@ -1,9 +1,13 @@
 package net.ion.bleujin;
 
 
+import java.util.Calendar;
 import java.util.Properties;
 
 import junit.framework.TestCase;
+
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.InfinityThread;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -35,4 +39,55 @@ public class DistributeCacheTest extends TestCase {
 		dc.stop() ;
 	}
 
+
+	public void testS3() throws Exception {
+		final DefaultCacheManager dc = new DefaultCacheManager("resource/config/example/distributed-ec2.xml");
+		dc.start() ;
+
+		final Cache<String, Object> cache = dc.getCache("workspace") ;
+		cache.start() ;
+		
+		new Thread(){
+			public void run(){
+				while(true){
+					cache.put("key", Calendar.getInstance()) ;
+					try {
+						Thread.sleep(1000) ;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start() ;
+		
+		new Thread(){
+			public void run(){
+				while(true){
+					Debug.line(cache.get("key")) ;
+					try {
+						Thread.sleep(1000) ;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start() ;
+		
+		new InfinityThread().startNJoin() ;
+		cache.stop() ;
+		dc.stop() ;
+	}
+	
+	
+	public void testFileCache() throws Exception {
+		final DefaultCacheManager dc = new DefaultCacheManager("resource/config/distributed-simple.xml");
+		dc.start() ;
+		
+		final Cache<String, Object> cache = dc.getCache("persistentCache") ;
+		cache.start() ;
+		cache.put("key", Calendar.getInstance()) ;
+		
+		cache.stop() ;
+		dc.stop() ;
+	}
 }

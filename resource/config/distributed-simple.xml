@@ -26,7 +26,7 @@
    <global>
       <transport>
          <properties>
-            <property name="configurationFile" value="jgroups-tcp.xml" />
+            <property name="configurationFile" value="resource/config/jgroups-tcp.xml" />
          </properties>
       </transport>
    </global>
@@ -36,7 +36,18 @@
          <l1 enabled="false" />
          <hash numOwners="2"/>
          <sync/>
-      </clustering>
+     </clustering>
    </default>
+   
+  <namedCache name="fileCache">  
+     <loaders passivation="false" shared="false" preload="true">  
+        <loader class="org.infinispan.loaders.file.FileCacheStore" fetchPersistentState="true" ignoreModifications="false" purgeOnStartup="false">  
+           <properties>  
+              <property name="location" value="/tmp"/>  
+           </properties>  
+           <async enabled="true" threadPoolSize="10"/>  
+        </loader>  
+     </loaders>  
+  </namedCache> 
 
 </infinispan>

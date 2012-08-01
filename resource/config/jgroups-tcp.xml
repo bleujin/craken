@@ -51,7 +51,7 @@
     mcast_addr="228.1.2.3"
     mcast_port="45566"
     ip_ttl="8"
-    num_initial_members="3"/>
+    num_initial_members="1"/>
 
     <MERGE2 max_interval="30000"
             min_interval="10000"/>

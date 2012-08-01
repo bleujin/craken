@@ -26,7 +26,7 @@
    <global>
       <transport>
          <properties>
-            <property name="configurationFile" value="jgroups-tcp.xml" />
+            <property name="configurationFile" value="jgroups-ec2.xml" />
          </properties>
       </transport>
    </global>
