@@ -1,0 +1,75 @@
+package net.ion.craken;
+
+import net.ion.craken.TestCreate.LegListener;
+import net.ion.framework.util.Debug;
+
+import org.infinispan.Cache;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
+
+public class Craken {
+
+	private GlobalConfigurationBuilder globalBuilder ;
+	private ConfigurationBuilder defaultConf ;
+	private DefaultCacheManager dftManager ;
+	private boolean started = false ;
+	
+	private Craken(){
+		this.globalBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder() ;
+		this.defaultConf = new ConfigurationBuilder() ;
+		defaultConf.clustering().cacheMode(CacheMode.DIST_ASYNC).jmxStatistics().enable().clustering().l1().enable().lifespan(6000000).invocationBatching().clustering().hash().numOwners(2) ;
+	}
+	
+	public final static Craken create(){
+		return new Craken() ;
+	}
+	
+	public GlobalConfigurationBuilder globalConfig(){
+		return globalBuilder ;
+	}
+
+	public ConfigurationBuilder defineDefault() {
+		return defaultConf ;
+	}
+
+	public Craken start() {
+		if (started) {
+			Debug.warn("already started") ;
+			return this ;
+		}
+		this.dftManager = new DefaultCacheManager(globalBuilder.build(), defaultConf.build(), true) ;
+		dftManager.start();
+		this.started = true ;
+		return this ;
+	}
+	
+	public Craken defineLeg(String legname, Configuration confOverride){
+		
+		
+		dftManager.defineConfiguration(legname, confOverride) ;
+		return this ;
+	}
+
+	public CrakenLeg findLeg(String legname) {
+		 Cache<NodeKey, DataNode> cache = dftManager.getCache(legname);
+		return CrakenLeg.create(cache);
+	}
+
+	public Craken stop() {
+		if (dftManager == null) return this ;
+		dftManager.stop() ;
+		return this ;
+	}
+	
+	DefaultCacheManager getManager(){
+		return dftManager ;
+	}
+
+	public Craken addListener(Object listener) {
+		dftManager.addListener(listener) ;
+		return this ;
+	}
+}
