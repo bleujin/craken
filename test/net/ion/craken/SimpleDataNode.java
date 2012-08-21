@@ -6,8 +6,6 @@ import java.util.Map;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
 
-import sun.swing.StringUIClientPropertyKey;
-
 public class SimpleDataNode implements DataNode{
 
 	private static final long serialVersionUID = 3645106091930569034L;

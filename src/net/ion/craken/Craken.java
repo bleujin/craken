@@ -1,6 +1,5 @@
 package net.ion.craken;
 
-import net.ion.craken.TestCreate.LegListener;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
@@ -41,7 +40,7 @@ public class Craken {
 			return this ;
 		}
 		this.dftManager = new DefaultCacheManager(globalBuilder.build(), defaultConf.build(), true) ;
-		dftManager.start();
+		dftManager.start() ;
 		this.started = true ;
 		return this ;
 	}
@@ -54,7 +53,7 @@ public class Craken {
 	}
 
 	public CrakenLeg findLeg(String legname) {
-		 Cache<NodeKey, DataNode> cache = dftManager.getCache(legname);
+		Cache<NodeKey, DataNode> cache = dftManager.getCache(legname);
 		return CrakenLeg.create(cache);
 	}
 

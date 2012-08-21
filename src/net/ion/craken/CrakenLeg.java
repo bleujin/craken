@@ -28,8 +28,6 @@ public class CrakenLeg {
 	}
 
 	public Set<NodeKey> keySet() {
-		
-		
 		return cache.keySet() ;
 	}
 

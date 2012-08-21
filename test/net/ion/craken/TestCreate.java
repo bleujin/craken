@@ -1,5 +1,6 @@
 package net.ion.craken;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.RandomUtil;
 
@@ -16,9 +17,6 @@ import org.infinispan.notifications.cachemanagerlistener.annotation.ViewChanged;
 import org.infinispan.notifications.cachemanagerlistener.event.CacheStartedEvent;
 import org.infinispan.notifications.cachemanagerlistener.event.CacheStoppedEvent;
 import org.infinispan.notifications.cachemanagerlistener.event.ViewChangedEvent;
-import org.infinispan.remoting.transport.Address;
-
-import junit.framework.TestCase;
 
 public class TestCreate extends TestCase{
 
@@ -35,8 +33,6 @@ public class TestCreate extends TestCase{
 	
 	public void testCreate() throws Exception {
 		craken.globalConfig().transport().clusterName("my-cluster").addProperty("configurationFile", "resource/config/jgroups-udp.xml") ;
-		craken.defineDefault().clustering().cacheMode(CacheMode.DIST_SYNC).jmxStatistics().enable().clustering().invocationBatching().clustering().hash().numOwners(2) ;
-		
 		craken.start() ;
 
 		craken.defineLeg("servers",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
@@ -51,8 +47,6 @@ public class TestCreate extends TestCase{
 			Thread.sleep(1000) ;
 		}
 	}
-	
-	
 	
 	@Listener
 	public class LegListener {
@@ -80,7 +74,7 @@ public class TestCreate extends TestCase{
 		}
 
 		@CacheEntryCreated
-		public void cacheEntryCreated(CacheEntryCreatedEvent e) {
+		public void cacheEntryCreated(CacheEntryCreatedEvent<NodeKey, DataNode> e) {
 			// if (!e.isPre()) Debug.line(e.getKey()) ;
 		}
 
