@@ -43,7 +43,6 @@ public class TestAradonContext extends TestCase {
 	public void testLoad() throws Exception {
 		Aradon aradon = Aradon.create() ;
 		dftManager.getCache("myjob").addListener(new SampleListener()) ;
-		dftManager.addListener(new SampleListener()) ;
 		aradon.getConfig().attributes().put("dftmanager", InstanceAttributeValue.create(dftManager)) ;
 		
 		aradon.startServer(9000) ;

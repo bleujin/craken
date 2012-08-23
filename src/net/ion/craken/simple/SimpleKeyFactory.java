@@ -4,7 +4,7 @@ import net.ion.craken.NodeKey;
 
 public class SimpleKeyFactory {
 
-	public static NodeKey create(Object genKey) {
+	public static EmanonKey create(Object genKey) {
 		return new EmanonKey(genKey);
 	}
 

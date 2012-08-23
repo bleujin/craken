@@ -35,6 +35,8 @@ public class Craken {
 	}
 
 	public Craken start() {
+		Debug.warn("craken starting") ;
+		
 		if (started) {
 			Debug.warn("already started") ;
 			return this ;
@@ -42,6 +44,7 @@ public class Craken {
 		this.dftManager = new DefaultCacheManager(globalBuilder.build(), defaultConf.build(), true) ;
 		dftManager.start() ;
 		this.started = true ;
+		
 		return this ;
 	}
 	
@@ -56,6 +59,7 @@ public class Craken {
 	}
 
 	public Craken stop() {
+		Debug.warn("craken stopped") ;
 		if (dftManager == null) return this ;
 		dftManager.stop() ;
 		return this ;

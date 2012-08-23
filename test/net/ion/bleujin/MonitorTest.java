@@ -61,13 +61,34 @@ public class MonitorTest extends TestCase {
 		cache.put("key3", RandomUtil.nextRandomString(10)) ;
 		
 		cache.addListener(new DebugListener()) ;
+		new InfinityThread().startNJoin();
+
+//		new Thread() {
+//			public void run() {
+//				try {
+//					int i = 1 ;
+//					while (true) {
+//						Thread.sleep(1000);
+//						System.out.print(".") ;
+//						cache.remove("key" + RandomUtil.nextInt(10)) ;
+//					}
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}.start();
+//
+//		new InfinityThread().startNJoin();
+	}
+	
+	public void testRunForOther() throws Exception {
+		final Cache<Object, Object> cache = dftManager.getCache();
 
 		new Thread() {
 			public void run() {
 				try {
 					int i = 1 ;
 					while (true) {
-//						cache.put("key" + i++ , RandomUtil.nextRandomString(10)) ;
 						Thread.sleep(1000);
 						System.out.print(".") ;
 						cache.remove("key" + RandomUtil.nextInt(10)) ;
@@ -80,6 +101,7 @@ public class MonitorTest extends TestCase {
 
 		new InfinityThread().startNJoin();
 	}
+	
 	
 	@Listener
 	public class DebugListener {

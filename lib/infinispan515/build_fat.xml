@@ -24,7 +24,7 @@
 	<target name="infinispan_fat">
 		<delete file="${targetDir}/infinispan_fat.jar"></delete>
         <fatjar.build output="${targetDir}/infinispan_fat.jar">
-            <fatjar.manifest/>
+            <fatjar.manifest mergemanifests="no"/>
 
             <!-- core -->
             <fatjar.jarsource file="${basedir}\infinispan-cachestore-remote.jar" relpath=""/>

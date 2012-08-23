@@ -28,8 +28,6 @@ public class TestCreate extends TestCase{
 	
 	protected void setUp() throws Exception {
 		this.craken = Craken.create();
-		craken.globalConfig().transport().clusterName("my-cluster").addProperty("configurationFile", "resource/config/jgroups-udp.xml") ;
-		craken.start() ;
 	}
 	
 	protected void tearDown() throws Exception {
@@ -37,10 +35,13 @@ public class TestCreate extends TestCase{
 	}
 	
 	public void testCreate() throws Exception {
+		craken.globalConfig().transport().clusterName("my-cluster").addProperty("configurationFile", "resource/config/jgroups-udp.xml") ;
+		craken.start() ;
 		LegContainer<SimpleMapNode> container = craken.defineLeg(SimpleMapNode.class,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
 		craken.addListener(new ContainerListener()) ;
+		
 
-		container.addListener(new EntryListener()) ;
+		// container.addListener(new EntryListener()) ;
 
 		while(true){
 			SimpleMapNode node = container.newInstance("bleujin" + RandomUtil.nextInt(10)).put("age", RandomUtil.nextInt(100)).put("server", craken.getManager().getAddress().toString());
