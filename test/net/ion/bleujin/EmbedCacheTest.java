@@ -48,7 +48,17 @@ public class EmbedCacheTest extends TestCase {
 		Cache<String, Object> cache = dftManager.getCache("workspace");
 		cache.put("key", "bleujin");
 		assertEquals("bleujin", cache.get("key"));
+		while(true){
+			Thread.sleep(1000);
+		}
 	}
+	
+	public void xtestConfirm() throws Exception {
+		Cache<String, Object> cache = dftManager.getCache("workspace");
+		Debug.line(cache.keySet()) ;
+	}
+	
+	
 
 	public void testFileCache() throws Exception {
 		Configuration fileCache = new ConfigurationBuilder().loaders().
