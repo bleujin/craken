@@ -6,10 +6,8 @@ import junit.framework.TestCase;
 import net.ion.craken.simple.SimpleMapNode;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.RandomUtil;
 
-import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.notifications.Listener;
@@ -42,7 +40,6 @@ public class TestCreate extends TestCase{
 		LegContainer<SimpleMapNode> container = craken.defineLeg(SimpleMapNode.class,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
 		craken.addListener(new ContainerListener()) ;
 
-		
 		container.addListener(new EntryListener()) ;
 
 		while(true){
