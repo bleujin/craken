@@ -19,15 +19,15 @@ import org.infinispan.Cache;
 
 public class LegContainer<E extends AbstractEntry> {
 
-	private final Cache<NodeKey, E> cache;
+	private final Cache<EntryKey, E> cache;
 	private Class<? extends AbstractEntry> clz;
 
-	private LegContainer(Cache<NodeKey, E> cache, Class<? extends AbstractEntry> clz) {
+	private LegContainer(Cache<EntryKey, E> cache, Class<? extends AbstractEntry> clz) {
 		this.cache = cache;
 		this.clz = clz;
 	}
 
-	static <E extends AbstractEntry> LegContainer<E> create(Cache<NodeKey, E> cache, Class<? extends AbstractEntry> clz) {
+	static <E extends AbstractEntry> LegContainer<E> create(Cache<EntryKey, E> cache, Class<? extends AbstractEntry> clz) {
 		return new LegContainer<E>(cache, clz);
 	}
 
@@ -41,11 +41,11 @@ public class LegContainer<E extends AbstractEntry> {
 		return this;
 	}
 
-	public Set<NodeKey> keySet() {
+	public Set<EntryKey> keySet() {
 		return cache.keySet();
 	}
 	
-	public Set<Entry<NodeKey, E>> entrySet(){
+	public Set<Entry<EntryKey, E>> entrySet(){
 		return cache.entrySet() ;
 	}
 
@@ -65,7 +65,7 @@ public class LegContainer<E extends AbstractEntry> {
 	}
 
 	public E findByKey(Object key) {
-		if (key instanceof NodeKey) {
+		if (key instanceof EntryKey) {
 			E result = cache.get(key);
 			if (result == null) return null ;
 			result.setContainer(this);
@@ -76,7 +76,7 @@ public class LegContainer<E extends AbstractEntry> {
 	}
 
 	public E findOne(EntryFilter<E> entryFilter) {
-		for (NodeKey key : keySet()) {
+		for (EntryKey key : keySet()) {
 			E entry = cache.get(key);
 			if (entryFilter.filter(entry)) {
 				return entry ;
@@ -93,7 +93,7 @@ public class LegContainer<E extends AbstractEntry> {
 		List<E> result = ListUtil.newList() ;
 		
 		int foundCount = 0 ;
-		for (NodeKey key : keySet()) {
+		for (EntryKey key : keySet()) {
 			E entry = cache.get(key);
 			if (! entryFilter.filter(entry)) continue ;
 			foundCount++ ;
@@ -113,13 +113,13 @@ public class LegContainer<E extends AbstractEntry> {
 	public List<E> findAll() {
 		List<E> result = ListUtil.newList() ;
 		
-		for (NodeKey key : keySet()) {
+		for (EntryKey key : keySet()) {
 			result.add(cache.get(key)) ;
 		}
 		return result ;
 	}
 
-	public E remove(NodeKey key) {
+	public E remove(EntryKey key) {
 		return cache.remove(key) ;
 	}
 

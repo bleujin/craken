@@ -1,6 +1,5 @@
 package net.ion.craken;
 
-import net.ion.craken.TestCacheListener.ServerListener;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 
@@ -11,12 +10,6 @@ import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryCreatedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
-import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStarted;
-import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStopped;
-import org.infinispan.notifications.cachemanagerlistener.annotation.ViewChanged;
-import org.infinispan.notifications.cachemanagerlistener.event.CacheStartedEvent;
-import org.infinispan.notifications.cachemanagerlistener.event.CacheStoppedEvent;
-import org.infinispan.notifications.cachemanagerlistener.event.ViewChangedEvent;
 
 public class TestEntryListener extends TestBase{
 
@@ -39,7 +32,6 @@ public class TestEntryListener extends TestBase{
 		
 		assertEquals(30, emps.findByKey(7756).age()) ;
 		
-		
 		new InfinityThread().startNJoin() ;
 	}
 	
@@ -48,16 +40,16 @@ public class TestEntryListener extends TestBase{
 	public class EntryListener{
 		
 		@CacheEntryCreated
-		public void entryCreated(CacheEntryCreatedEvent<NodeKey, Employee> e){
+		public void entryCreated(CacheEntryCreatedEvent<EntryKey, Employee> e){
 		} 
 		
 		@CacheEntryModified
-		public void entryModified(CacheEntryModifiedEvent<NodeKey, Employee> e){
+		public void entryModified(CacheEntryModifiedEvent<EntryKey, Employee> e){
 			if (! e.isPre()) Debug.line(e.getValue(), "Modified") ;
 		}
 		
 		@CacheEntryRemoved
-		public void entryRemoved(CacheEntryRemovedEvent<NodeKey, Employee> e){
+		public void entryRemoved(CacheEntryRemovedEvent<EntryKey, Employee> e){
 			Debug.line(e.getValue(), "Removed") ;
 		}
 	}

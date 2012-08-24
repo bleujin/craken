@@ -64,7 +64,7 @@ public class TestFirst extends TestCase{
 
 class Employee extends AbstractEntry<Employee> {
 
-	private NodeKey empNo ;
+	private EntryKey empNo ;
 	private int age;
 	private String name;
 	private String[] colors = new String[0];
@@ -74,7 +74,7 @@ class Employee extends AbstractEntry<Employee> {
 	}
 	
 	@Override
-	public NodeKey key() {
+	public EntryKey key() {
 		return empNo;
 	}
 	

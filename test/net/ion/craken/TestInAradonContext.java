@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 
 public class TestInAradonContext extends TestCase {
 
-	
+	// start at first compouter
 	public void testStart1() throws Exception {
 		Aradon aradon = Aradon.create() ;
 		aradon.attach(SectionConfiguration.createBlank("")).attach(PathConfiguration.create("share", "/share", ShareLet.class)) ;
@@ -40,6 +40,7 @@ public class TestInAradonContext extends TestCase {
 		new InfinityThread().startNJoin() ;
 	}
 	
+	// start at another computer
 	public void testStart2() throws Exception {
 		Aradon aradon = Aradon.create() ;
 		aradon.attach(SectionConfiguration.createBlank("")).attach(PathConfiguration.create("share", "/share", ShareLet.class)) ;

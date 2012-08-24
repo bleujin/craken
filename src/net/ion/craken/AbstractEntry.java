@@ -12,7 +12,7 @@ public abstract class AbstractEntry<T extends AbstractEntry> implements Serializ
 		this.container = container ;
 	}
 	
-	public abstract NodeKey key() ;
+	public abstract EntryKey key() ;
 //	public abstract DataNode put(String id, Serializable value) ;
 //	public abstract Serializable getValue(String id);
 	public final T save(){

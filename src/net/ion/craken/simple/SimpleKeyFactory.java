@@ -1,6 +1,6 @@
 package net.ion.craken.simple;
 
-import net.ion.craken.NodeKey;
+import net.ion.craken.EntryKey;
 
 public class SimpleKeyFactory {
 
@@ -10,7 +10,7 @@ public class SimpleKeyFactory {
 
 }
 
-class EmanonKey implements NodeKey {
+class EmanonKey implements EntryKey {
 	
 	private static final long serialVersionUID = -9184615641395191371L;
 	private Object key ;

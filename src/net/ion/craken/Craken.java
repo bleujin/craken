@@ -54,7 +54,7 @@ public class Craken {
 	}
 
 	public <T extends AbstractEntry> LegContainer<T> defineLeg(Class<? extends AbstractEntry> clz) {
-		Cache<NodeKey, T> cache = dftManager.getCache(clz.getCanonicalName());
+		Cache<EntryKey, T> cache = dftManager.getCache(clz.getCanonicalName());
 		cache.start() ;
 		return LegContainer.create(cache, clz);
 	}

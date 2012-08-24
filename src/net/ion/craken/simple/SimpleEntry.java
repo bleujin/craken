@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import net.ion.craken.AbstractEntry;
-import net.ion.craken.NodeKey;
+import net.ion.craken.EntryKey;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
 
@@ -12,7 +12,7 @@ public class SimpleEntry extends AbstractEntry{
 
 	private static final long serialVersionUID = 3645106091930569034L;
 
-	private final NodeKey skey ;
+	private final EntryKey skey ;
 	private final Map<String, Serializable> data = MapUtil.newCaseInsensitiveMap() ;
 	
 	private SimpleEntry(Object id) {
@@ -20,7 +20,7 @@ public class SimpleEntry extends AbstractEntry{
 	}
 
 	@Override
-	public NodeKey key() {
+	public EntryKey key() {
 		return skey;
 	}
 

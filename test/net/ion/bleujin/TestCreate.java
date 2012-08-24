@@ -7,7 +7,7 @@ import net.ion.craken.AbstractEntry;
 import net.ion.craken.Craken;
 import net.ion.craken.LegContainer;
 import net.ion.craken.EntryFilter;
-import net.ion.craken.NodeKey;
+import net.ion.craken.EntryKey;
 import net.ion.craken.simple.SimpleKeyFactory;
 import net.ion.craken.simple.SimpleEntry;
 import net.ion.framework.db.Page;
@@ -72,7 +72,7 @@ public class TestCreate extends TestCase{
 	public void testConfirmEmp() throws Exception {
 		LegContainer<EmpEntry> container = craken.defineLeg(EmpEntry.class) ;
 		
-		for (NodeKey key : container.keySet()){
+		for (EntryKey key : container.keySet()){
 			Debug.line(container.findByKey(key)) ;
 		}
 	}
@@ -166,12 +166,12 @@ public class TestCreate extends TestCase{
 		}
 
 		@CacheEntryCreated
-		public void cacheEntryCreated(CacheEntryCreatedEvent<NodeKey, AbstractEntry> e) {
+		public void cacheEntryCreated(CacheEntryCreatedEvent<EntryKey, AbstractEntry> e) {
 			// if (!e.isPre()) Debug.line(e.getKey()) ;
 		}
 
 		@CacheEntryModified
-		public void cacheEntryModified(CacheEntryModifiedEvent<NodeKey, AbstractEntry> e) {
+		public void cacheEntryModified(CacheEntryModifiedEvent<EntryKey, AbstractEntry> e) {
 			if (!e.isPre()) Debug.line(e.getKey(), e.getValue()) ;
 		}
 	}
@@ -193,7 +193,7 @@ class EmpEntry extends AbstractEntry {
 	}
 	
 	@Override
-	public NodeKey key() {
+	public EntryKey key() {
 		return SimpleKeyFactory.create(empNo);
 	}
 
