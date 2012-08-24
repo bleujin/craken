@@ -2,12 +2,16 @@ package net.ion.craken;
 
 import java.util.List;
 
+import org.infinispan.util.InfinispanCollections;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import net.ion.craken.aradon.CrakenEntry;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.InfinityThread;
 import net.ion.radon.client.AradonClient;
 import net.ion.radon.client.AradonClientFactory;
 import net.ion.radon.core.Aradon;
@@ -23,14 +27,34 @@ public class TestInAradonContext extends TestCase {
 	public void testStart1() throws Exception {
 		Aradon aradon = Aradon.create() ;
 		aradon.attach(SectionConfiguration.createBlank("")).attach(PathConfiguration.create("share", "/share", ShareLet.class)) ;
-		aradon.getConfig().attributes().put(CrakenEntry.class.getCanonicalName(), InstanceAttributeValue.create(CrakenEntry.test())) ;
+		aradon.getServiceContext().putAttribute(CrakenEntry.class.getCanonicalName(), InstanceAttributeValue.create(CrakenEntry.test())) ;
 		aradon.start() ;
 		
 		AradonClient ac = AradonClientFactory.create(aradon) ;
 		ac.createRequest("/share").addParameter("empno", "1000").addParameter("name", "bleujin").addParameter("age", "20").post() ;
 		
+		String text = ac.createRequest("/share").get().getText() ;
+		JsonObject jso = JsonParser.fromString(text).getAsJsonArray().get(0).getAsJsonObject() ;
 		
+		assertEquals("bleujin", jso.asString("name")) ;
+		new InfinityThread().startNJoin() ;
 	}
+	
+	public void testStart2() throws Exception {
+		Aradon aradon = Aradon.create() ;
+		aradon.attach(SectionConfiguration.createBlank("")).attach(PathConfiguration.create("share", "/share", ShareLet.class)) ;
+		aradon.getServiceContext().putAttribute(CrakenEntry.class.getCanonicalName(), InstanceAttributeValue.create(CrakenEntry.test())) ;
+		aradon.start() ;
+		
+		AradonClient ac = AradonClientFactory.create(aradon) ;
+		String text = ac.createRequest("/share").get().getText() ;
+		JsonObject jso = JsonParser.fromString(text).getAsJsonArray().get(0).getAsJsonObject() ;
+		
+		assertEquals("bleujin", jso.asString("name")) ;
+	}
+	
+	
+	
 }
 
 
@@ -46,6 +70,9 @@ class ShareLet extends AbstractServerResource {
 	
 	@Post
 	public String addEmployee() throws Exception{
+		
+		Debug.line(getContext().getAttributes()) ;
+		
 		CrakenEntry entry = getContext().getAttributeObject(CrakenEntry.class.getCanonicalName(), CrakenEntry.class) ;
 		LegContainer<Employee> leg = entry.getCraken().defineLeg(Employee.class);
 
