@@ -7,7 +7,9 @@
 	<classpathentry kind="lib" path="lib/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.4.6.Final.jar"/>
 	<classpathentry kind="lib" path="lib/infinispan_fat.jar"/>
+	<classpathentry kind="lib" path="lib/aradon_0.8.jar"/>
+	<classpathentry kind="lib" path="lib/rest_fat.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Aradon"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

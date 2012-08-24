@@ -15,8 +15,9 @@ public abstract class AbstractEntry<T extends AbstractEntry> implements Serializ
 	public abstract NodeKey key() ;
 //	public abstract DataNode put(String id, Serializable value) ;
 //	public abstract Serializable getValue(String id);
-	public final void save(){
+	public final T save(){
 		container.putNode(this) ;
+		return (T) this ;
 	}
 	
 

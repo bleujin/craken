@@ -62,9 +62,6 @@ public class TestAradonContext extends TestCase {
 	
 	
 	
-
-	
-	
 	
 	@Listener
 	public class SampleListener {
