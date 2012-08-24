@@ -1,9 +1,15 @@
-package net.ion.craken;
+package net.ion.bleujin;
 
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.simple.SimpleMapNode;
+import net.ion.craken.AbstractEntry;
+import net.ion.craken.Craken;
+import net.ion.craken.LegContainer;
+import net.ion.craken.EntryFilter;
+import net.ion.craken.NodeKey;
+import net.ion.craken.simple.SimpleKeyFactory;
+import net.ion.craken.simple.SimpleEntry;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.RandomUtil;
@@ -37,14 +43,14 @@ public class TestCreate extends TestCase{
 	public void testCreate() throws Exception {
 		craken.globalConfig().transport().clusterName("my-cluster").addProperty("configurationFile", "resource/config/jgroups-udp.xml") ;
 		craken.start() ;
-		LegContainer<SimpleMapNode> container = craken.defineLeg(SimpleMapNode.class,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
+		LegContainer<SimpleEntry> container = craken.defineLeg(SimpleEntry.class,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
 		craken.addListener(new ContainerListener()) ;
 		
 
 		// container.addListener(new EntryListener()) ;
 
 		while(true){
-			SimpleMapNode node = container.newInstance("bleujin" + RandomUtil.nextInt(10)).put("age", RandomUtil.nextInt(100)).put("server", craken.getManager().getAddress().toString());
+			SimpleEntry node = container.newInstance("bleujin" + RandomUtil.nextInt(10)).put("age", RandomUtil.nextInt(100)).put("server", craken.getManager().getAddress().toString());
 			node.save() ;
 			Thread.sleep(1000) ;
 		}
@@ -52,10 +58,10 @@ public class TestCreate extends TestCase{
 	
 	
 	public void testEmpNode() throws Exception {
-		LegContainer<EmpNode> container = craken.defineLeg(EmpNode.class,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
+		LegContainer<EmpEntry> container = craken.defineLeg(EmpEntry.class,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().invocationBatching().build()) ;
 //		container.addListener(new EntryListener()) ;
 		
-		EmpNode emp = container.newInstance("7789") ;
+		EmpEntry emp = container.newInstance("7789") ;
 		emp.name("bleujin").age(20) ;
 		emp.save() ;
 		
@@ -64,7 +70,7 @@ public class TestCreate extends TestCase{
 	
 	
 	public void testConfirmEmp() throws Exception {
-		LegContainer<EmpNode> container = craken.findLeg(EmpNode.class) ;
+		LegContainer<EmpEntry> container = craken.defineLeg(EmpEntry.class) ;
 		
 		for (NodeKey key : container.keySet()){
 			Debug.line(container.findByKey(key)) ;
@@ -73,29 +79,29 @@ public class TestCreate extends TestCase{
 	
 	
 	public void testRET() throws Exception {
-		LegContainer<SimpleMapNode> container = craken.findLeg(SimpleMapNode.class) ;
+		LegContainer<SimpleEntry> container = craken.defineLeg(SimpleEntry.class) ;
 		
 		container.newInstance("bleujin").put("name", "bleujin").put("age", 20).save() ;
 		container.newInstance(7756).put("name", "hero").put("age", 364).save() ;
 		
 		
-		SimpleMapNode bleujin = container.findByKey("bleujin") ;
+		SimpleEntry bleujin = container.findByKey("bleujin") ;
 		Debug.line(bleujin.field("age"), bleujin.fieldAsInt("age") + 1, bleujin.fieldAsString("name")) ;
 
-		SimpleMapNode f7756 = container.findByKey(7756) ;
+		SimpleEntry f7756 = container.findByKey(7756) ;
 		Debug.line(f7756.field("age"), f7756.fieldAsInt("age") + 1, f7756.fieldAsString("name")) ;
 
 	}
 	
 	
 	public void testFindOne() throws Exception {
-		LegContainer<SimpleMapNode> container = craken.findLeg(SimpleMapNode.class) ;
+		LegContainer<SimpleEntry> container = craken.defineLeg(SimpleEntry.class) ;
 		
 		container.newInstance("bleujin").put("name", "bleujin").put("age", 20).save() ;
 		container.newInstance(7756).put("name", "hero").put("age", 364).save() ;
 
-		SimpleMapNode found = container.findOne(new NodeFilter<SimpleMapNode>(){
-			public boolean filter(SimpleMapNode node){
+		SimpleEntry found = container.findOne(new EntryFilter<SimpleEntry>(){
+			public boolean filter(SimpleEntry node){
 				return node.fieldAsInt("age") > 100;
 			}
 		}) ;
@@ -105,22 +111,22 @@ public class TestCreate extends TestCase{
 	
 	
 	public void testFind() throws Exception {
-		LegContainer<SimpleMapNode> container = craken.findLeg(SimpleMapNode.class) ;
+		LegContainer<SimpleEntry> container = craken.defineLeg(SimpleEntry.class) ;
 		
 		for (int i = 0; i < 15 ; i++) {
 			container.newInstance("user" + i).put("index", i).save() ;
 		}
 
-		List<SimpleMapNode> found = container.find(new NodeFilter<SimpleMapNode>(){
-			public boolean filter(SimpleMapNode node){
+		List<SimpleEntry> found = container.find(new EntryFilter<SimpleEntry>(){
+			public boolean filter(SimpleEntry node){
 				return node.fieldAsInt("index") < 5;
 			}
 		}) ;
 		
 		assertEquals(5, found.size()) ;
 
-		List<SimpleMapNode> foundPage = container.find(new NodeFilter<SimpleMapNode>(){
-			public boolean filter(SimpleMapNode node){
+		List<SimpleEntry> foundPage = container.find(new EntryFilter<SimpleEntry>(){
+			public boolean filter(SimpleEntry node){
 				return node.fieldAsInt("index") < 5;
 			}
 		}, Page.create(2, 2)) ;
@@ -160,15 +166,50 @@ public class TestCreate extends TestCase{
 		}
 
 		@CacheEntryCreated
-		public void cacheEntryCreated(CacheEntryCreatedEvent<NodeKey, AbstractNode> e) {
+		public void cacheEntryCreated(CacheEntryCreatedEvent<NodeKey, AbstractEntry> e) {
 			// if (!e.isPre()) Debug.line(e.getKey()) ;
 		}
 
 		@CacheEntryModified
-		public void cacheEntryModified(CacheEntryModifiedEvent<NodeKey, AbstractNode> e) {
+		public void cacheEntryModified(CacheEntryModifiedEvent<NodeKey, AbstractEntry> e) {
 			if (!e.isPre()) Debug.line(e.getKey(), e.getValue()) ;
 		}
 	}
 	
 	
 }
+
+
+class EmpEntry extends AbstractEntry {
+
+	private static final long serialVersionUID = 5166614064200120569L;
+	private final String empNo ;
+	
+	private int age;
+	private String name;
+	
+	private EmpEntry(String empNo){
+		this.empNo = empNo ;
+	}
+	
+	@Override
+	public NodeKey key() {
+		return SimpleKeyFactory.create(empNo);
+	}
+
+	public EmpEntry name(String name) {
+		this.name = name ;
+		return this;
+	}
+
+	public EmpEntry age(int age) {
+		this.age = age ;
+		return this;
+	}
+
+	public String name() {
+		return name ;
+	}
+	
+}
+

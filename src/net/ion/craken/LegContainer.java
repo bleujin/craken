@@ -8,26 +8,26 @@ import java.util.Map.Entry;
 
 import javax.swing.plaf.ListUI;
 
-import net.ion.craken.TestCreate.EntryListener;
+import net.ion.bleujin.TestCreate.EntryListener;
 import net.ion.craken.simple.SimpleKeyFactory;
-import net.ion.craken.simple.SimpleMapNode;
+import net.ion.craken.simple.SimpleEntry;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 import org.infinispan.Cache;
 
-public class LegContainer<E extends AbstractNode> {
+public class LegContainer<E extends AbstractEntry> {
 
 	private final Cache<NodeKey, E> cache;
-	private Class<? extends AbstractNode> clz;
+	private Class<? extends AbstractEntry> clz;
 
-	private LegContainer(Cache<NodeKey, E> cache, Class<? extends AbstractNode> clz) {
+	private LegContainer(Cache<NodeKey, E> cache, Class<? extends AbstractEntry> clz) {
 		this.cache = cache;
 		this.clz = clz;
 	}
 
-	static <E extends AbstractNode> LegContainer<E> create(Cache<NodeKey, E> cache, Class<? extends AbstractNode> clz) {
+	static <E extends AbstractEntry> LegContainer<E> create(Cache<NodeKey, E> cache, Class<? extends AbstractEntry> clz) {
 		return new LegContainer<E>(cache, clz);
 	}
 
@@ -50,7 +50,7 @@ public class LegContainer<E extends AbstractNode> {
 	}
 
 	public E newInstance(Object keyInstance) throws InstantiationException, IllegalAccessException, IllegalArgumentException, SecurityException, InvocationTargetException, NoSuchMethodException {
-		Constructor<? extends AbstractNode> con = null;
+		Constructor<? extends AbstractEntry> con = null;
 		try {
 			con = clz.getDeclaredConstructor(keyInstance.getClass());
 		} catch(NoSuchMethodException ex){
@@ -75,27 +75,27 @@ public class LegContainer<E extends AbstractNode> {
 		}
 	}
 
-	public E findOne(NodeFilter<E> nodeFilter) {
+	public E findOne(EntryFilter<E> entryFilter) {
 		for (NodeKey key : keySet()) {
-			E node = cache.get(key);
-			if (nodeFilter.filter(node)) {
-				return node ;
+			E entry = cache.get(key);
+			if (entryFilter.filter(entry)) {
+				return entry ;
 			}
 		}
 		
 		return null ;
 	}
 
-	public List<E> find(NodeFilter<E> nodeFilter) {
-		return find(nodeFilter, Page.HUNDRED) ;
+	public List<E> find(EntryFilter<E> entryFilter) {
+		return find(entryFilter, Page.HUNDRED) ;
 	}
-	public List<E> find(NodeFilter<E> nodeFilter, Page page) {
+	public List<E> find(EntryFilter<E> entryFilter, Page page) {
 		List<E> result = ListUtil.newList() ;
 		
 		int foundCount = 0 ;
 		for (NodeKey key : keySet()) {
-			E node = cache.get(key);
-			if (! nodeFilter.filter(node)) continue ;
+			E entry = cache.get(key);
+			if (! entryFilter.filter(entry)) continue ;
 			foundCount++ ;
 			if (foundCount <= page.getStartLoc()) {
 				continue ;
@@ -104,10 +104,23 @@ public class LegContainer<E extends AbstractNode> {
 			if (foundCount > page.getEndLoc()){
 				break ;
 			}
-			result.add(node) ;
+			result.add(entry) ;
 		}
 		
 		return result ;
+	}
+
+	public List<E> findAll() {
+		List<E> result = ListUtil.newList() ;
+		
+		for (NodeKey key : keySet()) {
+			result.add(cache.get(key)) ;
+		}
+		return result ;
+	}
+
+	public E remove(NodeKey key) {
+		return cache.remove(key) ;
 	}
 
 }

@@ -5,10 +5,10 @@ import java.io.Serializable;
 import org.infinispan.Cache;
 
 
-public abstract class AbstractNode implements Serializable{
+public abstract class AbstractEntry<T extends AbstractEntry> implements Serializable{
 	
 	private transient LegContainer container ;
-	void setContainer(LegContainer container) {
+	void setContainer(LegContainer<T> container) {
 		this.container = container ;
 	}
 	
@@ -18,4 +18,10 @@ public abstract class AbstractNode implements Serializable{
 	public final void save(){
 		container.putNode(this) ;
 	}
+	
+
+	public final T remove() {
+		return (T) container.remove(this.key()) ;
+	}
+
 }

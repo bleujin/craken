@@ -48,13 +48,14 @@ public class Craken {
 		return this ;
 	}
 	
-	public <T extends AbstractNode> LegContainer<T> defineLeg(Class<? extends AbstractNode> clz, Configuration confOverride){
+	public <T extends AbstractEntry> LegContainer<T> defineLeg(Class<? extends AbstractEntry> clz, Configuration confOverride){
 		dftManager.defineConfiguration(clz.getCanonicalName(), confOverride) ;
-		return findLeg(clz) ;
+		return defineLeg(clz) ;
 	}
 
-	public <T extends AbstractNode> LegContainer<T> findLeg(Class<? extends AbstractNode> clz) {
+	public <T extends AbstractEntry> LegContainer<T> defineLeg(Class<? extends AbstractEntry> clz) {
 		Cache<NodeKey, T> cache = dftManager.getCache(clz.getCanonicalName());
+		cache.start() ;
 		return LegContainer.create(cache, clz);
 	}
 
@@ -65,7 +66,7 @@ public class Craken {
 		return this ;
 	}
 	
-	DefaultCacheManager getManager(){
+	public DefaultCacheManager getManager(){
 		return dftManager ;
 	}
 

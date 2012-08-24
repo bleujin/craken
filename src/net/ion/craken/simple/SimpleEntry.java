@@ -3,19 +3,19 @@ package net.ion.craken.simple;
 import java.io.Serializable;
 import java.util.Map;
 
-import net.ion.craken.AbstractNode;
+import net.ion.craken.AbstractEntry;
 import net.ion.craken.NodeKey;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
 
-public class SimpleMapNode extends AbstractNode{
+public class SimpleEntry extends AbstractEntry{
 
 	private static final long serialVersionUID = 3645106091930569034L;
 
 	private final NodeKey skey ;
 	private final Map<String, Serializable> data = MapUtil.newCaseInsensitiveMap() ;
 	
-	private SimpleMapNode(Object id) {
+	private SimpleEntry(Object id) {
 		this.skey = SimpleKeyFactory.create(id) ;
 	}
 
@@ -24,7 +24,7 @@ public class SimpleMapNode extends AbstractNode{
 		return skey;
 	}
 
-	public SimpleMapNode put(String pid, Serializable value) {
+	public SimpleEntry put(String pid, Serializable value) {
 		data.put(pid, value) ;
 		return this;
 	}
