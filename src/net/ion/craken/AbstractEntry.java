@@ -5,24 +5,24 @@ import java.io.Serializable;
 import org.infinispan.Cache;
 
 
-public abstract class AbstractEntry<T extends AbstractEntry> implements Serializable{
+public abstract class AbstractEntry<E extends AbstractEntry> implements Serializable{
 	
 	private transient LegContainer container ;
-	void setContainer(LegContainer<T> container) {
+	void setContainer(LegContainer<E> container) {
 		this.container = container ;
 	}
 	
 	public abstract EntryKey key() ;
 //	public abstract DataNode put(String id, Serializable value) ;
 //	public abstract Serializable getValue(String id);
-	public final T save(){
+	public final E save(){
 		container.putNode(this) ;
-		return (T) this ;
+		return (E) this ;
 	}
 	
 
-	public final T remove() {
-		return (T) container.remove(this.key()) ;
+	public final E remove() {
+		return (E) container.remove(this.key()) ;
 	}
 
 }

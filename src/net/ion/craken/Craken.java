@@ -62,7 +62,7 @@ public class Craken {
 		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
 		return LegContainer.create(cache, clz);
 	}
-
+	
 	public Craken stop() {
 		Debug.warn("craken stopped") ;
 		if (dftManager == null) return this ;

@@ -16,6 +16,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 import org.infinispan.Cache;
+import org.infinispan.configuration.cache.Configuration;
 
 public class LegContainer<E extends AbstractEntry> {
 
@@ -40,6 +41,12 @@ public class LegContainer<E extends AbstractEntry> {
 		cache.addListener(listener);
 		return this;
 	}
+	
+
+	public Configuration getConfig(){
+		return cache.getCacheConfiguration() ;
+	}
+
 
 	public Set<EntryKey> keySet() {
 		return cache.keySet();
