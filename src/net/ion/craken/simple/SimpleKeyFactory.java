@@ -1,5 +1,7 @@
 package net.ion.craken.simple;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import net.ion.craken.EntryKey;
 
 public class SimpleKeyFactory {
@@ -30,5 +32,9 @@ class EmanonKey implements EntryKey {
 	
 	public int hashCode(){
 		return key.hashCode() ;
+	}
+	
+	public String toString(){
+		return ToStringBuilder.reflectionToString(this) ;
 	}
 }

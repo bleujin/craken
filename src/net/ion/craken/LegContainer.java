@@ -20,14 +20,14 @@ import org.infinispan.Cache;
 public class LegContainer<E extends AbstractEntry> {
 
 	private final Cache<EntryKey, E> cache;
-	private Class<? extends AbstractEntry> clz;
+	private Class<E> clz;
 
-	private LegContainer(Cache<EntryKey, E> cache, Class<? extends AbstractEntry> clz) {
+	private LegContainer(Cache<EntryKey, E> cache, Class<E> clz) {
 		this.cache = cache;
 		this.clz = clz;
 	}
 
-	static <E extends AbstractEntry> LegContainer<E> create(Cache<EntryKey, E> cache, Class<? extends AbstractEntry> clz) {
+	static <E extends AbstractEntry> LegContainer<E> create(Cache<EntryKey, E> cache, Class<E> clz) {
 		return new LegContainer<E>(cache, clz);
 	}
 
@@ -44,34 +44,46 @@ public class LegContainer<E extends AbstractEntry> {
 	public Set<EntryKey> keySet() {
 		return cache.keySet();
 	}
-	
-	public Set<Entry<EntryKey, E>> entrySet(){
-		return cache.entrySet() ;
+
+	public Set<Entry<EntryKey, E>> entrySet() {
+		return cache.entrySet();
 	}
 
-	public E newInstance(Object keyInstance) throws InstantiationException, IllegalAccessException, IllegalArgumentException, SecurityException, InvocationTargetException, NoSuchMethodException {
-		Constructor<? extends AbstractEntry> con = null;
+	public E newInstance(Object keyInstance) {
 		try {
-			con = clz.getDeclaredConstructor(keyInstance.getClass());
-		} catch(NoSuchMethodException ex){
-			con =  clz.getDeclaredConstructor(Object.class);
+			Constructor<E> con = null;
+			try {
+				con = clz.getDeclaredConstructor(keyInstance.getClass());
+			} catch (NoSuchMethodException ex) {
+				con = clz.getDeclaredConstructor(Object.class);
+			}
+			con.setAccessible(true);
+
+			E newInstance = (E) con.newInstance(keyInstance);
+			newInstance.setContainer(this);
+			return newInstance;
+		} catch (NoSuchMethodException ex) {
+			throw new IllegalArgumentException(ex);
+		} catch (IllegalArgumentException ex) {
+			throw ex ;
+		} catch (InstantiationException ex) {
+			throw new IllegalArgumentException(ex);
+		} catch (IllegalAccessException ex) {
+			throw new IllegalArgumentException(ex);
+		} catch (InvocationTargetException ex) {
+			throw new IllegalArgumentException(ex);
 		}
-		con.setAccessible(true);
-
-		E newInstance = (E) con.newInstance(keyInstance);
-		newInstance.setContainer(this);
-
-		return newInstance;
 	}
 
 	public E findByKey(Object key) {
 		if (key instanceof EntryKey) {
 			E result = cache.get(key);
-			if (result == null) return null ;
+			if (result == null)
+				return null;
 			result.setContainer(this);
 			return result;
 		} else {
-			return findByKey(SimpleKeyFactory.create(key)) ;
+			return findByKey(SimpleKeyFactory.create(key));
 		}
 	}
 
@@ -79,48 +91,50 @@ public class LegContainer<E extends AbstractEntry> {
 		for (EntryKey key : keySet()) {
 			E entry = cache.get(key);
 			if (entryFilter.filter(entry)) {
-				return entry ;
+				return entry;
 			}
 		}
-		
-		return null ;
+
+		return null;
 	}
 
 	public List<E> find(EntryFilter<E> entryFilter) {
-		return find(entryFilter, Page.HUNDRED) ;
+		return find(entryFilter, Page.HUNDRED);
 	}
+
 	public List<E> find(EntryFilter<E> entryFilter, Page page) {
-		List<E> result = ListUtil.newList() ;
-		
-		int foundCount = 0 ;
+		List<E> result = ListUtil.newList();
+
+		int foundCount = 0;
 		for (EntryKey key : keySet()) {
 			E entry = cache.get(key);
-			if (! entryFilter.filter(entry)) continue ;
-			foundCount++ ;
+			if (!entryFilter.filter(entry))
+				continue;
+			foundCount++;
 			if (foundCount <= page.getStartLoc()) {
-				continue ;
+				continue;
 			}
-			
-			if (foundCount > page.getEndLoc()){
-				break ;
+
+			if (foundCount > page.getEndLoc()) {
+				break;
 			}
-			result.add(entry) ;
+			result.add(entry);
 		}
-		
-		return result ;
+
+		return result;
 	}
 
 	public List<E> findAll() {
-		List<E> result = ListUtil.newList() ;
-		
+		List<E> result = ListUtil.newList();
+
 		for (EntryKey key : keySet()) {
-			result.add(cache.get(key)) ;
+			result.add(cache.get(key));
 		}
-		return result ;
+		return result;
 	}
 
 	public E remove(EntryKey key) {
-		return cache.remove(key) ;
+		return cache.remove(key);
 	}
 
 }

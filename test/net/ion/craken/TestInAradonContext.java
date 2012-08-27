@@ -15,6 +15,7 @@ import net.ion.framework.util.InfinityThread;
 import net.ion.radon.client.AradonClient;
 import net.ion.radon.client.AradonClientFactory;
 import net.ion.radon.core.Aradon;
+import net.ion.radon.core.config.ConnectorConfiguration;
 import net.ion.radon.core.config.InstanceAttributeValue;
 import net.ion.radon.core.config.PathConfiguration;
 import net.ion.radon.core.config.SectionConfiguration;
@@ -28,7 +29,7 @@ public class TestInAradonContext extends TestCase {
 		Aradon aradon = Aradon.create() ;
 		aradon.attach(SectionConfiguration.createBlank("")).attach(PathConfiguration.create("share", "/share", ShareLet.class)) ;
 		aradon.getServiceContext().putAttribute(CrakenEntry.class.getCanonicalName(), InstanceAttributeValue.create(CrakenEntry.test())) ;
-		aradon.start() ;
+		aradon.startServer(ConnectorConfiguration.makeRestletHTTPConfig(9000)) ;
 		
 		AradonClient ac = AradonClientFactory.create(aradon) ;
 		ac.createRequest("/share").addParameter("empno", "1000").addParameter("name", "bleujin").addParameter("age", "20").post() ;
@@ -45,13 +46,14 @@ public class TestInAradonContext extends TestCase {
 		Aradon aradon = Aradon.create() ;
 		aradon.attach(SectionConfiguration.createBlank("")).attach(PathConfiguration.create("share", "/share", ShareLet.class)) ;
 		aradon.getServiceContext().putAttribute(CrakenEntry.class.getCanonicalName(), InstanceAttributeValue.create(CrakenEntry.test())) ;
-		aradon.start() ;
+		aradon.startServer(ConnectorConfiguration.makeRestletHTTPConfig(9100)) ;
 		
 		AradonClient ac = AradonClientFactory.create(aradon) ;
 		String text = ac.createRequest("/share").get().getText() ;
 		JsonObject jso = JsonParser.fromString(text).getAsJsonArray().get(0).getAsJsonObject() ;
 		
 		assertEquals("bleujin", jso.asString("name")) ;
+		new InfinityThread().startNJoin() ;
 	}
 	
 	

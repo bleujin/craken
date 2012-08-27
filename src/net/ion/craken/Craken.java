@@ -15,6 +15,7 @@ public class Craken {
 	private ConfigurationBuilder defaultConf ;
 	private DefaultCacheManager dftManager ;
 	private boolean started = false ;
+	private CrakenInfo myInfo = CrakenInfo.NOT_YET;
 	
 	private Craken(){
 		this.globalBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder() ;
@@ -43,19 +44,22 @@ public class Craken {
 		}
 		this.dftManager = new DefaultCacheManager(globalBuilder.build(), defaultConf.build(), true) ;
 		dftManager.start() ;
+		
+		LegContainer<CrakenInfo> leg = defineLeg(CrakenInfo.class, new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().l1().disable().lifespan(Long.MAX_VALUE).build());
+		this.myInfo = leg.newInstance(dftManager.getAddress().toString()).setManager(dftManager) ;
+		
 		this.started = true ;
 		
 		return this ;
 	}
 	
-	public <T extends AbstractEntry> LegContainer<T> defineLeg(Class<? extends AbstractEntry> clz, Configuration confOverride){
+	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz, Configuration confOverride){
 		dftManager.defineConfiguration(clz.getCanonicalName(), confOverride) ;
 		return defineLeg(clz) ;
 	}
 
-	public <T extends AbstractEntry> LegContainer<T> defineLeg(Class<? extends AbstractEntry> clz) {
-		Cache<EntryKey, T> cache = dftManager.getCache(clz.getCanonicalName());
-		cache.start() ;
+	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz) {
+		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
 		return LegContainer.create(cache, clz);
 	}
 
@@ -73,5 +77,9 @@ public class Craken {
 	public Craken addListener(Object listener) {
 		dftManager.addListener(listener) ;
 		return this ;
+	}
+
+	public CrakenInfo getInfo() {
+		return myInfo ;
 	}
 }
