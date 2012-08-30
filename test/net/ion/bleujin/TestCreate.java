@@ -8,6 +8,7 @@ import net.ion.craken.Craken;
 import net.ion.craken.LegContainer;
 import net.ion.craken.EntryFilter;
 import net.ion.craken.EntryKey;
+import net.ion.craken.simple.EmanonKey;
 import net.ion.craken.simple.SimpleKeyFactory;
 import net.ion.craken.simple.SimpleEntry;
 import net.ion.framework.db.Page;
@@ -194,7 +195,7 @@ class EmpEntry extends AbstractEntry {
 	
 	@Override
 	public EntryKey key() {
-		return SimpleKeyFactory.create(empNo);
+		return EmanonKey.create(empNo);
 	}
 
 	public EmpEntry name(String name) {

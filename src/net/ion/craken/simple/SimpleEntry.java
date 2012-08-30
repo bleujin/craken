@@ -16,7 +16,7 @@ public class SimpleEntry extends AbstractEntry{
 	private final Map<String, Serializable> data = MapUtil.newCaseInsensitiveMap() ;
 	
 	private SimpleEntry(Object id) {
-		this.skey = SimpleKeyFactory.create(id) ;
+		this.skey = EmanonKey.create(id) ;
 	}
 
 	@Override

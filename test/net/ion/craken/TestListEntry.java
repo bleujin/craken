@@ -50,7 +50,7 @@ class EmployeeListEntry extends AbstractEntry<EmployeeListEntry> {
 	private EmanonKey deptId ;
 	private List<Employee> emps = ListUtil.newList();
 	private EmployeeListEntry(String deptId){
-		this.deptId = SimpleKeyFactory.create(deptId) ;
+		this.deptId = EmanonKey.create(deptId) ;
 	}
 	
 	public EmployeeListEntry addEmployee(Employee e){

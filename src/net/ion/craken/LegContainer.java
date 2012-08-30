@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import net.ion.craken.simple.EmanonKey;
 import net.ion.craken.simple.SimpleKeyFactory;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.ListUtil;
@@ -50,11 +51,6 @@ public class LegContainer<E extends AbstractEntry> {
 		return craken ;
 	}
 	
-
-	public Configuration getConfig(){
-		return cache.getCacheConfiguration() ;
-	}
-
 
 	public Set<EntryKey> keySet() {
 		return cache.keySet();
@@ -107,7 +103,7 @@ public class LegContainer<E extends AbstractEntry> {
 		if (key instanceof EntryKey) {
 			return (EntryKey)key ;
 		} else {
-			return SimpleKeyFactory.create(key) ;
+			return EmanonKey.create(key) ;
 		}
 	}
 
@@ -175,6 +171,10 @@ public class LegContainer<E extends AbstractEntry> {
 
 	public E removeByKey(Object key) {
 		return remove(transKey(key)) ;
+	}
+	
+	public Configuration getCacheConfiguration(){
+		return cache.getCacheConfiguration() ;
 	}
 
 }

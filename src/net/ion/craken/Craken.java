@@ -1,6 +1,9 @@
 package net.ion.craken;
 
+import java.util.Map;
+
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.MapUtil;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -16,6 +19,10 @@ public class Craken {
 	private DefaultCacheManager dftManager ;
 	private boolean started = false ;
 	private CrakenInfo myInfo = CrakenInfo.NOT_YET;
+	
+	private Map<String, Configuration> preDefinedConfig = MapUtil.newSyncMap();
+	
+	
 	
 	private Craken(){
 		this.globalBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder() ;
@@ -55,18 +62,26 @@ public class Craken {
 	}
 	
 	public synchronized <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz, Configuration confOverride){
+		
+		
+		
+		
+		
 		String cacheName = clz.getCanonicalName();
 		if (! dftManager.cacheExists(cacheName)) {
 			dftManager.defineConfiguration(cacheName, confOverride) ;
 		}
+		
 		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
 		return LegContainer.create(this, cache, clz) ;
 	}
 
 	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz) {
-		
-		
-		return defineLeg(clz,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().l1().disable().lifespan(Long.MAX_VALUE).build()) ;
+		if (preDefinedConfig.containsKey(clz.getCanonicalName())){
+			Configuration config = preDefinedConfig.get(clz.getCanonicalName()) ;
+			return defineLeg(clz, config) ;
+		} 
+		return defineLeg(clz, defaultConf.build()) ;
 	}
 	
 	public Craken stop() {
@@ -87,5 +102,10 @@ public class Craken {
 
 	public CrakenInfo getInfo() {
 		return myInfo ;
+	}
+
+	public <E extends AbstractEntry> Craken preDefineConfig(Class<E> clz, Configuration config) {
+		preDefinedConfig.put(clz.getCanonicalName(), config) ;
+		return this ;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import junit.framework.TestCase;
+import net.ion.craken.simple.EmanonKey;
 import net.ion.craken.simple.SimpleKeyFactory;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.InfinityThread;
@@ -70,7 +71,7 @@ class Employee extends AbstractEntry<Employee> {
 	private String[] colors = new String[0];
 	
 	Employee(Integer empNo){
-		this.empNo = SimpleKeyFactory.create(empNo) ;
+		this.empNo = EmanonKey.create(empNo) ;
 	}
 	
 	@Override

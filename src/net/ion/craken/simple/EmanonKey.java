@@ -13,6 +13,10 @@ public class EmanonKey implements EntryKey {
 		this.key = key;
 	}
 
+	public static EmanonKey create(Object genKey) {
+		return new EmanonKey(genKey);
+	}
+
 	public Object get() {
 		return key;
 	}
