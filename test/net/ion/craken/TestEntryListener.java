@@ -24,8 +24,8 @@ public class TestEntryListener extends TestBase{
 	
 	public void xtestSecondServer() throws Exception {
 		LegContainer<Employee> emps = craken.defineLeg(Employee.class);
-		EntryListener elistener = new EntryListener();
-		emps.addListener(elistener) ;
+//		EntryListener elistener = new EntryListener();
+//		emps.addListener(elistener) ;
 		
 		emps.newInstance(7756).name("bleujin").age(20).save() ;
 		emps.findByKey(7756).age(30).save() ;

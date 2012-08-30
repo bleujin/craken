@@ -42,7 +42,7 @@ public class TestEviction extends TestBase {
 	
 	public void xtestExprire() throws Exception {
 		ConfigurationBuilder builder = new ConfigurationBuilder() ;
-		builder.clustering().cacheMode(CacheMode.DIST_ASYNC).expiration().lifespan(3000); 
+		builder.clustering().cacheMode(CacheMode.DIST_ASYNC).expiration().lifespan(1000); 
 		LegContainer<Employee> leg = craken.defineLeg(Employee.class, builder.build());
 		
 		for (int i = 0; i < 100; i++) {

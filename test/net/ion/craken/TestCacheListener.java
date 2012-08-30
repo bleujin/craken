@@ -39,7 +39,7 @@ public class TestCacheListener extends TestBase {
 		
 		@CacheStarted
 		public void serverStarted(CacheStartedEvent e){
-			Debug.line(e.getCacheManager().getAddress() + " started") ;
+			Debug.line(e.getCacheManager().getAddress() + " started", e.getCacheManager().getMembers()) ;
 		} 
 		
 		@CacheStopped

@@ -16,15 +16,20 @@ public class CrakenInfo extends AbstractEntry<CrakenInfo>{
 	public static final CrakenInfo NOT_YET = CrakenInfo.NOT_YET ;
 	
 	private EntryKey key ;
-
+	private String address ;
 	private transient DefaultCacheManager manager;
 	private CrakenInfo(String address){
 		this.key = SimpleKeyFactory.create(address) ;
+		this.address = address ;
 	}
 	
 	CrakenInfo setManager(DefaultCacheManager manager){
 		this.manager = manager ;
 		return this ;
+	}
+	
+	public String getId(){
+		return address ;
 	}
 	
 	public String clusterName(){

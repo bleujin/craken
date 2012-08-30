@@ -10,6 +10,7 @@ public class CrakenEntry implements OnEventObject{
 	public CrakenEntry(String clusterName, String configPath) {
 		this.craken = Craken.create() ;
 		craken.globalConfig().transport().clusterName(clusterName).addProperty("configurationFile", configPath) ;
+		craken.start() ;
 	}
 	
 	public final static CrakenEntry test(){

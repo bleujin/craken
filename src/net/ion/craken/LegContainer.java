@@ -6,13 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.plaf.ListUI;
-
-import net.ion.bleujin.TestCreate.EntryListener;
 import net.ion.craken.simple.SimpleKeyFactory;
-import net.ion.craken.simple.SimpleEntry;
 import net.ion.framework.db.Page;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 import org.infinispan.Cache;
@@ -20,16 +15,25 @@ import org.infinispan.configuration.cache.Configuration;
 
 public class LegContainer<E extends AbstractEntry> {
 
+	private final EntryFilter<E> allFilter = new EntryFilter<E>() {
+		@Override
+		public boolean filter(E entry) {
+			return true;
+		}
+	};
+	
+	private final Craken craken ;
 	private final Cache<EntryKey, E> cache;
 	private Class<E> clz;
 
-	private LegContainer(Cache<EntryKey, E> cache, Class<E> clz) {
+	private LegContainer(Craken craken, Cache<EntryKey, E> cache, Class<E> clz) {
+		this.craken = craken ;
 		this.cache = cache;
 		this.clz = clz;
 	}
 
-	static <E extends AbstractEntry> LegContainer<E> create(Cache<EntryKey, E> cache, Class<E> clz) {
-		return new LegContainer<E>(cache, clz);
+	static <E extends AbstractEntry> LegContainer<E> create(Craken craken, Cache<EntryKey, E> cache, Class<E> clz) {
+		return new LegContainer<E>(craken, cache, clz);
 	}
 
 	public LegContainer<E> putNode(E dataNode) {
@@ -40,6 +44,10 @@ public class LegContainer<E extends AbstractEntry> {
 	public LegContainer<E> addListener(Object listener) {
 		cache.addListener(listener);
 		return this;
+	}
+	
+	public Craken getCraken(){
+		return craken ;
 	}
 	
 
@@ -81,17 +89,34 @@ public class LegContainer<E extends AbstractEntry> {
 			throw new IllegalArgumentException(ex);
 		}
 	}
+	
+	public E mergeInstance(Object keyInstance){
+		E found = findByKey(keyInstance) ;
+		if (found == null) {
+			found = newInstance(keyInstance) ;
+		}
+		return found ;
+	}
+	
+
+	public boolean contains(Object key){
+		return cache.containsKey(transKey(key)) ;
+	}
+	
+	private EntryKey transKey(Object key) {
+		if (key instanceof EntryKey) {
+			return (EntryKey)key ;
+		} else {
+			return SimpleKeyFactory.create(key) ;
+		}
+	}
 
 	public E findByKey(Object key) {
-		if (key instanceof EntryKey) {
-			E result = cache.get(key);
-			if (result == null)
-				return null;
-			result.setContainer(this);
-			return result;
-		} else {
-			return findByKey(SimpleKeyFactory.create(key));
-		}
+		E result = cache.get(transKey(key));
+		if (result == null)
+			return null;
+		result.setContainer(this);
+		return result;
 	}
 
 	public E findOne(EntryFilter<E> entryFilter) {
@@ -140,8 +165,16 @@ public class LegContainer<E extends AbstractEntry> {
 		return result;
 	}
 
-	public E remove(EntryKey key) {
+	private E remove(EntryKey key) {
 		return cache.remove(key);
+	}
+
+	public E findOne() {
+		return findOne(allFilter);
+	}
+
+	public E removeByKey(Object key) {
+		return remove(transKey(key)) ;
 	}
 
 }

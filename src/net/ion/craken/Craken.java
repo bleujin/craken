@@ -35,13 +35,14 @@ public class Craken {
 		return defaultConf ;
 	}
 
-	public Craken start() {
-		Debug.warn("craken starting") ;
+	public synchronized Craken start() {
 		
 		if (started) {
 			Debug.warn("already started") ;
 			return this ;
 		}
+		Debug.warn("craken starting") ;
+
 		this.dftManager = new DefaultCacheManager(globalBuilder.build(), defaultConf.build(), true) ;
 		dftManager.start() ;
 		
@@ -53,14 +54,19 @@ public class Craken {
 		return this ;
 	}
 	
-	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz, Configuration confOverride){
-		dftManager.defineConfiguration(clz.getCanonicalName(), confOverride) ;
-		return defineLeg(clz) ;
+	public synchronized <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz, Configuration confOverride){
+		String cacheName = clz.getCanonicalName();
+		if (! dftManager.cacheExists(cacheName)) {
+			dftManager.defineConfiguration(cacheName, confOverride) ;
+		}
+		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
+		return LegContainer.create(this, cache, clz) ;
 	}
 
 	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz) {
-		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
-		return LegContainer.create(cache, clz);
+		
+		
+		return defineLeg(clz,  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).jmxStatistics().enable().clustering().l1().disable().lifespan(Long.MAX_VALUE).build()) ;
 	}
 	
 	public Craken stop() {

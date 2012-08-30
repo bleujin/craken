@@ -69,7 +69,7 @@ class Employee extends AbstractEntry<Employee> {
 	private String name;
 	private String[] colors = new String[0];
 	
-	private Employee(Integer empNo){
+	Employee(Integer empNo){
 		this.empNo = SimpleKeyFactory.create(empNo) ;
 	}
 	
