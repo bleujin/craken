@@ -22,5 +22,9 @@ public abstract class AbstractEntry<E extends AbstractEntry> implements Serializ
 		return (E) container.removeByKey(this.key()) ;
 	}
 	
+	protected LegContainer<E> container(){
+		return container ;
+	}
+	
 	
 }

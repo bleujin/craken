@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
+import net.ion.radon.core.config.LetConfiguration;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -21,7 +22,7 @@ public class Craken {
 	private CrakenInfo myInfo = CrakenInfo.NOT_YET;
 	
 	private Map<String, Configuration> preDefinedConfig = MapUtil.newSyncMap();
-	
+	private Map<String, LegContainer> containers = MapUtil.newSyncMap() ;
 	
 	
 	private Craken(){
@@ -63,17 +64,17 @@ public class Craken {
 	
 	public synchronized <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz, Configuration confOverride){
 		
-		
-		
-		
-		
 		String cacheName = clz.getCanonicalName();
+		if (containers.containsKey(cacheName)) return containers.get(cacheName) ;
+
 		if (! dftManager.cacheExists(cacheName)) {
 			dftManager.defineConfiguration(cacheName, confOverride) ;
 		}
-		
 		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
-		return LegContainer.create(this, cache, clz) ;
+		LegContainer<E> result = LegContainer.create(this, cache, clz);
+		containers.put(cacheName, result) ;
+		
+		return result ;
 	}
 
 	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz) {

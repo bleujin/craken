@@ -95,7 +95,7 @@ public class LegContainer<E extends AbstractEntry> {
 	}
 	
 
-	public boolean contains(Object key){
+	public boolean containsKey(Object key){
 		return cache.containsKey(transKey(key)) ;
 	}
 	
@@ -175,6 +175,10 @@ public class LegContainer<E extends AbstractEntry> {
 	
 	public Configuration getCacheConfiguration(){
 		return cache.getCacheConfiguration() ;
+	}
+
+	public void stop() {
+		cache.stop() ;
 	}
 
 }

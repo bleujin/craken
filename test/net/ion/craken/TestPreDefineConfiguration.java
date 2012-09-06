@@ -15,5 +15,10 @@ public class TestPreDefineConfiguration extends TestBase {
 		assertEquals(true, config.clustering().l1().enabled()) ;
 	}
 	
-	
+	public void testSingleLeg() throws Exception {
+		LegContainer<Employee> c1 = craken.defineLeg(Employee.class);
+		LegContainer<Employee> c2 = craken.defineLeg(Employee.class);
+		
+		assertEquals(true, c1 == c2) ;
+	}
 }

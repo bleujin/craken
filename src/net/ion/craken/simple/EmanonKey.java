@@ -10,6 +10,7 @@ public class EmanonKey implements EntryKey {
 	private Object key;
 
 	EmanonKey(Object key) {
+		if (key == null) throw new IllegalArgumentException("key must be not null") ;
 		this.key = key;
 	}
 
@@ -19,6 +20,10 @@ public class EmanonKey implements EntryKey {
 
 	public Object get() {
 		return key;
+	}
+	
+	public String getAsString(){
+		return key.toString() ;
 	}
 
 	public boolean equals(Object _that) {
