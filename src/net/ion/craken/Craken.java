@@ -28,7 +28,7 @@ public class Craken {
 	private Craken(){
 		this.globalBuilder = GlobalConfigurationBuilder.defaultClusteredBuilder() ;
 		this.defaultConf = new ConfigurationBuilder() ;
-		defaultConf.clustering().cacheMode(CacheMode.DIST_ASYNC).jmxStatistics().enable().clustering().l1().enable().lifespan(6000000).invocationBatching().clustering().hash().numOwners(2) ;
+		defaultConf.clustering().cacheMode(CacheMode.DIST_ASYNC).clustering().l1().enable().lifespan(6000000).invocationBatching().clustering().hash().numOwners(2) ;
 	}
 	
 	public final static Craken create(){
@@ -70,7 +70,8 @@ public class Craken {
 		if (! dftManager.cacheExists(cacheName)) {
 			dftManager.defineConfiguration(cacheName, confOverride) ;
 		}
-		Cache<EntryKey, E> cache = dftManager.getCache(clz.getCanonicalName());
+		
+		Cache<EntryKey, E> cache = dftManager.getCache(cacheName);
 		LegContainer<E> result = LegContainer.create(this, cache, clz);
 		containers.put(cacheName, result) ;
 		
