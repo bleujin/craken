@@ -5,8 +5,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
-
-import net.ion.bleujin.EmbedCacheTest.DebugListener;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.RandomUtil;
@@ -19,15 +17,11 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.notifications.Listener;
-import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
-import org.infinispan.notifications.cachelistener.annotation.CacheEntryVisited;
-import org.infinispan.notifications.cachelistener.event.CacheEntryCreatedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryVisitedEvent;
-import org.jboss.marshalling.SerializabilityChecker;
 
 public class MonitorTest extends TestCase {
 	private GlobalConfiguration globalConf;
@@ -55,12 +49,12 @@ public class MonitorTest extends TestCase {
 	
 	public void testRunForMonitor() throws Exception {
 		final Cache<Object, Object> cache = dftManager.getCache();
+		cache.addListener(new DebugListener()) ;
 		cache.put("key0", RandomUtil.nextRandomString(10)) ;
 		cache.put("key1", RandomUtil.nextRandomString(10)) ;
 		cache.put("key2", RandomUtil.nextRandomString(10)) ;
 		cache.put("key3", RandomUtil.nextRandomString(10)) ;
 		
-		cache.addListener(new DebugListener()) ;
 		new InfinityThread().startNJoin();
 
 //		new Thread() {
