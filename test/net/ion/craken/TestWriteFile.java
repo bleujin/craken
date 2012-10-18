@@ -6,19 +6,24 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 public class TestWriteFile extends TestBase{
 
 	
-	public void testFileWrite() throws Exception {
+	public void testWriteHundred() throws Exception {
 		Configuration config = new ConfigurationBuilder().loaders().addFileCacheStore()
 			.ignoreModifications(false).fetchPersistentState(true).purgeOnStartup(true).location("./resource/temp")
-			.async().enabled(false).build();
+			.async().enabled(false)
+			.eviction().maxEntries(10)
+			.build();
 
 		LegContainer<Employee> emps = craken.defineLeg(Employee.class, config);
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100; i++) {
 			emps.newInstance(i).name(i + "'s").save() ;
 		}
+		
+		
 	}
+
 	
-	public void testFileRead() throws Exception {
+	public void testRead() throws Exception {
 		Configuration config = new ConfigurationBuilder().loaders().preload(true).addFileCacheStore()
 			.ignoreModifications(false).fetchPersistentState(true).purgeOnStartup(false).location("./resource/temp").purgeSynchronously(true)
 			.async().enabled(true).build();

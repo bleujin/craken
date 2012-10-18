@@ -1,4 +1,4 @@
-package net.ion.craken.dir;
+package net.ion.bleujin.dir;
 
 import net.ion.framework.db.Page;
 import net.ion.framework.util.InfinityThread;

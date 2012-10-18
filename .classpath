@@ -15,6 +15,8 @@
 	<classpathentry kind="lib" path="lib/search/search36_fat.jar"/>
 	<classpathentry kind="lib" path="lib/search/isearcher_2.2.jar"/>
 	<classpathentry kind="lib" path="lib/search/search_util_fat.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb/mongo-2.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb/mongonode_0.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
