@@ -3,6 +3,7 @@ package net.ion.craken.mongo;
 import java.io.Serializable;
 import java.util.List;
 
+import net.ion.craken.loaders.NewMongoDBCacheStore;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.IDBController;
 import net.ion.framework.db.manager.OracleCacheDBManager;

@@ -1,8 +1,8 @@
-package net.ion.craken.mongo;
+package net.ion.craken.loaders;
 
 import org.infinispan.loaders.AbstractCacheStoreConfig;
 
-public class NewMongoDBCacheStoreConfig extends AbstractCacheStoreConfig {
+public class MongoDBCacheStoreConfig extends AbstractCacheStoreConfig {
 
 	private static final long serialVersionUID = -6047637725057663352L;
 	private String host;
@@ -44,6 +44,6 @@ public class NewMongoDBCacheStoreConfig extends AbstractCacheStoreConfig {
 
 	@Override
 	public String getCacheLoaderClassName() {
-		return NewMongoDBCacheStore.class.getName();
+		return MongoDBCacheStore.class.getName();
 	}
 }

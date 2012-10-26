@@ -1,37 +1,77 @@
 package net.ion.craken.mongo;
 
+import static net.ion.radon.repository.NodeConstants.ARADON_GROUP;
+import static net.ion.radon.repository.NodeConstants.ARADON_UID;
+
 import java.io.Serializable;
+import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 import net.ion.craken.AbstractEntry;
 import net.ion.craken.Craken;
 import net.ion.craken.EntryKey;
 import net.ion.craken.LegContainer;
+import net.ion.craken.loaders.FastFileCacheStore;
+import net.ion.craken.loaders.NewMongoDBCacheStore;
 import net.ion.craken.simple.EmanonKey;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.RandomUtil;
 import net.ion.radon.core.PageBean;
+import net.ion.radon.repository.Node;
+import net.ion.radon.repository.PropertyFamily;
 import net.ion.radon.repository.RepositoryCentral;
 import net.ion.radon.repository.Session;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.eviction.EvictionStrategy;
+import org.infinispan.loaders.file.FileCacheStore;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.Mongo;
+import com.mongodb.MongoOptions;
+import com.mongodb.ServerAddress;
+import com.mongodb.WriteConcern;
 
 public class TestCrakenEntry extends TestCase {
 
 	private Craken craken;
-
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.craken = Craken.create() ;
 		
 		craken.globalConfig().transport().clusterName("infinispan-test-cluster").addProperty("configurationFile", "resource/config/jgroups-udp.xml");
-		craken.defineDefault().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
-			.clustering().hash().numOwners(2).unsafe()
-			.eviction().maxEntries(100)
-			.loaders().preload(true).shared(true).addCacheLoader().cacheLoader(new NewMongoDBCacheStore()).addProperty("host", "61.250.201.78").addProperty("dbName", "craken").addProperty("dbCollection", "mycol")
-			.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(true) ;
 		craken.start() ;
 	}
+	
+	private Configuration createMongoCacheStore(){
+		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
+		.clustering().hash().numOwners(2).unsafe()
+		.eviction().maxEntries(1000)
+		.loaders().preload(true).shared(true).addCacheLoader().cacheLoader(new NewMongoDBCacheStore()).addProperty("host", "61.250.201.78").addProperty("dbName", "craken").addProperty("dbCollection", "mycol")
+		.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build() ;
+	}
+	
+	private Configuration createLocalCacheStore(){
+		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
+		.clustering().hash().numOwners(2).unsafe()
+		.eviction().maxEntries(1000)
+		.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "C:/temp/toon_img") // ./resource/temp
+		.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build() ;
+	}
+	
+	private Configuration createFastLocalCacheStore(){
+		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
+		.clustering().hash().numOwners(2).unsafe()
+		.eviction().maxEntries(1000)
+		.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "C:/temp/toon_img") // ./resource/temp
+		.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build() ;
+	}
+	
 	
 	public void testSerial() throws Exception {
 		RepositoryCentral rc = RepositoryCentral.testCreate();
@@ -55,11 +95,33 @@ public class TestCrakenEntry extends TestCase {
 	}
 	
 	public void testLoad() throws Exception {
+		
 		LegContainer<Person> econ = craken.defineLeg(Person.class);
 		Person person = econ.findOne() ;
 		assertEquals("bleujin", person.key().get()) ;
 		assertEquals("busan", person.address().city()) ;
 	}
+	
+	public void xtestLoop() throws Exception {
+		craken.preDefineConfig(Person.class, createLocalCacheStore()) ;
+		LegContainer<Person> econ = craken.defineLeg(Person.class);
+		econ.clear() ;
+		long start = System.currentTimeMillis() ;
+		for (int i = 0; i < 10000 ; i++) {
+			econ.newInstance(RandomUtil.nextRandomString(10) + i).address(Address.create("seoul")).age(30).save() ;
+			if (i % 1000 == (1000-1)) Debug.line(i / 1000, System.currentTimeMillis() - start) ;
+		}
+		econ.newInstance("bleujin").address(Address.create("seoul")).age(30).save() ;
+		Thread.sleep(500) ;
+	}
+	
+	public void xtestLoad() throws Exception {
+		craken.preDefineConfig(Person.class, createFastLocalCacheStore()) ;
+		LegContainer<Person> econ = craken.defineLeg(Person.class);
+		assertEquals(30, econ.findByKey("bleujin").age()) ;
+	}
+	
+	
 	
 }
 

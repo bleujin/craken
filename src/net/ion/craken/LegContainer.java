@@ -177,6 +177,10 @@ public class LegContainer<E extends AbstractEntry> {
 		return cache.getCacheConfiguration() ;
 	}
 
+	public void clear(){
+		cache.clear() ;
+	}
+	
 	public void stop() {
 		cache.stop() ;
 	}

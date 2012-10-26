@@ -1,4 +1,4 @@
-package net.ion.craken.mongo;
+package net.ion.craken.loaders;
 
 import static net.ion.radon.repository.NodeConstants.ARADON;
 import static net.ion.radon.repository.NodeConstants.ARADON_GROUP;
@@ -15,6 +15,7 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
 import net.ion.craken.EntryKey;
+import net.ion.craken.simple.EmanonKey;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
@@ -52,6 +53,7 @@ import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.RuntimeErrorException;
 
@@ -64,6 +66,10 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 	private static final String ClassName = "__class";
 	private static final String FieldsName = "fields";
 
+	public NewMongoDBCacheStore(){
+		super() ;
+	}
+	
 	@Override
 	public void init(CacheLoaderConfig config, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
 		super.init(config, cache, m);
@@ -83,7 +89,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 			m = new Mongo(srvAddr, moptions);
 			// setting WriteConcern to true enables fsync, however performance degradation is very big: 5-10 times!
 			// It makes sense to enable it only on particular updates (1.4ms vs 12ms fsynced per 1KB update)
-			m.setWriteConcern(WriteConcern.SAFE);
+			// m.setWriteConcern(WriteConcern.SAFE);
 		} catch (UnknownHostException e) {
 			throw new RuntimeException(e);
 		}
@@ -99,6 +105,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 
 	@Override
 	public void store(InternalCacheEntry entry) throws CacheLoaderException {
+
 		NodeObject nobj = NodeObject.create();
 		if (entry.canExpire()) {
 			long expiry = entry.getExpiryTime();
@@ -110,7 +117,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 			nobj.put("expiry", expiry);
 		}
 		final NodeObject aradonId = AradonId.create(this.cache.getName(), transKey(entry.getKey())).toNodeObject();
-		nobj.put("_id", aradonId.getDBObject());
+		nobj.put("_id", transKey(entry.getKey()));
 
 		try {
 			nobj.put(PropertyId.reserved(ARADON).getKeyString(), aradonId);
@@ -123,24 +130,31 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 
 			entry.setValue(StringUtil.EMPTY);
 			byte[] bytes = marshaller.objectToByteBuffer(entry);
+			
 			nobj.put(ValueName, bytes);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-
+		
 		WriteResult result = coll.save(nobj.getDBObject());
 		result.getLastError().throwOnError();
+
 	}
 
 	private Object transKey(Object key) {
 		return (key instanceof EntryKey) ? ((EntryKey)key).get() : key;
 	}
 
+
 	@Override
 	public InternalCacheEntry load(Object key) throws CacheLoaderException {
-		DBObject read = coll.findOne(createkeyDBObject(key));
+
+		final DBCursor nc = coll.find(new BasicDBObject("_id", transKey(key)));
+		DBObject read = nc.hasNext() ? nc.next() : null;
+		
+		
 		if (read == null) {
 			return null;
 		}
@@ -189,6 +203,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
+		
 		Set<InternalCacheEntry> set = new LinkedHashSet<InternalCacheEntry>();
 		DBCursor cursor = coll.find(PropertyQuery.createByAradon(this.cache.getName()).getDBObject());
 		int i = 0;
@@ -197,6 +212,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 				DBObject raw = cursor.next();
 				byte[] bytes = (byte[]) raw.get(ValueName);
 				InternalCacheEntry readObject = (InternalCacheEntry) marshaller.objectFromByteBuffer(bytes);
+				
 
 				readObject.setValue(transObject(raw));
 				set.add(readObject);

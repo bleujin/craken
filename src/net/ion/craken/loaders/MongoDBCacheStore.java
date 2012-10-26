@@ -1,4 +1,4 @@
-package net.ion.craken.mongo;
+package net.ion.craken.loaders;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -10,6 +10,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
+import net.ion.craken.EntryKey;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.Debug;
 
@@ -99,7 +100,7 @@ public class MongoDBCacheStore extends AbstractCacheStore {
 
 	@Override
 	public InternalCacheEntry load(Object key) throws CacheLoaderException {
-		DBObject read = coll.findOne(new BasicDBObject("_id", key));
+		DBObject read = coll.findOne(new BasicDBObject("_id", transKey(key)));
 		if (read == null) {
 			return null;
 		}
@@ -117,6 +118,10 @@ public class MongoDBCacheStore extends AbstractCacheStore {
 		}
 	}
 
+	private Object transKey(Object key) {
+		return (key instanceof EntryKey) ? ((EntryKey)key).get() : key;
+	}
+	
 	@Override
 	public Set<InternalCacheEntry> loadAll() throws CacheLoaderException {
 		Set<InternalCacheEntry> set = new LinkedHashSet<InternalCacheEntry>();

@@ -1,4 +1,4 @@
-package com.meltmedia.jgroups.aws;
+package net.ion.craken.jgroups.aws;
 
 import java.net.URI;
 import java.net.UnknownHostException;
