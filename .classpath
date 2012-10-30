@@ -7,14 +7,11 @@
 	<classpathentry kind="lib" path="lib/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/netty-3.4.6.Final.jar"/>
 	<classpathentry kind="lib" path="lib/infinispan_fat.jar"/>
-	<classpathentry kind="lib" path="lib/aradon_0.8.jar"/>
 	<classpathentry kind="lib" path="lib/rest_fat.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/aradon_0.8.jar"/>
 	<classpathentry kind="lib" path="lib/aws-java-sdk-1.3.14.jar"/>
-	<classpathentry kind="lib" path="lib/infinispan-lucene-directory-5.1.3.FINAL.jar"/>
-	<classpathentry kind="lib" path="lib/search/search36_fat.jar"/>
-	<classpathentry kind="lib" path="lib/search/isearcher_2.2.jar"/>
-	<classpathentry kind="lib" path="lib/search/search_util_fat.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ISearcher"/>
 	<classpathentry kind="lib" path="lib/mongodb/mongo-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb/mongonode_0.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>

@@ -60,7 +60,7 @@ public class TestCrakenEntry extends TestCase {
 		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
 		.clustering().hash().numOwners(2).unsafe()
 		.eviction().maxEntries(1000)
-		.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "C:/temp/toon_img") // ./resource/temp
+		.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "./resource/temp") // ./resource/temp
 		.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build() ;
 	}
 	
@@ -68,7 +68,7 @@ public class TestCrakenEntry extends TestCase {
 		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
 		.clustering().hash().numOwners(2).unsafe()
 		.eviction().maxEntries(1000)
-		.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "C:/temp/toon_img") // ./resource/temp
+		.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/temp") // ./resource/temp
 		.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build() ;
 	}
 	
@@ -103,12 +103,25 @@ public class TestCrakenEntry extends TestCase {
 	}
 	
 	public void xtestLoop() throws Exception {
-		craken.preDefineConfig(Person.class, createLocalCacheStore()) ;
+		craken.preDefineConfig(Person.class, createFastLocalCacheStore()) ;
 		LegContainer<Person> econ = craken.defineLeg(Person.class);
 		econ.clear() ;
 		long start = System.currentTimeMillis() ;
 		for (int i = 0; i < 10000 ; i++) {
-			econ.newInstance(RandomUtil.nextRandomString(10) + i).address(Address.create("seoul")).age(30).save() ;
+			econ.newInstance("" + i).address(Address.create("seoul")).age(30).save() ;
+			if (i % 1000 == (1000-1)) Debug.line(i / 1000, System.currentTimeMillis() - start) ;
+		}
+		econ.newInstance("bleujin").address(Address.create("seoul")).age(30).save() ;
+		Thread.sleep(500) ;
+	}
+	
+	public void testUpdate() throws Exception {
+		craken.preDefineConfig(Person.class, createFastLocalCacheStore()) ;
+		LegContainer<Person> econ = craken.defineLeg(Person.class);
+
+		long start = System.currentTimeMillis() ;
+		for (int i = 0; i < 10000 ; i++) {
+			econ.newInstance("" + i).address(Address.create("longseoul")).age(30).save() ;
 			if (i % 1000 == (1000-1)) Debug.line(i / 1000, System.currentTimeMillis() - start) ;
 		}
 		econ.newInstance("bleujin").address(Address.create("seoul")).age(30).save() ;
@@ -119,6 +132,7 @@ public class TestCrakenEntry extends TestCase {
 		craken.preDefineConfig(Person.class, createFastLocalCacheStore()) ;
 		LegContainer<Person> econ = craken.defineLeg(Person.class);
 		assertEquals(30, econ.findByKey("bleujin").age()) ;
+		Debug.line(econ.keySet().size()) ;
 	}
 	
 	
