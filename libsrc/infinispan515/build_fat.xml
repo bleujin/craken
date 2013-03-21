@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project name="Make FatJar(experimental)" default="infinispan_fat" basedir=".">
+<!-- ====================================================================== 
+     2009. 4. 11. 오전 10:59:20                                                        
+
+     project framework core     
+     description
+                   
+     by bleujin(bleujin@gmail.com)                                                                
+     ====================================================================== -->
+    <!--
+        <property name="fjepPath" value="reference:file:plugins\net.sf.fjep.fatjar_0.0.31.jarfatjar.jar"/>
+        <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}"/>
+        <typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}"/>
+        <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}"/>
+    -->
+    <!-- uncomment the above lines to use ANT outside of Eclipse -->
+	
+	<property name="baseDir" value="." />
+	<property name="targetDir" value="../" />
+	
+	<target name="infinispan_fat">
+		<delete file="${targetDir}/infinispan_fat.jar"></delete>
+        <fatjar.build output="${targetDir}/infinispan_fat.jar">
+            <fatjar.manifest mergemanifests="no"/>
+
+            <!-- core -->
+            <fatjar.jarsource file="${basedir}\infinispan-cachestore-remote.jar" relpath=""/>
+            <fatjar.jarsource file="${basedir}\infinispan-core.jar" relpath=""/>
+            <fatjar.jarsource file="${basedir}\infinispan-server-core-5.1.5.FINAL.jar" relpath=""/>
+        	
+        	<!-- jboss-->
+            <fatjar.jarsource file="${basedir}\jboss-logging-3.1.0.GA.jar" relpath=""/>
+        	<fatjar.jarsource file="${basedir}\jboss-marshalling-1.3.11.GA.jar" relpath=""/>
+        	<fatjar.jarsource file="${basedir}\jboss-marshalling-river-1.3.11.GA.jar" relpath=""/>
+        	<fatjar.jarsource file="${basedir}\jboss-transaction-api_1.1_spec-1.0.0.Final.jar" relpath=""/>
+
+        	<!-- helper-->
+        	<fatjar.jarsource file="${basedir}\jgroups-3.0.10.Final.jar" relpath=""/>
+        	<fatjar.jarsource file="${basedir}\rhq-pluginAnnotations-3.0.4.jar" relpath=""/>
+        	<fatjar.jarsource file="${basedir}\scala-library-2.9.2.jar" relpath=""/>
+        </fatjar.build>
+    </target>
+
+	
+</project>

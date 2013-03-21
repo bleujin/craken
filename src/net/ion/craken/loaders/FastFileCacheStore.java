@@ -26,18 +26,8 @@ import org.infinispan.loaders.AbstractCacheStore;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
-import org.infinispan.loaders.CacheStore;
 import org.infinispan.marshall.StreamingMarshaller;
 
-/**
- * A filesystem-based implementation of a {@link CacheStore}. This file store stores cache values in a single file <tt>&lt;location&gt;/&lt;cache name&gt;.dat</tt>, keys and file positions are kept in memory.
- * <p/>
- * Note: this CacheStore implementation keeps keys and file positions in memory! The current implementation needs about 100 bytes per cache entry, plus the memory for the key objects. Use the maxEntries parameter or cache entries that can expire (with purge) to prevent the cache store from growing indefinitely and causing OutOfMemoryExceptions.
- * <p/>
- * This class is fully thread safe, yet allows for concurrent load / store of individual cache entries.
- * 
- * @author Karsten Blees
- */
 @CacheLoaderMetadata(configurationClass = FastFileCacheStoreConfig.class)
 public class FastFileCacheStore extends AbstractCacheStore {
 	private static final byte[] MAGIC = new byte[] { 'F', 'C', 'S', '1' };
@@ -107,7 +97,6 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	/** {@inheritDoc} */
 	@Override
 	public void stop() throws CacheLoaderException {
 		try {
@@ -168,8 +157,6 @@ public class FastFileCacheStore extends AbstractCacheStore {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * <p/>
 	 * The base class implementation calls {@link #load(Object)} for this, we can do better because we keep all keys in memory.
 	 */
 	@Override
@@ -222,7 +209,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public void store(InternalCacheEntry entry) throws CacheLoaderException {
 		try {
@@ -230,6 +217,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 			byte[] key = getMarshaller().objectToByteBuffer(entry.getKey());
 			byte[] data = getMarshaller().objectToByteBuffer(entry.toInternalCacheValue());
 
+			
 			// allocate file entry and store in cache file
 			int len = KEY_POS + key.length + data.length;
 			FileEntry fe = allocate(len);
@@ -282,7 +270,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		return null;
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public void clear() throws CacheLoaderException {
 		try {
@@ -309,7 +297,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public boolean remove(Object key) throws CacheLoaderException {
 		try {
@@ -321,7 +309,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public InternalCacheEntry load(Object key) throws CacheLoaderException {
 		try {
@@ -365,13 +353,13 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public Set<InternalCacheEntry> loadAll() throws CacheLoaderException {
 		return load(Integer.MAX_VALUE);
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		Set<Object> keys = loadAllKeys(null);
@@ -387,7 +375,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		return result;
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	public Set<Object> loadAllKeys(Set<Object> keysToExclude) throws CacheLoaderException {
 		Set<Object> result;
@@ -399,7 +387,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		return result;
 	}
 
-	/** {@inheritDoc} */
+
 	@Override
 	protected void purgeInternal() throws CacheLoaderException {
 		long now = System.currentTimeMillis();
@@ -418,13 +406,13 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	/** {@inheritDoc} */
+
 	public void fromStream(ObjectInput inputStream) throws CacheLoaderException {
 		// seems that this is never called by Infinispan (except by decorators)
 		throw new UnsupportedOperationException();
 	}
 
-	/** {@inheritDoc} */
+
 	public void toStream(ObjectOutput outputStream) throws CacheLoaderException {
 		// seems that this is never called by Infinispan (except by decorators)
 		throw new UnsupportedOperationException();
@@ -444,35 +432,17 @@ public class FastFileCacheStore extends AbstractCacheStore {
 	 * </ul>
 	 */
 	private static class FileEntry implements Comparable<Object> {
-		/**
-		 * File offset of this block.
-		 */
+		 // File offset of this block.
 		private final long offset;
-
-		/**
-		 * Total size of this block.
-		 */
+		// Total size of this block.
 		private final int size;
-
-		/**
-		 * Size of serialized key.
-		 */
+		// Size of serialized key.
 		private int keyLen;
-
-		/**
-		 * Size of serialized data.
-		 */
+		// Size of serialized data.
 		private int dataLen;
 
-		/**
-		 * Time stamp when the entry will expire (i.e. will be collected by purge).
-		 */
-		private long expiryTime = -1;
-
-		/**
-		 * Number of current readers.
-		 */
-		private transient int readers = 0;
+		private long expiryTime = -1; // Time stamp when the entry will expire (i.e. will be collected by purge).
+		private transient int readers = 0; // Number of current readers.
 
 		private FileEntry(long offset, int size) {
 			this.offset = offset;

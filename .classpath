@@ -3,17 +3,21 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/iframework_2.3.jar"/>
-	<classpathentry kind="lib" path="lib/common_apache_fat.jar"/>
-	<classpathentry kind="lib" path="lib/netty-3.4.6.Final.jar"/>
-	<classpathentry kind="lib" path="lib/infinispan_fat.jar"/>
-	<classpathentry kind="lib" path="lib/rest_fat.jar"/>
-	<classpathentry kind="lib" path="lib/commons-configuration-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/aradon_0.8.jar"/>
-	<classpathentry kind="lib" path="lib/aws-java-sdk-1.3.14.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ISearcher"/>
-	<classpathentry kind="lib" path="lib/mongodb/mongo-2.8.0.jar"/>
-	<classpathentry kind="lib" path="lib/mongodb/mongonode_0.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/ref/neonode_0.1.jar"/>
+	<classpathentry kind="lib" path="lib/ref/aradon_0.9.jar"/>
+	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
+	<classpathentry kind="lib" path="lib/ref/mongonode_0.3.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/netty-3.4.6.Final.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/rest_fat.jar"/>
+	<classpathentry kind="lib" path="lib/infinispan_fat.jar"/>
+	<classpathentry kind="lib" path="lib/aws-java-sdk-1.3.14.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/neo_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/search362_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/mongo-2.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/ref/isearcher_3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
