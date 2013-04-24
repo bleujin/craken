@@ -2,6 +2,9 @@ package net.ion.craken;
 
 import java.io.Serializable;
 
+import net.ion.craken.simple.EmanonKey;
+import net.ion.framework.util.StringUtil;
+
 import org.infinispan.Cache;
 
 
@@ -26,5 +29,15 @@ public abstract class AbstractEntry<E extends AbstractEntry> implements Serializ
 		return container ;
 	}
 	
+	public boolean equals(Object _that) {
+		if (!StringUtil.equals(this.getClass().getCanonicalName(), _that.getClass().getCanonicalName()))
+			return false;
+		AbstractEntry that = (AbstractEntry) _that;
+		return key().equals(that.key());
+	}
+
+	public int hashCode() {
+		return key().hashCode();
+	}
 	
 }

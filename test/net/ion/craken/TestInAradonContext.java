@@ -68,7 +68,7 @@ class ShareLet extends AbstractServerResource {
 		CrakenEntry entry = getContext().getAttributeObject(CrakenEntry.class.getCanonicalName(), CrakenEntry.class) ;
 		LegContainer<Employee> leg = entry.getCraken().defineLeg(Employee.class);
 		
-		return JsonParser.fromObject(leg.findAll()).getAsJsonArray().toString() ;
+		return JsonParser.fromObject(leg.findAllInMemory()).getAsJsonArray().toString() ;
 	}
 	
 	@Post

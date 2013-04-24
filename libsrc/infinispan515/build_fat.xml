@@ -29,6 +29,7 @@
             <!-- core -->
             <fatjar.jarsource file="${basedir}\infinispan-cachestore-remote.jar" relpath=""/>
             <fatjar.jarsource file="${basedir}\infinispan-core.jar" relpath=""/>
+            <fatjar.jarsource file="${basedir}\infinispan-lucene-directory-5.1.3.FINAL.jar" relpath=""/>
             <fatjar.jarsource file="${basedir}\infinispan-server-core-5.1.5.FINAL.jar" relpath=""/>
         	
         	<!-- jboss-->
@@ -44,5 +45,4 @@
         </fatjar.build>
     </target>
 
-	
 </project>

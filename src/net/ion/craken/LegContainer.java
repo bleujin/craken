@@ -13,6 +13,7 @@ import net.ion.framework.util.ListUtil;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.lifecycle.ComponentStatus;
 
 public class LegContainer<E extends AbstractEntry> {
 
@@ -96,7 +97,7 @@ public class LegContainer<E extends AbstractEntry> {
 	
 
 	public boolean containsKey(Object key){
-		return cache.containsKey(transKey(key)) ;
+		return key != null && cache.containsKey(transKey(key)) ;
 	}
 	
 	private EntryKey transKey(Object key) {
@@ -108,6 +109,7 @@ public class LegContainer<E extends AbstractEntry> {
 	}
 
 	public E findByKey(Object key) {
+		if (key == null) return null ;
 		E result = cache.get(transKey(key));
 		if (result == null)
 			return null;
@@ -115,7 +117,7 @@ public class LegContainer<E extends AbstractEntry> {
 		return result;
 	}
 
-	public E findOne(EntryFilter<E> entryFilter) {
+	public E findOneInMemory(EntryFilter<E> entryFilter) {
 		for (EntryKey key : keySet()) {
 			E entry = cache.get(key);
 			if (entryFilter.filter(entry)) {
@@ -126,7 +128,8 @@ public class LegContainer<E extends AbstractEntry> {
 		return null;
 	}
 
-	public List<E> find(EntryFilter<E> entryFilter) {
+	@Deprecated
+	public List<E> findInMemory(EntryFilter<E> entryFilter) {
 		return find(entryFilter, Page.HUNDRED);
 	}
 
@@ -152,7 +155,7 @@ public class LegContainer<E extends AbstractEntry> {
 		return result;
 	}
 
-	public List<E> findAll() {
+	public List<E> findAllInMemory() {
 		List<E> result = ListUtil.newList();
 
 		for (EntryKey key : keySet()) {
@@ -165,8 +168,10 @@ public class LegContainer<E extends AbstractEntry> {
 		return cache.remove(key);
 	}
 
+	
+	
 	public E findOne() {
-		return findOne(allFilter);
+		return findOneInMemory(allFilter);
 	}
 
 	public E removeByKey(Object key) {
@@ -185,4 +190,8 @@ public class LegContainer<E extends AbstractEntry> {
 		cache.stop() ;
 	}
 
+	public ComponentStatus state(){
+		return cache.getStatus() ;
+	}
+	
 }

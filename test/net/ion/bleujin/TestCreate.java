@@ -101,7 +101,7 @@ public class TestCreate extends TestCase{
 		container.newInstance("bleujin").put("name", "bleujin").put("age", 20).save() ;
 		container.newInstance(7756).put("name", "hero").put("age", 364).save() ;
 
-		SimpleEntry found = container.findOne(new EntryFilter<SimpleEntry>(){
+		SimpleEntry found = container.findOneInMemory(new EntryFilter<SimpleEntry>(){
 			public boolean filter(SimpleEntry node){
 				return node.fieldAsInt("age") > 100;
 			}
@@ -118,7 +118,7 @@ public class TestCreate extends TestCase{
 			container.newInstance("user" + i).put("index", i).save() ;
 		}
 
-		List<SimpleEntry> found = container.find(new EntryFilter<SimpleEntry>(){
+		List<SimpleEntry> found = container.findInMemory(new EntryFilter<SimpleEntry>(){
 			public boolean filter(SimpleEntry node){
 				return node.fieldAsInt("index") < 5;
 			}

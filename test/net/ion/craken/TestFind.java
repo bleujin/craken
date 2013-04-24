@@ -26,7 +26,7 @@ public class TestFind extends TestBase {
 	}
 	
 	public void testFindOne() throws Exception {
-		Employee emp = leg.findOne(new EntryFilter<Employee>() {
+		Employee emp = leg.findOneInMemory(new EntryFilter<Employee>() {
 			@Override
 			public boolean filter(Employee entry) {
 				return entry.age() > 22;
@@ -36,7 +36,7 @@ public class TestFind extends TestBase {
 	}
 	
 	public void testFindPage() throws Exception {
-		List<Employee> emps = leg.find(new EntryFilter<Employee>() {
+		List<Employee> emps = leg.findInMemory(new EntryFilter<Employee>() {
 			@Override
 			public boolean filter(Employee entry) {
 				return entry.age() > 22;

@@ -48,7 +48,7 @@ public class TestFirst extends TestCase{
 	public void xtestSecondServer() throws Exception {
 		LegContainer<Employee> emps = craken.defineLeg(Employee.class);
 		
-		List<Employee> founds = emps.find(new EntryFilter<Employee>() {
+		List<Employee> founds = emps.findInMemory(new EntryFilter<Employee>() {
 			@Override
 			public boolean filter(Employee entry) {
 				return entry.isFavoriteColor("bleu") ;
