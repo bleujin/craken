@@ -21,6 +21,7 @@ import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.nsearcher.config.Central;
 
+import org.apache.ecs.xhtml.meta;
 import org.apache.lucene.index.CorruptIndexException;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
@@ -71,7 +72,16 @@ public class RepositorySearchImpl implements RepositorySearch {
 							false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 
 					dftManager.defineConfiguration(wsname + ".locks", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
-					InfinispanDirectory dir = new InfinispanDirectory(dftManager.getCache(wsname + ".meta"), dftManager.getCache(wsname + ".chunks"), dftManager.getCache(wsname + ".locks"), wsname, 1024 * 1024 * 10);
+					final Cache<Object, Object> metaCache = dftManager.getCache(wsname + ".meta");
+					final Cache<Object, Object> chunkCache = dftManager.getCache(wsname + ".chunks");
+					final Cache<Object, Object> lockCache = dftManager.getCache(wsname + ".locks");
+					
+					metaCache.start() ;
+					chunkCache.start() ;
+					lockCache.start() ;
+
+					InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
+					
 					central = MyCentralConfig.create(dir).build();
 					centrals.put(wsname, central);
 				}

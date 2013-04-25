@@ -9,6 +9,7 @@ import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TestListener.DebugListener;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
@@ -59,14 +60,14 @@ public class WorkspaceImpl implements Workspace {
 	}
 
 	// inner package
-	TreeNode<String, ? extends Object> getNode(String fqn) {
+	TreeNode<String, ? extends Object> getNode(Fqn fqn) {
 		try {
 			beginTran();
 			
 			TreeNode found = treeCache.getNode(fqn);
 			if (found == null) {
 				if (!treeCache.exists(fqn)) {
-					treeCache.put(Fqn.fromString(fqn), MapUtil.EMPTY);
+					treeCache.put(fqn, MapUtil.EMPTY);
 					found = getNode(fqn);
 				}
 
@@ -75,12 +76,20 @@ public class WorkspaceImpl implements Workspace {
 					parent = parent.getParent();
 				}
 			}
+			
 			return found;
 		} finally {
 			endTran();
 		}
 	}
+	
+	TreeNode<String, ? extends Object> getNode(String fqn) {
+		return getNode(Fqn.fromString(fqn)) ;
+	}
 
+	public boolean exists(Fqn fqn) {
+		return treeCache.exists(fqn);
+	}
 	public boolean exists(String fqn) {
 		return treeCache.exists(fqn);
 	}
@@ -119,6 +128,17 @@ public class WorkspaceImpl implements Workspace {
 
 	private void beginTran() {
 		treeCache.begin();
+	}
+
+	@Override
+	public Workspace addListener(Object listener) {
+		treeCache.getCache().addListener(listener) ;
+		return this;
+	}
+
+	@Override
+	public void removeListener(Object listener) {
+		treeCache.getCache().removeListener(listener) ;
 	}
 
 }

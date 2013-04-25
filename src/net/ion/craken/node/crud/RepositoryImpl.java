@@ -3,6 +3,7 @@ package net.ion.craken.node.crud;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
@@ -69,6 +70,7 @@ public class RepositoryImpl implements Repository{
 		for (Workspace ws : wss.values()) {
 			ws.close() ;
 		}
+		executor.awaitUnInterupt(100, TimeUnit.MILLISECONDS) ;
 		executor.shutdown() ;
 		dm.stop() ;
 	}

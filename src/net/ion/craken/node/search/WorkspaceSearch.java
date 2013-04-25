@@ -21,6 +21,7 @@ import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
+import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
@@ -28,10 +29,14 @@ import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.analyzer.MyKoreanAnalyzer;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermQuery;
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 @Listener
 public class WorkspaceSearch implements Workspace {
@@ -71,13 +76,18 @@ public class WorkspaceSearch implements Workspace {
 	}
 
 	// inner package
+	
 	TreeNode<String, ? extends Object> getNode(String fqn) {
+		return getNode(Fqn.fromString(fqn)) ;
+	}
+	
+	TreeNode<String, ? extends Object> getNode(Fqn fqn) {
 		try {
 			beginTran();
 			TreeNode found = treeCache.getNode(fqn);
 			if (found == null) {
 				if (!treeCache.exists(fqn)) {
-					treeCache.put(Fqn.fromString(fqn), MapUtil.EMPTY);
+					treeCache.put(fqn, MapUtil.EMPTY);
 					found = getNode(fqn);
 				}
 
@@ -93,6 +103,11 @@ public class WorkspaceSearch implements Workspace {
 	}
 
 	public boolean exists(String fqn) {
+		return treeCache.exists(fqn);
+	}
+	
+
+	public boolean exists(Fqn fqn) {
 		return treeCache.exists(fqn);
 	}
 
@@ -146,16 +161,33 @@ public class WorkspaceSearch implements Workspace {
 		if (e.getKey().getContents() == Type.DATA) {
 			lastCommand = central.newIndexer().asyncIndex(new IndexJob<Void>() {
 				@Override
-				public Void handle(IndexSession session) throws Exception {
+				public Void handle(IndexSession isession) throws Exception {
 					MyDocument doc = MyDocument.newDocument(key.getFqn().toString());
 					doc.keyword(NodeCommon.NameProp, key.getFqn().getLastElementAsString());
 					for (String key : value.keySet()) {
 						doc.addUnknown(key, value.get(key));
 					}
-					session.updateDocument(doc);
+					isession.updateDocument(doc);
 					return null;
 				}
 			});
+		}
+	}
+	
+	@CacheEntryRemoved
+	public void entryRemoved(CacheEntryRemovedEvent<TreeNodeKey, AtomicHashMap> e) {
+		if (e.isPre()) return ;
+		final TreeNodeKey key = e.getKey();
+		
+		if (e.getKey().getContents() == Type.DATA) {
+			lastCommand = central.newIndexer().asyncIndex(new IndexJob<Void>() {
+				@Override
+				public Void handle(IndexSession isession) throws Exception {
+					isession.deleteTerm(new Term(IKeywordField.ISKey, key.getFqn().toString())) ;
+					return null;
+				}
+				
+			}) ;
 		}
 	}
 
@@ -163,4 +195,17 @@ public class WorkspaceSearch implements Workspace {
 		if (lastCommand != null)
 			lastCommand.get();
 	}
+	
+	@Override
+	public Workspace addListener(Object listener) {
+		treeCache.getCache().addListener(listener) ;
+		return this;
+	}
+	
+	@Override
+	public void removeListener(Object listener) {
+		treeCache.getCache().removeListener(listener) ;
+	}
+
+
 }

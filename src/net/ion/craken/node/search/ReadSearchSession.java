@@ -3,25 +3,35 @@ package net.ion.craken.node.search;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import org.apache.lucene.analysis.Analyzer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.node.Credential;
+import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.ReadNodeImpl;
-import net.ion.craken.node.crud.ReadSessionImpl;
-import net.ion.craken.node.crud.WriteSessionImpl;
+import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.TreeNode;
+import net.ion.craken.tree.TreeNodeKey;
+import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
 
 public class ReadSearchSession implements ReadSession {
 
 	private final Credential credential ;
 	private WorkspaceSearch workspace;
 	private final Central central ;
-	private Analyzer analyzer ;
 	
 	ReadSearchSession(Credential credential, WorkspaceSearch workspace, Central central) {
 		this.credential = credential.clearSecretKey() ;
@@ -36,6 +46,16 @@ public class ReadSearchSession implements ReadSession {
 
 	@Override
 	public ReadNode pathBy(String fqn) {
+		return ReadNodeImpl.load(workspace.getNode(fqn));
+	}
+
+	@Override
+	public boolean exists(Fqn fqn) {
+		return workspace.exists(fqn);
+	}
+
+
+	public ReadNode pathBy(Fqn fqn) {
 		return ReadNodeImpl.load(workspace.getNode(fqn));
 	}
 
@@ -65,10 +85,22 @@ public class ReadSearchSession implements ReadSession {
 		return workspace.tran(wsession, tjob, handler) ;
 	}
 
-	public SearchQuery createQuery() throws IOException, InterruptedException, ExecutionException {
-//		workspace.awaitIndex() ;
-		return SearchQuery.create(this, central.newSearcher()) ;
+	public SearchNodeRequest createRequest(String query) throws ParseException, IOException {
+		return createRequest(query, credential.analyzer()) ;
 	}
+
+	public SearchNodeRequest createRequest(Query query) throws ParseException, IOException {
+		return SearchNodeRequest.create(this, central.newSearcher(), query);
+	}
+
+	public SearchNodeRequest createRequest(String query, Analyzer analyzer) throws ParseException, IOException {
+		if (StringUtil.isBlank(query)){
+			return createRequest(new MatchAllDocsQuery()) ;
+		}
+		
+		return SearchNodeRequest.create(this, central.newSearcher(), central.searchConfig().parseQuery(analyzer, query));
+	}
+	
 
 	public Credential credential(){
 		return credential ;
@@ -77,6 +109,43 @@ public class ReadSearchSession implements ReadSession {
 	public String wsName() {
 		return workspace.wsName();
 	}
+
+	@Override
+	public WorkspaceSearch getWorkspace() {
+		return workspace;
+	}
+
+	
+	public Future<AtomicInteger> reIndex(final ReadNode top) {
+		return central.newIndexer().asyncIndex(new IndexJob<AtomicInteger>() {
+			private AtomicInteger aint = new AtomicInteger() ;
+			@Override
+			public AtomicInteger handle(IndexSession is) throws Exception {
+				index(is, top) ;
+				return aint ;
+			}
+			
+			private void index(IndexSession is, ReadNode node) throws IOException{
+				IteratorList<ReadNode> iter = node.children();
+				while(iter.hasNext()){
+					index(is, iter.next()) ;
+				}
+				is.updateDocument(makeDocument(node));
+				aint.incrementAndGet() ;
+			}
+			
+			private MyDocument makeDocument(ReadNode node){
+				Fqn fqn = node.fqn() ;
+				MyDocument doc = MyDocument.newDocument(fqn.toString());
+				doc.keyword(NodeCommon.NameProp, fqn.getLastElementAsString());
+				for (String nodeKey : node.keys()) {
+					doc.addUnknown(nodeKey, node.property(nodeKey));
+				}
+				return doc ;
+			}
+		});
+	}
+
 
 
 }

@@ -83,6 +83,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 			}
 			getAtomicMap(cache, structureKey);
 			getAtomicMap(cache, dataKey);
+			
 
 			if (log.isTraceEnabled())
 				log.tracef("Created node %s", fqn);

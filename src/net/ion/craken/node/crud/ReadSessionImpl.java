@@ -1,13 +1,18 @@
 package net.ion.craken.node.crud;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.omg.PortableServer.POAPackage.WrongAdapter;
 
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.tree.Fqn;
 
 
 public class ReadSessionImpl implements ReadSession{
@@ -23,16 +28,30 @@ public class ReadSessionImpl implements ReadSession{
 		return ReadNodeImpl.load(workspace.getNode(fqn)) ;
 	}
 
-	public ReadNode root() {
-		return pathBy("/");
-	}
-
 	public boolean exists(String fqn) {
 		return workspace.exists(fqn);
 	}
 
+	public ReadNode pathBy(Fqn fqn) {
+		return ReadNodeImpl.load(workspace.getNode(fqn)) ;
+	}
+
+	public boolean exists(Fqn fqn) {
+		return workspace.exists(fqn);
+	}
+
+
+	public ReadNode root() {
+		return pathBy("/");
+	}
+
 	public <T> Future<T> tran(TransactionJob<T> tjob) {
 		return tran(tjob, TranExceptionHandler.PRINT) ;
+	}
+
+	@Override
+	public <T> T tranSync(TransactionJob<T> tjob) throws InterruptedException, ExecutionException {
+		return tran(tjob).get();
 	}
 
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {
@@ -50,4 +69,10 @@ public class ReadSessionImpl implements ReadSession{
 		return credential;
 	}
 
+	@Override
+	public Workspace getWorkspace() {
+		return workspace;
+	}
+
+	
 }

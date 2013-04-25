@@ -17,31 +17,14 @@ import net.ion.nsearcher.search.SearchResponse;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 
-public class TestIndex extends TestCase {
-
-	private RepositorySearch r;
-	protected ReadSearchSession session;
-
-	@Override
-	protected void setUp() throws Exception {
-		// GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("crakensearch").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
-		// this.r = RepositoryImpl.create(gconfig).forSearch() ;
-		this.r = RepositoryImpl.testSingle().forSearch();
-		this.session = r.testLogin("test");
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		this.r.shutdown();
-		super.tearDown();
-	}
+public class TestIndex extends TestBaseSearch {
 
 	public void testConcurrency() throws Exception {
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
 				try {
-					r.testLogin("test").createQuery().parse("bleujin").find().debugPrint();
+					r.testLogin("test").createRequest("bleujin").find().debugPrint();
 					r.testLogin("test").tran(new TransactionJob<Void>() {
 						@Override
 						public Void handle(WriteSession wsession) {
@@ -85,8 +68,8 @@ public class TestIndex extends TestCase {
 
 		for (int i = 0; i < 100; i++) {
 			ReadSearchSession other = r.testLogin("test");
-			SearchResponse response = other.createQuery().parse("bleujin").find();
-			Debug.line(i, response.getDocument().size(), response.getDocument());
+			SearchNodeResponse response = other.createRequest("bleujin").find();
+			Debug.line(i, response.size(), response.first());
 			Thread.sleep(10);
 		}
 

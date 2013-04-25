@@ -1,10 +1,5 @@
-package net.ion.craken.node;
+package net.ion.craken.node.crud;
 
-import net.ion.craken.node.crud.TestFirst;
-import net.ion.craken.node.crud.TestPathBy;
-import net.ion.craken.node.crud.TestReadNode;
-import net.ion.craken.node.crud.TestTransaction;
-import net.ion.craken.node.crud.TestWriteNode;
 import junit.framework.TestSuite;
 
 public class TestAllCrudNode extends TestSuite {

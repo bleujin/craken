@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 public class TestBaseCrud extends TestCase {
 
-	private Repository r ;
+	protected RepositoryImpl r ;
 	protected ReadSession session;
 
 	@Override
