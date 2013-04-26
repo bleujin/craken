@@ -46,7 +46,7 @@ public class ReadSearchSession implements ReadSession {
 
 	@Override
 	public ReadNode pathBy(String fqn) {
-		return ReadNodeImpl.load(workspace.getNode(fqn));
+		return ReadNodeImpl.load(this, workspace.getNode(fqn));
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class ReadSearchSession implements ReadSession {
 
 
 	public ReadNode pathBy(Fqn fqn) {
-		return ReadNodeImpl.load(workspace.getNode(fqn));
+		return ReadNodeImpl.load(this, workspace.getNode(fqn));
 	}
 
 	@Override

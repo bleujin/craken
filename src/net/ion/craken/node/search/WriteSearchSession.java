@@ -27,7 +27,7 @@ public class WriteSearchSession implements WriteSession {
 	}
 
 	public WriteNode pathBy(String fqn) {
-		return WriteSearchNode.load(workspace.getNode(fqn)) ;
+		return WriteSearchNode.loadTo(workspace.getNode(fqn)) ;
 	}
 
 	public WriteNode root() {

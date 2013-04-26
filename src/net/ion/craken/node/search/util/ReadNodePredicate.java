@@ -1,6 +1,5 @@
 package net.ion.craken.node.search.util;
 
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;
 
@@ -32,7 +31,7 @@ public class ReadNodePredicate {
 			
 			private int skip = -1 ;
 			@Override
-			public boolean apply(PredicateArgument node) {
+			public boolean apply(PredicateArgument arg) {
 				skip++ ;
 				return skip >= page.getStartLoc() && skip < page.getEndLoc() ;
 			}

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.neo4j.helpers.Predicates;
 
+import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.search.util.PredicateArgument;
 import net.ion.craken.tree.Fqn;
@@ -18,7 +19,7 @@ public class PredicatedResponse {
 	private final Predicate<PredicateArgument> predicate;
 	private final List<PredicateArgument> founded;
 
-	public PredicatedResponse(Predicate<PredicateArgument> predicate, List<PredicateArgument> result) {
+	private PredicatedResponse(Predicate<PredicateArgument> predicate, List<PredicateArgument> result) {
 		this.predicate = predicate ;
 		this.founded = result ;
 	}
@@ -64,5 +65,9 @@ public class PredicatedResponse {
 	public ReadNode readNode(int index) {
 		final PredicateArgument arg = founded.get(index);
 		return arg.session().pathBy(arg.fqn()) ;
+	}
+
+	public NodeCommon<ReadNode> last() {
+		return readNode(founded.size() -1);
 	}
 }

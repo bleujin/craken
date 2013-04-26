@@ -34,7 +34,10 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public boolean removeChild(String fqn) ;
 	
 	public void removeChildren() ;
-	
-	
+
+	public WriteNode refToFirst(String refName, String fqn);
+
+	public WriteNode refToLast(String refName, String fqn);
+
 
 }

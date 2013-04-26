@@ -11,7 +11,7 @@ public class TransactionJobs {
 			@Override
 			public Void handle(WriteSession wsession) {
 				for (int i : ListUtil.rangeNum(count)) {
-					wsession.root().addChild(prefixFqn + "/" + i).property("name", "bleujin").property("dummy", i) ;
+					wsession.root().addChild(prefixFqn + (prefixFqn.endsWith("/") ? "" : "/") + i).property("name", "bleujin").property("dummy", i) ;
 				}
 				return null;
 			}

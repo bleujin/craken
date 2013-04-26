@@ -17,7 +17,7 @@ public class WriteSessionImpl implements WriteSession {
 	}
 
 	public WriteNode pathBy(String fqn) {
-		return WriteNodeImpl.load(workspace.getNode(fqn)) ;
+		return WriteNodeImpl.loadTo(workspace.getNode(fqn)) ;
 	}
 
 	public WriteNode root() {

@@ -106,6 +106,7 @@ public class WorkspaceImpl implements Workspace {
 					workspace.endTran();
 					return result;
 				} catch (Throwable ex) {
+					ex.printStackTrace() ;
 					workspace.failEndTran();
 					wsession.failRollback();
 					handler.handle(wsession, ex);

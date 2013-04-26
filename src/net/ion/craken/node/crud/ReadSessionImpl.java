@@ -25,7 +25,7 @@ public class ReadSessionImpl implements ReadSession{
 	}
 
 	public ReadNode pathBy(String fqn) {
-		return ReadNodeImpl.load(workspace.getNode(fqn)) ;
+		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
 	}
 
 	public boolean exists(String fqn) {
@@ -33,7 +33,7 @@ public class ReadSessionImpl implements ReadSession{
 	}
 
 	public ReadNode pathBy(Fqn fqn) {
-		return ReadNodeImpl.load(workspace.getNode(fqn)) ;
+		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
 	}
 
 	public boolean exists(Fqn fqn) {
