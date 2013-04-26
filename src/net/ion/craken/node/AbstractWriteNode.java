@@ -4,61 +4,72 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.SetUtil;
 
 import com.google.common.base.Optional;
 
 public abstract class AbstractWriteNode implements WriteNode {
 
-	protected abstract TreeNode inner() ;
-	protected abstract WriteNode load(TreeNode inner) ;
+	protected abstract TreeNode<PropertyId, PropertyValue> tree() ;
+	protected abstract WriteNode load(TreeNode<PropertyId, PropertyValue> inner) ;
 	
 	public String toString(){
 		return this.getClass().getSimpleName() + "[fqn=" + fqn() + "]";
 	}
 
 	public WriteNode property(String key, Object value) {
-		inner().put(key, value) ;
+		tree().put(PropertyId.normal(key), PropertyValue.primitive(value)) ;
 		return this ;
 	}
 	
 	public Object propertyIfAbsent(String key, Object value){
-		return inner().putIfAbsent(key, value) ;
+		return tree().putIfAbsent(PropertyId.normal(key), PropertyValue.primitive(value)) ;
 	}
 	
 	public Object replace(String key, Object value){
-		return inner().replace(key, value) ;
+		return tree().replace(PropertyId.normal(key), PropertyValue.primitive(value)) ;
 	}
 	
 	public boolean replace(String key, Object oldValue, Object newValue){
-		return inner().replace(key, oldValue, newValue) ;
+		return tree().replace(PropertyId.normal(key), PropertyValue.primitive(oldValue), PropertyValue.primitive(newValue)) ;
 	}
 	
 	public WriteNode propertyAll(Map<String, ? extends Object> map){
-		inner().putAll(map) ;
+		tree().putAll(modMap(map)) ;
 		return this ;
+	}
+	private Map<PropertyId, PropertyValue> modMap(Map<String, ? extends Object> map) {
+		Map<PropertyId, PropertyValue> modMap = MapUtil.newMap() ;
+		for (Entry<String, ? extends Object> entry : map.entrySet()) {
+			modMap.put(PropertyId.normal(entry.getKey()), PropertyValue.primitive(entry.getValue())) ;
+		}
+		return modMap;
 	}
 	
 	public WriteNode replaceAll(Map<String, ? extends Object> newMap){
-		inner().replaceAll(newMap) ;
+		tree().replaceAll(modMap(newMap)) ;
 		return this ;
 	}
 	
 	
 	public WriteNode unset(String key){
-		inner().remove(key) ;
+		tree().remove(PropertyId.normal(key)) ;
 		return this ;
 	}
 	
 	
 	public WriteNode clear(){
 //		Object id = id() ;
-		inner().clearData() ;
+		tree().clearData() ;
 //		inner().put(NodeCommon.IDProp, id) ;
 		return this ;
 	}
@@ -71,7 +82,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 		
 		Iterator<Object> iter = Fqn.fromString(relativeFqn).peekElements().iterator();
 		
-		TreeNode last = inner() ;
+		TreeNode last = tree() ;
 		while(iter.hasNext()){
 			last = last.addChild(Fqn.fromElements(iter.next()));
 		}
@@ -80,11 +91,11 @@ public abstract class AbstractWriteNode implements WriteNode {
 	
 	
 	public boolean removeChild(String fqn){
-		return inner().removeChild(Fqn.fromString(fqn)) ;
+		return tree().removeChild(Fqn.fromString(fqn)) ;
 	}
 	
 	public void removeChildren(){
-		inner().removeChildren() ;
+		tree().removeChildren() ;
 	}
 	
 	
@@ -110,41 +121,42 @@ public abstract class AbstractWriteNode implements WriteNode {
 	
 	// common
 	public Fqn fqn(){
-		return inner().getFqn() ;
+		return tree().getFqn() ;
 	}
 	
 	public int dataSize(){
-		return inner().dataSize() ;
+		return tree().dataSize() ;
 	}
 	
 	public WriteNode parent(){
-		return load(inner().getParent()) ;
+		return load(tree().getParent()) ;
 	}
 	
 	
 	public boolean hasChild(String fqn){
-		return inner().hasChild(Fqn.fromString(fqn)) ;
+		return tree().hasChild(Fqn.fromString(fqn)) ;
 	}
 	
 	public WriteNode child(String fqn){
-		return load(inner().getChild(Fqn.fromString(fqn))) ;
+		return load(tree().getChild(Fqn.fromString(fqn))) ;
 	}
 	
-	public Set<String> childrenNames(){
-		return inner().getChildrenNames() ;
+	public Set<Object> childrenNames(){
+		return tree().getChildrenNames() ;
 	}
 		
-	public Set<String> keys(){
-		return inner().getKeys() ;
+	public Set<PropertyId> keys(){
+		return tree().getKeys() ;
 	}
 	
-	public Object property(String key) {
-		return inner().get(key);
+	public PropertyValue property(String key) {
+		return tree().get(PropertyId.normal(key));
 	}
 
 	public Optional optional(String key) {
-		return Optional.fromNullable(inner().get(key));
+		return Optional.fromNullable(tree().get(PropertyId.normal(key)));
 	}
+	
 	
 	
 	public Object id(){

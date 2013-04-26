@@ -19,10 +19,10 @@ import net.ion.framework.util.ObjectId;
 public class WriteSearchNode extends AbstractWriteNode{
 
 
-	private TreeNode inner ;
+	private TreeNode tree ;
 	
 	private WriteSearchNode(TreeNode inner) {
-		this.inner = inner ;
+		this.tree = inner ;
 	}
 
 	public static WriteSearchNode loadTo(TreeNode inner) {
@@ -33,12 +33,12 @@ public class WriteSearchNode extends AbstractWriteNode{
 		return new WriteSearchNode(inner);
 	}
 	
-	protected TreeNode inner(){
-		return inner ;
+	protected TreeNode tree(){
+		return tree ;
 	}
 	
 	public IteratorList<WriteNode> children(){
-		final Iterator<TreeNode> iter = inner().getChildren().iterator();
+		final Iterator<TreeNode> iter = tree().getChildren().iterator();
 		return new IteratorList<WriteNode>() {
 			@Override
 			public boolean hasNext() {

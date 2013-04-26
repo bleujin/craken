@@ -36,22 +36,7 @@ public class TestOptional extends TestBaseCrud {
 		Debug.line(rmap.property("key")) ;
 	}
 	
-	public void testRef() throws Exception {
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", Optional.of(new StringBuilder("bleujin")));
-				return null ;
-			}
-		}).get() ;
-		
-		Optional<StringBuilder> optional = (Optional) session.pathBy("/bleujin").property("name") ;
-		assertEquals("bleujin", optional.get().toString()) ;
-		optional.get().append(" hi") ;
-		
-		Optional<StringBuilder> mod = (Optional) session.pathBy("/bleujin").property("name") ;
-		Debug.line(mod.get()) ;
-	}
+
 }
 
 class RefMap {

@@ -9,8 +9,8 @@ import org.infinispan.manager.DefaultCacheManager;
 
 public class TestPathGeneric extends TestCase {
 
-	private TreeCache<String, Object> tree;
-	private Cache<String, Object> cache;
+	private TreeCache<PropertyId, PropertyValue> tree;
+	private Cache<PropertyId, PropertyValue> cache;
 
 	@Override
 	protected void setUp() throws Exception {

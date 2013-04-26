@@ -11,6 +11,8 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.ReadSessionImpl;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceImpl;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeCacheFactory;
 import net.ion.craken.tree.TreeNodeKey;
@@ -106,8 +108,8 @@ public class RepositorySearchImpl implements RepositorySearch {
 		}
 	}
 	
-	private TreeCache<String, ? extends Object> treeCache(String string) {
-		Cache<String, ? extends Object> cache = dftManager.getCache();
+	private TreeCache<PropertyId, PropertyValue> treeCache(String string) {
+		Cache<PropertyId, PropertyValue> cache = dftManager.getCache();
 		return new TreeCacheFactory().createTreeCache(cache) ;
 	}
 	

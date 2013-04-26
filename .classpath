@@ -5,7 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/ref/aradon_0.9.jar"/>
-	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
 	<classpathentry kind="lib" path="lib/ref/mongonode_0.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/commons-configuration-1.6.jar"/>
@@ -21,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ISearcher"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_3.0.jar"/>
+	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -9,8 +9,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	IteratorList<ReadNode> refs(String relName);
 
 	<T> T toBean(Class<T> clz);
-	
-	
+
 
 	
 }

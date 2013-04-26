@@ -14,6 +14,7 @@ import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.ReadNodeImpl;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.StringUtil;
@@ -138,8 +139,8 @@ public class ReadSearchSession implements ReadSession {
 				Fqn fqn = node.fqn() ;
 				MyDocument doc = MyDocument.newDocument(fqn.toString());
 				doc.keyword(NodeCommon.NameProp, fqn.getLastElementAsString());
-				for (String nodeKey : node.keys()) {
-					doc.addUnknown(nodeKey, node.property(nodeKey));
+				for (PropertyId nodeKey : node.keys()) {
+//					doc.addUnknown(nodeKey, node.property(nodeKey.toString()));
 				}
 				return doc ;
 			}

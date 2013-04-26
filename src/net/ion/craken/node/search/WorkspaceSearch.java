@@ -14,6 +14,8 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.TreeNodeKey;
@@ -43,12 +45,12 @@ public class WorkspaceSearch implements Workspace {
 
 	private Repository repository;
 	private Central central;
-	private TreeCache treeCache;
+	private TreeCache<PropertyId, PropertyValue> treeCache;
 	private String wsName;
 	private Class<? extends Analyzer> indexAnal;
 	private Future<Void> lastCommand;
 
-	private WorkspaceSearch(Repository repository, Central central, TreeCache treeCache, String wsName) {
+	private WorkspaceSearch(Repository repository, Central central, TreeCache<PropertyId, PropertyValue> treeCache, String wsName) {
 		this.repository = repository;
 		this.central = central;
 		this.treeCache = treeCache;
@@ -67,7 +69,7 @@ public class WorkspaceSearch implements Workspace {
 		return indexAnal;
 	}
 
-	static WorkspaceSearch create(Repository repository, Central central, TreeCache treeCache, String wsName) {
+	static WorkspaceSearch create(Repository repository, Central central, TreeCache<PropertyId, PropertyValue> treeCache, String wsName) {
 		return new WorkspaceSearch(repository, central, treeCache, wsName);
 	}
 
@@ -77,14 +79,14 @@ public class WorkspaceSearch implements Workspace {
 
 	// inner package
 	
-	TreeNode<String, ? extends Object> getNode(String fqn) {
+	TreeNode<PropertyId, PropertyValue> getNode(String fqn) {
 		return getNode(Fqn.fromString(fqn)) ;
 	}
 	
-	TreeNode<String, ? extends Object> getNode(Fqn fqn) {
+	TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn) {
 		try {
 			beginTran();
-			TreeNode found = treeCache.getNode(fqn);
+			TreeNode<PropertyId, PropertyValue> found = treeCache.getNode(fqn);
 			if (found == null) {
 				if (!treeCache.exists(fqn)) {
 					treeCache.put(fqn, MapUtil.EMPTY);

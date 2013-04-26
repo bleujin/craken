@@ -1,18 +1,16 @@
 package net.ion.craken.node.crud;
 
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import net.ion.craken.node.ReadNode;
-
-import junit.framework.TestCase;
+import net.ion.craken.tree.PropertyId;
 
 public class TestFirst extends TestBaseCrud {
 
 
 	public void testLoad() throws Exception {
 		ReadNode node = session.pathBy("/") ;
-		Set<String> keys = node.keys() ;
+		Set<PropertyId> keys = node.keys() ;
 		
 		assertEquals(0, keys.size()) ;
 	}

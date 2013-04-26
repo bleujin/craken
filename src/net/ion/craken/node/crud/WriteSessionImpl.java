@@ -2,7 +2,6 @@ package net.ion.craken.node.crud;
 
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 

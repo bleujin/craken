@@ -5,6 +5,8 @@ import java.util.Set;
 import com.google.common.base.Optional;
 
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 
 public interface NodeCommon<T extends NodeCommon> {
 	
@@ -21,15 +23,15 @@ public interface NodeCommon<T extends NodeCommon> {
 
 	public T child(String fqn);
 
-	public Set<String> childrenNames();
+	public Set<Object> childrenNames();
 
 	public IteratorList<T> children();
 
-	public Set<String> keys();
+	public Set<PropertyId> keys();
 
-	public Object property(String key);
+	public PropertyValue property(String key);
 	
-	public Optional optional(String key) ;
+	public Optional<PropertyValue> optional(String key) ;
 	
 	public Object id() ;
 
