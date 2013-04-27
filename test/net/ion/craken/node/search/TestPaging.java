@@ -12,11 +12,11 @@ public class TestPaging extends TestBaseSearch {
 		session.tranSync(TransactionJobs.dummy("/dept", 25)) ;
 		
 		PredicatedResponse result = session.createRequest("bleujin").awaitIndex().ascending("dummy").find().predicated(ReadNodePredicate.belowAt("/emp")).predicated(ReadNodePredicate.page(Page.create(5, 2)));
-		assertEquals("bleujin", result.readNode(0).property("name")) ;
+		assertEquals("bleujin", result.readNode(0).property("name").value()) ;
 		assertEquals(5, result.size()) ;
 		
-		assertEquals(5, result.first().property("dummy")) ;
-		assertEquals(9, result.last().property("dummy")) ;
+		assertEquals(5, result.first().property("dummy").value()) ;
+		assertEquals(9, result.last().property("dummy").value()) ;
 	}
 
 }

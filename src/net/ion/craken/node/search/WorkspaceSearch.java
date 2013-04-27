@@ -150,12 +150,12 @@ public class WorkspaceSearch implements Workspace {
 	}
 
 	@CacheEntryModified
-	public void entryModified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap> e) throws InterruptedException, ExecutionException {
+	public void entryModified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e) throws InterruptedException, ExecutionException {
 		if (e.isPre())
 			return;
 
 		final TreeNodeKey key = e.getKey();
-		final AtomicHashMap<String, ?> value = e.getValue();
+		final AtomicHashMap<PropertyId, PropertyValue> value = e.getValue();
 
 //		if ("bleujin".equals(value.get("name")))
 //			Debug.debug(value.get(NodeCommon.IDProp));
@@ -166,8 +166,8 @@ public class WorkspaceSearch implements Workspace {
 				public Void handle(IndexSession isession) throws Exception {
 					MyDocument doc = MyDocument.newDocument(key.getFqn().toString());
 					doc.keyword(NodeCommon.NameProp, key.getFqn().getLastElementAsString());
-					for (String key : value.keySet()) {
-						doc.addUnknown(key, value.get(key));
+					for (PropertyId key : value.keySet()) {
+						doc.addUnknown(key.getString(), value.get(key).value());
 					}
 					isession.updateDocument(doc);
 					return null;

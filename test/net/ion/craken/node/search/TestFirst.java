@@ -13,26 +13,8 @@ import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.util.Debug;
 
-public class TestFirst extends TestCase {
+public class TestFirst extends TestBaseSearch {
 
-	private RepositorySearch r ;
-	protected ReadSearchSession session;
-
-	@Override
-	protected void setUp() throws Exception {
-//		GlobalConfiguration globalConfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("crakensearch").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
-		this.r = RepositoryImpl.testSingle().forSearch() ;
-		this.session = r.testLogin("test") ;
-		
-		Debug.line(session.root().id()) ;
-	}
-	
-	@Override
-	protected void tearDown() throws Exception {
-		this.r.shutdown() ;
-		super.tearDown();
-	}
-	
 	public void testRoot() throws Exception {
 		ReadNode root = session.root();
 		assertEquals(true, root.property("__id") != null) ;

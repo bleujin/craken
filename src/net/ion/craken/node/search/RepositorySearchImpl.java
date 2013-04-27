@@ -116,10 +116,10 @@ public class RepositorySearchImpl implements RepositorySearch {
 	
 	@Override
 	public void shutdown() {
-		for (Central central : centrals.values()) {
-			IOUtil.closeQuietly(central);
-		}
 		inner.shutdown();
+//		for (Central central : centrals.values()) {
+//			IOUtil.closeQuietly(central);
+//		}
 	}
 
 	@Override

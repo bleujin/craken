@@ -10,11 +10,12 @@ import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.search.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.SetUtil;
 
-public class TestRefNode extends TestBaseRef {
+public class TestRefNode extends TestBaseCrud {
 
 	public void testFirst() throws Exception {
 		session.tranSync(TransactionJobs.dummy("/emp", 10)) ;

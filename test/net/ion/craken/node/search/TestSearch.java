@@ -64,7 +64,7 @@ public class TestSearch extends TestBaseSearch {
 		assertEquals(1, response.size()) ;
 
 		ReadNode firstNode = response.first();
-		assertEquals("dev", firstNode.property("job")) ;
+		assertEquals("dev", firstNode.property("job").value()) ;
 		
 	}
 	

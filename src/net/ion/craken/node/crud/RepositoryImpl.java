@@ -66,7 +66,7 @@ public class RepositoryImpl implements Repository{
 		for (Workspace ws : wss.values()) {
 			ws.close() ;
 		}
-		executor.awaitUnInterupt(100, TimeUnit.MILLISECONDS) ;
+		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS) ;
 		executor.shutdown() ;
 		dm.stop() ;
 	}
