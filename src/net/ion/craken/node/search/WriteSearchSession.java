@@ -23,11 +23,10 @@ public class WriteSearchSession implements WriteSession {
 		this.readSession = readSearchSession ;
 		this.workspace = workspace ;
 		this.central = central ;
-		
 	}
 
 	public WriteNode pathBy(String fqn) {
-		return WriteSearchNode.loadTo(workspace.getNode(fqn)) ;
+		return WriteSearchNode.loadTo(this, workspace.getNode(fqn)) ;
 	}
 
 	public WriteNode root() {

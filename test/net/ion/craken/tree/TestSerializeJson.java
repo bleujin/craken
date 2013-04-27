@@ -22,6 +22,6 @@ public class TestSerializeJson extends TestCase {
 		ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(bout.toByteArray()));
 		PropertyValue read = (PropertyValue) oin.readObject() ;
 		
-		Debug.line(read.jsonElement(), read.jsonElement().getAsJsonPrimitive().getAsDate()) ;
+		Debug.line(read.value()) ;
 	}
 }

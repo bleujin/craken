@@ -10,6 +10,7 @@ import com.google.common.base.Optional;
 import net.ion.craken.node.AbstractWriteNode;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.WriteNode;
+import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeNode;
@@ -21,16 +22,17 @@ public class WriteSearchNode extends AbstractWriteNode{
 
 	private TreeNode tree ;
 	
-	private WriteSearchNode(TreeNode inner) {
+	private WriteSearchNode(WriteSession wsession, TreeNode inner) {
+		super(wsession) ;
 		this.tree = inner ;
 	}
 
-	public static WriteSearchNode loadTo(TreeNode inner) {
-		return new WriteSearchNode(inner);
+	public static WriteSearchNode loadTo(WriteSession wsession, TreeNode inner) {
+		return new WriteSearchNode(wsession, inner);
 	}
 	
-	public WriteSearchNode load(TreeNode inner) {
-		return new WriteSearchNode(inner);
+	public WriteSearchNode load(WriteSession wsession, TreeNode inner) {
+		return new WriteSearchNode(wsession, inner);
 	}
 	
 	protected TreeNode tree(){
@@ -47,7 +49,7 @@ public class WriteSearchNode extends AbstractWriteNode{
 
 			@Override
 			public WriteNode next() {
-				return WriteSearchNode.this.load(iter.next());
+				return WriteSearchNode.this.load(WriteSearchNode.this.wsession(), iter.next());
 			}
 
 			@Override

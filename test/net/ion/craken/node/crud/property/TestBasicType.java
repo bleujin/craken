@@ -27,7 +27,7 @@ public class TestBasicType extends TestBaseCrud {
 		assertEquals(2.3f, found.property("float").value()) ;
 		assertEquals(2.3d, found.property("double").value()) ;
 		assertEquals("string", found.property("string").value()) ;
-		assertEquals(new Date().getDate(), found.property("date").asDate().getDate()) ;
+		assertEquals(new Date().getDate(), ((Date)found.property("date").value()).getDate()) ;
 	}
 	
 	public void testPropertyValueAlwaysNotNull() throws Exception {

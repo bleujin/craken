@@ -9,7 +9,9 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteNode property(String key, Object value) ;
 	
 	public PropertyValue propertyIfAbsent(String key, Object value) ;
-	
+
+	public WriteNode append(String key, Object... value);
+
 	public PropertyValue replace(String key, Object value) ;
 	
 	public boolean replace(String key, Object oldValue, Object newValue) ;
@@ -29,9 +31,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	
 	public void removeChildren() ;
 
-	public WriteNode refToFirst(String refName, String fqn);
+	public WriteNode refTo(String refName, String fqn);
 
-	public WriteNode refToLast(String refName, String fqn);
 
 
 }

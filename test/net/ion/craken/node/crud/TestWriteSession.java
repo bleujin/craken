@@ -26,6 +26,6 @@ public class TestWriteSession extends TestBaseCrud {
 		
 		assertEquals(true, session.exists("/test")) ;
 		ReadNode found = session.pathBy("/test");
-		assertEquals("bleujin", found.property("name")) ;
+		assertEquals("bleujin", found.property("name").value()) ;
 	}
 }

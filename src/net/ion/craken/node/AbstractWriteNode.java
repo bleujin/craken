@@ -21,15 +21,28 @@ import com.google.common.base.Optional;
 
 public abstract class AbstractWriteNode implements WriteNode {
 
+	private WriteSession wsession ;
+	protected AbstractWriteNode(WriteSession wsession) {
+		this.wsession = wsession ;
+	}
 	protected abstract TreeNode<PropertyId, PropertyValue> tree() ;
-	protected abstract WriteNode load(TreeNode<PropertyId, PropertyValue> inner) ;
+	protected abstract WriteNode load(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) ;
+	
+	
+	protected WriteSession wsession(){
+		return wsession ;
+	}
 	
 	public String toString(){
 		return this.getClass().getSimpleName() + "[fqn=" + fqn() + "]";
 	}
 
 	public WriteNode property(String key, Object value) {
-		tree().put(PropertyId.normal(key), PropertyValue.createPrimitive(value)) ;
+		return property(PropertyId.normal(key), PropertyValue.createPrimitive(value)) ;
+	}
+	
+	private WriteNode property(PropertyId pid, PropertyValue pvalue){
+		tree().put(pid, pvalue) ;
 		return this ;
 	}
 	
@@ -49,6 +62,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 		tree().putAll(modMap(map)) ;
 		return this ;
 	}
+	
 	private Map<PropertyId, PropertyValue> modMap(Map<String, ? extends Object> map) {
 		Map<PropertyId, PropertyValue> modMap = MapUtil.newMap() ;
 		for (Entry<String, ? extends Object> entry : map.entrySet()) {
@@ -56,6 +70,18 @@ public abstract class AbstractWriteNode implements WriteNode {
 		}
 		return modMap;
 	}
+	
+	
+	public WriteNode append(String key, Object... value){
+		PropertyValue findValue = property(key) ;
+		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
+		
+		findValue.append(value) ;
+		
+		tree().put(PropertyId.normal(key), findValue) ;
+		return this ;
+	}
+	
 	
 	public WriteNode replaceAll(Map<String, ? extends Object> newMap){
 		tree().replaceAll(modMap(newMap)) ;
@@ -86,7 +112,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 		while(iter.hasNext()){
 			last = last.addChild(Fqn.fromElements(iter.next()));
 		}
-		return load(last) ;
+		return load(wsession(), last) ;
 	}
 	
 	
@@ -98,24 +124,33 @@ public abstract class AbstractWriteNode implements WriteNode {
 		tree().removeChildren() ;
 	}
 	
+	private boolean containsProperty(PropertyId pid){
+		return keys().contains(pid) ;
+	}
+
 	
-	public WriteNode refTo(String refName, String fqn, boolean isFirst){
-		List<String> list = (List<String>) property(refName) ;
-		if (list == null || list.size() == 0) {
-			list = ListUtil.<String>newList();
+	public WriteNode ref(String relName) {
+		PropertyId referId = PropertyId.refer(relName);
+		if (containsProperty(referId)) {
+			Object val = property(referId).value() ;
+			return val == null ? null : wsession.pathBy(val.toString()) ;
+		} else {
+			return null;
 		}
-		if (isFirst) list.add(0, fqn) ; 
-		else list.add(fqn) ;
+	}
+
+	
+	public WriteNode refTo(String refName, String fqn){
 		
-		return property(refName, list) ;
-	}
+		PropertyId referId = PropertyId.refer(refName);
+		PropertyValue findValue = property(referId) ;
+		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
+		
+		findValue.append(fqn) ;
 	
-	
-	public WriteNode refToLast(String refName, String fqn){
-		return refTo(refName, fqn.toString(), false) ;
-	}
-	public WriteNode refToFirst(String refName, String fqn){
-		return refTo(refName, fqn.toString(), true) ;
+		
+		tree().put(referId, findValue) ;
+		return this ;
 	}
 	
 	
@@ -129,7 +164,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	public WriteNode parent(){
-		return load(tree().getParent()) ;
+		return load(wsession(), tree().getParent()) ;
 	}
 	
 	
@@ -138,7 +173,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	public WriteNode child(String fqn){
-		return load(tree().getChild(Fqn.fromString(fqn))) ;
+		return load(wsession(), tree().getChild(Fqn.fromString(fqn))) ;
 	}
 	
 	public Set<Object> childrenNames(){
@@ -150,7 +185,11 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	public PropertyValue property(String key) {
-		return ObjectUtil.coalesce(tree().get(PropertyId.normal(key)), PropertyValue.NotFound);
+		return property(PropertyId.normal(key));
+	}
+	
+	public PropertyValue property(PropertyId pid) {
+		return ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
 	}
 	
 	

@@ -1,9 +1,12 @@
 package net.ion.craken.node.crud;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.IteratorUtils;
 
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadInNode;
@@ -110,7 +113,11 @@ public class ReadNodeImpl implements ReadNode{
 	}
 
 	public PropertyValue property(String key) {
-		return ObjectUtil.coalesce(tree.get(PropertyId.normal(key)), PropertyValue.NotFound);
+		return property(PropertyId.normal(key)) ;
+	}
+
+	public PropertyValue property(PropertyId pid) {
+		return ObjectUtil.coalesce(tree.get(pid), PropertyValue.NotFound);
 	}
 
 	public Optional<PropertyValue> optional(String key) {
@@ -130,50 +137,50 @@ public class ReadNodeImpl implements ReadNode{
 		return tree.getFqn() ;
 	}
 	
-	private boolean containsKey(String key){
-		return keys().contains(PropertyId.normal(key)) ;
+	private boolean containsProperty(PropertyId pid){
+		return keys().contains(pid) ;
 	}
 	
-	public ReadNode ref(String relName){
-		if (containsKey(relName)) {
-			List<String> refs = (List<String>) property(relName) ;
-			Iterator<String> iter = refs.iterator();
-			return session.pathBy(iter.next()) ;
+	public ReadNode ref(String refName){
+		PropertyId referId = PropertyId.refer(refName);
+		if (containsProperty(referId)) {
+			Object val = property(referId).value() ;
+			return val == null ? null : session.pathBy(val.toString()) ;
 		} else {
 			return null;
 		}
 	}
 	
-	public IteratorList<ReadNode> refs(String relName){
-		final JsonArray refs = containsKey(relName) ? property(relName).asArray() : new JsonArray();
-		final String[] iter = (String[]) refs.toObjectArray() ;
+	public IteratorList<ReadNode> refs(String refName){
 		
-		return null ;
-//		return new IteratorList<ReadNode>() {
-//			@Override
-//			public List<ReadNode> toList() {
-//				List<ReadNode> result = ListUtil.newList() ;
-//				for(String ref : refs){
-//					result.add(session.pathBy(ref)) ;
-//				}
-//				return result;
-//			}
-//
-//			@Override
-//			public boolean hasNext() {
-//				return iter.hasNext();
-//			}
-//
-//			@Override
-//			public ReadNode next() {
-//				return session.pathBy(iter.next());
-//			}
-//
-//			@Override
-//			public void remove() {
-//				iter.remove() ;
-//			}
-//		};
+		PropertyId referId = PropertyId.refer(refName);
+		final Iterator<String> iter = containsProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		
+		return new IteratorList<ReadNode>() {
+			@Override
+			public List<ReadNode> toList() {
+				List<ReadNode> result = ListUtil.newList() ;
+				while(iter.hasNext()) {
+					result.add(session.pathBy(iter.next())) ;
+				}
+				return Collections.unmodifiableList(result);
+			}
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public ReadNode next() {
+				return session.pathBy(iter.next());
+			}
+
+			@Override
+			public void remove() {
+				iter.remove() ;
+			}
+		};
 	}
 	
 	public <T> T toBean(Class<T> clz){
