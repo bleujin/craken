@@ -48,4 +48,8 @@ public class PropertyId implements Serializable {
 	public String toString(){
 		return ToStringBuilder.reflectionToString(this) ;
 	}
+
+	public String getString() {
+		return key;
+	}
 }

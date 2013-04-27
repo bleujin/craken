@@ -33,11 +33,11 @@ public class TestReadNode extends TestBaseCrud {
 
 
 	public void testProperty() throws Exception {
-		assertEquals("bleujin", session.pathBy("/bleujin").property("name")) ;
-		assertEquals(20, session.pathBy("/bleujin").property("age")) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value()) ;
+		assertEquals(20, session.pathBy("/bleujin").property("age").value()) ;
 
-		assertEquals("hero", session.pathBy("/hero").property("name")) ;
-		assertEquals(30L, session.pathBy("/hero").property("age")) ;
+		assertEquals("hero", session.pathBy("/hero").property("name").value()) ;
+		assertEquals(30L, session.pathBy("/hero").property("age").value()) ;
 	}
 	
 	

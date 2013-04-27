@@ -3,8 +3,8 @@ package net.ion.craken.node.crud;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.StringUtil;
 
 public class TestWriteNode extends TestBaseCrud {
 
@@ -40,7 +40,7 @@ public class TestWriteNode extends TestBaseCrud {
 	}
 	
 	public void testProperty() throws Exception {
-		assertEquals("bleujin", session.pathBy("/bleujin").property("name")) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value()) ;
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -50,11 +50,29 @@ public class TestWriteNode extends TestBaseCrud {
 			}
 		}).get() ;
 		
-		assertEquals("newname", session.pathBy("/bleujin").property("name")) ;
+		assertEquals("newname", session.pathBy("/bleujin").property("name").value()) ;
 	}
 	
+	
+	
+	public void testAddChildisMerge() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().addChild("/bleujin").property("city", "seoul") ;
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals("seoul", session.pathBy("/bleujin").property("city").value()) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value()) ;
+		assertEquals(20, session.pathBy("/bleujin").property("age").value()) ;
+		
+	}
+	
+	
 	public void testUnSet() throws Exception {
-		assertEquals("bleujin", session.pathBy("/bleujin").property("name")) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value()) ;
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
@@ -63,9 +81,9 @@ public class TestWriteNode extends TestBaseCrud {
 			}
 		}).get() ;
 		
-		assertEquals(true, session.pathBy("/bleujin").property("name") == null) ;
+		assertEquals(true, session.pathBy("/bleujin").property("name").value() == null) ;
 		assertEquals(1, session.pathBy("/bleujin").keys().size()) ;
-		assertEquals(true, session.pathBy("/bleujin").keys().contains("age")) ;
+		assertEquals(true, session.pathBy("/bleujin").property("age").value() != null) ;
 	}
 	
 	
@@ -90,23 +108,52 @@ public class TestWriteNode extends TestBaseCrud {
 		}).get() ;
 		
 		final ReadNode found = session.pathBy("/bleujin");
-		assertEquals("mod", found.property("name")) ;
-		assertEquals(20, found.property("age")) ;
-		assertEquals(20, found.property("new")) ;
+		assertEquals("mod", found.property("name").value()) ;
+		assertEquals(20, found.property("age").value()) ;
+		assertEquals(20, found.property("new").value()) ;
 	}
 	
 	public void testReplaceWith() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				Object beforeValue = wsession.root().child("bleujin").replace("name", "mod") ;
-				assertEquals("bleujin", beforeValue) ;
+				PropertyValue beforeValue = wsession.root().addChild("bleujin").replace("name", "mod") ;
+				assertEquals("bleujin", beforeValue.value()) ;
 				return null;
 			}
 		}).get() ;
 		
 		
 	}
+	
+	public void testPropertyIfAbsent() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsent("key", "value") ;
+				assertEquals(true, beforeValue.value() == null) ;
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals("value", session.pathBy("/absent").property("key").value()) ;
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsent("key", "mod") ; // not modified
+				assertEquals("value", beforeValue.value()) ;
+				return null;
+			}
+		}).get() ;
+
+		assertEquals("value", session.pathBy("/absent").property("key").value()) ;
+
+	}
+	
+	
+	
+	
 	
 	
 }

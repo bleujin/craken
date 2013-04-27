@@ -16,6 +16,8 @@ import net.ion.craken.tree.TreeNode;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.SetUtil;
 
 import com.google.common.base.Optional;
 
@@ -108,7 +110,7 @@ public class ReadNodeImpl implements ReadNode{
 	}
 
 	public PropertyValue property(String key) {
-		return tree.get(PropertyId.normal(key));
+		return ObjectUtil.coalesce(tree.get(PropertyId.normal(key)), PropertyValue.NotFound);
 	}
 
 	public Optional<PropertyValue> optional(String key) {
@@ -129,7 +131,7 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	private boolean containsKey(String key){
-		return keys().contains(key) ;
+		return keys().contains(PropertyId.normal(key)) ;
 	}
 	
 	public ReadNode ref(String relName){

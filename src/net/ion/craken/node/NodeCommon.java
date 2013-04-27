@@ -31,8 +31,6 @@ public interface NodeCommon<T extends NodeCommon> {
 
 	public PropertyValue property(String key);
 	
-	public Optional<PropertyValue> optional(String key) ;
-	
 	public Object id() ;
 
 }

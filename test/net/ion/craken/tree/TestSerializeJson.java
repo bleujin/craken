@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 public class TestSerializeJson extends TestCase {
 
 	public void testWrite() throws Exception {
-		PropertyValue sjson = new PropertyValue(JsonParser.fromObject(new Date()));
+		PropertyValue sjson = PropertyValue.createPrimitive(new Date());
 		final ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		ObjectOutputStream oout = new ObjectOutputStream(bout);
 		

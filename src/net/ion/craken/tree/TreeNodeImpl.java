@@ -272,9 +272,10 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 		startAtomic();
 		try {
 			AtomicMap<K, V> data = getDataInternal(cache);
-			if (!data.containsKey(key))
+			if (!data.containsKey(key)){
 				return data.put(key, value);
-			return null;
+			}
+			return data.get(key);
 		} finally {
 			endAtomic();
 		}

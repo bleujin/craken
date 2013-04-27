@@ -44,12 +44,12 @@ public class TestPathBy extends TestBaseCrud {
 	
 	public void testCreateChild() throws Exception {
 		ReadNode bleujin = session.root().child("bleujin");
-		assertEquals("bleujin", bleujin.property("name")) ;
-		assertEquals(20, bleujin.property("age")) ;
+		assertEquals("bleujin", bleujin.property("name").value()) ;
+		assertEquals(20, bleujin.property("age").value()) ;
 		
 		ReadNode hero = session.pathBy("/hero");
-		assertEquals("hero", hero.property("name")) ;
-		assertEquals(30L, hero.property("age")) ;
+		assertEquals("hero", hero.property("name").value()) ;
+		assertEquals(30L, hero.property("age").value()) ;
 	}
 	
 	
@@ -160,7 +160,7 @@ public class TestPathBy extends TestBaseCrud {
 		}).get() ;
 		
 		assertEquals(true, session.exists("/a/b/c/d")) ; // exist child
-		assertEquals("c", session.pathBy("/a/b/c").property("name")) ;
+		assertEquals("c", session.pathBy("/a/b/c").property("name").value()) ;
 		
 	}
 	

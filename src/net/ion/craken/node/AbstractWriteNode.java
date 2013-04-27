@@ -11,8 +11,10 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
 import com.google.common.base.Optional;
@@ -27,20 +29,20 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 
 	public WriteNode property(String key, Object value) {
-		tree().put(PropertyId.normal(key), PropertyValue.primitive(value)) ;
+		tree().put(PropertyId.normal(key), PropertyValue.createPrimitive(value)) ;
 		return this ;
 	}
 	
-	public Object propertyIfAbsent(String key, Object value){
-		return tree().putIfAbsent(PropertyId.normal(key), PropertyValue.primitive(value)) ;
+	public PropertyValue propertyIfAbsent(String key, Object value){
+		return ObjectUtil.coalesce(tree().putIfAbsent(PropertyId.normal(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound) ;
 	}
 	
-	public Object replace(String key, Object value){
-		return tree().replace(PropertyId.normal(key), PropertyValue.primitive(value)) ;
+	public PropertyValue replace(String key, Object value){
+		return ObjectUtil.coalesce(tree().replace(PropertyId.normal(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound)  ;
 	}
 	
 	public boolean replace(String key, Object oldValue, Object newValue){
-		return tree().replace(PropertyId.normal(key), PropertyValue.primitive(oldValue), PropertyValue.primitive(newValue)) ;
+		return tree().replace(PropertyId.normal(key), PropertyValue.createPrimitive(oldValue), PropertyValue.createPrimitive(newValue)) ;
 	}
 	
 	public WriteNode propertyAll(Map<String, ? extends Object> map){
@@ -50,7 +52,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	private Map<PropertyId, PropertyValue> modMap(Map<String, ? extends Object> map) {
 		Map<PropertyId, PropertyValue> modMap = MapUtil.newMap() ;
 		for (Entry<String, ? extends Object> entry : map.entrySet()) {
-			modMap.put(PropertyId.normal(entry.getKey()), PropertyValue.primitive(entry.getValue())) ;
+			modMap.put(PropertyId.normal(entry.getKey()), PropertyValue.createPrimitive(entry.getValue())) ;
 		}
 		return modMap;
 	}
@@ -68,9 +70,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	
 	
 	public WriteNode clear(){
-//		Object id = id() ;
 		tree().clearData() ;
-//		inner().put(NodeCommon.IDProp, id) ;
 		return this ;
 	}
 	
@@ -150,13 +150,8 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	public PropertyValue property(String key) {
-		return tree().get(PropertyId.normal(key));
+		return ObjectUtil.coalesce(tree().get(PropertyId.normal(key)), PropertyValue.NotFound);
 	}
-
-	public Optional optional(String key) {
-		return Optional.fromNullable(tree().get(PropertyId.normal(key)));
-	}
-	
 	
 	
 	public Object id(){
