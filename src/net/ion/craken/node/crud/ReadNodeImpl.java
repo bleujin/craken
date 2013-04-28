@@ -71,10 +71,10 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	public ReadNode child(String fqn){
-		return session.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
-//		final TreeNode child = tree.getChild(Fqn.fromString(fqn));
-//		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
-//		return load(session, child) ;
+//		return session.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
+		final TreeNode child = tree.getChild(Fqn.fromString(fqn));
+		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
+		return load(session, child) ;
 	}
 	
 	public Set<Object> childrenNames(){

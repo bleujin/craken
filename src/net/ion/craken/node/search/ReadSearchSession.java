@@ -40,14 +40,21 @@ public class ReadSearchSession implements ReadSession {
 		this.central = central ;
 	}
 
-	@Override
-	public boolean exists(String fqn) {
-		return workspace.exists(fqn);
+	public ReadNode pathBy(Fqn fqn) {
+		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
+		return ReadNodeImpl.load(this, workspace.getNode(fqn));
 	}
 
 	@Override
 	public ReadNode pathBy(String fqn) {
+		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
 		return ReadNodeImpl.load(this, workspace.getNode(fqn));
+	}
+
+	
+	@Override
+	public boolean exists(String fqn) {
+		return workspace.exists(fqn);
 	}
 
 	@Override
@@ -55,10 +62,6 @@ public class ReadSearchSession implements ReadSession {
 		return workspace.exists(fqn);
 	}
 
-
-	public ReadNode pathBy(Fqn fqn) {
-		return ReadNodeImpl.load(this, workspace.getNode(fqn));
-	}
 
 	@Override
 	public ReadNode root() {

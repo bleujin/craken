@@ -25,15 +25,17 @@ public class ReadSessionImpl implements ReadSession{
 	}
 
 	public ReadNode pathBy(String fqn) {
+		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
+		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
+	}
+
+	public ReadNode pathBy(Fqn fqn) {
+		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
 		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
 	}
 
 	public boolean exists(String fqn) {
 		return workspace.exists(fqn);
-	}
-
-	public ReadNode pathBy(Fqn fqn) {
-		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
 	}
 
 	public boolean exists(Fqn fqn) {

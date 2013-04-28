@@ -34,14 +34,17 @@ public class TestWriteSession extends TestBaseCrud {
 	public void testPathByInTran() throws Exception {
 
 		assertEquals(false, session.root().hasChild("/bleujin")) ;
-		assertEquals(true, session.pathBy("/bleujin") != null) ; // create
+		try {
+			assertEquals(true, session.pathBy("/bleujin") != null) ;  
+		} catch(IllegalArgumentException expect){}
 //		assertEquals(true, session.root().child("/bleujin") != null) ;
 
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession tsession) {
-				assertEquals(true, tsession.root().hasChild("/bleujin")) ; // create in readsession
+				assertEquals(false, tsession.root().hasChild("/bleujin")) ; // create 
 				assertEquals(true, tsession.pathBy("/bleujin") != null) ;
+				assertEquals(true, tsession.root().hasChild("/bleujin")) ; // created
 				assertEquals(true, tsession.root().child("/bleujin") != null) ;
 
 				return null;

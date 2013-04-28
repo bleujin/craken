@@ -12,17 +12,39 @@ public class TestReadSession extends TestBaseCrud {
 	
 	public void testPathBy() throws Exception {
 		assertEquals(false, session.root().hasChild("/bleujin")) ;
-		assertEquals(true, session.pathBy("/bleujin") != null) ;
-		assertEquals(true, session.root().child("/bleujin") != null) ;
+		try {
+			assertEquals(true, session.pathBy("/bleujin"));
+			fail() ;
+		} catch(IllegalArgumentException expect){
+		}
+		assertEquals(false, session.root().hasChild("/bleujin")) ;
 	}
 	
-	public void testIsNotNull() throws Exception {
-		assertEquals(true, ! session.root().hasChild("/notfound")) ;
-		assertEquals(true, session.root().child("/notfound") != null); // in create
-		assertEquals(true, session.root().hasChild("/notfound")) ;
+	public void testNotFoundPathThrowIllegalException() throws Exception {
+		assertEquals(false, session.root().hasChild("/notfound")) ;
+		try {
+			assertEquals(true, session.root().child("/notfound") != null);
+			fail() ;
+		} catch(IllegalArgumentException expect){
+		}
+		assertEquals(false, session.root().hasChild("/notfound")) ;
+	}
+	
+	public void testRoot() throws Exception {
+		assertEquals(true, session.exists("/")) ;
 	}
 	
 	
+	public void testNotFoundPath2ThrowIllegalException() throws Exception {
+		assertEquals(false, session.exists("/notfound")) ;
+
+		try {
+			session.pathBy("/notfound") ;
+			fail() ;
+		} catch(IllegalArgumentException expect){
+		}
+	}
+
 	
 
 	

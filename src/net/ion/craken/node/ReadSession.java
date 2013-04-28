@@ -12,11 +12,11 @@ public interface ReadSession {
 
 	public ReadNode pathBy(Fqn fqn);
 
-	public ReadNode root();
-
 	public boolean exists(String fqn);
 
 	public boolean exists(Fqn fqn);
+
+	public ReadNode root();
 
 	public <T> Future<T> tran(TransactionJob<T> tjob);
 
