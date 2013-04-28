@@ -129,13 +129,14 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 
 	
-	public WriteNode ref(String relName) {
-		PropertyId referId = PropertyId.refer(relName);
+	public WriteNode ref(String refName) {
+		PropertyId referId = PropertyId.refer(refName);
 		if (containsProperty(referId)) {
 			Object val = property(referId).value() ;
-			return val == null ? null : wsession.pathBy(val.toString()) ;
+			if (val == null) new IllegalArgumentException("not found ref :" + refName) ;
+			return wsession.pathBy(val.toString()) ;
 		} else {
-			return null;
+			throw new IllegalArgumentException("not found ref :" + refName) ;
 		}
 	}
 

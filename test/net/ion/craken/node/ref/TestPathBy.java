@@ -8,7 +8,7 @@ import net.ion.framework.util.Debug;
 public class TestPathBy extends TestBaseCrud {
 
 	
-	public void testNotFoundPath() throws Exception {
+	public void testInReadSession() throws Exception {
 		
 		assertEquals(true, ! session.exists("/bleujin")) ;
 		
@@ -28,6 +28,28 @@ public class TestPathBy extends TestBaseCrud {
 				return null;
 			}
 		}) ;
-		
 	}
+	
+	public void testRefInReadSession() throws Exception {
+		try {
+			session.root().ref("notfound") ;
+			fail() ;
+		} catch(IllegalArgumentException expect){}
+	}
+	
+	public void testRefInWriteSession() throws Exception {
+			session.tranSync(new TransactionJob<Void>() {
+				@Override
+				public Void handle(WriteSession wsession) {
+					try {
+						wsession.root().ref("notfound") ;
+						fail() ;
+					} catch(IllegalArgumentException expect){} ;
+					return null;
+				}
+			}) ;
+	}
+	
+	
+	
 }
