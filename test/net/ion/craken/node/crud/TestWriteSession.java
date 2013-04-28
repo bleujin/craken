@@ -28,4 +28,27 @@ public class TestWriteSession extends TestBaseCrud {
 		ReadNode found = session.pathBy("/test");
 		assertEquals("bleujin", found.property("name").value()) ;
 	}
+	
+	
+	
+	public void testPathByInTran() throws Exception {
+
+		assertEquals(false, session.root().hasChild("/bleujin")) ;
+		assertEquals(true, session.pathBy("/bleujin") != null) ; // create
+//		assertEquals(true, session.root().child("/bleujin") != null) ;
+
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession tsession) {
+				assertEquals(true, tsession.root().hasChild("/bleujin")) ; // create in readsession
+				assertEquals(true, tsession.pathBy("/bleujin") != null) ;
+				assertEquals(true, tsession.root().child("/bleujin") != null) ;
+
+				return null;
+			}
+		}).get();
+		
+	}
+	
+
 }

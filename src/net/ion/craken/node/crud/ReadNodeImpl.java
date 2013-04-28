@@ -6,21 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.IteratorUtils;
-
 import net.ion.craken.node.IteratorList;
-import net.ion.craken.node.ReadInNode;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
-import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
-import net.ion.framework.util.SetUtil;
+
+import org.apache.commons.collections.IteratorUtils;
 
 import com.google.common.base.Optional;
 
@@ -74,9 +71,10 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	public ReadNode child(String fqn){
-		final TreeNode child = tree.getChild(Fqn.fromString(fqn));
-		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
-		return load(session, child) ;
+		return session.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
+//		final TreeNode child = tree.getChild(Fqn.fromString(fqn));
+//		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
+//		return load(session, child) ;
 	}
 	
 	public Set<Object> childrenNames(){
@@ -145,9 +143,11 @@ public class ReadNodeImpl implements ReadNode{
 		PropertyId referId = PropertyId.refer(refName);
 		if (containsProperty(referId)) {
 			Object val = property(referId).value() ;
-			return val == null ? null : session.pathBy(val.toString()) ;
+			if (val == null ) throw new IllegalArgumentException("not found ref :" + refName) ;
+
+			return session.pathBy(val.toString()) ;
 		} else {
-			return null;
+			throw new IllegalArgumentException("not found ref :" + refName) ;
 		}
 	}
 	

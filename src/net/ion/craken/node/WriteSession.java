@@ -1,10 +1,14 @@
 package net.ion.craken.node;
 
+import net.ion.craken.tree.Fqn;
+
 
 
 public interface WriteSession {
 
 	public WriteNode pathBy(String fqn)  ;
+
+	public WriteNode pathBy(Fqn fqn);
 
 	public WriteNode root()  ;
 
@@ -15,6 +19,6 @@ public interface WriteSession {
 	public void endCommit();
 	
 	public Credential credential() ;
-	
+
 	
 }

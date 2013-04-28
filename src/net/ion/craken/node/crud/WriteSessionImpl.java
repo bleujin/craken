@@ -1,9 +1,11 @@
 package net.ion.craken.node.crud;
 
 import net.ion.craken.node.Credential;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.tree.Fqn;
 
 
 public class WriteSessionImpl implements WriteSession {
@@ -19,6 +21,10 @@ public class WriteSessionImpl implements WriteSession {
 		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
 	}
 
+	public WriteNode pathBy(Fqn fqn) {
+		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
+	}
+	
 	public WriteNode root() {
 		return pathBy("/");
 	}

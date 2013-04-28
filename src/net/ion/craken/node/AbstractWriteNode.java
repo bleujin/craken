@@ -173,7 +173,8 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	public WriteNode child(String fqn){
-		return load(wsession(), tree().getChild(Fqn.fromString(fqn))) ;
+		return wsession.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
+//		return load(wsession(), tree().getChild(Fqn.fromString(fqn))) ;
 	}
 	
 	public Set<Object> childrenNames(){
