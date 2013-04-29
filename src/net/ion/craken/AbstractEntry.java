@@ -2,10 +2,7 @@ package net.ion.craken;
 
 import java.io.Serializable;
 
-import net.ion.craken.simple.EmanonKey;
 import net.ion.framework.util.StringUtil;
-
-import org.infinispan.Cache;
 
 
 public abstract class AbstractEntry<E extends AbstractEntry> implements Serializable{

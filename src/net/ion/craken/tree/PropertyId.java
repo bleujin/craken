@@ -8,7 +8,7 @@ public class PropertyId implements Serializable {
 	private static final long serialVersionUID = 7910617121345547495L;
 	
 	public static enum PType implements Serializable {
-		NORMAL, INLIST, REFER
+		NORMAL, REFER
 	}
 
 	private final PType type;
@@ -21,10 +21,6 @@ public class PropertyId implements Serializable {
 	
 	public static final PropertyId normal(String key){
 		return new PropertyId(PType.NORMAL, key) ;
-	}
-
-	public static final PropertyId inlist(String key){
-		return new PropertyId(PType.INLIST, key) ;
 	}
 
 	public static final PropertyId refer(String key){
@@ -47,5 +43,9 @@ public class PropertyId implements Serializable {
 
 	public String getString() {
 		return key;
+	}
+
+	public PType type() {
+		return type;
 	}
 }

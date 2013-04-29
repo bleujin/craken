@@ -12,6 +12,10 @@ public interface ReadSession {
 
 	public ReadNode pathBy(Fqn fqn);
 
+	public ReadNode pathBy(String fqn, boolean createIf);
+
+	public ReadNode pathBy(Fqn fqn, boolean createIf);
+
 	public boolean exists(String fqn);
 
 	public boolean exists(Fqn fqn);
@@ -27,6 +31,7 @@ public interface ReadSession {
 	public Credential credential();
 
 	public Workspace getWorkspace();
+
 
 
 }

@@ -1,5 +1,6 @@
 package net.ion.craken.node;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Optional;
@@ -32,5 +33,8 @@ public interface NodeCommon<T extends NodeCommon> {
 	public PropertyValue property(String key);
 	
 	public Object id() ;
+
+	Map<PropertyId, PropertyValue> toMap();
+
 
 }

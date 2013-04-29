@@ -1,10 +1,13 @@
 package net.ion.craken.node;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import org.apache.commons.collections.IteratorUtils;
 
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.tree.Fqn;
@@ -140,6 +143,32 @@ public abstract class AbstractWriteNode implements WriteNode {
 		}
 	}
 
+	public IteratorList<WriteNode> refs(String refName){
+		
+		PropertyId referId = PropertyId.refer(refName);
+		final Iterator<String> iter = containsProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		
+		return new IteratorList<WriteNode>() {
+			@Override
+			public List<WriteNode> toList() {
+				List<WriteNode> result = ListUtil.newList() ;
+				while(iter.hasNext()) {
+					result.add(wsession.pathBy(iter.next())) ;
+				}
+				return Collections.unmodifiableList(result);
+			}
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public WriteNode next() {
+				return wsession.pathBy(iter.next());
+			}
+		};
+	}
 	
 	public WriteNode refTo(String refName, String fqn){
 		
@@ -194,6 +223,9 @@ public abstract class AbstractWriteNode implements WriteNode {
 		return ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
 	}
 	
+	public Map<PropertyId, PropertyValue> toMap() {
+		return Collections.unmodifiableMap(tree().getData());
+	}
 	
 	public Object id(){
 		return fqn() ;

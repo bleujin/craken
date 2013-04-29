@@ -1,18 +1,12 @@
 package net.ion.craken.node.crud;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
-import net.ion.bleujin.EmbedCacheTest.DebugListener;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
-import junit.framework.TestCase;
 
 public class TestPathBy extends TestBaseCrud {
 
@@ -99,7 +93,10 @@ public class TestPathBy extends TestBaseCrud {
 	}
 	
 	
-	public void testMerge() throws Exception {
+	
+	
+	
+	public void testMergeInWriteSession() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
@@ -112,7 +109,7 @@ public class TestPathBy extends TestBaseCrud {
 		assertEquals(3, session.root().children().toList().size()) ;
 	}
 	
-	public void testMergeChild() throws Exception {
+	public void testMergeChildInWriteSession() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
@@ -137,6 +134,30 @@ public class TestPathBy extends TestBaseCrud {
 //		assertEquals(expected, actual) (session.exists("/a/b"), session.exists("/a"), session.exists("/a/b/c")) ;
 		
 	}
+	
+	public void testThrowExceptionPathInReadSession() throws Exception {
+		try {
+			session.pathBy("/notexist") ;
+			fail();
+		} catch(IllegalArgumentException expect){
+		}
+		
+		session.pathBy("/notexist", true) ; // create
+	}
+	
+	
+	public void testMergedInWriteSession() throws Exception {
+		assertEquals(true, ! session.exists("/bleujin")) ;
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				assertEquals(true, wsession.pathBy("/bleujin") != null) ;
+				return null;
+			}
+		}) ;
+	}
+	
+	
 	
 	public void testRemoveChild() throws Exception {
 		session.tran(new TransactionJob<Void>() {

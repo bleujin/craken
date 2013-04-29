@@ -41,14 +41,20 @@ public class ReadSearchSession implements ReadSession {
 	}
 
 	public ReadNode pathBy(Fqn fqn) {
-		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
-		return ReadNodeImpl.load(this, workspace.getNode(fqn));
+		return pathBy(fqn, false) ;
 	}
 
-	@Override
 	public ReadNode pathBy(String fqn) {
-		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
-		return ReadNodeImpl.load(this, workspace.getNode(fqn));
+		return pathBy(Fqn.fromString(fqn)) ;
+	}
+
+	public ReadNode pathBy(Fqn fqn, boolean createIf) {
+		if (createIf || exists(fqn)) return ReadNodeImpl.load(this, workspace.getNode(fqn));
+		else throw new IllegalArgumentException("not found path :" + fqn) ;
+	}
+
+	public ReadNode pathBy(String fqn, boolean createIf) {
+		return pathBy(Fqn.fromString(fqn), createIf) ;
 	}
 
 	

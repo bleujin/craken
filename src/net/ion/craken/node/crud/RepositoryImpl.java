@@ -3,6 +3,7 @@ package net.ion.craken.node.crud;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
@@ -32,7 +33,7 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 public class RepositoryImpl implements Repository{
 	
 	private IExecutor executor = new IExecutor(0, 3) ;
-	private Map<String, WorkspaceImpl> wss = MapUtil.newCaseInsensitiveMap() ;
+	private Map<String, AbstractWorkspace> wss = MapUtil.newCaseInsensitiveMap() ;
 	private DefaultCacheManager dm;
 
 	public RepositoryImpl(DefaultCacheManager dm){
@@ -83,11 +84,11 @@ public class RepositoryImpl implements Repository{
 		return new ReadSessionImpl(credential, loadWorkspce(wsname));
 	}
 	
-	private synchronized WorkspaceImpl loadWorkspce(String wsname){
+	private synchronized AbstractWorkspace loadWorkspce(String wsname){
 		if (wss.containsKey(wsname)){
 			return wss.get(wsname) ;
 		} else {
-			final WorkspaceImpl created = WorkspaceImpl.create(this, treeCache(wsname + ".node"), wsname);
+			final AbstractWorkspace created = WorkspaceImpl.create(this, treeCache(wsname + ".node"), wsname);
 			created.getNode("/") ;
 			wss.put(wsname, created) ;
 			return wss.get(wsname) ;

@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -11,8 +12,8 @@ import net.ion.craken.tree.Fqn;
 public class WriteSessionImpl implements WriteSession {
 
 	private ReadSession readSession ;
-	private WorkspaceImpl workspace ;
-	public WriteSessionImpl(ReadSession session, WorkspaceImpl workspace) {
+	private AbstractWorkspace workspace ;
+	public WriteSessionImpl(ReadSession session, AbstractWorkspace workspace) {
 		this.readSession = session ;
 		this.workspace = workspace ;
 	}

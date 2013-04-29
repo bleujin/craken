@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import net.ion.craken.node.crud.property.TestAppend;
 import net.ion.craken.node.crud.property.TestBasicType;
 import net.ion.craken.node.crud.property.TestInnerChild;
 import junit.framework.TestSuite;
@@ -19,7 +20,7 @@ public class TestAllCrudNode extends TestSuite {
 		
 		suite.addTestSuite(TestBasicType.class) ;
 		suite.addTestSuite(TestInnerChild.class) ;
-		
+		suite.addTestSuite(TestAppend.class) ;
 		
 		return suite ;
 	}

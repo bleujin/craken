@@ -5,6 +5,7 @@ import java.util.concurrent.Future;
 
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 
+import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -18,22 +19,30 @@ import net.ion.craken.tree.Fqn;
 public class ReadSessionImpl implements ReadSession{
 
 	private Credential credential ;
-	private WorkspaceImpl workspace ;
-	public ReadSessionImpl(Credential credential, WorkspaceImpl workspace) {
+	private AbstractWorkspace workspace ;
+	public ReadSessionImpl(Credential credential, AbstractWorkspace workspace) {
 		this.credential = credential.clearSecretKey() ;
 		this.workspace = workspace ;
 	}
 
 	public ReadNode pathBy(String fqn) {
-		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
-		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
+		return pathBy(Fqn.fromString(fqn)) ;
 	}
 
 	public ReadNode pathBy(Fqn fqn) {
-		if (! exists(fqn)) throw new IllegalArgumentException("not found path :" + fqn) ;
-		return ReadNodeImpl.load(this, workspace.getNode(fqn)) ;
+		return pathBy(fqn, false) ;
 	}
 
+	public ReadNode pathBy(Fqn fqn, boolean createIf) {
+		if (createIf || exists(fqn)) return ReadNodeImpl.load(this, workspace.getNode(fqn));
+		else throw new IllegalArgumentException("not found path :" + fqn) ;
+	}
+
+	public ReadNode pathBy(String fqn, boolean createIf) {
+		return pathBy(Fqn.fromString(fqn), createIf) ;
+	}
+
+	
 	public boolean exists(String fqn) {
 		return workspace.exists(fqn);
 	}
@@ -62,7 +71,7 @@ public class ReadSessionImpl implements ReadSession{
 		return workspace.tran(tsession, tjob, handler) ;
 	}
 
-	public WorkspaceImpl workspace() {
+	public AbstractWorkspace workspace() {
 		return workspace;
 	}
 

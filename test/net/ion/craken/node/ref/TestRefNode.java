@@ -17,15 +17,7 @@ import net.ion.framework.util.SetUtil;
 
 public class TestRefNode extends TestBaseCrud {
 
-	
-	public void testNotExistRefThrowExcpetion() throws Exception {
-		try {
-			session.pathBy("/nofound").ref("friend") ;
-			fail() ;
-		} catch(IllegalArgumentException expect){
-		}
-	}
-	
+
 	
 	public void testUsing() throws Exception {
 		session.tranSync(TransactionJobs.dummy("/emp", 10)) ;

@@ -2,45 +2,40 @@ package net.ion.craken.node.search;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.base.Optional;
 
 import net.ion.craken.node.AbstractWriteNode;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.WriteNodeImpl;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.ObjectId;
 
 public class WriteSearchNode extends AbstractWriteNode{
 
 
-	private TreeNode tree ;
+	private TreeNode<PropertyId, PropertyValue> tree ;
 	
-	private WriteSearchNode(WriteSession wsession, TreeNode inner) {
+	private WriteSearchNode(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) {
 		super(wsession) ;
 		this.tree = inner ;
 	}
 
-	public static WriteSearchNode loadTo(WriteSession wsession, TreeNode inner) {
+	public static WriteSearchNode loadTo(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) {
 		return new WriteSearchNode(wsession, inner);
 	}
 	
-	public WriteSearchNode load(WriteSession wsession, TreeNode inner) {
+	public WriteSearchNode load(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) {
 		return new WriteSearchNode(wsession, inner);
 	}
 	
-	protected TreeNode tree(){
+	protected TreeNode<PropertyId, PropertyValue> tree(){
 		return tree ;
 	}
 	
 	public IteratorList<WriteNode> children(){
-		final Iterator<TreeNode> iter = tree().getChildren().iterator();
+		final Iterator<TreeNode<PropertyId, PropertyValue>> iter = tree().getChildren().iterator();
 		return new IteratorList<WriteNode>() {
 			@Override
 			public boolean hasNext() {

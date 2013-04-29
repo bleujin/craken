@@ -1,15 +1,10 @@
 package net.ion.craken;
 
-import java.util.List;
-
 import net.ion.craken.simple.EmanonKey;
-import net.ion.craken.simple.SimpleKeyFactory;
 import net.ion.framework.util.StringUtil;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-
-import sun.swing.StringUIClientPropertyKey;
 
 public class CrakenInfo extends AbstractEntry<CrakenInfo>{
 

@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.PropertyHandler;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.tree.Fqn;
@@ -15,10 +17,13 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.SetUtil;
 
 import org.apache.commons.collections.IteratorUtils;
 
+import com.amazonaws.transform.MapUnmarshaller;
 import com.google.common.base.Optional;
 
 public class ReadNodeImpl implements ReadNode{
@@ -95,11 +100,6 @@ public class ReadNodeImpl implements ReadNode{
 				return ReadNodeImpl.this.load(session, iter.next());
 			}
 
-			@Override
-			public void remove() {
-				iter.remove() ;
-			}
-			
 			public List<ReadNode> toList(){
 				List<ReadNode> result = ListUtil.newList() ;
 				while(hasNext()){
@@ -128,8 +128,36 @@ public class ReadNodeImpl implements ReadNode{
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return tree.getData();
+		return Collections.unmodifiableMap(tree.getData());
 	}
+	
+	public Map<String, Object> toPropertyMap(final int descendantDepth){
+		final int childDepth = descendantDepth - 1 ;
+		Map<String, Object> result = MapUtil.newMap() ;
+		for(Entry<PropertyId, PropertyValue> entry : toMap().entrySet()) {
+			if (entry.getKey().type() == PropertyId.PType.NORMAL){
+				result.put(entry.getKey().getString(), entry.getValue().asSet().size() <= 1 ? entry.getValue().value() : entry.getValue().asSet()) ;
+			} else if(entry.getKey().type() == PropertyId.PType.REFER && descendantDepth > 0) {
+				IteratorList<ReadNode> refs = refs(entry.getKey().getString());
+				Set<Map<String, Object>> set = SetUtil.orderedSet(SetUtil.newSet()) ;
+				while(refs.hasNext()) {
+					set.add(refs.next().toPropertyMap(childDepth)) ;
+				}
+				result.put('#' + entry.getKey().getString(), set) ;
+			}
+		}
+		
+		IteratorList<ReadNode> children = children();
+		if (descendantDepth > 0 && children.hasNext()) {
+			while(children.hasNext()){
+				final ReadNode next = children.next();
+				result.put('@' + next.fqn().getLastElementAsString(), next.toPropertyMap(childDepth)) ;
+			}
+		}
+		
+		return Collections.unmodifiableMap(result) ;
+	}
+	
 	
 	public Object id(){
 		return tree.getFqn() ;
@@ -145,7 +173,7 @@ public class ReadNodeImpl implements ReadNode{
 			Object val = property(referId).value() ;
 			if (val == null ) throw new IllegalArgumentException("not found ref :" + refName) ;
 
-			return session.pathBy(val.toString()) ;
+			return session.pathBy(val.toString(), true) ;
 		} else {
 			throw new IllegalArgumentException("not found ref :" + refName) ;
 		}
@@ -173,19 +201,17 @@ public class ReadNodeImpl implements ReadNode{
 
 			@Override
 			public ReadNode next() {
-				return session.pathBy(iter.next());
-			}
-
-			@Override
-			public void remove() {
-				iter.remove() ;
+				return session.pathBy(iter.next(), true);
 			}
 		};
 	}
 	
 	public <T> T toBean(Class<T> clz){
-		return JsonParser.fromObject(tree.getData()).getAsJsonObject().getAsObject(clz) ;
+		final Map<String, Object> propertyMap = toPropertyMap(1);
+		
+		return JsonParser.fromObject(propertyMap).getAsJsonObject().getAsObject(clz) ;
 		
 	}
+	
 
 }
