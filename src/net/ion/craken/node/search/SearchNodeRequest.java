@@ -34,7 +34,7 @@ public class SearchNodeRequest {
 		return new SearchNodeRequest(session, query, searcher);
 	}
 	public SearchNodeRequest awaitIndex() throws InterruptedException, ExecutionException {
-		session.getWorkspace().awaitIndex() ;
+		((WorkspaceSearch)session.getWorkspace()).awaitIndex() ;
 		
 		return this;
 	}

@@ -1,5 +1,6 @@
 package net.ion.craken.node.search;
 
+import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
@@ -19,9 +20,9 @@ public class WriteSearchSession implements WriteSession {
 	private ReadSession readSession ;
 	private WriteSession winner ;
 	private Central central ;
-	private WorkspaceSearch workspace ;
+	private AbstractWorkspace workspace ;
 	
-	public WriteSearchSession(ReadSearchSession readSearchSession, WorkspaceSearch workspace, Central central) {
+	public WriteSearchSession(ReadSearchSession readSearchSession, AbstractWorkspace workspace, Central central) {
 		this.readSession = readSearchSession ;
 		this.workspace = workspace ;
 		this.central = central ;

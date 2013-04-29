@@ -134,6 +134,7 @@ public class ReadNodeImpl implements ReadNode{
 	public Map<String, Object> toPropertyMap(final int descendantDepth){
 		final int childDepth = descendantDepth - 1 ;
 		Map<String, Object> result = MapUtil.newMap() ;
+		
 		for(Entry<PropertyId, PropertyValue> entry : toMap().entrySet()) {
 			if (entry.getKey().type() == PropertyId.PType.NORMAL){
 				result.put(entry.getKey().getString(), entry.getValue().asSet().size() <= 1 ? entry.getValue().value() : entry.getValue().asSet()) ;
@@ -207,10 +208,21 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	public <T> T toBean(Class<T> clz){
-		final Map<String, Object> propertyMap = toPropertyMap(1);
+		final Map<String, Object> map = removeKeyPrefix(toPropertyMap(1));
+		return JsonParser.fromObject(map).getAsJsonObject().getAsObject(clz) ;
 		
-		return JsonParser.fromObject(propertyMap).getAsJsonObject().getAsObject(clz) ;
+	}
+	
+	private Map<String, Object> removeKeyPrefix(Map<String, Object> inner){
+		Map<String, Object> result = MapUtil.newMap() ;
 		
+		for (Entry<String, Object> entry : inner.entrySet()) {
+			String modKey = (entry.getKey().startsWith("#") || entry.getKey().startsWith("@")) ? entry.getKey().substring(1) : entry.getKey() ;
+			result.put(modKey, (entry.getValue() instanceof Map) ? removeKeyPrefix((Map<String, Object>)entry.getValue()) : entry.getValue()) ;
+		}
+		
+		
+		return result ;
 	}
 	
 

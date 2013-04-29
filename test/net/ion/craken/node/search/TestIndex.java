@@ -1,6 +1,7 @@
 package net.ion.craken.node.search;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -48,16 +49,22 @@ public class TestIndex extends TestBaseSearch {
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
-				session.tranSync(new TransactionJob<Void>() {
-					@Override
-					public Void handle(WriteSession wsession) {
-						wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", RandomUtil.nextInt(50));
-						wsession.root().addChild("/hero").property("name", "hero").property("age", 25);
-						wsession.root().addChild("/jin").property("name", "jin").property("age", 30);
+				try {
+					session.tranSync(new TransactionJob<Void>() {
+						@Override
+						public Void handle(WriteSession wsession) {
+							wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", RandomUtil.nextInt(50));
+							wsession.root().addChild("/hero").property("name", "hero").property("age", 25);
+							wsession.root().addChild("/jin").property("name", "jin").property("age", 30);
 
-						return null;
-					}
-				});
+							return null;
+						}
+					});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				}
 			}
 		};
 
@@ -74,7 +81,7 @@ public class TestIndex extends TestBaseSearch {
 		}
 
 		indexexec.awaitTermination(3, TimeUnit.SECONDS);
-		assertEquals("test", session.wsName());
+		assertEquals("test", session.workspace().wsName());
 
 	}
 
