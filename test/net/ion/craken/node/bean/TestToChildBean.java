@@ -31,55 +31,6 @@ public class TestToChildBean extends TestBaseCrud{
 	}
 	
 	
-	public void testIncludeRef() throws Exception {
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/dev").property("name", "dev").property("deptno", 20)
-					.addChild("manager").property("name", "bleujin").property("created", new Date()).parent()
-					.refTo("emps", "/emps/jin")
-					.refTo("emps", "/emps/hero") ;
-				
-				wsession.root().addChild("/emps/jin").property("name", "jin") ;
-				wsession.root().addChild("/emps/hero").property("name", "hero") ;
-				
-				return null ;
-			}
-		}).get() ;
-		
-		ReadNode dev = session.pathBy("/dev");
-
-		final Dept devBean = dev.toBean(Dept.class);
-		assertEquals("dev", devBean.name()) ;
-		assertEquals(20, devBean.deptNo()) ;
-		
-		assertEquals("bleujin", devBean.manager().name()) ;
-		assertEquals(2, devBean.emps().size()) ;
-	}
-	
 	
 }
 
-class Dept implements Serializable {
-	
-	private int deptno ;
-	private String name ;
-	private FlatPerson manager ;
-	private Set<FlatPerson> emps ;
-	
-	public String name(){
-		return name ;
-	}
-	
-	public int deptNo(){
-		return deptno ;
-	}
-	
-	public FlatPerson manager(){
-		return manager ;
-	}
-	
-	public Set<FlatPerson> emps(){
-		return emps ;
-	}
-}

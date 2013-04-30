@@ -11,6 +11,7 @@ import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.PropertyHandler;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -164,13 +165,13 @@ public class ReadNodeImpl implements ReadNode{
 		return tree.getFqn() ;
 	}
 	
-	private boolean containsProperty(PropertyId pid){
+	public boolean hasProperty(PropertyId pid){
 		return keys().contains(pid) ;
 	}
 	
 	public ReadNode ref(String refName){
 		PropertyId referId = PropertyId.refer(refName);
-		if (containsProperty(referId)) {
+		if (hasProperty(referId)) {
 			Object val = property(referId).value() ;
 			if (val == null ) throw new IllegalArgumentException("not found ref :" + refName) ;
 
@@ -183,7 +184,7 @@ public class ReadNodeImpl implements ReadNode{
 	public IteratorList<ReadNode> refs(String refName){
 		
 		PropertyId referId = PropertyId.refer(refName);
-		final Iterator<String> iter = containsProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		final Iterator<String> iter = hasProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
 		
 		return new IteratorList<ReadNode>() {
 			@Override
@@ -208,22 +209,7 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	public <T> T toBean(Class<T> clz){
-		final Map<String, Object> map = removeKeyPrefix(toPropertyMap(1));
-		return JsonParser.fromObject(map).getAsJsonObject().getAsObject(clz) ;
-		
+		return ToBeanStrategy.EasyByJson.toBean(this, clz) ;
 	}
 	
-	private Map<String, Object> removeKeyPrefix(Map<String, Object> inner){
-		Map<String, Object> result = MapUtil.newMap() ;
-		
-		for (Entry<String, Object> entry : inner.entrySet()) {
-			String modKey = (entry.getKey().startsWith("#") || entry.getKey().startsWith("@")) ? entry.getKey().substring(1) : entry.getKey() ;
-			result.put(modKey, (entry.getValue() instanceof Map) ? removeKeyPrefix((Map<String, Object>)entry.getValue()) : entry.getValue()) ;
-		}
-		
-		
-		return result ;
-	}
-	
-
 }

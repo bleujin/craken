@@ -7,9 +7,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.ion.craken.EntryKey;
-import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.logging.LogBroker;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.neo.NodeCursor;
 import net.ion.neo.ReadNode;
@@ -28,12 +30,10 @@ import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
 import org.infinispan.marshall.StreamingMarshaller;
-import org.infinispan.util.logging.Log;
-import org.infinispan.util.logging.LogFactory;
 
 @CacheLoaderMetadata(configurationClass = NeoNodeCacheStoreConfig.class)
 public class NeoNodeCacheStore extends AbstractCacheStore {
-	private static final Log log = LogFactory.getLog(NeoNodeCacheStore.class);
+	private static final Logger log = LogBroker.getLogger(NeoNodeCacheStore.class);
 
 	private NeoNodeCacheStoreConfig config;
 	private ReadSession session;
@@ -200,9 +200,7 @@ public class NeoNodeCacheStore extends AbstractCacheStore {
 			}
 		});
 
-		if (log.isTraceEnabled()) {
-			log.tracef("removed %s expired records", future);
-		}
+		log.log(Level.INFO, "removed %s expired records", future);
 		return false;
 	}
 

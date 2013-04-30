@@ -1,5 +1,25 @@
 package net.ion.craken.loaders;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.net.UnknownHostException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.ion.craken.EntryKey;
+import net.ion.framework.logging.LogBroker;
+
+import org.infinispan.Cache;
+import org.infinispan.container.entries.InternalCacheEntry;
+import org.infinispan.loaders.AbstractCacheStore;
+import org.infinispan.loaders.CacheLoaderConfig;
+import org.infinispan.loaders.CacheLoaderException;
+import org.infinispan.loaders.CacheLoaderMetadata;
+import org.infinispan.marshall.StreamingMarshaller;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -10,32 +30,9 @@ import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
-import net.ion.craken.EntryKey;
-import net.ion.framework.parse.gson.JsonParser;
-import net.ion.framework.util.Debug;
-
-import org.infinispan.Cache;
-import org.infinispan.container.entries.InternalCacheEntry;
-import org.infinispan.loaders.AbstractCacheStore;
-import org.infinispan.loaders.CacheLoaderConfig;
-import org.infinispan.loaders.CacheLoaderException;
-import org.infinispan.loaders.CacheLoaderMetadata;
-import org.infinispan.marshall.StreamingMarshaller;
-import org.infinispan.util.logging.Log;
-import org.infinispan.util.logging.LogFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.net.UnknownHostException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 @CacheLoaderMetadata(configurationClass = MongoDBCacheStoreConfig.class)
 public class MongoDBCacheStore extends AbstractCacheStore {
-	private static final Log log = LogFactory.getLog(MongoDBCacheStore.class);
+	private static final Logger log = LogBroker.getLogger(MongoDBCacheStore.class);
 
 	private MongoDBCacheStoreConfig config;
 	private DBCollection coll;
@@ -189,9 +186,8 @@ public class MongoDBCacheStore extends AbstractCacheStore {
 	public boolean remove(Object key) throws CacheLoaderException {
 		DBObject query = new BasicDBObject("_id", key);
 		WriteResult result = coll.remove(query);
-		if (log.isTraceEnabled()) {
-			log.tracef("removed %d expired records", result.getN());
-		}
+		log.log(Level.INFO, "removed %d expired records", result.getN());
+
 		result.getLastError().throwOnError();
 		return false;
 	}

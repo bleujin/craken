@@ -31,12 +31,7 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	
 	public void removeChildren() ;
 
-	public WriteNode ref(String refName) ;
-	
-	IteratorList<WriteNode> refs(String relName);
-	
 	public WriteNode refTo(String refName, String fqn);
-
 
 
 }

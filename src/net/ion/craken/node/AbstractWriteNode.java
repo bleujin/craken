@@ -127,14 +127,14 @@ public abstract class AbstractWriteNode implements WriteNode {
 		tree().removeChildren() ;
 	}
 	
-	private boolean containsProperty(PropertyId pid){
+	public boolean hasProperty(PropertyId pid){
 		return keys().contains(pid) ;
 	}
 
 	
 	public WriteNode ref(String refName) {
 		PropertyId referId = PropertyId.refer(refName);
-		if (containsProperty(referId)) {
+		if (hasProperty(referId)) {
 			Object val = property(referId).value() ;
 			if (val == null) new IllegalArgumentException("not found ref :" + refName) ;
 			return wsession.pathBy(val.toString()) ;
@@ -146,7 +146,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	public IteratorList<WriteNode> refs(String refName){
 		
 		PropertyId referId = PropertyId.refer(refName);
-		final Iterator<String> iter = containsProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		final Iterator<String> iter = hasProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
 		
 		return new IteratorList<WriteNode>() {
 			@Override

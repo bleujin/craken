@@ -22,6 +22,14 @@
  */
 package net.ion.craken.tree;
 
+
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.ion.framework.logging.LogBroker;
+
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.CacheException;
@@ -31,13 +39,10 @@ import org.infinispan.context.Flag;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
-import java.util.Map;
-import java.util.Set;
-
 public class TreeCache<K, V> extends TreeStructureSupport {
 	private static final Log log = LogFactory.getLog(TreeCache.class);
 	private static final boolean trace = log.isTraceEnabled();
-
+	
 	public TreeCache(Cache<?, ?> cache) {
 		this(cache.getAdvancedCache());
 	}
@@ -139,12 +144,10 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 		if (fqn.isRoot())
 			return false;
 		boolean result;
-		if (trace)
-			log.tracef("About to remove node %s", fqn);
+		if (trace) log.tracef("About to remove node %s", fqn);
 		TreeNode<K, V> n = getNode(cache, fqn.getParent());
 		result = n != null && n.removeChild(fqn.getLastElement());
-		if (trace)
-			log.trace("Node successfully removed");
+		if (trace) log.trace("Node successfully removed");
 		return result;
 	}
 
@@ -223,14 +226,12 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 	}
 
 	private void move(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
-		if (trace)
-			log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
+		if (trace) log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
 		if (nodeToMoveFqn == null || newParentFqn == null)
 			throw new NullPointerException("Cannot accept null parameters!");
 
 		if (nodeToMoveFqn.getParent().equals(newParentFqn)) {
-			if (trace)
-				log.trace("Not doing anything as this node is equal with its parent");
+			if (trace) log.trace("Not doing anything as this node is equal with its parent");
 			// moving onto self! Do nothing!
 			return;
 		}
@@ -242,21 +243,18 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 			// ensures the write skew is properly detected if some other thread removes the child
 			TreeNode<K, V> parent = getNode(cache, nodeToMoveFqn.getParent());
 			if (!parent.hasChild(nodeToMoveFqn.getLastElement())) {
-				if (trace)
-					log.trace("The parent does not have the child that needs to be moved. Returning...");
+				 if (trace) log.trace("The parent does not have the child that needs to be moved. Returning...");
 				return;
 			}
 			TreeNode<K, V> nodeToMove = getNode(cache.withFlags(Flag.FORCE_WRITE_LOCK), nodeToMoveFqn);
 			if (nodeToMove == null) {
-				if (trace)
-					log.trace("Did not find the node that needs to be moved. Returning...");
+				if (trace) log.trace("Did not find the node that needs to be moved. Returning...");
 				return; // nothing to do here!
 			}
 			if (!exists(cache, newParentFqn)) {
 				// then we need to silently create the new parent
 				createNodeInCache(cache, newParentFqn);
-				if (trace)
-					log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
+				if (trace) log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
 			}
 
 			// create an empty node for this new parent
@@ -268,8 +266,7 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 				newNode.putAll(oldData);
 			for (Object child : nodeToMove.getChildrenNames()) {
 				// move kids
-				if (trace)
-					log.tracef("Moving child %s", child);
+				if (trace) log.tracef("Moving child %s", child);
 				Fqn oldChildFqn = Fqn.fromRelativeElements(nodeToMoveFqn, child);
 				move(cache, oldChildFqn, newFqn);
 			}

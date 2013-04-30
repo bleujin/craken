@@ -1,6 +1,6 @@
 package net.ion.craken.tree;
 
-import net.ion.framework.util.ObjectId;
+import java.util.logging.Level;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;
@@ -12,7 +12,7 @@ import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
 public class TreeStructureSupport extends AutoBatchSupport {
-	private static final Log log = LogFactory.getLog(TreeStructureSupport.class);
+    private static final Log log = LogFactory.getLog(TreeStructureSupport.class);
 
 	protected final AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache;
 
@@ -56,8 +56,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 			getAtomicMap(structureKey);
 			getAtomicMap(dataKey);
 
-			if (log.isTraceEnabled())
-				log.tracef("Created node %s", fqn);
+			if (log.isTraceEnabled()) log.tracef("Created node %s", fqn);
 			return true;
 		} finally {
 			endAtomic();
@@ -84,9 +83,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 			getAtomicMap(cache, structureKey);
 			getAtomicMap(cache, dataKey);
 			
-
-			if (log.isTraceEnabled())
-				log.tracef("Created node %s", fqn);
+			if (log.isTraceEnabled()) log.tracef("Created node %s", fqn);
 			return true;
 		} finally {
 			endAtomic();
