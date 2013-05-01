@@ -33,12 +33,6 @@ public class SearchNodeRequest {
 	public static SearchNodeRequest create(ReadSearchSession session, Searcher searcher, Query query) {
 		return new SearchNodeRequest(session, query, searcher);
 	}
-	public SearchNodeRequest awaitIndex() throws InterruptedException, ExecutionException {
-		((WorkspaceSearch)session.getWorkspace()).awaitIndex() ;
-		
-		return this;
-	}
-	
 	
 	
 	

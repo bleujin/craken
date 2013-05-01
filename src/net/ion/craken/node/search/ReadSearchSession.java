@@ -1,6 +1,7 @@
 package net.ion.craken.node.search;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -55,6 +56,14 @@ public class ReadSearchSession extends AbstractReadSession {
 		return SearchNodeRequest.create(this, central.newSearcher(), central.searchConfig().parseQuery(analyzer, query));
 	}
 	
+	public ReadSearchSession awaitIndex() throws InterruptedException, ExecutionException {
+		((WorkspaceSearch)getWorkspace()).awaitIndex() ;
+		
+		return this;
+	}
+	
+	
+
 
 	
 	public Future<AtomicInteger> reIndex(final ReadNode top) {

@@ -9,7 +9,7 @@ public class TestFilter extends TestBaseSearch {
 		session.tranSync(TransactionJobs.dummyBleujin(20)) ;
 		// instantly search
 
-		SearchNodeResponse response = session.createRequest("dummy:[+10 TO +20]").awaitIndex().find();
+		SearchNodeResponse response = session.awaitIndex().createRequest("dummy:[+10 TO +20]").find();
 		Debug.line() ;
 		
 		response.debugPrint() ;

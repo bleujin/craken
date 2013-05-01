@@ -28,7 +28,7 @@ public class TestSearch extends TestBaseSearch {
 		}) ;
 
 		// instantly search
-		SearchNodeResponse response = session.createRequest("").awaitIndex().find();
+		SearchNodeResponse response = session.awaitIndex().createRequest("").find();
 		assertEquals(1, response.size()) ;
 	}
 	
@@ -44,7 +44,7 @@ public class TestSearch extends TestBaseSearch {
 			}
 		}) ;
 		
-		SearchNodeResponse response = session.createRequest("").awaitIndex().skip(10).offset(10).ascending("index").find();
+		SearchNodeResponse response = session.awaitIndex().createRequest("").skip(10).offset(10).ascending("index").find();
 		assertEquals(10, response.size()) ;
 		assertEquals(500, response.totalCount()) ;
 	}
@@ -60,7 +60,7 @@ public class TestSearch extends TestBaseSearch {
 			}
 		}) ;
 		
-		SearchNodeResponse response = session.createRequest("bleujin").awaitIndex().find();
+		SearchNodeResponse response = session.awaitIndex().createRequest("bleujin").find();
 		assertEquals(1, response.size()) ;
 
 		ReadNode firstNode = response.first();
@@ -71,7 +71,7 @@ public class TestSearch extends TestBaseSearch {
 	
 	public void testOnRemove() throws Exception {
 		session.tranSync(TransactionJobs.dummyBleujin(10)) ;
-		assertEquals(10, session.createRequest("bleujin").awaitIndex().find().totalCount()) ;
+		assertEquals(10, session.awaitIndex().createRequest("bleujin").find().totalCount()) ;
 		
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
@@ -80,7 +80,7 @@ public class TestSearch extends TestBaseSearch {
 				return null ;
 			}
 		}) ;
-		assertEquals(0, session.createRequest("bleujin").awaitIndex().find().totalCount()) ;
+		assertEquals(0, session.awaitIndex().createRequest("bleujin").find().totalCount()) ;
 		
 	}
 	
@@ -96,7 +96,7 @@ public class TestSearch extends TestBaseSearch {
 			}
 		}) ;
 		
-		assertEquals(3, session.createRequest("dev").awaitIndex().find().size()) ;
+		assertEquals(3, session.awaitIndex().createRequest("dev").find().size()) ;
 		
 		
 		List<ReadNode> list = session.createRequest("dev").descending("name").find().predicated(ReadNodePredicate.belowAt("/emp")).toList();
