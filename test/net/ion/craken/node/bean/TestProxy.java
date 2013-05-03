@@ -39,7 +39,7 @@ public class TestProxy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", new StringBuffer("dev"))
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev")
 					.addChild("manager").property("name", "bleujin").property("age", 20).property("created", new Date()) ;
 				return null;
 			}
@@ -56,8 +56,10 @@ public class TestProxy extends TestBaseCrud {
 		assertEquals("bleujin", manager.name()) ;
 		assertEquals(20, manager.age()) ;
 		assertEquals(true, manager.created() != null) ;
-
 	}
+	
+	
+	
 	
 	
 	
@@ -68,11 +70,11 @@ public class TestProxy extends TestBaseCrud {
 class Dept implements Serializable {
 	private static final long serialVersionUID = 8529181055812294059L;
 	private int deptno ;
-	private StringBuffer name ;
+	private String name ;
 	private FlatPerson manager ;
 	private Set<FlatPerson> emps ;
 	
-	public StringBuffer name(){
+	public String name(){
 		return name ;
 	}
 	

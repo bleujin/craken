@@ -28,7 +28,7 @@ public class TestToRefBean extends TestBaseCrud {
 		ReadNode dev = session.pathBy("/dev");
 
 		final Dept devBean = dev.toBean(Dept.class);
-		assertEquals("dev", devBean.name()) ;
+		assertEquals("dev", devBean.name().toString()) ;
 		assertEquals(20, devBean.deptNo()) ;
 		
 		assertEquals("bleujin", devBean.manager().name()) ;

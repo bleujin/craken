@@ -4,14 +4,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.bean.ProxyBean;
+import net.ion.craken.node.bean.TypeStrategy;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.MapUtil;
 
 public interface ToBeanStrategy {
 	
 	public final static ToBeanStrategy EasyByJson = new JsonStrategy() ;
+	public final static ToBeanStrategy ProxyByCGLib = new ProxyByCGLib() ;
 	
 	public <T> T toBean(ReadNode node, Class<T> clz) ;
+}
+
+class ProxyByCGLib implements ToBeanStrategy {
+
+	@Override
+	public <T> T toBean(ReadNode node, Class<T> clz) {
+		return ProxyBean.create(TypeStrategy.DEFAULT, node, clz) ;
+	}
+	
 }
 
 

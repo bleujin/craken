@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import net.ion.craken.node.crud.ReadNodeImpl;
 import net.ion.craken.node.crud.WorkspaceImpl;
 import net.ion.craken.node.crud.WriteSessionImpl;
+import net.ion.craken.node.exception.NotFoundPath;
 import net.ion.craken.tree.Fqn;
 
 public abstract class AbstractReadSession implements ReadSession{
@@ -27,7 +28,7 @@ public abstract class AbstractReadSession implements ReadSession{
 
 	public ReadNode pathBy(Fqn fqn, boolean createIf) {
 		if (createIf || exists(fqn)) return ReadNodeImpl.load(this, workspace.getNode(fqn));
-		else throw new IllegalArgumentException("not found path :" + fqn) ;
+		else throw new NotFoundPath(fqn) ;
 	}
 
 	public ReadNode pathBy(String fqn, boolean createIf) {

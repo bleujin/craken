@@ -209,7 +209,8 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	public <T> T toBean(Class<T> clz){
-		return ToBeanStrategy.EasyByJson.toBean(this, clz) ;
+		return ToBeanStrategy.ProxyByCGLib.toBean(this, clz) ;
+//		return ToBeanStrategy.EasyByJson.toBean(this, clz) ;
 	}
 	
 }

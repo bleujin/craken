@@ -34,7 +34,7 @@ public class TestBasicType extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("nullchcek").property("boolean", true);
+				wsession.pathBy("nullchcek").property("boolean", true);
 				return null;
 			}
 		}).get() ;

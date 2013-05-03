@@ -5,28 +5,27 @@ import java.lang.reflect.Modifier;
 
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
+import net.ion.framework.util.Debug;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 public class ProxyBean implements MethodInterceptor{
 
-	
-	private NodeCommon node ;
+	private ReadNode node ;
 	private volatile boolean initialized = false ;
 	private TypeStrategy ts ;
-	public ProxyBean(TypeStrategy ts, NodeCommon node) {
+	public ProxyBean(TypeStrategy ts, ReadNode node) {
 		this.ts = ts ;
 		this.node = node ;
 	}
 
-	public final static <T> T create(TypeStrategy ts, NodeCommon node2, Class<T> clz){
+	public final static <T> T create(TypeStrategy ts, ReadNode node, Class<T> clz){
 		try {
 			
 			Enhancer e = new Enhancer();
 			e.setSuperclass(clz);
-			e.setCallback(new ProxyBean(ts, node2));
-			
+			e.setCallback(new ProxyBean(ts, node));
 			
 			return (T)e.create();
 		} catch (Throwable e) {
@@ -44,7 +43,7 @@ public class ProxyBean implements MethodInterceptor{
 					
 					if (ts.supported(field, node)){
 						field.setAccessible(true) ;
-						field.set(obj, ts.resolveAdaptor(field, node)) ;
+						ts.resolveAdaptor(obj, field, node) ;
 					}
 				}
 				initialized = true ;
@@ -55,6 +54,5 @@ public class ProxyBean implements MethodInterceptor{
 		return proxy.invokeSuper(obj, args);
 	}
 	
-	private static Class[] HandleType = new Class[]{String.class, } ;
 }
 
