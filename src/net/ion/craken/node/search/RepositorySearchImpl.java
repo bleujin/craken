@@ -49,7 +49,6 @@ public class RepositorySearchImpl implements RepositorySearch {
 	public RepositorySearchImpl(RepositoryImpl repository, DefaultCacheManager dftManager) {
 		this.inner = repository;
 		this.dftManager = dftManager;
-		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParserImpl()) ;
 	}
 
 	@Override

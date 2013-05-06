@@ -8,6 +8,8 @@ import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.node.convert.rows.ColumnParserImpl;
 import net.ion.craken.node.search.RepositorySearch;
 import net.ion.craken.node.search.RepositorySearchImpl;
 import net.ion.craken.tree.TreeCache;
@@ -40,6 +42,7 @@ public class RepositoryImpl implements Repository{
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
 		dm.start() ;
+		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParserImpl()) ;
 	}
 	
 	public static RepositoryImpl create() {

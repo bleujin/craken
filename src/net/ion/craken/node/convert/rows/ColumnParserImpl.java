@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang.CharUtils;
+
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.convert.rows.function.NvlFunction;
 import net.ion.craken.node.convert.rows.function.SingleColumn;
@@ -89,9 +91,9 @@ public class ColumnParserImpl implements ColumnParser {
 			} else {
 				String[] exps = StringUtil.split(expression, " ");
 				if (exps.length == 1) {
-					return new NormalColumn(exps[0], StringUtil.coalesce(StringUtil.substringAfterLast(exps[0], "."), exps[0]));
+					return new PropertyColumn(exps[0], StringUtil.coalesce(StringUtil.substringAfterLast(exps[0], "."), exps[0]));
 				} else if (exps.length == 2) {
-					return new NormalColumn(exps[0], exps[1]);
+					return new PropertyColumn(exps[0], exps[1]);
 					// } else if (exps.length == 2 && expression.contains(".")) { // a.b
 					// return new ReferenceColumn(expression, exps[1]);
 					// } else if (exps.length == 2 && expression.contains(" ")) { // a b
@@ -129,14 +131,14 @@ public class ColumnParserImpl implements ColumnParser {
 	}
 }
 
-class NormalColumn extends SingleColumn {
+class PropertyColumn extends SingleColumn {
 
 	private String targetColumn;
 	private String label;
 
-	NormalColumn(String targetColumn, String label) {
-		this.targetColumn = targetColumn.toLowerCase();
-		this.label = label.toLowerCase();
+	PropertyColumn(String targetColumn, String label) {
+		this.targetColumn = targetColumn ;
+		this.label = label ;
 	}
 
 	public String getLabel() {
@@ -149,17 +151,18 @@ class NormalColumn extends SingleColumn {
 	}
 
 	public Object getValue(ReadNode node) {
-		String columnExpr = targetColumn;
-		ReadNode that = node;
-		while (StringUtil.contains(columnExpr, '.')) {
-			String path = StringUtil.substringBefore(columnExpr, ".");
-			if (!node.hasChild(path))
-				return null;
-			that = that.child(path);
-			columnExpr = StringUtil.substringAfter(columnExpr, ".");
+		
+		StringBuilder prefix = new StringBuilder() ;
+		for(char c : targetColumn.toCharArray()){
+			if (c == '/' && node.hasChild(prefix.toString())){
+				return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "/"),  label).getValue(node.child(prefix.toString())) ;
+			} else if (c == '@' && node.hasRef(prefix.toString())) {
+				return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "@"),  label).getValue(node.ref(prefix.toString())) ;
+			}
+			prefix.append(c) ;
 		}
 
-		return that.property(columnExpr).value();
+		return node.property(targetColumn).value();
 	}
 
 }

@@ -88,28 +88,8 @@ public class ReadNodeImpl implements ReadNode{
 		return tree.getChildrenNames() ;
 	}
 	
-	public IteratorList<ReadNode> children(){
-		
-		final Iterator<TreeNode<PropertyId, PropertyValue>> iter = tree.getChildren().iterator();
-		return new IteratorList<ReadNode>() {
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public ReadNode next() {
-				return ReadNodeImpl.this.load(session, iter.next());
-			}
-
-			public List<ReadNode> toList(){
-				List<ReadNode> result = ListUtil.newList() ;
-				while(hasNext()){
-					result.add(next()) ;
-				}
-				return result ;
-			}
-		};
+	public ReadChildren children(){
+		return new ReadChildren(session, tree.getChildren().iterator()) ;
 	}
 
 	public PropertyValue property(String key) {
@@ -150,7 +130,7 @@ public class ReadNodeImpl implements ReadNode{
 				while(refs.hasNext()) {
 					set.add(refs.next().toPropertyMap(childDepth)) ;
 				}
-				result.put('#' + entry.getKey().getString(), set) ;
+				result.put('@' + entry.getKey().getString(), set) ;
 			}
 		}
 		
@@ -158,7 +138,7 @@ public class ReadNodeImpl implements ReadNode{
 		if (descendantDepth > 0 && children.hasNext()) {
 			while(children.hasNext()){
 				final ReadNode next = children.next();
-				result.put('@' + next.fqn().getLastElementAsString(), next.toPropertyMap(childDepth)) ;
+				result.put('/' + next.fqn().getLastElementAsString(), next.toPropertyMap(childDepth)) ;
 			}
 		}
 		
@@ -172,6 +152,10 @@ public class ReadNodeImpl implements ReadNode{
 	
 	public boolean hasProperty(PropertyId pid){
 		return keys().contains(pid) ;
+	}
+	
+	public boolean hasRef(String refName){
+		return keys().contains(PropertyId.refer(refName)) ;
 	}
 	
 	public ReadNode ref(String refName){

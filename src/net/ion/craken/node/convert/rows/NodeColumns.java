@@ -33,8 +33,8 @@ public class NodeColumns {
 		return result;
 	}
 
-	public NormalColumn[] getColumns() {
-		return columnList.toArray(new NormalColumn[0]);
+	public PropertyColumn[] getColumns() {
+		return columnList.toArray(new PropertyColumn[0]);
 	}
 
 	private NodeColumns() {

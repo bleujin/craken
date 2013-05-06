@@ -65,10 +65,10 @@ public class TestToPropertyMap extends TestBaseCrud {
 		
 
 		Map<String, Object> map = session.pathBy("/bleujin").toPropertyMap(1);
-		Map<String, Object> addressMap = (Map<String, Object>) map.get("@address");
+		Map<String, Object> addressMap = (Map<String, Object>) map.get("/address");
 		assertEquals(1, addressMap.size()) ;
 
-		Map<String, Object> gchildMap = (Map<String, Object>) addressMap.get("@grandchild");
+		Map<String, Object> gchildMap = (Map<String, Object>) addressMap.get("/grandchild");
 		assertEquals(true, gchildMap == null); // depth == 1
 	}
 
@@ -84,10 +84,10 @@ public class TestToPropertyMap extends TestBaseCrud {
 		}).get() ;
 		
 		Map<String, Object> map = session.pathBy("/bleujin").toPropertyMap(1);
-		Map<String, Object> addressMap = (Map<String, Object>) map.get("@address");
+		Map<String, Object> addressMap = (Map<String, Object>) map.get("/address");
 		assertEquals(1, addressMap.size()) ;
 
-		Map<String, Object> picMap = (Map<String, Object>) map.get("@pic");
+		Map<String, Object> picMap = (Map<String, Object>) map.get("/pic");
 		assertEquals(1, picMap.size()) ;
 		assertEquals("bleujin.jpg", picMap.get("name")) ;
 	}
@@ -109,7 +109,7 @@ public class TestToPropertyMap extends TestBaseCrud {
 		}).get() ;
 		
 		Map<String, Object> map = session.pathBy("/bleujin").toPropertyMap(1);
-		Set<Map<String, Object>> refs = (Set<Map<String, Object>>) map.get("#friends");
+		Set<Map<String, Object>> refs = (Set<Map<String, Object>>) map.get("@friends");
 		
 		assertEquals(3, refs.size()) ;
 		final Iterator<Map<String, Object>> iter = refs.iterator();

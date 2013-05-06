@@ -17,11 +17,11 @@ import net.ion.framework.util.ListUtil;
 
 public class CrakenNodeRows extends RowsImpl {
 
-	public CrakenNodeRows(ReadSearchSession session, Iterator<ReadNode> iterator) throws SQLException {
+	public CrakenNodeRows(ReadSession session, Iterator<ReadNode> iterator) throws SQLException {
 		super(Queryable.Fake);
 	}
 
-	public static Rows create(ReadSearchSession session, IteratorList<ReadNode> iter, NodeColumns columns) throws SQLException {
+	public static Rows create(ReadSession session, IteratorList<ReadNode> iter, NodeColumns columns) throws SQLException {
 		final CrakenNodeRows result = new CrakenNodeRows(session, iter);
 		result.populate(session, iter, columns);
 		result.beforeFirst();
