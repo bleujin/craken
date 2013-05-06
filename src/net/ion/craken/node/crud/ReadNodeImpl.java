@@ -25,6 +25,7 @@ import net.ion.framework.util.SetUtil;
 import org.apache.commons.collections.IteratorUtils;
 
 import com.amazonaws.transform.MapUnmarshaller;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 public class ReadNodeImpl implements ReadNode{
@@ -130,6 +131,10 @@ public class ReadNodeImpl implements ReadNode{
 
 	public Map<PropertyId, PropertyValue> toMap() {
 		return Collections.unmodifiableMap(tree.getData());
+	}
+	
+	public <T> T transformer(Function<ReadNode, T> function){
+		return function.apply(this) ;
 	}
 	
 	public Map<String, Object> toPropertyMap(final int descendantDepth){

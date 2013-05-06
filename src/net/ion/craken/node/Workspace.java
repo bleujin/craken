@@ -21,4 +21,5 @@ public interface Workspace {
 
 	public void removeListener(Object listener);
 	
+	public <T> T getAttribute(String key, Class<T> clz) ;
 }

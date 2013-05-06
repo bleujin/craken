@@ -25,6 +25,12 @@ public abstract class AbstractWorkspace implements Workspace{
 //		this.treeCache.start();
 	}
 
+
+	public <T> T getAttribute(String key, Class<T> clz){
+		return repository.getAttribute(key, clz) ;
+	}
+	
+	
 	public String wsName() {
 		return wsName;
 	}

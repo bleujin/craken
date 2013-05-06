@@ -12,10 +12,12 @@ import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
@@ -84,18 +86,19 @@ public class ReadSearchSession extends AbstractReadSession {
 				aint.incrementAndGet() ;
 			}
 			
-			private MyDocument makeDocument(ReadNode node){
+			private WriteDocument makeDocument(ReadNode node){
 				Fqn fqn = node.fqn() ;
-				MyDocument doc = MyDocument.newDocument(fqn.toString());
+				WriteDocument doc = MyDocument.newDocument(fqn.toString());
 				doc.keyword(NodeCommon.NameProp, fqn.getLastElementAsString());
 				for (PropertyId nodeKey : node.keys()) {
-					doc.addUnknown(nodeKey.getString(), node.property(nodeKey.getString()).value());
+					doc.unknown(nodeKey.getString(), node.property(nodeKey.getString()).value());
 				}
 				
 				return doc ;
 			}
 		});
 	}
+
 
 
 

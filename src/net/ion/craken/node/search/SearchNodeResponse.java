@@ -1,35 +1,48 @@
 package net.ion.craken.node.search;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.ecs.xml.XML;
-import org.neo4j.helpers.Predicates;
-
-import com.google.common.base.Predicate;
-
+import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
-import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.WriteNode;
+import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.node.convert.rows.ColumnParserImpl;
+import net.ion.craken.node.convert.rows.CrakenNodeRows;
+import net.ion.craken.node.convert.rows.NodeColumns;
 import net.ion.craken.node.search.util.PredicateArgument;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.search.SearchResponse;
+
+import org.apache.ecs.xml.XML;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 public class SearchNodeResponse {
 
 	private SearchResponse response;
 	private List<Fqn> found = ListUtil.newList();
 	private ReadSearchSession session ;
+	
+	private final ColumnParser cparser ;
+	
 	public SearchNodeResponse(ReadSearchSession session, SearchResponse response) {
 		this.session = session ;
 		this.response = response ;
-		for (MyDocument doc : response.getDocument()){
-			found.add(Fqn.fromString(doc.get(IKeywordField.ISKey))) ;
+		for (ReadDocument doc : response.getDocument()){
+			found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
 		};
+		this.cparser = session.getWorkspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
 	}
 
 	public static SearchNodeResponse create(ReadSearchSession session, SearchResponse response) {
@@ -53,8 +66,8 @@ public class SearchNodeResponse {
 	}
 
 	public void debugPrint() throws IOException {
-		for (ReadNode node : toList()) {
-			Debug.line(node) ;
+		for (Fqn fqn : found) {
+			Debug.line(session.pathBy(fqn)) ;
 		}
 	}
 
@@ -85,6 +98,38 @@ public class SearchNodeResponse {
 		} 
 		
 		return PredicatedResponse.create(predicate, result);
+	}
+
+	public <T> T transformer(Function<SearchNodeResponse, T> function) {
+		return function.apply(this) ;
+	}
+
+	public Rows toRows(String... cols) throws SQLException {
+		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
+	}
+
+	public IteratorList<ReadNode> iterator() {
+		final Iterator<Fqn> iter = found.iterator();
+		return new IteratorList<ReadNode>() {
+			@Override
+			public List<ReadNode> toList() {
+				List<ReadNode> result = ListUtil.newList() ;
+				while(iter.hasNext()) {
+					result.add(session.pathBy(iter.next())) ;
+				}
+				return Collections.unmodifiableList(result);
+			}
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public ReadNode next() {
+				return session.pathBy(iter.next());
+			}
+		};
 	}
 
 }

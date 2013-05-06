@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import net.ion.craken.node.crud.ReadSessionImpl;
+import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.search.RepositorySearchImpl;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeCacheFactory;
@@ -28,4 +29,7 @@ public interface Repository {
 	
 	public ReadSession login(Credential credential, String wsname) throws IOException  ;
 	
+	public <T> T getAttribute(String key, Class<T> clz) ;
+	
+	public RepositoryImpl putAttribute(String key, Object value) ;
 }

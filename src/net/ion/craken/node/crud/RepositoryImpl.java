@@ -35,6 +35,7 @@ public class RepositoryImpl implements Repository{
 	private IExecutor executor = new IExecutor(0, 3) ;
 	private Map<String, AbstractWorkspace> wss = MapUtil.newCaseInsensitiveMap() ;
 	private DefaultCacheManager dm;
+	private Map<String, Object> attrs = MapUtil.newMap() ;
 
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
@@ -62,6 +63,22 @@ public class RepositoryImpl implements Repository{
 		Cache<String, ? extends Object> cache = dm.getCache();
 		return new TreeCacheFactory().createTreeCache(cache) ;
 	}
+
+	
+	public <T> T getAttribute(String key, Class<T> clz){
+		final Object result = attrs.get(key);
+		if (result == null) throw new IllegalArgumentException(key + " not found.") ;
+		if (clz.isInstance(result)) return clz.cast(result) ;
+		throw new IllegalArgumentException(key + " not found.") ;
+	}
+	
+	
+	public RepositoryImpl putAttribute(String key, Object value){
+		attrs.put(key, value) ;
+		return this ;
+	}
+	
+	
 	
 	public void shutdown() {
 		for (Workspace ws : wss.values()) {

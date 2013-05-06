@@ -8,6 +8,8 @@ import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.node.convert.rows.ColumnParserImpl;
 import net.ion.craken.node.crud.ReadSessionImpl;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceImpl;
@@ -46,8 +48,8 @@ public class RepositorySearchImpl implements RepositorySearch {
 
 	public RepositorySearchImpl(RepositoryImpl repository, DefaultCacheManager dftManager) {
 		this.inner = repository;
-
 		this.dftManager = dftManager;
+		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParserImpl()) ;
 	}
 
 	@Override
@@ -113,6 +115,15 @@ public class RepositorySearchImpl implements RepositorySearch {
 		return new TreeCacheFactory().createTreeCache(cache) ;
 	}
 	
+	
+	public <T> T getAttribute(String key, Class<T> clz) {
+		return inner.getAttribute(key, clz) ;
+	}
+	
+	public RepositoryImpl putAttribute(String key, Object value) {
+		return inner.putAttribute(key, value) ;
+	}
+
 	
 	@Override
 	public void shutdown() {

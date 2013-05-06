@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
@@ -13,10 +14,15 @@ import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.ecs.xml.XML;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.similar.MoreLikeThisQuery;
+import org.apache.lucene.util.Version;
 
 public class SearchNodeRequest {
 
@@ -35,6 +41,13 @@ public class SearchNodeRequest {
 	}
 	
 	
+	public SearchNodeRequest belowTo(Fqn topFqn) throws ParseException {
+		Query query = searcher.config().parseQuery(IKeywordField.ISKey + ":" + topFqn + "/*");
+		
+		searcher.andFilter(new QueryWrapperFilter(query)) ;
+		return this;
+	}
+
 	
 
 	public SearchNodeRequest skip(int skip){

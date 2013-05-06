@@ -13,6 +13,7 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
@@ -59,10 +60,10 @@ public class WorkspaceSearch extends AbstractWorkspace {
 			lastCommand = central.newIndexer().asyncIndex(new IndexJob<Void>() {
 				@Override
 				public Void handle(IndexSession isession) throws Exception {
-					MyDocument doc = MyDocument.newDocument(key.getFqn().toString());
+					WriteDocument doc = MyDocument.newDocument(key.getFqn().toString());
 					doc.keyword(NodeCommon.NameProp, key.getFqn().getLastElementAsString());
 					for (PropertyId key : value.keySet()) {
-						doc.addUnknown(key.getString(), value.get(key).value());
+						doc.unknown(key.getString(), value.get(key).value());
 					}
 					isession.updateDocument(doc);
 					return null;

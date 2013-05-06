@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.ion.craken.node.ReadNode;
-import net.ion.craken.node.bean.ProxyBean;
-import net.ion.craken.node.bean.TypeStrategy;
+import net.ion.craken.node.convert.bean.ProxyBean;
+import net.ion.craken.node.convert.bean.TypeStrategy;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.MapUtil;
 
