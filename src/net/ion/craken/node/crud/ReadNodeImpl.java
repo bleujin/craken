@@ -12,6 +12,7 @@ import net.ion.craken.node.PropertyHandler;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.bean.ToBeanStrategy;
+import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -84,6 +85,10 @@ public class ReadNodeImpl implements ReadNode{
 		return load(session, child) ;
 	}
 	
+	public ReadNode root(){
+		return session.root() ;
+	}
+	
 	public Set<Object> childrenNames(){
 		return tree.getChildrenNames() ;
 	}
@@ -96,6 +101,12 @@ public class ReadNodeImpl implements ReadNode{
 		return property(PropertyId.normal(key)) ;
 	}
 
+
+	public PropertyValue extendProperty(String propPath) {
+		return ExtendPropertyId.create(propPath).propValue(this) ;
+	}
+
+	
 	public PropertyValue property(PropertyId pid) {
 		return ObjectUtil.coalesce(tree.get(pid), PropertyValue.NotFound);
 	}

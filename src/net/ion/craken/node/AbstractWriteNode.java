@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.IteratorUtils;
 
 import net.ion.craken.node.crud.WriteNodeImpl;
+import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -238,6 +239,11 @@ public abstract class AbstractWriteNode implements WriteNode {
 //		return load(wsession(), tree().getChild(Fqn.fromString(fqn))) ;
 	}
 	
+	public WriteNode root(){
+		return wsession.root() ;
+	}
+
+	
 	public Set<Object> childrenNames(){
 		return tree().getChildrenNames() ;
 	}
@@ -248,6 +254,14 @@ public abstract class AbstractWriteNode implements WriteNode {
 	
 	public PropertyValue property(String key) {
 		return property(PropertyId.normal(key));
+	}
+	
+	public boolean hasRef(String refName){
+		return keys().contains(PropertyId.refer(refName)) ;
+	}
+	
+	public PropertyValue extendProperty(String propPath) {
+		return ExtendPropertyId.create(propPath).propValue(this) ;
 	}
 	
 	public PropertyValue property(PropertyId pid) {

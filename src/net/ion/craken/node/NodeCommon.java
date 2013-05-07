@@ -24,6 +24,10 @@ public interface NodeCommon<T extends NodeCommon> {
 	
 	public boolean hasProperty(PropertyId pid) ;
 
+	PropertyValue extendProperty(String propPath);
+
+	public T root() ;
+
 	public T child(String fqn);
 
 	public Set<Object> childrenNames();
@@ -39,7 +43,9 @@ public interface NodeCommon<T extends NodeCommon> {
 	Map<PropertyId, PropertyValue> toMap();
 
 	public T ref(String refName) ;
-	
+
+	boolean hasRef(String refName);
+
 	public IteratorList<T> refs(String refName) ;
 
 }

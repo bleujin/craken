@@ -154,8 +154,12 @@ class PropertyColumn extends SingleColumn {
 		
 		StringBuilder prefix = new StringBuilder() ;
 		for(char c : targetColumn.toCharArray()){
-			if (c == '/' && node.hasChild(prefix.toString())){
-				return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "/"),  label).getValue(node.child(prefix.toString())) ;
+			if (c == '/'){
+				if ("..".equals(prefix.toString())){
+					return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "/"),  label).getValue(node.parent()) ;
+				} else if (node.hasChild(prefix.toString())){
+					return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "/"),  label).getValue(node.child(prefix.toString())) ;
+				}
 			} else if (c == '@' && node.hasRef(prefix.toString())) {
 				return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "@"),  label).getValue(node.ref(prefix.toString())) ;
 			}

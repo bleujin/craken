@@ -17,7 +17,6 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	Map<String, Object> toPropertyMap(int descendantDepth);
 
-	boolean hasRef(String refName);
-
 	public ReadChildren children();
+
 }
