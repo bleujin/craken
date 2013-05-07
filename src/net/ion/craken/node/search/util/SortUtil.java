@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import com.google.common.base.Predicate;
+
 public class SortUtil {
 
-	public static <T> List<T> selectTopN(Iterator<T> values, Comparator<T> comparator, int top) {
-		// Holding n+2 entries, to compute n+1 top items first
+	public static <T> List<T> selectTopN(Iterator<T> values, Predicate<T> filter, Comparator<T> comparator, int top) {
 		Queue<T> topN = new PriorityQueue(top + 2, comparator);
 		while (values.hasNext()) {
 			T value = values.next();
-			if (value != null) {
+			if (value != null && filter != null && filter.apply(value)) {
 				if (topN.size() <= top) {
 					topN.add(value);
 				} else {
@@ -37,5 +38,9 @@ public class SortUtil {
 		List<T> result = new ArrayList(topN);
 		Collections.sort(result, Collections.reverseOrder(comparator));
 		return result;
+	}
+	
+	public static <T> List<T> selectTopN(Iterator<T> values, Comparator<T> comparator, int top) {
+		return selectTopN(values, (Predicate)null, comparator, top) ;
 	}
 }
