@@ -12,6 +12,8 @@ import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
+import net.ion.nsearcher.search.filter.FilterUtil;
+import net.ion.nsearcher.search.filter.TermFilter;
 
 import org.apache.ecs.xml.XML;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -43,11 +45,15 @@ public class SearchNodeRequest {
 	
 	public SearchNodeRequest belowTo(Fqn topFqn) throws ParseException {
 		Query query = searcher.config().parseQuery(IKeywordField.ISKey + ":" + topFqn + "/*");
-		
 		searcher.andFilter(new QueryWrapperFilter(query)) ;
 		return this;
 	}
 
+	public SearchNodeRequest refTo(String refName, Fqn target) throws ParseException {
+		searcher.andFilter(new TermFilter("@" + refName, target.toString())) ;
+		return this ;
+	}
+	
 	
 
 	public SearchNodeRequest skip(int skip){
@@ -106,7 +112,8 @@ public class SearchNodeRequest {
 	}
 	
 	public SearchNodeRequest filter(Filter filter) {
-		request.setFilter(filter) ;
+		Filter compositeFilter = (request.getFilter() == null) ? filter : FilterUtil.and(request.getFilter(), filter) ;
+		request.setFilter(compositeFilter) ;
 		return this ;
 	}
 
@@ -130,5 +137,7 @@ public class SearchNodeRequest {
 	public String toString() {
 		return request.toString() ;
 	}
+
+
 
 }

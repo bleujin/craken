@@ -48,7 +48,7 @@ public class TestToRows extends TestBaseSearch {
 	
 	
 	
-	public void testChild() throws Exception {
+	public void testChildProperty() throws Exception {
 		long start = System.currentTimeMillis() ;
 		final SearchNodeResponse find = session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
 		long mid = System.currentTimeMillis() ;
@@ -66,7 +66,7 @@ public class TestToRows extends TestBaseSearch {
 	}
 	
 	
-	public void testRef() throws Exception {
+	public void testRefProperty() throws Exception {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
@@ -87,6 +87,19 @@ public class TestToRows extends TestBaseSearch {
 	}
 	
 	
+	public void testRefTo() throws Exception {
+
+		Rows rows = session.createRequest("").descending("index").skip(10).offset(2)
+			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name", "substr(writer, 2) writer", "index", "address/city acity", "register@age age") ;
+		
+		Row first = rows.firstRow();
+		assertEquals(39, first.getInt("index")) ;
+		assertEquals("board1", first.getString("name")) ;
+		assertEquals("jin", first.getString("writer")) ;
+		assertEquals("seoul", first.getString("acity")) ;
+		assertEquals(true, first.getObject("age") == null) ;
+	}
+	
 	
 	
 	
@@ -94,7 +107,7 @@ public class TestToRows extends TestBaseSearch {
 	
 	public void xtestLoop() throws Exception {
 		for (int i = 0; i < 20; i++) {
-			testChild() ;
+			testChildProperty() ;
 		}
 	}
 	

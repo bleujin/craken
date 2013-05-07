@@ -3,6 +3,7 @@ package net.ion.craken.node;
 import java.util.Map;
 
 import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.parse.gson.JsonObject;
 
 public interface WriteNode extends NodeCommon<WriteNode> {
 
@@ -32,6 +33,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public void removeChildren() ;
 
 	public WriteNode refTo(String refName, String fqn);
+
+	public WriteNode fromJson(JsonObject json);
 
 
 }

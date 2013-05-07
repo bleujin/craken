@@ -1,4 +1,4 @@
-package net.ion.craken.node.convert.tobean.type;
+package net.ion.craken.node.convert.to.type;
 
 import java.util.List;
 

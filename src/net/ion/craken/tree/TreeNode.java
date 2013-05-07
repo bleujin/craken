@@ -330,7 +330,7 @@ public interface TreeNode<K, V> {
 	boolean hasChild(Object o, Flag... flags);
 
 	/**
-	 * Tests if a node reference is still valid. A node reference may become invalid if it has been removed, invalidated or moved, either locally or remotely. If a node is invalid, it should be fetched again from the cache or a valid parent node. Operations on invalid nodes will throw a {@link org.infinispan.tree.NodeNotValidException}.
+	 * Tests if a node reference is still valid. A node reference may become invalid if it has been removed, invalidated or moved, either locally or remotely. If a node is invalid, it should be fetched again from the cache or a valid parent node. Operations on invalid nodes will throw a {@link net.ion.craken.node.exception.tree.NodeNotValidException}.
 	 * 
 	 * @return true if the node is valid.
 	 */

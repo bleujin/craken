@@ -20,31 +20,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package net.ion.craken.tree;
+package net.ion.craken.node.exception;
+
+import net.ion.craken.tree.TreeNode;
 
 import org.infinispan.CacheException;
 
 /**
- * Thrown when an operation is attempted on a non-existing node in the cache
+ * Thrown whenever operations are attempted on a node that is no longer valid. See {@link TreeNode#isValid()} for details.
  * 
- * @author <a href="mailto:bela@jboss.com">Bela Ban</a>.
+ * @author <a href="mailto:manik@jboss.org">Manik Surtani</a>
  * @since 4.0
  */
+public class NodeNotValidException extends CacheException {
+	private static final long serialVersionUID = 6576866180835456994L;
 
-public class NodeNotExistsException extends CacheException {
-
-	private static final long serialVersionUID = 779376138690777440L;
-
-	public NodeNotExistsException() {
-		super();
+	public NodeNotValidException() {
 	}
 
-	public NodeNotExistsException(String msg) {
+	public NodeNotValidException(Throwable cause) {
+		super(cause);
+	}
+
+	public NodeNotValidException(String msg) {
 		super(msg);
 	}
 
-	public NodeNotExistsException(String msg, Throwable cause) {
+	public NodeNotValidException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
-
 }

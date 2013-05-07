@@ -13,6 +13,7 @@ import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonNull;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
 public class PropertyValue implements Serializable {
@@ -49,6 +50,10 @@ public class PropertyValue implements Serializable {
 			values.add(val) ;
 		}
 		return this ;
+	}
+
+	public String stringValue() {
+		return ObjectUtil.toString(value());
 	}
 
 }

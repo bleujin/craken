@@ -10,7 +10,9 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
+import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.TreeNodeKey.Type;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.common.WriteDocument;
@@ -63,7 +65,11 @@ public class WorkspaceSearch extends AbstractWorkspace {
 					WriteDocument doc = MyDocument.newDocument(key.getFqn().toString());
 					doc.keyword(NodeCommon.NameProp, key.getFqn().getLastElementAsString());
 					for (PropertyId key : value.keySet()) {
-						doc.unknown(key.getString(), value.get(key).value());
+						if (key.type() == PType.REFER) {
+							doc.keyword("@" + key.getString(), value.get(key).stringValue()) ;  
+						} else {
+							doc.unknown(key.getString(), value.get(key).value());
+						}
 					}
 					isession.updateDocument(doc);
 					return null;

@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.framework.logging.LogBroker;
 
 import org.infinispan.AdvancedCache;

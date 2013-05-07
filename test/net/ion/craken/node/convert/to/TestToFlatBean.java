@@ -1,4 +1,4 @@
-package net.ion.craken.node.convert.tobean;
+package net.ion.craken.node.convert.to;
 
 import java.util.Date;
 

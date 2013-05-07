@@ -6,10 +6,8 @@ import java.util.List;
 
 import javax.sql.RowSetMetaData;
 
-import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.search.ReadSearchSession;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.RowsImpl;
 import net.ion.framework.db.procedure.Queryable;
@@ -21,7 +19,7 @@ public class CrakenNodeRows extends RowsImpl {
 		super(Queryable.Fake);
 	}
 
-	public static Rows create(ReadSession session, IteratorList<ReadNode> iter, NodeColumns columns) throws SQLException {
+	public static Rows create(ReadSession session, Iterator<ReadNode> iter, NodeColumns columns) throws SQLException {
 		final CrakenNodeRows result = new CrakenNodeRows(session, iter);
 		result.populate(session, iter, columns);
 		result.beforeFirst();

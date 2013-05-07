@@ -14,6 +14,7 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
@@ -169,6 +170,36 @@ public abstract class AbstractWriteNode implements WriteNode {
 			}
 		};
 	}
+	
+	public WriteNode fromJson(JsonObject json){
+		for (Entry<String, JsonElement> entry : json.entrySet()) {
+			append(this, entry.getKey(), entry.getValue()) ;
+		} 
+		
+		return this;
+	}
+	
+	private void append(WriteNode that, String propId, JsonElement json){
+		if (json.isJsonNull()) {
+			return ;
+		} else if (json.isJsonPrimitive()){
+			if (propId.startsWith("@")){
+				that.refTo(propId.substring(1), json.getAsJsonPrimitive().getAsString()) ;
+			} else {
+				that.append(propId, json.getAsJsonPrimitive().getValue()) ;
+			}
+		} else if (json.isJsonArray()){
+			for (JsonElement jele : json.getAsJsonArray().toArray()){
+				append(that, propId, jele) ;
+			}
+		} else if (json.isJsonObject()){
+			for (Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
+				append(that.addChild(propId), entry.getKey(), entry.getValue()) ;
+			}
+		}
+	}
+	
+	
 	
 	public WriteNode refTo(String refName, String fqn){
 		

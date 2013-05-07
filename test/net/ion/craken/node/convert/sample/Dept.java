@@ -13,6 +13,33 @@ public class Dept implements Serializable {
 	private List<Employee> emps;
 	private Address address;
 
+	
+	public Dept name(String name){
+		this.name = name ;
+		return this ;
+	}
+	
+	public Dept deptno(int deptno){
+		this.deptno = deptno ;
+		return this ;
+	}
+	
+	public Dept manager(Employee manager){
+		this.manager = manager ;
+		return this ;
+	}
+	
+	public Dept emps(List<Employee> emps){
+		this.emps = emps ;
+		return this ;
+	}
+	
+	public Dept address(Address address){
+		this.address = address ;
+		return this ;
+	}
+	
+	
 	public String name() {
 		return name;
 	}

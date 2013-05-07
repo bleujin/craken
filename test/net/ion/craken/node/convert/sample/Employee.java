@@ -8,6 +8,22 @@ public class Employee {
 	private Date created;
 	private Employee pair;
 
+	
+	public Employee name(String name){
+		this.name = name ;
+		return this ;
+	}
+	
+	public Employee age(int age){
+		this.age = age ;
+		return this ;
+	}
+	
+	public Employee created(Date created){
+		this.created = created ;
+		return this ;
+	}
+	
 	public String name() {
 		return name;
 	}
