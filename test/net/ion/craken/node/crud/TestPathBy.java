@@ -147,7 +147,10 @@ public class TestPathBy extends TestBaseCrud {
 	
 	
 	public void testMergedInWriteSession() throws Exception {
-		assertEquals(true, ! session.exists("/bleujin")) ;
+		assertEquals(true, session.exists("/bleujin")) ;
+		assertEquals(false, session.exists("/jin")) ;
+		assertEquals(false, session.exists("/jin")) ;
+		
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
@@ -174,15 +177,39 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				boolean removed = wsession.root().removeChild("/a/b/c") ;
-				assertEquals(false, removed) ; // don't remove 
+				assertEquals(false, wsession.pathBy("/a/b/").removeChild("c/d/e/f")) ; // illegal
+//				assertEquals(true, wsession.pathBy("/a/b/c/d/e/").removeChild("f")) ;
+
+				assertEquals(true, wsession.pathBy("/a/b/c").removeChild("d")) ;
+				
 				return null;
 			}
 		}).get() ;
 		
-		assertEquals(true, session.exists("/a/b/c/d")) ; // exist child
+		assertEquals(false, session.exists("/a/b/c/d")) ; // exist child
 		assertEquals("c", session.pathBy("/a/b/c").property("name").value()) ;
+	}
+	
+	
+	public void testRemoveChild2() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
+				return null;
+			}
+		}).get() ;
+
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				assertEquals(false, wsession.pathBy("/a/b/c/d/e").removeChild("")) ;
+				return null;
+			}
+		}).get() ;
 		
+		assertEquals(true, session.exists("/a/b/c/d/e")) ;
+
 	}
 	
 	public void testRemoveChildren() throws Exception {

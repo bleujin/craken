@@ -22,10 +22,6 @@
  */
 package net.ion.craken.tree;
 
-import org.infinispan.marshall.AbstractExternalizer;
-import org.infinispan.util.ReflectionUtil;
-import org.infinispan.util.Util;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -33,6 +29,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import org.infinispan.marshall.AbstractExternalizer;
+import org.infinispan.util.ReflectionUtil;
+import org.infinispan.util.Util;
 
 /**
  * A Fully Qualified Name (Fqn) is a list of names (typically Strings but can be any Object), which represent a path to a particular {@link TreeNode} in a {@link TreeCache}.

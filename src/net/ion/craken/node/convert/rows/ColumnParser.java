@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 public interface ColumnParser {
 
-	public NodeColumns parse(String... columns) throws SQLException ;
+	public NodeColumns parse(String... columns) ;
 	
 //	public abstract IColumn nvl(String... cols)  ;
 //

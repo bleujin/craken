@@ -1,9 +1,13 @@
 package net.ion.craken.node.crud;
 
+import java.sql.ResultSetMetaData;
 import java.util.List;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.search.util.TransactionJobs;
+import net.ion.framework.db.Page;
+import net.ion.framework.db.Rows;
+import net.ion.framework.util.Debug;
 
 import com.google.common.base.Predicate;
 
@@ -12,7 +16,7 @@ public class TestReadChildren extends TestBaseCrud {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		session.tran(TransactionJobs.dummy("/bleujin", 10)).get() ;
+		session.tran(TransactionJobs.dummy("/bleujin", 200)).get() ;
 	}
 	
 	public void testFirst() throws Exception {
@@ -54,7 +58,19 @@ public class TestReadChildren extends TestBaseCrud {
 
 		assertEquals(1, list.size()) ;
 		assertEquals(4, list.get(0).property("dummy").value()) ;
-		
 	}
+	
+	
+	public void testToPageRows() throws Exception {
+		final Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toRows(Page.create(10, 2), "dummy");
+		rows.debugPrint() ;
+		
+		ResultSetMetaData meta = rows.getMetaData();
+		for ( int i =1 ; i <= meta.getColumnCount() ; i++){
+			Debug.line(meta.getColumnLabel(i)) ;
+		}
+	}
+	
+	
 	
 }

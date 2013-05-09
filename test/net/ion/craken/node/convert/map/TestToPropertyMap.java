@@ -97,9 +97,9 @@ public class TestToPropertyMap extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
-					.refTo("friends", "/hero")
-					.refTo("friends", "/jin")
-					.refTo("friends", "/notfound");
+					.refTos("friends", "/hero")
+					.refTos("friends", "/jin")
+					.refTos("friends", "/notfound");
 				
 				wsession.root().addChild("/hero").property("name", "hero") ;
 				wsession.root().addChild("/jin").property("name", "jin") ;

@@ -22,7 +22,7 @@ public class ColumnParserImpl implements ColumnParser {
 	}
 	private static List<String> FunctionName = ListUtil.toList("nvl", "tochar", "decode", "substr", "sign", "length", "power", "divide", "floor", "mod", "tonumber", "append", "lpad", "minus", "min", "max");
 
-	public NodeColumns parse(String... columns) throws SQLException{
+	public NodeColumns parse(String... columns) {
 		List<IColumn> result = ListUtil.newList() ;
 		for (int i = 0; i < columns.length; i++) {
 			result.add(this.parse(columns[i]));
@@ -91,7 +91,7 @@ public class ColumnParserImpl implements ColumnParser {
 			} else {
 				String[] exps = StringUtil.split(expression, " ");
 				if (exps.length == 1) {
-					return new PropertyColumn(exps[0], StringUtil.coalesce(StringUtil.substringAfterLast(exps[0], "."), exps[0]));
+					return new PropertyColumn(exps[0], "");
 				} else if (exps.length == 2) {
 					return new PropertyColumn(exps[0], exps[1]);
 					// } else if (exps.length == 2 && expression.contains(".")) { // a.b
@@ -142,7 +142,12 @@ class PropertyColumn extends SingleColumn {
 	}
 
 	public String getLabel() {
-		return label;
+		if (StringUtil.isBlank(label)){
+			String[] names = StringUtil.split(targetColumn, "/@") ;
+			return names[names.length-1] ;
+		}
+		
+		return label ;
 	}
 
 	@Override
@@ -155,38 +160,20 @@ class PropertyColumn extends SingleColumn {
 		StringBuilder prefix = new StringBuilder() ;
 		for(char c : targetColumn.toCharArray()){
 			if (c == '/'){
+				final String afterName = StringUtil.substringAfter(targetColumn, prefix.toString() + "/");
 				if ("..".equals(prefix.toString())){
-					return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "/"),  label).getValue(node.parent()) ;
+					return new PropertyColumn(afterName,  afterName).getValue(node.parent()) ;
 				} else if (node.hasChild(prefix.toString())){
-					return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "/"),  label).getValue(node.child(prefix.toString())) ;
+					return new PropertyColumn(afterName,  afterName).getValue(node.child(prefix.toString())) ;
 				}
 			} else if (c == '@' && node.hasRef(prefix.toString())) {
-				return new PropertyColumn(StringUtil.substringAfter(targetColumn, prefix.toString() + "@"),  label).getValue(node.ref(prefix.toString())) ;
+				final String afterName = StringUtil.substringAfter(targetColumn, prefix.toString() + "@");
+				return new PropertyColumn(afterName,  afterName).getValue(node.ref(prefix.toString())) ;
 			}
 			prefix.append(c) ;
 		}
 
 		return node.property(targetColumn).value();
-	}
-
-}
-
-class ConstantColumn extends SingleColumn {
-
-	private Object con;
-	private String label;
-
-	ConstantColumn(Object con, String label) {
-		this.con = con;
-		this.label = label;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public Object getValue(ReadNode node) {
-		return con;
 	}
 
 }

@@ -1,7 +1,10 @@
 package net.ion.craken.tree;
 
-import net.ion.craken.node.NodeCommon;
-import net.ion.framework.util.ObjectId;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicHashMapProxy;
@@ -10,12 +13,6 @@ import org.infinispan.batch.BatchContainer;
 import org.infinispan.context.Flag;
 import org.infinispan.util.Immutables;
 import org.infinispan.util.Util;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode<K, V> {
 	private Fqn fqn;
@@ -534,6 +531,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 
 	@Override
 	public String toString() {
-		return "NodeImpl{" + "fqn=" + fqn + '}';
+		return "TreeNode{" + "fqn=" + fqn + '}';
 	}
 }

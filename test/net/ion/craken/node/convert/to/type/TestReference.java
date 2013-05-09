@@ -15,7 +15,7 @@ public class TestReference extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/dept/dev").property("deptno", 20).property("name", "dev").refTo("manager", "/emps/bleujin") ;
+				wsession.pathBy("/dept/dev").property("deptno", 20).property("name", "dev").refTos("manager", "/emps/bleujin") ;
 				
 				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20) ;
 				return null;
@@ -33,13 +33,13 @@ public class TestReference extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev").refTo("manager", "/emps/bleujin") ;
-				wsession.pathBy("/depts/design").property("deptno", 30).property("name", "design").refTo("manager", "/emps/bleujin") ;
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev").refTos("manager", "/emps/bleujin") ;
+				wsession.pathBy("/depts/design").property("deptno", 30).property("name", "design").refTos("manager", "/emps/bleujin") ;
 				
 				wsession.pathBy("/ion").property("name", "i-on").property("age", 20)
-					.refTo("depts", "/depts/dev")	
-					.refTo("depts", "/depts/design")
-					.refTo("depts", "/depts/unknown");
+					.refTos("depts", "/depts/dev")	
+					.refTos("depts", "/depts/design")
+					.refTos("depts", "/depts/unknown");
 				return null;
 			}
 		}).get() ;
@@ -54,6 +54,30 @@ public class TestReference extends TestBaseCrud {
 		assertEquals(true, depts[2].name() == null) ;
 		
 	}
+	
+	
+	public void testRefIsOverwrite() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev").refTos("manager", "/emps/bleujin") ;
+				wsession.pathBy("/depts/design").property("deptno", 30).property("name", "design").refTos("manager", "/emps/bleujin") ;
+				
+				wsession.pathBy("/ion").property("name", "i-on").property("age", 20)
+					.refTo("depts", "/depts/dev")	
+					.refTo("depts", "/depts/unknown")
+					.refTo("depts", "/depts/design") ;
+				return null;
+			}
+		}).get() ;
+		
+		Company ion = session.pathBy("/ion").toBean(Company.class) ;
+		assertEquals(1, ion.depts().size()) ;
+		Dept[] depts = ion.depts().toArray(new Dept[0]);
+		
+		assertEquals("design", depts[0].name()) ;
+	}
+	
 }
 
 class Company {

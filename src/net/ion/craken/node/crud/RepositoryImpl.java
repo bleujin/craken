@@ -22,6 +22,7 @@ import net.ion.framework.util.MapUtil;
 
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
@@ -46,12 +47,13 @@ public class RepositoryImpl implements Repository{
 	}
 	
 	public static RepositoryImpl create() {
-		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("crakensearch").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
+		GlobalConfiguration gconfig = GlobalConfigurationBuilder
+			.defaultClusteredBuilder().transport().clusterName("crakensearch").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
 		return create(gconfig) ;
 	}
 
 	public static RepositoryImpl create(GlobalConfiguration gconfig) {
-		Configuration config = new ConfigurationBuilder().invocationBatching().enable().build() ; // not indexable : indexing().enable().
+		Configuration config = new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build() ; // not indexable : indexing().enable().
 		return new RepositoryImpl(new DefaultCacheManager(gconfig, config));
 	}
 

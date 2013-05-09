@@ -33,6 +33,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public void removeChildren() ;
 
 	public WriteNode refTo(String refName, String fqn);
+	
+	public WriteNode refTos(String refName, String fqn);
 
 	public WriteNode fromJson(JsonObject json);
 

@@ -11,12 +11,14 @@ import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.PropertyHandler;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
@@ -61,6 +63,10 @@ public class ReadNodeImpl implements ReadNode{
 	
 	
 	// .. common 
+	
+	public ReadSession session(){
+		return session ;
+	}
 	
 	public Fqn fqn(){
 		return tree.getFqn() ;
@@ -213,4 +219,8 @@ public class ReadNodeImpl implements ReadNode{
 //		return ToBeanStrategy.EasyByJson.toBean(this, clz) ;
 	}
 	
+	
+	public Rows toRows(String... cols){
+		return transformer(Functions.rowsFunction(session, cols)) ;
+	}
 }

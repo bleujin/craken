@@ -34,6 +34,10 @@ public abstract class AbstractWorkspace implements Workspace{
 	public String wsName() {
 		return wsName;
 	}
+	
+	public TreeCache getCache(){
+		return treeCache ;
+	}
 
 
 	public void close() {

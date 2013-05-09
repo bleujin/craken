@@ -13,7 +13,7 @@ public class TestExtendProperty extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.pathBy("/users/bleujin").property("name", "jin").addChild("address").property("city", "seoul") ;
-				wsession.pathBy("/boards/freeboard/1").property("subject", "hello").refTo("writer", "/users/bleujin").parent().property("name", "free") ;
+				wsession.pathBy("/boards/freeboard/1").property("subject", "hello").refTos("writer", "/users/bleujin").parent().property("name", "free") ;
 				return null;
 			}
 		}).get() ;

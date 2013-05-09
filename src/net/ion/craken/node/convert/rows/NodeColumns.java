@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.sql.RowSetMetaData;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.framework.db.RepositoryException;
 import net.ion.framework.db.rowset.RowSetMetaDataImpl;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
@@ -41,9 +42,9 @@ public class NodeColumns {
 	}
 
 
-	public static NodeColumns create(IColumn... columns) throws SQLException {
+	public static NodeColumns create(IColumn... columns) {
 		if (columns == null || columns.length == 0) {
-			throw new SQLException("columns not exist");
+			throw RepositoryException.throwIt("columns not exist");
 		}
 
 		NodeColumns result = new NodeColumns();
@@ -53,6 +54,13 @@ public class NodeColumns {
 		return result;
 	}
 
+	public NodeColumns append(IColumn col) {
+		this.columnList.add(col);
+		return this ;
+	}
+
+	
+	
 	public int size() {
 		return columnList.size();
 	}
@@ -117,5 +125,6 @@ public class NodeColumns {
 
 		return meta;
 	}
+
 
 }

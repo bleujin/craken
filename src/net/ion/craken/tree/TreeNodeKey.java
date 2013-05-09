@@ -63,7 +63,7 @@ public class TreeNodeKey implements Serializable {
 	}
 
 	public String toString() {
-		return "NodeKey{" + "contents=" + contents + ", fqn=" + fqn + '}';
+		return "TreeNodeKey{" + "contents=" + contents + ", fqn=" + fqn + '}';
 	}
 
 	public static class Externalizer extends AbstractExternalizer<TreeNodeKey> {

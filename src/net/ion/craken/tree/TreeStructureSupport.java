@@ -1,7 +1,5 @@
 package net.ion.craken.tree;
 
-import java.util.logging.Level;
-
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.AtomicMapLookup;

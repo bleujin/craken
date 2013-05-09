@@ -5,17 +5,20 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.node.convert.rows.ConstantColumn;
 import net.ion.craken.node.convert.rows.CrakenNodeRows;
 import net.ion.craken.node.search.util.SortUtil;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.db.Page;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -99,6 +102,10 @@ public class ReadChildren extends IteratorList<ReadNode>{
 		}
 		return result ;
 	}
+	
+	public <T> T transform(Function<Iterator<ReadNode>, T> fn){
+		return fn.apply(iterator()) ;
+	}
 
 	public Rows toRows(String... cols) throws SQLException{
 		ColumnParser cparser = session.getWorkspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
@@ -109,6 +116,15 @@ public class ReadChildren extends IteratorList<ReadNode>{
 		while(hasNext()){
 			Debug.debug(next()) ;
 		}
+	}
+
+	public Rows toRows(Page page, String... cols) throws SQLException {
+		skip(page.getSkipOnScreen()).offset(page.getOffsetOnScreen()) ;
+		
+		ColumnParser cparser = session.getWorkspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
+		final List<ReadNode> screenList = toList();
+		int count = screenList.size() ;
+		return CrakenNodeRows.create(session, page.subList(screenList).iterator(), cparser.parse(cols).append(new ConstantColumn(count, "cnt")));
 	}
 }
 

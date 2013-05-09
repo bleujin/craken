@@ -122,7 +122,8 @@ public abstract class AbstractWriteNode implements WriteNode {
 	
 	
 	public boolean removeChild(String fqn){
-		return tree().removeChild(Fqn.fromString(fqn)) ;
+		Fqn.fromRelativeFqn(fqn(), Fqn.fromString(fqn)).getLastElementAsString() ;
+		return tree().removeChild(Fqn.fromRelativeFqn(fqn(), Fqn.fromString(fqn))) ;
 	}
 	
 	public void removeChildren(){
@@ -185,7 +186,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 			return ;
 		} else if (json.isJsonPrimitive()){
 			if (propId.startsWith("@")){
-				that.refTo(propId.substring(1), json.getAsJsonPrimitive().getAsString()) ;
+				that.refTos(propId.substring(1), json.getAsJsonPrimitive().getAsString()) ;
 			} else {
 				that.append(propId, json.getAsJsonPrimitive().getValue()) ;
 			}
@@ -201,8 +202,14 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	
-	
 	public WriteNode refTo(String refName, String fqn){
+		PropertyId referId = PropertyId.refer(refName);
+		tree().put(referId, PropertyValue.createPrimitive(fqn)) ;
+		return this ;
+	}
+	
+
+	public WriteNode refTos(String refName, String fqn){
 		
 		PropertyId referId = PropertyId.refer(refName);
 		PropertyValue findValue = property(referId) ;
@@ -214,7 +221,6 @@ public abstract class AbstractWriteNode implements WriteNode {
 		tree().put(referId, findValue) ;
 		return this ;
 	}
-	
 	
 	// common
 	public Fqn fqn(){

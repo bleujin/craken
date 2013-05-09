@@ -17,8 +17,8 @@ public class TestToRefBean extends TestBaseCrud {
 			public Void handle(WriteSession wsession) {
 				wsession.root().addChild("/dev").property("name", "dev").property("deptno", 20)
 					.addChild("manager").property("name", "bleujin").property("created", new Date()).parent()
-					.refTo("emps", "/emps/jin")
-					.refTo("emps", "/emps/hero") ;
+					.refTos("emps", "/emps/jin")
+					.refTos("emps", "/emps/hero") ;
 				
 				wsession.root().addChild("/emps/jin").property("name", "jin") ;
 				wsession.root().addChild("/emps/hero").property("name", "hero") ;

@@ -1,7 +1,6 @@
 package net.ion.craken.tree;
 
 import net.ion.craken.node.NodeCommon;
-import net.ion.craken.node.ReadNode;
 import net.ion.framework.util.StringUtil;
 
 public class ExtendPropertyId {

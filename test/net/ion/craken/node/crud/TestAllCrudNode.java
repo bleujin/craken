@@ -21,7 +21,7 @@ public class TestAllCrudNode extends TestSuite {
 		suite.addTestSuite(TestBasicType.class) ;
 		suite.addTestSuite(TestInnerChild.class) ;
 		suite.addTestSuite(TestAppend.class) ;
-		
+		suite.addTestSuite(TestTransformer.class) ;
 		return suite ;
 	}
 	

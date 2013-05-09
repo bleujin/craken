@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.db.Rows;
 
 
 public interface ReadNode extends NodeCommon<ReadNode> {
@@ -18,5 +19,9 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	Map<String, Object> toPropertyMap(int descendantDepth);
 
 	public ReadChildren children();
+	
+	public ReadSession session() ;
+
+	Rows toRows(String... cols);
 
 }

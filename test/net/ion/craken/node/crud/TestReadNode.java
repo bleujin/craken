@@ -32,7 +32,7 @@ public class TestReadNode extends TestBaseCrud {
 	}
 
 
-	public void testProperty() throws Exception {
+	public void testGetPropertyValue() throws Exception {
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value()) ;
 		assertEquals(20, session.pathBy("/bleujin").property("age").value()) ;
 
@@ -41,14 +41,21 @@ public class TestReadNode extends TestBaseCrud {
 	}
 	
 	
-	public void testKeys() throws Exception {
+	public void testNodeKeys() throws Exception {
 		assertEquals(2, session.pathBy("/bleujin").keys().size()) ;
 	}
 	
-	public void testDataSize() throws Exception {
+	public void testNodeDataSize() throws Exception {
 		assertEquals(2, session.pathBy("/bleujin").dataSize()) ;
 	}
 
+	
+	public void testPropertyReplaceValue() throws Exception {
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value("replaceValue")) ;
+		assertEquals("replaceValue", session.pathBy("/bleujin").property("notfound").value("replaceValue")) ;
+		assertEquals("replaceValue", session.pathBy("/bleujin").property("notfound").value("replaceValue")) ;
+		assertEquals(123, ((Integer)session.pathBy("/bleujin").property("notfound").value(123)).intValue()) ;
+	}
 
 	
 	

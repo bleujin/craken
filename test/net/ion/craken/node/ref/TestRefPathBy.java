@@ -51,7 +51,7 @@ public class TestRefPathBy extends TestBaseCrud {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().refTo("notfound", "/notfound/path");
+				wsession.root().refTos("notfound", "/notfound/path");
 				return null;
 			}
 		});
@@ -64,7 +64,7 @@ public class TestRefPathBy extends TestBaseCrud {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().refTo("notfound", "/notfound/path");
+				wsession.root().refTos("notfound", "/notfound/path");
 				WriteNode notfound = wsession.root().ref("notfound");
 				
 				assertEquals(0, notfound.keys().size()) ;

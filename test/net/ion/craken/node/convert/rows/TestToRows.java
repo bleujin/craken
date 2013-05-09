@@ -22,7 +22,7 @@ public class TestToRows extends TestBaseSearch {
 			public Void handle(WriteSession wsession) {
 				for (int i : ListUtil.rangeNum(50)) {
 					wsession.root().addChild("/board1/" +  i).property("index", i).property("name", "board1").property("writer",  "hijin").addChild("address").property("city", "seoul")
-					.parent().refTo("register", "/users/bleujin").root().addChild("/board1").property("name", "free") ;
+					.parent().refTos("register", "/users/bleujin").root().addChild("/board1").property("name", "free") ;
 				}
 				for (int i : ListUtil.rangeNum(50)) {
 					wsession.root().addChild("/board2/" +  i).property("index", i).property("name", "board2").property("writer", "hero") ;
@@ -91,13 +91,14 @@ public class TestToRows extends TestBaseSearch {
 	public void testRefTo() throws Exception {
 
 		Rows rows = session.createRequest("").descending("index").skip(10).offset(2)
-			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name", "substr(writer, 2) writer", "index", "address/city acity", "register@age age") ;
+			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name", "substr(writer, 2) writer", "index", "address/city acity", "address/city", "register@age age") ;
 		
 		Row first = rows.firstRow();
 		assertEquals(39, first.getInt("index")) ;
 		assertEquals("board1", first.getString("name")) ;
 		assertEquals("jin", first.getString("writer")) ;
 		assertEquals("seoul", first.getString("acity")) ;
+		assertEquals("seoul", first.getString("city")) ;
 		assertEquals(true, first.getObject("age") == null) ;
 	}
 	

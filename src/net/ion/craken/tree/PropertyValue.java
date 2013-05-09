@@ -1,18 +1,11 @@
 package net.ion.craken.tree;
 
-import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.collections.SetUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
-import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonElement;
-import net.ion.framework.parse.gson.JsonNull;
-import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
@@ -32,6 +25,10 @@ public class PropertyValue implements Serializable {
 //	}
 
 
+	public String toString(){
+		return ToStringBuilder.reflectionToString(this) ;
+	}
+	
 	public Object value() {
 		Iterator iter = values.iterator() ;
 		return iter.hasNext() ? iter.next() : null ;
@@ -54,6 +51,14 @@ public class PropertyValue implements Serializable {
 
 	public String stringValue() {
 		return ObjectUtil.toString(value());
+	}
+
+	public <T> T value(T replaceValue) {
+		final Object value = value();
+		if (value == null ){
+			return replaceValue ;
+		}
+		return (T)value;
 	}
 
 }

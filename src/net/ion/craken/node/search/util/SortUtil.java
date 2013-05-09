@@ -13,7 +13,7 @@ import com.google.common.base.Predicate;
 public class SortUtil {
 
 	public static <T> List<T> selectTopN(Iterator<T> values, Predicate<T> filter, Comparator<T> comparator, int top) {
-		Queue<T> topN = new PriorityQueue(top + 2, comparator);
+		Queue<T> topN = new PriorityQueue(100, comparator);
 		while (values.hasNext()) {
 			T value = values.next();
 			if (value != null && filter != null && filter.apply(value)) {

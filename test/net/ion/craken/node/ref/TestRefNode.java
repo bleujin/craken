@@ -26,7 +26,7 @@ public class TestRefNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/emp/1").refTo("dept", "/dept/1").refTo("dept", "/dept/2") ;
+				wsession.pathBy("/emp/1").refTos("dept", "/dept/1").refTos("dept", "/dept/2") ;
 				return null;
 			}
 		}).get() ;
@@ -45,7 +45,7 @@ public class TestRefNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/emp/1").refTo("dept", "/dept/1").refTo("dept", "/dept/2") ;
+				wsession.pathBy("/emp/1").refTos("dept", "/dept/1").refTos("dept", "/dept/2") ;
 				return null;
 			}
 		}).get() ;
