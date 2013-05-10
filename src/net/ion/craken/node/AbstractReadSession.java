@@ -8,6 +8,7 @@ import net.ion.craken.node.crud.WorkspaceImpl;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.node.exception.NotFoundPath;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.StringUtil;
 
 public abstract class AbstractReadSession implements ReadSession{
 
@@ -18,8 +19,8 @@ public abstract class AbstractReadSession implements ReadSession{
 		this.workspace = workspace ;
 	}
 
-	public ReadNode pathBy(String fqn) {
-		return pathBy(Fqn.fromString(fqn)) ;
+	public ReadNode pathBy(String fqn0, String... fqns) {
+		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/'))) ;
 	}
 
 	public ReadNode pathBy(Fqn fqn) {

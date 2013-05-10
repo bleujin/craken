@@ -72,5 +72,11 @@ public class TestReadChildren extends TestBaseCrud {
 	}
 	
 	
+	public void testSort() throws Exception {
+		final Rows rows = session.pathBy("/bleujin").children().ascending("Name").toRows(Page.create(10, 2), "dummy", "name");
+		rows.debugPrint() ;
+	}
+	
+	
 	
 }

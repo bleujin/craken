@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import net.ion.framework.util.ObjectUtil;
+
 import org.infinispan.marshall.AbstractExternalizer;
 import org.infinispan.util.ReflectionUtil;
 import org.infinispan.util.Util;
@@ -542,5 +544,9 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		public Set<Class<? extends Fqn>> getTypeClasses() {
 			return Util.<Class<? extends Fqn>> asSet(Fqn.class);
 		}
+	}
+
+	public String name() {
+		return ObjectUtil.toString(getLastElement()) ;
 	}
 }

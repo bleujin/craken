@@ -8,7 +8,7 @@ import net.ion.craken.tree.Fqn;
 
 public interface ReadSession {
 
-	public ReadNode pathBy(String fqn);
+	public ReadNode pathBy(String fqn0, String... fqns);
 
 	public ReadNode pathBy(Fqn fqn);
 

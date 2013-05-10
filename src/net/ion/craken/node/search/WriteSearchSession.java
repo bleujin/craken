@@ -9,6 +9,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
@@ -28,8 +29,8 @@ public class WriteSearchSession implements WriteSession {
 		this.central = central ;
 	}
 
-	public WriteNode pathBy(String fqn) {
-		return WriteSearchNode.loadTo(this, workspace.getNode(fqn)) ;
+	public WriteNode pathBy(String fqn0, String... fqns) {
+		return WriteSearchNode.loadTo(this, workspace.getNode(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')))) ;
 	}
 
 	public WriteNode pathBy(Fqn fqn) {

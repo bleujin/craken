@@ -7,6 +7,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.StringUtil;
 
 
 public class WriteSessionImpl implements WriteSession {
@@ -18,8 +19,8 @@ public class WriteSessionImpl implements WriteSession {
 		this.workspace = workspace ;
 	}
 
-	public WriteNode pathBy(String fqn) {
-		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
+	public WriteNode pathBy(String fqn0, String... fqns) {
+		return WriteNodeImpl.loadTo(this, workspace.getNode(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')))) ;
 	}
 
 	public WriteNode pathBy(Fqn fqn) {

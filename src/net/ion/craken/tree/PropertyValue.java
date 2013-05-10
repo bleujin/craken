@@ -9,7 +9,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
-public class PropertyValue implements Serializable {
+public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	private final static long serialVersionUID = 4614113174797214253L;
 	public final static PropertyValue NotFound = new PropertyValue(SetUtil.EMPTY) ; 
@@ -59,6 +59,14 @@ public class PropertyValue implements Serializable {
 			return replaceValue ;
 		}
 		return (T)value;
+	}
+
+	@Override
+	public int compareTo(PropertyValue that) {
+		if (this.value() instanceof Comparable && that.value() instanceof Comparable) {
+			return ((Comparable)this.value()).compareTo(that.value()) ;
+		}  
+		return 0;
 	}
 
 }
