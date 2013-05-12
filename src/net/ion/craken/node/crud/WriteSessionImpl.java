@@ -6,6 +6,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.search.WriteSearchNode;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.StringUtil;
 
@@ -17,6 +18,10 @@ public class WriteSessionImpl implements WriteSession {
 	public WriteSessionImpl(ReadSession session, AbstractWorkspace workspace) {
 		this.readSession = session ;
 		this.workspace = workspace ;
+	}
+	
+	public WriteNode pathBy(String fqn) {
+		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
 	}
 
 	public WriteNode pathBy(String fqn0, String... fqns) {

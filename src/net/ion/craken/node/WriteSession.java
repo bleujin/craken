@@ -1,18 +1,11 @@
 package net.ion.craken.node;
 
-import net.ion.craken.tree.Fqn;
 
 
 
-public interface WriteSession {
+public interface WriteSession extends ISession<WriteNode> {
 
 	public WriteNode pathBy(String fqn0, String... fqns)  ;
-
-	public WriteNode pathBy(Fqn fqn);
-
-	public WriteNode root()  ;
-
-	public boolean exists(String fqn) ;
 
 	public void failRollback();
 

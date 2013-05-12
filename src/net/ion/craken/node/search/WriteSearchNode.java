@@ -7,6 +7,7 @@ import net.ion.craken.node.AbstractWriteNode;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.WriteChildren;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
@@ -34,33 +35,34 @@ public class WriteSearchNode extends AbstractWriteNode{
 		return tree ;
 	}
 	
-	public IteratorList<WriteNode> children(){
+	public WriteChildren children(){
 		final Iterator<TreeNode<PropertyId, PropertyValue>> iter = tree().getChildren().iterator();
-		return new IteratorList<WriteNode>() {
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public WriteNode next() {
-				return WriteSearchNode.this.load(WriteSearchNode.this.wsession(), iter.next());
-			}
-
-			@Override
-			public void remove() {
-				iter.remove() ;
-			}
-			
-			public List<WriteNode> toList(){
-				List<WriteNode> result = ListUtil.newList() ;
-				while(hasNext()){
-					result.add(next()) ;
-				}
-				return result ;
-			}
-
-		};
+		return new WriteChildren(session(), iter) ;
+//		return new IteratorList<WriteNode>() {
+//			@Override
+//			public boolean hasNext() {
+//				return iter.hasNext();
+//			}
+//
+//			@Override
+//			public WriteNode next() {
+//				return WriteSearchNode.this.load(WriteSearchNode.this.wsession(), iter.next());
+//			}
+//
+//			@Override
+//			public void remove() {
+//				iter.remove() ;
+//			}
+//			
+//			public List<WriteNode> toList(){
+//				List<WriteNode> result = ListUtil.newList() ;
+//				while(hasNext()){
+//					result.add(next()) ;
+//				}
+//				return result ;
+//			}
+//
+//		};
 	}
 	
 

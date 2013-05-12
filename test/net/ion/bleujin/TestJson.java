@@ -1,6 +1,7 @@
 package net.ion.bleujin;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 
 import net.ion.framework.parse.gson.JsonNull;
 import net.ion.framework.parse.gson.JsonObject;
@@ -45,5 +46,14 @@ public class TestJson extends TestCase {
 		
 		
 		jreader.endObject() ;
+	}
+	
+	public void testListJson() throws Exception {
+		ArrayList<JsonObject> list = new ArrayList<JsonObject>();
+		
+		list.add(new JsonObject().put("name", "bluejin")) ;
+		list.add(new JsonObject().put("name", "hero")) ;
+		
+		Debug.line(list.toString()) ;
 	}
 }

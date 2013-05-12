@@ -53,6 +53,24 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return ObjectUtil.toString(value());
 	}
 
+	public int intValue(int dftValue){
+		try {
+			return Integer.parseInt(stringValue()) ;
+		} catch(NumberFormatException e){
+			return dftValue ;
+		}
+	}
+
+	public long longValue(long dftValue){
+		try {
+			return Long.parseLong(stringValue()) ;
+		} catch(NumberFormatException e){
+			return dftValue ;
+		}
+	}
+	
+
+	
 	public <T> T value(T replaceValue) {
 		final Object value = value();
 		if (value == null ){

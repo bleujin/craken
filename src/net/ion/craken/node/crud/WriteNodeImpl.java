@@ -46,33 +46,35 @@ public class WriteNodeImpl extends AbstractWriteNode{
 		return this.getClass().getSimpleName() + "[fqn=" + inner.getFqn().toString() + "]";
 	}
 
-	public IteratorList<WriteNode> children(){
+	public WriteChildren children(){
 		final Iterator<TreeNode<PropertyId, PropertyValue>> iter = tree().getChildren().iterator();
-		return new IteratorList<WriteNode>() {
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public WriteNode next() {
-				return WriteNodeImpl.this.load(WriteNodeImpl.this.wsession(), iter.next());
-			}
-
-			@Override
-			public void remove() {
-				iter.remove() ;
-			}
-			
-			public List<WriteNode> toList(){
-				List<WriteNode> result = ListUtil.newList() ;
-				while(hasNext()){
-					result.add(next()) ;
-				}
-				return result ;
-			}
-
-		};
+		return new WriteChildren(session(), iter) ;
+		
+//		return new IteratorList<WriteNode>() {
+//			@Override
+//			public boolean hasNext() {
+//				return iter.hasNext();
+//			}
+//
+//			@Override
+//			public WriteNode next() {
+//				return WriteNodeImpl.this.load(WriteNodeImpl.this.wsession(), iter.next());
+//			}
+//
+//			@Override
+//			public void remove() {
+//				iter.remove() ;
+//			}
+//			
+//			public List<WriteNode> toList(){
+//				List<WriteNode> result = ListUtil.newList() ;
+//				while(hasNext()){
+//					result.add(next()) ;
+//				}
+//				return result ;
+//			}
+//
+//		};
 	}
 
 	

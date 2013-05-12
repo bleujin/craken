@@ -37,6 +37,10 @@ public class TestExtendProperty extends TestBaseCrud {
 	public void testRef() throws Exception {
 		assertEquals("jin", session.pathBy("boards/freeboard/1").extendProperty("writer@name").value()) ;
 	}
+	
+	public void testPathDirect() throws Exception {
+		assertEquals("jin", session.pathBy("boards/freeboard/1").extendProperty("/users/bleujin/name").value()) ;
+	}
 
 	public void testComposite() throws Exception {
 		assertEquals("jin", session.pathBy("boards/freeboard/1").extendProperty("../1/writer@name").value()) ;

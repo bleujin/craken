@@ -20,8 +20,8 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	public ReadChildren children();
 	
-	public ReadSession session() ;
 
 	Rows toRows(String... cols);
+
 
 }

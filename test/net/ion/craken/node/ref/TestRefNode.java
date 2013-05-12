@@ -57,24 +57,5 @@ public class TestRefNode extends TestBaseCrud {
 		assertEquals(2, refs.get(1).property("dummy").value()) ;
 	}
 	
-
-	
-	
-	
-	public void testOrderSet() throws Exception {
-		Set set = SetUtil.orderedSet(new HashSet()) ;
-		
-		set.add("/dept/2") ;
-		set.add("/dept/1") ;
-		set.add("/dept/3") ;
-		
-		Iterator iter = set.iterator() ;
-		while(iter.hasNext()){
-			Debug.line(iter.next()) ;
-		}
-		
-		
-		
-	}
 	
 }

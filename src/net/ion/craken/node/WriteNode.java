@@ -2,14 +2,20 @@ package net.ion.craken.node;
 
 import java.util.Map;
 
+import net.ion.craken.node.crud.ReadChildren;
+import net.ion.craken.node.crud.WriteChildren;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 
 public interface WriteNode extends NodeCommon<WriteNode> {
 
+	public WriteChildren children();
+	
 	public WriteNode property(String key, Object value) ;
 	
-	public PropertyValue propertyIfAbsent(String key, Object value) ;
+	public WriteNode propertyIfAbsent(String key, Object value) ;
+	
+	public PropertyValue propertyIfAbsentEnd(String key, Object value) ;
 
 	public WriteNode append(String key, Object... value);
 
@@ -37,6 +43,9 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteNode refTos(String refName, String fqn);
 
 	public WriteNode fromJson(JsonObject json);
+
+	public boolean removeSelf();
+
 
 
 }

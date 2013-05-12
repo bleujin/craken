@@ -1,5 +1,6 @@
 package net.ion.craken.node;
 
+import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.lang.ArrayUtils;
 
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.tree.ExtendPropertyId;
@@ -17,6 +19,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -34,7 +37,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	protected abstract WriteNode load(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) ;
 	
 	
-	protected WriteSession wsession(){
+	public WriteSession session(){
 		return wsession ;
 	}
 	
@@ -43,6 +46,14 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 
 	public WriteNode property(String key, Object value) {
+		if (value.getClass().isArray()) {
+			int length = Array.getLength(value);
+			List list = ListUtil.newList() ;
+			for (int i = 0; i < length; i++) {
+	            list.add(Array.get(value, i));
+	        }
+			return append(key, list.toArray()) ;
+		}
 		return property(PropertyId.normal(key), PropertyValue.createPrimitive(value)) ;
 	}
 	
@@ -51,10 +62,16 @@ public abstract class AbstractWriteNode implements WriteNode {
 		return this ;
 	}
 	
-	public PropertyValue propertyIfAbsent(String key, Object value){
+	public WriteNode propertyIfAbsent(String key, Object value){
+		tree().putIfAbsent(PropertyId.normal(key), PropertyValue.createPrimitive(value));
+		return this ;
+	}
+
+	public PropertyValue propertyIfAbsentEnd(String key, Object value){
 		return ObjectUtil.coalesce(tree().putIfAbsent(PropertyId.normal(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound) ;
 	}
 	
+
 	public PropertyValue replace(String key, Object value){
 		return ObjectUtil.coalesce(tree().replace(PropertyId.normal(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound)  ;
 	}
@@ -117,7 +134,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 		while(iter.hasNext()){
 			last = last.addChild(Fqn.fromElements(iter.next()));
 		}
-		return load(wsession(), last) ;
+		return load(session(), last) ;
 	}
 	
 	
@@ -222,6 +239,10 @@ public abstract class AbstractWriteNode implements WriteNode {
 		return this ;
 	}
 	
+	public boolean removeSelf(){
+		return parent().removeChild(fqn().name()) ;
+	}
+	
 	// common
 	public Fqn fqn(){
 		return tree().getFqn() ;
@@ -232,7 +253,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 	
 	public WriteNode parent(){
-		return load(wsession(), tree().getParent()) ;
+		return load(session(), tree().getParent()) ;
 	}
 	
 	
@@ -250,10 +271,14 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 
 	
-	public Set<Object> childrenNames(){
-		return tree().getChildrenNames() ;
+	public Set<String> childrenNames(){
+		Set<String> set = SetUtil.orderedSet(SetUtil.newSet());
+		for (Object object : tree().getChildrenNames()) {
+			set.add(ObjectUtil.toString(object)) ;
+		}
+		return set ;
 	}
-		
+	
 	public Set<PropertyId> keys(){
 		return tree().getKeys() ;
 	}
@@ -264,6 +289,10 @@ public abstract class AbstractWriteNode implements WriteNode {
 	
 	public boolean hasRef(String refName){
 		return keys().contains(PropertyId.refer(refName)) ;
+	}
+	
+	public boolean hasRef(String refName, Fqn fqn){
+		return property(PropertyId.refer(refName)).asSet().contains(fqn.toString()) ;
 	}
 	
 	public PropertyValue extendProperty(String propPath) {

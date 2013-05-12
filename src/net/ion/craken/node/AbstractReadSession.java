@@ -36,6 +36,10 @@ public abstract class AbstractReadSession implements ReadSession{
 		return pathBy(Fqn.fromString(fqn), createIf) ;
 	}
 
+	public ReadNode pathBy(String fqn) {
+		return pathBy(fqn, false) ;
+	}
+
 	
 	public boolean exists(String fqn) {
 		return workspace.exists(fqn);

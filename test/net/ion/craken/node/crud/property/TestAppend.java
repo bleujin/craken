@@ -73,6 +73,23 @@ public class TestAppend extends TestBaseCrud {
 	}
 	
 	
+	public void testSetArray() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().addChild("/bleujin").property("no", new int[]{1, 2, 3}).property("str", new String[]{"bleu","jin"});
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals(1, session.pathBy("/bleujin").property("no").value()) ;
+		assertEquals(3, session.pathBy("/bleujin").property("no").asSet().size()) ;
+
+		assertEquals("bleu", session.pathBy("/bleujin").property("str").value()) ;
+		assertEquals(2, session.pathBy("/bleujin").property("str").asSet().size()) ;
+
+	}
+	
 	
 	
 }

@@ -2,6 +2,7 @@ package net.ion.craken.node.search;
 
 import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
@@ -29,6 +30,10 @@ public class WriteSearchSession implements WriteSession {
 		this.central = central ;
 	}
 
+	public WriteNode pathBy(String fqn) {
+		return WriteSearchNode.loadTo(this, workspace.getNode(fqn)) ;
+	}
+	
 	public WriteNode pathBy(String fqn0, String... fqns) {
 		return WriteSearchNode.loadTo(this, workspace.getNode(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')))) ;
 	}

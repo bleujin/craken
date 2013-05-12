@@ -95,8 +95,12 @@ public class ReadNodeImpl implements ReadNode{
 		return session.root() ;
 	}
 	
-	public Set<Object> childrenNames(){
-		return tree.getChildrenNames() ;
+	public Set<String> childrenNames(){
+		Set<String> set = SetUtil.orderedSet(SetUtil.newSet());
+		for (Object object : tree.getChildrenNames()) {
+			set.add(ObjectUtil.toString(object)) ;
+		}
+		return set ;
 	}
 	
 	public ReadChildren children(){
@@ -173,6 +177,10 @@ public class ReadNodeImpl implements ReadNode{
 	
 	public boolean hasRef(String refName){
 		return keys().contains(PropertyId.refer(refName)) ;
+	}
+	
+	public boolean hasRef(String refName, Fqn fqn){
+		return property(PropertyId.refer(refName)).asSet().contains(fqn.toString()) ;
 	}
 	
 	public ReadNode ref(String refName){

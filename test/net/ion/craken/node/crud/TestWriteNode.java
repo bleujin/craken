@@ -130,7 +130,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsent("key", "value") ;
+				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsentEnd("key", "value") ;
 				assertEquals(true, beforeValue.value() == null) ;
 				return null;
 			}
@@ -141,7 +141,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsent("key", "mod") ; // not modified
+				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsentEnd("key", "mod") ; // not modified
 				assertEquals("value", beforeValue.value()) ;
 				return null;
 			}
