@@ -50,7 +50,7 @@
 	<target name="copy" depends="publish">
 		<echo>Copy to ToonServer</echo>
 		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../../workspace/ToonServer/alone/lib/" />
-		
+		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../../workspace/IXSS6/ixss/WEB-INF/lib/" />
 	</target>
 
 </project>

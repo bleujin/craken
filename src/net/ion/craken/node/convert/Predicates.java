@@ -32,7 +32,7 @@ public class Predicates {
 		};
 	}
 
-	public final static <T extends NodeCommon> Predicate<T> propertyContains(final String propId, final Object value) {
+	public final static <T extends NodeCommon> Predicate<T> propertyHasValue(final String propId, final Object value) {
 		return new Predicate<T>() {
 			@Override
 			public boolean apply(T node) {
@@ -41,6 +41,17 @@ public class Predicates {
 		};
 	}
 
+	public static <T extends NodeCommon> Predicate<T> propertyContains(final String propId, final String value) {
+		return new Predicate<T>() {
+			@Override
+			public boolean apply(T node) {
+				return node.property(propId).stringValue().contains(value) ;
+			}
+		};
+	}
+
+	
+	
 	public final static <T extends NodeCommon> Predicate<T> and(Predicate<T>... component) {
 		return new AndPredicate(ListUtil.toList(component)) ;
 	}
@@ -146,5 +157,6 @@ public class Predicates {
 		}
 
 	}
+
 
 }

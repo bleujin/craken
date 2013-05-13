@@ -98,7 +98,7 @@ public class WriteChildren  extends IteratorList<WriteNode>{
 	}
 
 	public WriteChildren contains(String propId, Object value) {
-		return filter(Predicates.<WriteNode>propertyContains(propId, value));
+		return filter(Predicates.<WriteNode>propertyHasValue(propId, value));
 	}
 
 	

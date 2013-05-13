@@ -17,6 +17,7 @@ import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.convert.rows.ConstantColumn;
 import net.ion.craken.node.convert.rows.CrakenNodeRows;
 import net.ion.craken.node.search.util.SortUtil;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
@@ -92,13 +93,22 @@ public class ReadChildren extends IteratorList<ReadNode>{
 		return this ;
 	}
 
+	public ReadChildren hasRef(String refName, Fqn target) {
+		return filter(Predicates.<ReadNode>hasRelation(refName, target)) ;
+	}
+	
 	public ReadChildren eq(String propId, Object value) {
 		return filter(Predicates.<ReadNode>propertyEqual(propId, value));
 	}
 
-	public ReadChildren contains(String propId, Object value) {
+	public ReadChildren hasValue(String propId, Object value) {
+		return filter(Predicates.<ReadNode>propertyHasValue(propId, value));
+	}
+
+	public ReadChildren contains(String propId, String value) {
 		return filter(Predicates.<ReadNode>propertyContains(propId, value));
 	}
+
 
 	
 	public Iterator<ReadNode> iterator(){
