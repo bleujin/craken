@@ -46,7 +46,7 @@ public abstract class AbstractWriteNode implements WriteNode {
 	}
 
 	public WriteNode property(String key, Object value) {
-		if (value.getClass().isArray()) {
+		if (value != null && value.getClass().isArray()) {
 			int length = Array.getLength(value);
 			List list = ListUtil.newList() ;
 			for (int i = 0; i < length; i++) {

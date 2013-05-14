@@ -20,7 +20,7 @@ public class TestReadChildren extends TestBaseCrud {
 	}
 	
 	public void testFirst() throws Exception {
-		assertEquals(10, session.pathBy("/bleujin").children().toList().size()) ;
+		assertEquals(200, session.pathBy("/bleujin").children().toList().size()) ;
 	}
 	
 	public void testSkip() throws Exception {
@@ -28,17 +28,16 @@ public class TestReadChildren extends TestBaseCrud {
 	}
 	
 	public void testFilter() throws Exception {
-		final List<ReadNode> list = session.pathBy("/bleujin").children().filter(new Predicate<ReadNode>() {
-			@Override
-			public boolean apply(ReadNode node) {
-				return new Integer(3).compareTo((Integer)node.property("dummy").value()) < 0; // > 3
-			}
-		}).toList();
+		List<ReadNode> list = session.pathBy("/bleujin").children().gt("dummy", 3).toList();
 		
-		assertEquals(6, list.size()) ;
+		assertEquals(196, list.size()) ; // default offset = 1000
 		for (ReadNode readNode : list) {
 			assertEquals(true, ((Integer)readNode.property("dummy").value()) > 3) ;
 		}
+
+		list = session.pathBy("/bleujin").children().offset(200).gt("dummy", 3).toList();
+		assertEquals(196, list.size()) ; // default offset = 100
+
 	}
 	
 	public void testSorting() throws Exception {
@@ -48,16 +47,20 @@ public class TestReadChildren extends TestBaseCrud {
 		assertEquals(6, list.get(1).property("dummy").value()) ;
 	}
 	
-	public void testComposite() throws Exception {
-		List<ReadNode> list = session.pathBy("/bleujin").children().filter(new Predicate<ReadNode>() {
-			@Override
-			public boolean apply(ReadNode node) {
-				return new Integer(3).compareTo((Integer)node.property("dummy").value()) < 0; // > 3
-			}
-		}).skip(5).offset(2).descending("dummy").toList();
+	public void testFilterWithSort() throws Exception {
+		List<ReadNode> list = session.pathBy("/bleujin").children().gt("dummy", 3).skip(5).offset(2).ascending("dummy").toList();
 
-		assertEquals(1, list.size()) ;
-		assertEquals(4, list.get(0).property("dummy").value()) ;
+		assertEquals(2, list.size()) ;
+		assertEquals(9, list.get(0).property("dummy").value()) ;
+	}
+	
+	public void testFilterWithNoSort() throws Exception {
+		List<ReadNode> list = session.pathBy("/bleujin").children().gt("dummy", 3).skip(5).offset(10).toList();
+		assertEquals(10, list.size()) ;
+		
+		for (ReadNode readNode : list) {
+			assertEquals(true, ((Integer)readNode.property("dummy").value()) > 3) ;
+		}
 	}
 	
 	
@@ -72,8 +75,8 @@ public class TestReadChildren extends TestBaseCrud {
 	}
 	
 	
-	public void testSort() throws Exception {
-		final Rows rows = session.pathBy("/bleujin").children().ascending("Name").toRows(Page.create(10, 2), "dummy", "name");
+	public void testIgnoredWhenNotFoundProperty() throws Exception {
+		final Rows rows = session.pathBy("/bleujin").children().ascending("Dummy").toRows(Page.create(10, 2), "dummy", "name");
 		rows.debugPrint() ;
 	}
 	

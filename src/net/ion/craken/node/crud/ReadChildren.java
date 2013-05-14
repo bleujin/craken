@@ -5,13 +5,11 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-
+import net.ion.craken.node.AbstractChildren;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.WriteNode;
+import net.ion.craken.node.SortElement;
 import net.ion.craken.node.convert.Predicates;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.convert.rows.ConstantColumn;
@@ -26,174 +24,160 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
-public class ReadChildren extends IteratorList<ReadNode>{
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.UnmodifiableIterator;
 
-	private ReloadIterator iter ;
+public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 
-	
+	private ReloadIterator iter;
+
 	private boolean needReload = false;
-	private int skip = 0 ;
-	private int offset = 100;
-	private List<SortElement> sorts = ListUtil.newList() ;
+	private int skip = 0;
+	private int offset = 1000;
+	private List<SortElement> sorts = ListUtil.newList();
 	private List<Predicate<ReadNode>> filters = ListUtil.newList();
-	
-	private final ReadSession session ;
-	public ReadChildren(ReadSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter){
-		this.session = session ;
+
+	private final ReadSession session;
+
+	public ReadChildren(ReadSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter) {
+		this.session = session;
 		this.iter = new ReloadIterator(session, iter);
 	}
-	
+
 	@Override
 	public boolean hasNext() {
-		checkReload() ;
+		checkReload();
 		return iter.hasNext();
 	}
 
 	@Override
 	public ReadNode next() {
-		checkReload() ;
-		return iter.next() ;
+		checkReload();
+		return iter.next();
 	}
 
 	private void checkReload() {
-		if (needReload){
-			this.iter = iter.reload(this.skip, this.offset, this.filters, this.sorts) ;
-			this.needReload = false ;
+		if (needReload) {
+			this.iter = iter.reload(this.skip, this.offset, this.filters, this.sorts);
+			this.needReload = false;
 		}
-		
 	}
 
-	public ReadChildren skip(int skip){
-		this.skip = skip ;
-		this.needReload = true ;
-		return this ;
-	}
-	
-	public ReadChildren offset(int offset){
-		this.offset = offset ;
-		this.needReload = true ;
-		return this ;
-	}
-	
-	public ReadChildren ascending(String propId){
-		sorts.add(new SortElement(propId, true)) ;
-		this.needReload = true ;
-		return this ;
+	public ReadChildren skip(int skip) {
+		this.skip = skip;
+		this.needReload = true;
+		return this;
 	}
 
-	public ReadChildren descending(String propId){
-		sorts.add(new SortElement(propId, false)) ;
-		this.needReload = true ;
-		return this ;
-	}
-	
-	public ReadChildren filter(Predicate<ReadNode> filter){
-		filters.add(filter) ;
-		this.needReload = true ;
-		return this ;
+	public ReadChildren offset(int offset) {
+		this.offset = offset;
+		this.needReload = true;
+		return this;
 	}
 
-	public ReadChildren hasRef(String refName, Fqn target) {
-		return filter(Predicates.<ReadNode>hasRelation(refName, target)) ;
-	}
-	
-	public ReadChildren eq(String propId, Object value) {
-		return filter(Predicates.<ReadNode>propertyEqual(propId, value));
+	public ReadChildren ascending(String propId) {
+		sorts.add(new SortElement(propId, true));
+		this.needReload = true;
+		return this;
 	}
 
-	public ReadChildren hasValue(String propId, Object value) {
-		return filter(Predicates.<ReadNode>propertyHasValue(propId, value));
+	public ReadChildren descending(String propId) {
+		sorts.add(new SortElement(propId, false));
+		this.needReload = true;
+		return this;
 	}
 
-	public ReadChildren contains(String propId, String value) {
-		return filter(Predicates.<ReadNode>propertyContains(propId, value));
+	public ReadChildren filter(Predicate<ReadNode> filter) {
+		filters.add(filter);
+		this.needReload = true;
+		return this;
 	}
 
 
-	
-	public Iterator<ReadNode> iterator(){
-		return toList().iterator() ;
-	}
-	
-	public List<ReadNode> toList(){
-		List<ReadNode> result = ListUtil.newList() ;
-		while(hasNext()){
-			result.add(next()) ;
-		}
-		return result ;
-	}
-	
-	public <T> T transform(Function<Iterator<ReadNode>, T> fn){
-		return fn.apply(iterator()) ;
-	}
-
-	public Rows toRows(String... cols) throws SQLException{
+	public Rows toRows(String... cols) throws SQLException {
 		ColumnParser cparser = session.getWorkspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
 		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
 	}
 
-	public void debugPrint() {
-		while(hasNext()){
-			Debug.debug(next()) ;
-		}
-	}
-
 	public Rows toRows(Page _page, String... cols) throws SQLException {
-		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page ; // limit
-		
-		skip(page.getSkipOnScreen()).offset(page.getOffsetOnScreen()) ;
-		
+		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
+
+		skip(page.getSkipOnScreen()).offset(page.getOffsetOnScreen());
+
 		ColumnParser cparser = session.getWorkspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
 		final List<ReadNode> screenList = toList();
-		int count = screenList.size() ;
+		int count = screenList.size();
 		return CrakenNodeRows.create(session, page.subList(screenList).iterator(), cparser.parse(cols).append(new ConstantColumn(count, "cnt")));
 	}
 
-
 }
 
+class ReloadIterator implements Iterator<ReadNode> {
 
-class ReloadIterator implements Iterator<ReadNode>{
+	private ReadSession session;
+	private Iterator<TreeNode<PropertyId, PropertyValue>> oriIter;
 
-	private ReadSession session ;
-	private Iterator<TreeNode<PropertyId, PropertyValue>> oriIter ;
-	
 	public ReloadIterator(ReadSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter) {
-		this.session = session ;
-		this.oriIter = iter ;
+		this.session = session;
+		this.oriIter = iter;
 	}
-	
+
 	public ReloadIterator reload(int skip, int offset, final List<Predicate<ReadNode>> filters, final List<SortElement> sorts) {
-		Comparator<TreeNode<PropertyId, PropertyValue>> comparator = new Comparator<TreeNode<PropertyId, PropertyValue>>(){
+
+		Comparator<TreeNode<PropertyId, PropertyValue>> mycomparator = new Comparator<TreeNode<PropertyId, PropertyValue>>() {
 			@Override
 			public int compare(TreeNode<PropertyId, PropertyValue> left, TreeNode<PropertyId, PropertyValue> right) {
-				
+
 				for (SortElement sele : sorts) {
-					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propId));
-					PropertyValue rightProperty = right.get(PropertyId.normal(sele.propId)) ;
-					
-					if (leftProperty == null || rightProperty == null ) return 0 ;
-					
-					return leftProperty.compareTo(rightProperty) * (sele.ascending ? -1 : 1);
+					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propid()));
+					PropertyValue rightProperty = right.get(PropertyId.normal(sele.propid()));
+
+					if (leftProperty == null || rightProperty == null)
+						return 0;
+
+					return leftProperty.compareTo(rightProperty) * (sele.ascending() ? -1 : 1);
 				}
-				
+
 				return 0;
 			}
-		} ;
-		
-		Predicate<TreeNode<PropertyId, PropertyValue>> modFilter = new Predicate<TreeNode<PropertyId, PropertyValue>>() {
+		};
+
+		Predicate<TreeNode<PropertyId, PropertyValue>> myfilter = new Predicate<TreeNode<PropertyId, PropertyValue>>() {
 			@Override
 			public boolean apply(TreeNode<PropertyId, PropertyValue> treeNode) {
-				if (filters.size() == 0) return true ;
+				if (filters.size() == 0)
+					return true;
 				for (Predicate<ReadNode> filter : filters) {
-					if (! filter.apply(ReadNodeImpl.load(session, treeNode))) return false;
+					if (!filter.apply(ReadNodeImpl.load(session, treeNode)))
+						return false;
 				}
 				return true;
 			}
 		};
-		
-		List<TreeNode<PropertyId, PropertyValue>> result = SortUtil.selectTopN(oriIter, modFilter, comparator, skip + offset);
-		return new ReloadIterator(session, result.subList(skip, result.size()).iterator()) ;
+
+		if (sorts.size() == 0) { // no sort
+			UnmodifiableIterator<List<TreeNode<PropertyId, PropertyValue>>> iterator = Iterators.partition(Iterators.filter(oriIter, myfilter), skip + offset);
+			Iterator<TreeNode<PropertyId, PropertyValue>> partitionIter = iterator.next().iterator();
+			while(skip-- > 0 && partitionIter.hasNext()){
+				partitionIter.next() ;
+			}
+			return new ReloadIterator(session, partitionIter);
+		} 
+
+		// List<TreeNode<PropertyId, PropertyValue>> sorted = Ordering.from(comparator).greatestOf(new Iterable<TreeNode<PropertyId, PropertyValue>>(){
+		// @Override
+		// public Iterator<TreeNode<PropertyId, PropertyValue>> iterator() {
+		// return oriIter;
+		// }
+		// }, skip + offset);
+		// return new ReloadIterator(session, sorted.subList(skip, sorted.size()).iterator()) ;
+
+		List<TreeNode<PropertyId, PropertyValue>> result = SortUtil.selectTopN(oriIter, myfilter, mycomparator, skip + offset);
+		return new ReloadIterator(session, result.subList(skip, result.size()).iterator());
+
 	}
 
 	@Override
@@ -208,18 +192,7 @@ class ReloadIterator implements Iterator<ReadNode>{
 
 	@Override
 	public void remove() {
-		
-	}
-	
-}
 
-
-class SortElement {
-	String propId ;
-	boolean ascending ;
-	
-	public SortElement(String propId, boolean ascending) {
-		this.propId = propId ;
-		this.ascending = ascending ;
 	}
+
 }
