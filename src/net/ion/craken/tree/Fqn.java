@@ -35,6 +35,11 @@ import net.ion.framework.util.ObjectUtil;
 import org.infinispan.marshall.AbstractExternalizer;
 import org.infinispan.util.ReflectionUtil;
 import org.infinispan.util.Util;
+import org.neo4j.helpers.collection.Iterables;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.base.Splitter;
 
 /**
  * A Fully Qualified Name (Fqn) is a list of names (typically Strings but can be any Object), which represent a path to a particular {@link TreeNode} in a {@link TreeCache}.
@@ -220,7 +225,8 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1) : stringRepresentation;
 		Object[] el = toMatch.split(SEPARATOR);
-		return new Fqn(el);
+//		return new Fqn(el) ;
+		return new Fqn(Iterables.toArray(String.class, Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch)));
 	}
 
 	/**

@@ -69,6 +69,9 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}
 	}
 	
+	public int size(){
+		return values.size() ;
+	}
 
 	
 	public <T> T value(T replaceValue) {

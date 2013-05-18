@@ -6,7 +6,7 @@ import net.ion.craken.tree.TreeCache;
 
 import org.infinispan.notifications.Listener;
 
-@Listener
+
 public class WorkspaceImpl extends AbstractWorkspace {
 
 

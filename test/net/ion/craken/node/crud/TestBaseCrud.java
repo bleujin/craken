@@ -12,6 +12,7 @@ public class TestBaseCrud extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		this.r = RepositoryImpl.testSingle() ;
+		r.start() ;
 		this.session = r.testLogin("test") ;
 	}
 	

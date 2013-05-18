@@ -40,7 +40,7 @@ public class TestMongoDBCacheStore extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		globalConf = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("infinispan-test-cluster").addProperty("configurationFile", "resource/config/jgroups-udp.xml").build();
+		globalConf = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "resource/config/jgroups-udp.xml").build();
 		this.defaultConf = new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
 			.clustering().hash().numOwners(2).unsafe()
 			.eviction().maxEntries(100)

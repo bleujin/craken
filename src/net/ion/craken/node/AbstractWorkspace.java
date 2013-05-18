@@ -3,6 +3,7 @@ package net.ion.craken.node;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -41,6 +42,11 @@ public abstract class AbstractWorkspace implements Workspace{
 
 
 	public void close() {
+		for(Object listener : treeCache.getCache().getListeners() ){
+			this.removeListener(listener) ;
+		}
+		
+		treeCache.getCache().stop() ;
 		treeCache.stop();
 	}
 
@@ -117,12 +123,20 @@ public abstract class AbstractWorkspace implements Workspace{
 
 	@Override
 	public Workspace addListener(Object listener) {
+		if (listener instanceof WorkspaceListener){
+			((WorkspaceListener)listener).registered(this) ;
+		}
+		
 		treeCache.getCache().addListener(listener) ;
 		return this;
 	}
 
 	@Override
 	public void removeListener(Object listener) {
+		if (listener instanceof WorkspaceListener){
+			((WorkspaceListener)listener).unRegistered(this) ;
+		}
+		
 		treeCache.getCache().removeListener(listener) ;
 	}
 }

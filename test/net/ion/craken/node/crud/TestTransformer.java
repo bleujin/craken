@@ -1,17 +1,28 @@
 package net.ion.craken.node.crud;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.Functions;
+import net.ion.craken.node.convert.Predicates;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.convert.rows.CrakenNodeRows;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.MapUtil;
 
 public class TestTransformer extends TestBaseCrud {
 
@@ -48,6 +59,38 @@ public class TestTransformer extends TestBaseCrud {
 		assertEquals(20, rows.firstRow().getInt("age")) ;
 		assertEquals("bleujin", rows.firstRow().getString("name")) ;
 	}
+	
+	public void testJson() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul").parent().refTo("friend", "/hero") ;
+				wsession.pathBy("/hero").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul") ;
+				return null;
+			}
+		}) ;
+		
+		JsonObject jso = session.pathBy("/bleujin").transformer(Functions.toJson()) ;
+		
+		Debug.line(jso.asString("children")) ;
+		
+		Debug.line(jso) ;
+		
+	}
+	
+	public void testJsonObject() throws Exception {
+		JsonObject json = new JsonObject();
+		json.put("name", "bleu") ;
+		JsonObject rel = new JsonObject() ;
+		rel.put("name", "jin") ;
+		json.put("rel", rel) ;
+		
+		
+		Debug.line(json.get("name"), json.get("rel")) ;
+		
+	}
+	
+	
 }
 
 

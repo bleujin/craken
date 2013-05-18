@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.Debug;
@@ -62,7 +64,7 @@ public class TestListener extends TestBaseCrud {
 		private AtomicInteger aint = new AtomicInteger() ;
 		
 		@CacheEntryModified
-		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap> e){
+		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){
 			if (e.isPre()) return ;
 			if (e.getKey().getContents() == Type.DATA)  {
 				aint.incrementAndGet() ;

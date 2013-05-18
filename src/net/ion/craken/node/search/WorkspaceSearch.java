@@ -55,9 +55,6 @@ public class WorkspaceSearch extends AbstractWorkspace {
 		final TreeNodeKey key = e.getKey();
 		final AtomicHashMap<PropertyId, PropertyValue> value = e.getValue();
 
-//		if ("bleujin".equals(value.get("name")))
-//			Debug.debug(value.get(NodeCommon.IDProp));
-
 		if (e.getKey().getContents() == Type.DATA) {
 			lastCommand = central.newIndexer().asyncIndex(new IndexJob<Void>() {
 				@Override

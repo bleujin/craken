@@ -42,13 +42,12 @@ public class RepositoryImpl implements Repository{
 
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
-		dm.start() ;
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParserImpl()) ;
 	}
 	
 	public static RepositoryImpl create() {
 		GlobalConfiguration gconfig = GlobalConfigurationBuilder
-			.defaultClusteredBuilder().transport().clusterName("crakensearch").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
+			.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
 		return create(gconfig) ;
 	}
 
@@ -64,8 +63,14 @@ public class RepositoryImpl implements Repository{
 	}
 	
 	
-	private TreeCache<String, ? extends Object> treeCache(String string) {
-		Cache<String, ? extends Object> cache = dm.getCache();
+	public Repository defineConfig(String cacheName, Configuration configuration) {
+		dm.defineConfiguration(cacheName, configuration) ;
+		return this ;
+	}
+
+	
+	private TreeCache<String, ? extends Object> treeCache(String cacheName) {
+		Cache<String, ? extends Object> cache = dm.getCache(cacheName);
 		return new TreeCacheFactory().createTreeCache(cache) ;
 	}
 
@@ -83,6 +88,9 @@ public class RepositoryImpl implements Repository{
 		return this ;
 	}
 	
+	public void start(){
+		dm.start() ;
+	}
 	
 	
 	public void shutdown() {
@@ -134,6 +142,7 @@ public class RepositoryImpl implements Repository{
 			Debug.line(e.getKey(), e.getValue().entrySet()) ;
 		}
 	}
+
 
 	
 	

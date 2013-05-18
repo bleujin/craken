@@ -22,6 +22,23 @@ import com.google.common.base.Predicate;
 
 public class Predicates {
 
+	
+	public final static Predicate<PropertyId> onlyNormal(){
+		return onlyPropertyType(PropertyId.PType.NORMAL) ;
+	}
+	
+	public final static Predicate<PropertyId> onlyPropertyType(final PropertyId.PType ptype){
+		return new Predicate<PropertyId>(){
+			@Override
+			public boolean apply(PropertyId pid) {
+				return pid.type() == ptype;
+			}
+		} ;
+	}
+	
+	
+	
+	
 	// Comparison
 	public final static <T extends NodeCommon> Predicate<T> hasRelation(final String refName, final Fqn target) {
 		return new Predicate<T>() {

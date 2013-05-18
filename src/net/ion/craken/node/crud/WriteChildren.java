@@ -135,12 +135,9 @@ class ReloadWriteIterator implements Iterator<WriteNode>{
 		};
 		
 		if (sorts.size() == 0) { // no sort
-			UnmodifiableIterator<List<TreeNode<PropertyId, PropertyValue>>> iterator = Iterators.partition(Iterators.filter(oriIter, myfilter), skip + offset);
-			Iterator<TreeNode<PropertyId, PropertyValue>> partitionIter = iterator.next().iterator();
-			while(skip-- > 0 && partitionIter.hasNext()){
-				partitionIter.next() ;
-			}
-			return new ReloadWriteIterator(session, partitionIter);
+			Iterator<TreeNode<PropertyId, PropertyValue>> iterator = Iterators.limit(Iterators.filter(oriIter, myfilter), skip + offset);
+			Iterators.advance(iterator, skip) ;
+			return new ReloadWriteIterator(session, iterator);
 		} 
 		
 		List<TreeNode<PropertyId, PropertyValue>> result = SortUtil.selectTopN(oriIter, myfilter, mycomparator, skip + offset);

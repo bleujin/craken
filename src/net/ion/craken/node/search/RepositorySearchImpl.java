@@ -124,6 +124,10 @@ public class RepositorySearchImpl implements RepositorySearch {
 	}
 
 	
+	public void start(){
+		inner.start() ;
+	}
+	
 	@Override
 	public void shutdown() {
 		inner.shutdown();

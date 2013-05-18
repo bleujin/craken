@@ -16,7 +16,9 @@ import net.ion.framework.util.ListUtil;
 
 public class CrakenNodeRows extends RowsImpl {
 
-	public CrakenNodeRows(ReadSession session, Iterator<ReadNode> iterator) throws SQLException {
+	private static final long serialVersionUID = 5559980355928579198L;
+
+	private CrakenNodeRows(ReadSession session, Iterator<ReadNode> iterator) throws SQLException {
 		super(Queryable.Fake);
 	}
 

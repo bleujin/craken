@@ -21,6 +21,8 @@ import org.infinispan.manager.DefaultCacheManager;
 
 public interface Repository {
 
+	public void start() ;
+	
 	public void shutdown()  ;
 
 	public IExecutor executor() ;
