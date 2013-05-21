@@ -1,6 +1,7 @@
 package net.ion.craken.node;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.ion.craken.listener.WorkspaceListener;
@@ -10,6 +11,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.ObjectUtil;
 
 public abstract class AbstractWorkspace implements Workspace{
 	
@@ -95,15 +97,16 @@ public abstract class AbstractWorkspace implements Workspace{
 					T result = tjob.handle(wsession);
 					workspace.endTran();
 					return result;
-				} catch (Throwable ex) {
-					ex.printStackTrace() ;
+				} catch (Exception ex) {
+//					ex.printStackTrace() ;
 					workspace.failEndTran();
 					wsession.failRollback();
 					handler.handle(wsession, ex);
+					throw ex;
 				} finally {
 					wsession.endCommit();
 				}
-				return null;
+				
 			}
 
 		});

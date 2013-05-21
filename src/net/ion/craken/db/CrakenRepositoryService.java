@@ -22,25 +22,22 @@ public class CrakenRepositoryService extends RepositoryService {
 	
 	@Override
 	public IUserCommand createUserCommand(IDBController dc, String psql) {
-		return null;
+		throw new UnsupportedOperationException("currently not supported. if you must use, call bleujin");
 	}
 
 	@Override
 	public IUserCommandBatch createUserCommandBatch(IDBController dc, String psql) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("currently not supported. if you must use, call bleujin");
 	}
 
 	@Override
 	public IUserProcedure createUserProcedure(IDBController dc, String psql) {
-		final IUserProcedure delegate = inner.createUserProcedure(dc, psql);
-		return new CrakenUserProcedure(dc, manager, delegate);
+		return new CrakenUserProcedure(dc, manager, psql);
 	}
 
 	@Override
 	public IUserProcedureBatch createUserProcedureBatch(IDBController dc, String psql) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CrakenUserProcedureBatch(dc, manager, psql);
 	}
 
 }

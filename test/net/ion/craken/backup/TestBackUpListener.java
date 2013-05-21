@@ -20,6 +20,7 @@ public class TestBackUpListener extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul").property("postcode", 100) ;
+				
 				return null;
 			}
 		}) ;
