@@ -32,8 +32,10 @@ public class TestBaseProcedure extends TestBaseCrud{
 
 	
 	private CrakenManager registerFunction() {
-		CrakenManager dbm = new CrakenManager(this.r) ;
+		CrakenManager dbm = new CrakenManager(this.r, "mywork.node") ;
+		
 		dbm.register("dummy", new QueryPackage(){
+			
 			@Function("addPersonWith")
 			public int addPerson(final String name, final int age, final String address) throws InterruptedException, ExecutionException{
 				return session().tranSync(new TransactionJob<Integer>() {

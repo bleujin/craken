@@ -3,19 +3,6 @@ package net.ion.craken.tree;
 import java.io.Serializable;
 import java.util.Comparator;
 
-/**
- * Compares the order of two FQN. Sorts by name, then by depth, e.g.
- * 
- * <pre>
- * aaa/bbb
- * xxx
- * xxx/ccc
- * </pre>
- * 
- * @author Manik Surtani (<a href="mailto:manik@jboss.org">manik@jboss.org</a>)
- * @author Steve Woodcock (<a href="mailto:stevew@jofti.com">stevew@jofti.com</a>)
- * @since 4.0
- */
 // @Immutable
 public class FqnComparator implements Comparator<Fqn>, Serializable {
 	public static final FqnComparator INSTANCE = new FqnComparator();

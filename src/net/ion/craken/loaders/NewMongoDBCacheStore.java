@@ -107,7 +107,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 			for (Entry<String, Fqn> childEle : ((AtomicHashMap<String, Fqn>) entry.getValue()).entrySet()) {
 				outerMap.put(childEle.getKey(), childEle.getValue().toString());
 			}
-			
+
 		} else {
 
 			AtomicHashMap<PropertyId, PropertyValue> nodeValue = (AtomicHashMap<PropertyId, PropertyValue>) entry.getValue();
@@ -144,19 +144,19 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 
 	}
 
-
 	@Override
 	public InternalCacheEntry load(Object _key) throws CacheLoaderException {
 
-		TreeNodeKey key = (TreeNodeKey) _key;
+		TreeNodeKey key =  (_key instanceof TreeNodeKey) ? (TreeNodeKey) _key : createTreekey((BasicDBObject)_key);
+		final DBCursor nc = coll.find(createDBObjectKey(key));
 
-		final DBCursor nc = coll.find(createkeyDBObject(key));
+//		BasicDBObject key = (BasicDBObject) _key;
+//		final DBCursor nc = coll.find(new BasicDBObject("_id", key.get("_id")));
 		DBObject read = nc.hasNext() ? nc.next() : null;
 
 		if (read == null) {
 			return null;
 		}
-
 		InternalCacheEntry readObject = NodeEntry.create(key, read);
 		if (readObject != null && readObject.isExpired(System.currentTimeMillis())) {
 			return null;
@@ -164,9 +164,18 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 		return readObject;
 	}
 
-	private DBObject createkeyDBObject(TreeNodeKey key) {
-		return key.getContents() == Type.DATA ? new BasicDBObject("_id", key.getFqn().toString()) : new BasicDBObject("_id", "@" + key.getFqn().toString()) ;
+	private DBObject createDBObjectKey(TreeNodeKey key) {
+		return key.getContents() == Type.DATA ? new BasicDBObject("_id", key.getFqn().toString()) : new BasicDBObject("_id", "@" + key.getFqn().toString());
 		// return AradonId.create(this.cache.getName(), key).toNodeObject().getDBObject();
+	}
+	
+	private TreeNodeKey createTreekey(BasicDBObject key) {
+		String id = ObjectUtil.toString(key.get("_id")) ;
+		if (id.startsWith("@")) {
+			return new TreeNodeKey(Fqn.fromString(id.substring(1)), Type.STRUCTURE) ;
+		} else {
+			return new TreeNodeKey(Fqn.fromString(id), Type.DATA) ;
+		}
 	}
 
 	@Override
@@ -247,13 +256,18 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 	@Override
 	public Set<Object> loadAllKeys(Set<Object> keysToExclude) throws CacheLoaderException {
 
-		Set<String> fqnSet = SetUtil.newSet();
-		for (Object obj : keysToExclude) {
-			fqnSet.add(((TreeNodeKey) obj).getFqn().toString());
-		}
+		DBCursor cursor = null ;
+		if (keysToExclude == null || keysToExclude.isEmpty()) {
+			cursor = coll.find();
+		} else {
+			Set<String> fqnSet = SetUtil.newSet();
+			for (Object obj : keysToExclude) {
+				fqnSet.add(((TreeNodeKey) obj).getFqn().toString());
+			}
 
-		DBObject query = new BasicDBObject("_id", new BasicDBObject("$nin", fqnSet));
-		DBCursor cursor = coll.find(query);
+			DBObject query = new BasicDBObject("_id", new BasicDBObject("$nin", fqnSet));
+			cursor = coll.find(query);
+		}
 		Set<Object> keySet = new LinkedHashSet<Object>();
 		while (cursor.hasNext()) {
 			DBObject nextDbo = cursor.next();
@@ -269,7 +283,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 
 	@Override
 	public boolean remove(Object key) throws CacheLoaderException {
-		WriteResult result = coll.remove(createkeyDBObject((TreeNodeKey)key));
+		WriteResult result = coll.remove(createDBObjectKey((TreeNodeKey) key));
 		result.getLastError().throwOnError();
 		return false;
 	}
@@ -297,26 +311,29 @@ class NodeEntry extends MortalCacheEntry {
 	}
 
 	public static InternalCacheEntry create(TreeNodeKey key, DBObject raw) {
-		if (key.getContents() == Type.DATA) return createDataEntry(raw);
-		else return createStruEntry(raw);
+		if (key.getContents() == Type.DATA)
+			return createDataEntry(raw);
+		else
+			return createStruEntry(raw);
 	}
 
 	public static Collection<NodeEntry> create(DBObject raw) {
 		if (raw.get("_id").toString().startsWith("@")) {
-			return ListUtil.toList(createStruEntry(raw)) ;
+			return ListUtil.toList(createStruEntry(raw));
 		} else {
-			return ListUtil.toList(createDataEntry(raw)) ;
+			return ListUtil.toList(createDataEntry(raw));
 		}
 	}
 
-	private static NodeEntry createStruEntry(DBObject raw){
-		
+	private static NodeEntry createStruEntry(DBObject raw) {
+
 		TreeNodeKey nodeKey = new TreeNodeKey(Fqn.fromString(raw.get("_id").toString()), Type.STRUCTURE);
 		long lastmodified = Long.parseLong(raw.get("_lastmodified").toString());
 		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
 
 		for (String pkey : raw.keySet()) {
-			if ("_id".equals(pkey) || "_lastmodified".equals(pkey)) continue ; 
+			if ("_id".equals(pkey) || "_lastmodified".equals(pkey))
+				continue;
 			String absoluteFqn = raw.get(pkey).toString();
 			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
 		}
@@ -325,10 +342,10 @@ class NodeEntry extends MortalCacheEntry {
 		final NodeEntry create = new NodeEntry(nodeKey, mvalue);
 		return create;
 	}
-	
+
 	private static NodeEntry createDataEntry(DBObject raw) {
 		final String idString = raw.get("_id").toString();
-		
+
 		TreeNodeKey nodeKey = new TreeNodeKey(Fqn.fromString(idString), Type.DATA);
 		long lastmodified = Long.parseLong(raw.get("_lastmodified").toString());
 		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();

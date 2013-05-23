@@ -1,25 +1,3 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2009 Red Hat Inc. and/or its affiliates and other
- * contributors as indicated by the @author tags. All rights reserved.
- * See the copyright.txt in the distribution for a full listing of
- * individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package net.ion.craken.tree;
 
 import java.io.IOException;
@@ -35,53 +13,10 @@ import net.ion.framework.util.ObjectUtil;
 import org.infinispan.marshall.AbstractExternalizer;
 import org.infinispan.util.ReflectionUtil;
 import org.infinispan.util.Util;
-import org.neo4j.helpers.collection.Iterables;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
-/**
- * A Fully Qualified Name (Fqn) is a list of names (typically Strings but can be any Object), which represent a path to a particular {@link TreeNode} in a {@link TreeCache}.
- * <p/>
- * This name can be absolute (i.e., relative from the root node - {@link #ROOT}), or relative to any node in the cache. Reading the documentation on each API call that makes use of {@link Fqn}s will tell you whether the API expects a relative or absolute Fqn.
- * <p/>
- * For instance, using this class to fetch a particular node might look like this. (Here data on "Joe" is kept under the "Smith" surname node, under the "people" tree.)
- * 
- * <pre>
- * Fqn&lt;String&gt; abc = Fqn.fromString(&quot;/people/Smith/Joe/&quot;);
- * Node joesmith = Cache.getRoot().getChild(abc);
- * </pre>
- * 
- * Alternatively, the same Fqn could be constructed using a List<Object> or varargs:
- * 
- * <pre>
- * Fqn&lt;String&gt; abc = Fqn.fromElements(&quot;people&quot;, &quot;Smith&quot;, &quot;Joe&quot;);
- * </pre>
- * 
- * This is a bit more efficient to construct.
- * <p/>
- * Note that<br>
- * <p/>
- * <code>Fqn<String> f = Fqn.fromElements("/a/b/c");</code>
- * <p/>
- * is <b>not</b> the same as
- * <p/>
- * <code>Fqn<String> f = Fqn.fromString("/a/b/c");</code>
- * <p/>
- * The former will result in a single Fqn, called "/a/b/c" which hangs directly under Fqn.ROOT.
- * <p/>
- * The latter will result in 3 Fqns, called "a", "b" and "c", where "c" is a child of "b", "b" is a child of "a", and "a" hangs off Fqn.ROOT.
- * <p/>
- * Another way to look at it is that the "/" separarator is only parsed when it forms part of a String passed in to Fqn.fromString() and not otherwise.
- * <p/>
- * <B>Best practices</B>: Always creating Fqns - even when using some factory methods - can be expensive in the long run, and as far as possible we recommend that client code holds on to their Fqn references and reuse them. E.g.: <code> // BAD!! for (int i=0; i<someBigNumber; i++) { cache.get(Fqn.fromString("/a/b/c"), "key" + i); } </code> instead, do:
- * <code> // Much better Fqn f = Fqn.fromString("/a/b/c"); for (int i=0; i<someBigNumber; i++) {
- * cache.get(f, "key" + i); } </code>
- * 
- * @author (various)
- * @since 4.0
- */
 // @Immutable
 public class Fqn implements Comparable<Fqn>, Serializable {
 	/**
@@ -224,9 +159,9 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 			return root();
 
 		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1) : stringRepresentation;
-		Object[] el = toMatch.split(SEPARATOR);
+		String[] el = toMatch.split(SEPARATOR);
 //		return new Fqn(el) ;
-		return new Fqn(Iterables.toArray(String.class, Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch)));
+		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch), String.class));
 	}
 
 	/**

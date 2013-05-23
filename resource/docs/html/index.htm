@@ -1,0 +1,446 @@
+<!doctype html>  
+<html lang="en" manifest="cache.appcache">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Aradon - Service Platform for (web) developers</title>
+
+		<meta name="description" content="Craken - Distributed Repository">
+		<meta name="author" content="bleujin">
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+
+		<link rel="stylesheet" href="css/zenburn.css">
+	</head>
+	
+	<body>
+		
+		<div id="reveal">
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<img src="img/craken.jpg" width="50%" style="border:0">
+					<h3 class="inverted" style="padding-top: 1em">Service made easy for developers</h3>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) )
+						document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+					
+					<div style="padding-top: 2em">
+					bleujin<br />
+					bleujin@gmail.com<br />
+					@i-on.net<br />
+					</div>
+				</section>
+				
+				<section>
+					<h2>Preface</h2>
+				    <ul>
+				      <li>Imaging</li>
+				      <li>Repository Pros/Cons</li>
+				      <li>Craken Feature</li>
+				      <li>Getting Started</li>
+				    </ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>Imaging</h2>
+
+						<a><img src="img/case1.jpg" style="border: 0"></a>
+					</section>
+					<section>
+						<h2>Imaging</h2>
+
+						<img src="img/case2.jpg">
+					</section>
+					<section>
+						<h2>Imaging</h2>
+						
+						<img src="img/case3.jpg">
+					</section>
+					<section>
+						<h2>Imaging</h2>
+
+						<img src="img/case4.jpg">
+					</section>
+				</section>
+
+
+				<section>
+					<section>
+						<h2>RDB Pros/Cons</h2>
+						
+						<img src="img/cap.jpg" />
+					</section>
+					
+					<section>
+						<h2>CAP </h2>
+					 <ul>
+					   <li>일관성(Consistency)</li>
+					   <li>가용성(Availability)</li>
+					   <li>분단 가용성(Partition Tolerance)</li>
+					   <br/>
+					   
+					   <li>CA : 시스템이 죽을지언정 메시지 손실은 방지(Tr RDB)</li>
+					   <li>CP : 분산을 통한 퍼포먼스 향상(MongoDB, HBase)</li>
+					   <li>AP : 24*365 서비스, Async(Dynamo, CouchDB)</li>
+					 </ul>
+					</section>
+
+					<section>
+						<h2>RDB의 대안 </h2>
+					 <ul>
+					   <li>RDB Cluster</li>
+					   <br/>
+					   
+					   <li>Pros :</li> 
+					   		기존의 방법을 바꿀필요가 없다.<br>
+					   		상용화된 지원이 가능하다<br><br/>
+					   
+					   <li>Cons :</li>
+					   		확장 비용이 비싸고 고급 관리 비용이 필요<br>
+					   		읽기 성능만 향상된다.<br>
+					 </ul>
+					</section>
+
+					<section>
+						<h2>NoSQL </h2>
+					 <ul>
+					   <li>디스크 기반의 수평확장이 뛰어난 데이타 저장소</li>
+					   <br/>
+					   
+					   <li>Pros :</li> 
+					   		읽기/쓰기 확장성이 뛰어나다.<br>
+					   		OpenSource와 저장 장비 사용 가능<br><br/>
+					   
+					   <li>Cons :</li>
+					   		상용화된 지원이 어려울 수 있다.<br>
+					   		개발자가 Persistence Layer를 직접 만들어야 함<br>
+					 </ul>
+					</section>
+
+
+				</section>
+
+
+				<section>
+					<section>
+						<h2>Craken Feature</h2>
+						<ul>
+							<li>Embedable</li>
+							<li>InMemory Data Grid</li>
+							<li>Schema-free(Tree Document Model)</li>
+							<li>scalable / distributed</li>
+							<li>replication</li>
+							<li>eventually consistency(not ACID)</li>
+							<li>Adaptable</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Architecture</h2>
+						
+						<img src="img/craken_arch.jpg" width="70%">
+					</section>
+
+
+					<section>
+						<h2>Distribute</h2>
+						
+						<pre>
+Global Config....(jgroups-udp.xml)
+&lt;config xmlns="urn:org:jgroups"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-2.8.xsd"&gt;
+    &lt;TCP bind_port="7800" port_range="10"
+         recv_buf_size="20000000"
+         send_buf_size="640000"
+         loopback="false"
+		 ......
+
+   &lt;MPING timeout="2000"
+    mcast_addr="228.100.2.3"
+    .....		
+    
+Workspace Config.....
+
+	new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().clustering().hash().unsafe()
+	    .eviction().maxEntries(maxEntry)
+	    .invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
+	    .addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "WEB-INF/resource/store")
+	    .purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build();
+
+Create Repository
+	repository = RepositoryImpl.create(GlobalConfigurationBuilder
+	    .defaultClusteredBuilder().transport().clusterName("mysearch")
+		.addProperty("configurationFile", PathMaker.getFilePath(getIXSSDocBase(), "WEB-INF/jgroups-udp.xml")).build());
+		
+		repository.defineConfig("ixss.node", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().clustering().hash().unsafe()
+	        .eviction().maxEntries(maxEntry)
+	        .invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
+	        .addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "WEB-INF/resource/store")
+	        .purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		
+		repository.start() ;
+   				
+						</pre>
+					</section>
+					
+					
+					
+					<section>
+					  <h2>Craken Can do</h2>
+					  <ul>
+					    <li>Fast Distribute Repository</li>
+					    <li>Fast Distribute Search/Index Service</li>
+					    <li>Data Analytics Based Map/Reduce(expect)</li>
+					  </ul>
+					</section>
+
+				</section>
+
+				<section>
+					<section>
+					  <h2>Getting Started</h2>
+					  <pre>
+		GlobalConfiguration globalConf = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().....;
+		Configuration defaultConf = new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering() .... ;
+		
+		Repository r = RepositoryImpl.create(globalConf) ;
+		repo.defineConfig("mywork.node", defaultConf) ;
+		r.start() ;
+		
+		ReadSession session = r.testLogin("mywork") ;
+		session.tranSync(new TransactionJob<Void>() {
+		    @Override
+		    public Void handle(WriteSession wsession) {
+		        wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).refTo("friend", "/hero").addChild("address").property("city", "seoul") ;
+		        wsession.pathBy("/hero").property("name", "hero").property("age", 30L) ;
+		        return null;
+		    }
+		});
+
+		Rows rows = session.root().children().eq("name", "bleujin").lte("age", 30).skip(0).offset(10).ascending("age").toRows("name", "bleujin", "address/city", "friend@name") ;
+		rows.debugPring() ;
+	
+		r.stop() ;
+					  </pre>
+					</section>
+					
+					<section>
+						<h2>Adaptable(Traditional)</h2>
+						<pre>
+		DBController dc = new DBController(new OracleDBManager()) ;
+		dc.createUserProcedure("dummy@addPersonWITH(?,?,?)")	
+			.addParam("bleujin")
+			.addParam(20)
+			.addParam("seoul").execUpdate() ;
+		
+		Rows rows = dc.createUserProcedure("dummy@findPersonBy(?)")
+			.addParam("hero").execQuery() ;
+			
+		assertEquals("hero", rows.firstRow().getString("name")) ;
+		assertEquals(20, rows.firstRow().getInt("age")) ;
+						</pre>
+					</section>
+
+					<section>
+						<h2>In Craken</h2>
+						<pre>
+		CrakenManager dbm = new CrakenManager(this.r) ;
+		
+		dbm.register("dummy", new QueryPackage(){
+		    @Function("addPersonWith")
+		    public int addPerson(final String name, final int age, final String address) throws InterruptedException, ExecutionException{
+		        return session().tranSync(new TransactionJob<Integer>() {
+		            public Integer handle(WriteSession wsession) {
+		                wsession.pathBy("/persons/" + name).property("name", name).property("age", age).property("address", address) ;
+		                return 1 ;
+		            }
+		        }) ;
+		    }
+		    public Rows findPersonBy(String name){
+		        return session().pathBy("/persons", true).child(name).toRows("name", "age");
+		    }
+		}) ;
+			
+		DBController dc = new DBController(dbm) ;
+		dc.createUserProcedure("dummy@addPersonWITH(?,?,?)").addParam("bleujin").addParam(20).addParam("seoul").execUpdate() ;
+		dc.createUserProcedure("dummy@addPersonWITH(?,?,?)").addParam("hero").addParam(20).addParam("busan").execUpdate() ;
+		
+		Rows rows = dc.createUserProcedure("dummy@findPersonBy(?)").addParam("hero").execQuery() ;
+		assertEquals("hero", rows.firstRow().getString("name")) ;
+		assertEquals(20, rows.firstRow().getInt("age")) ;
+
+						</pre>
+					</section>
+
+					
+					<section>
+						<h2>Domain Object</h2>
+					
+					<pre>
+					
+	public class Dept implements Serializable {
+	    private static final long serialVersionUID = 8529181055812294059L;
+	    private int deptno;
+	    private String name;
+	    private Employee manager;
+	    private List<Employee> emps;
+	    private Address address;
+	    .......				
+					
+
+
+        session.tran(new TransactionJob<Void>() {
+            @Override
+            public Void handle(WriteSession wsession) {
+                wsession.root().addChild("/dev").property("name", "dev").property("deptno", 20)
+                    .addChild("manager").property("name", "bleujin").property("created", new Date()).parent()
+                    .refTos("emps", "/emps/jin")
+                    .refTos("emps", "/emps/hero") ;
+                
+                wsession.root().addChild("/emps/jin").property("name", "jin") ;
+                wsession.root().addChild("/emps/hero").property("name", "hero") ;
+                
+                return null ;
+            }
+        }).get() ;
+        
+        ReadNode dev = session.pathBy("/dev");
+
+        final Dept devBean = dev.toBean(Dept.class); // devBean is proxy
+        assertEquals("dev", devBean.name().toString()) ;
+        assertEquals(20, devBean.deptNo()) ;
+        
+        assertEquals("bleujin", devBean.manager().name()) ;
+        Debug.line(devBean.emps()) ;
+        assertEquals(2, devBean.emps().size()) ;
+        </pre>
+					</section>
+
+					
+				</section>
+
+
+		  <section>
+		      <h2>Project</h2>
+		    <ul>
+		      <li>Craken : <a href="https://github.com/bleujin/craken">https://github.com/bleujin/craken</a></li>
+
+		      <li>Server : <a href="https://github.com/bleujin/aradon">https://github.com/bleujin/aradon</a></li> 
+		      <li>Client : <a href="https://github.com/bleujin/aradonClient">https://github.com/bleujin/aradonClient</a></li>
+		      <li>Extend : <a href="https://github.com/bleujin/aradonExtend">https://github.com/bleujin/aradonExtend</a></li>
+		      <li>ionfw :  <a href="https://github.com/bleujin/ionframework">https://github.com/bleujin/ionframework</a></li>
+		      <li>isearcher :  <a href="https://github.com/bleujin/ionframework">https://github.com/bleujin/isearcher</a></li>
+		    </ul>
+		  </section>
+
+
+		  <section>
+		      <h2>Thanks for listening!</h2>
+		      <h3>Questions?</h3>
+		
+		     <div  style="padding-top: 1em">
+		     Slides available at<br />
+		     <b><a href="http://www.github.com/bleujin/aradon" style="font-size: bigger">http://www.github.com/bleujin/craken</a></b>
+		     </div>
+		     
+		     <h5 style="padding-top: 2em">bleujin@gmail.com</h5>
+		     <h5>@i-on.net</h5>
+		  </section>
+		
+		  <section>
+		      <h2>Documentation &amp; Credits</h2>
+		      
+		      <ul>
+		        <li><a href="http://www.github.com/bleujin/craken">craken</a></li>
+		      	<li style="padding-top: 1em">Presentation done with <a href="https://github.com/hakimel/reveal.js">reveal.js</a></li>
+		      	<li>Cool zooming done with <a href="https://github.com/hakimel/zoom.js">zoom.js</a></li>
+		      </ul>
+		      
+		  </section>
+
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Displays presentation progress, max value changes via JS to reflect # of slides -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+		
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script src="js/highlight.js"></script>
+		<script src="js/zoom.js"></script>
+		<script>
+		$(document).ready(function() {
+			$('pre').click(function(event) {
+				event.preventDefault();
+				zoom.in( { element: event.target } );
+//				updateProgress()
+			})
+			$('img').click(function(event) {
+				event.preventDefault();
+				zoom.in( { element: event.target } );
+//				updateProgress();
+			})
+//			$(document).keypress(updateProgress)
+		})
+		function updateProgress() {
+			var slides = $("#reveal .slides > section")
+			var currentSlide = $("#reveal .slides .present")
+			var currentPosition = $(slides).index(currentSlide)
+			// dom.progressbar.style.width = ( indexh / ( document.querySelectorAll( HORIZONTAL_SLIDES_SELECTOR ).length - 1 ) ) * window.innerWidth + 'px';
+			console.log(" GOT " + slides.length + " pos " + currentPosition + " and innerWidth " + window.innerWidth);
+			$(".progress span").css("width", (currentPosition / (slides.length - 1) * window.innerWidth) + 'px' )
+		}
+		</script>
+		<script>
+			// Parse the query string into a key/value object
+			var query = {};
+			location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+				query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+			} );
+
+			Reveal.initialize({
+				// Display controls in the bottom right corner
+				controls: true,
+
+				// Display a presentation progress bar
+				progress: false,
+
+				// If true; each slide will be pushed to the browser history
+				history: true,
+
+				// Flags if mouse wheel navigation should be enabled
+				mouseWheel: true,
+
+				// Apply a 3D roll to links on hover
+				rollingLinks: true,
+
+				// UI style
+				theme: query.theme || 'default', // default/neon
+
+				// Transition style
+				transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+			});
+
+			hljs.initHighlightingOnLoad();
+		</script>
+
+	</body>
+</html>

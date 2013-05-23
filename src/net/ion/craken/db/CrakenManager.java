@@ -38,9 +38,11 @@ public class CrakenManager extends DBManager {
 	private CrakenRepositoryService cservice;
 	private RepositoryImpl repository;
 	private Connection fake;
+	private String workspace ;
 
-	public CrakenManager(RepositoryImpl repository) {
+	public CrakenManager(RepositoryImpl repository, String workspace) {
 		this.repository = repository;
+		this.workspace = workspace ;
 		this.cservice = new CrakenRepositoryService(this);
 	}
 
@@ -60,7 +62,7 @@ public class CrakenManager extends DBManager {
 	}
 
 	public ReadSession session() {
-		return repository.testLogin("test");
+		return repository.testLogin(workspace);
 		// return repository.testLogin("test") ;
 	}
 

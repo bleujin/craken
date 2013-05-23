@@ -3,23 +3,8 @@ package net.ion.craken.tree;
 import org.infinispan.Cache;
 import org.infinispan.config.ConfigurationException;
 
-/**
- * Factory class that contains API for users to create instances of {@link org.infinispan.tree.TreeCache}
- * 
- * @author Navin Surtani
- */
-public class TreeCacheFactory {
 
-	/**
-	 * Creates a TreeCache instance by taking in a {@link org.infinispan.Cache} as a parameter
-	 * 
-	 * @param cache
-	 * @return instance of a {@link TreeCache}
-	 * @throws NullPointerException
-	 *             if the cache parameter is null
-	 * @throws ConfigurationException
-	 *             if the invocation batching configuration is not enabled.
-	 */
+public class TreeCacheFactory {
 
 	public <K, V> TreeCache<K, V> createTreeCache(Cache<K, V> cache) {
 

@@ -15,8 +15,8 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin").property("age", 20) ;
-				wsession.root().addChild("hero").property("name", "hero").property("age", 30L) ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul") ;
+				wsession.pathBy("/hero").property("name", "hero").property("age", 30L) ;
 				return null;
 			}
 		}).get() ;
@@ -150,6 +150,7 @@ public class TestWriteNode extends TestBaseCrud {
 		assertEquals("value", session.pathBy("/absent").property("key").value()) ;
 
 	}
+	
 	
 	
 	

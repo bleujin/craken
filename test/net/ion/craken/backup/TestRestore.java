@@ -24,7 +24,7 @@ public class TestRestore extends TestBaseCrud {
 		Restoreable re = MongoBackupListener.test();
 		re.restore(session) ;
 		
-		assertEquals(4, session.root().children().toList().size()) ;
+		assertEquals(3, session.root().children().toList().size()) ;
 	}
 	
 	public void testProperties() throws Exception {

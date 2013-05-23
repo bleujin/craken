@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+
+<title>Aradon - Service Platform for (web) developers</title>
+
+<meta name="description" content="Java for Beginner">
+<meta name="author" content="bleujin">
+
+<link
+	href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic'
+	rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/main.css">
+
+<link rel="stylesheet" href="css/zenburn.css">
+</head>
+
+<body>
+
+<div id="reveal"><!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+
+
+				<section>
+					<img src="http://open.egovframe.go.kr/dbimage.php?id=17" style="border: 0">
+					<h3 class="inverted" style="padding-top: 1em">Java for beginners</h3>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) )
+						document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+					
+					<div style="padding-top: 2em">
+					bleujin<br />
+					bleujin@gmail.com<br />
+					@i-on.net<br />
+					</div>
+				</section>
+				
+				<section>
+					<h2>Preface</h2>
+						<ul>
+							<li>Setup</li>
+							<li>Java Beginning</li>
+							<li>String</li>
+							<li>Object</li>
+							<li>Thread</li>
+							<li>GC</li>
+						</ul>
+				</section>
+
+
+				<section>
+					<section>
+						<h2>Setup</h2>
+							<ul>
+								<li>install JDK 1.5 higher</li>
+								<li>install Eclipse</li>
+								<li>run Hello with JUnit</li>
+							</ul>
+						</section>
+						
+						<section>
+						<h2>JUnit</h2>
+							<ul>
+								<li>setUp JUnit3</li>
+								<li>testFirst</li>
+								<li>setUp/TearDown</li>
+								<li>assertEqual</li>
+								<li>문제의 고립화</li>
+								<li>TestSuite</li>
+							</ul>
+						</section>
+				</section>
+				
+				<section>
+					<h2>Java Beginning</h2>
+						<ul>
+							<li>기초 ?</li>
+							<li>경험과 이론의 차이</li>
+							<li>언어</li>
+							<li>초급/중급/고급 ?</li>
+							<li>좋은 프로그래머란? - 좋은 습관(책읽기, TestCase작성하기)</li>
+						</ul>
+				</section>
+				
+				
+				<section>
+					<section>
+						<h2>String as Byte</h2>
+						<ul>
+							<li>getByte()</li>
+							<li>Encoding / Decoding</li>
+							<li>CharacterSet</li>
+							<li>한글</li>
+							<li>UTF</li>
+						</ul>
+					</section>
+						
+					<section>
+						<h2>UTF</h2>
+						<ul>
+							<li>UTF-16</li>
+							<li>UTF-8</li>
+							<li>UTF-32</li>
+						</ul>
+					</section>
+						
+					<section>
+						<h2>ref</h2>
+						<ul>
+							<li><a href="http://bleujin.tistory.com/category/IT%20%EC%9D%B4%EC%95%BC%EA%B8%B0/%EC%9C%A0%EB%8B%88%EC%BD%94%EB%93%9C">유니코드</a></li>
+							<li><a href="http://helloworld.naver.com/helloworld/19187">유니코드와 Java를 이용한 한글처리</a></li>
+							<li><a href="http://helloworld.naver.com/helloworld/76650">한글 인코딩의 역사와 유니코드</a></li>
+						</ul>
+					</section>
+					
+					<section>
+						<h2>String as Object</h2>
+						<ul>
+							<li>mutable / immutable</li>
+							<li>String / StringBuffer</li>
+							<li>StringBuffer / StringBuilder</li>
+						</ul>
+					</section>
+				</section>
+				
+				<section>
+					<section>
+						<h2>Object as Byte</h2>
+						<ul>
+							<li>InputStream / OutputStream</li>
+							<li>Save / Load</li>
+							<li>java.io.Serializable / transient</li>
+							<li>writeReplace / readResolve</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Object method</h2>
+						<ul>
+							<li>hashCode / equals - Collection</li>
+							<li>toString</li>
+							<li>writeReplace / readResolve</li>
+						</ul>
+					</section>
+				</section>
+				
+				
+				<section>
+					<section>
+						<h2>Exception 처리 격언</h2>
+						<ul>
+							<li>예외는 예외 상황에만 써야 한다.</li>
+							<li>checked / runtime을 구분해라</li>
+							<li>예외를 던질때는 신중해야 한다. </li>
+							<li>표준 예외를 써라</li>
+							<li>예외를 적절하게 추상화하라</li>
+							<li>실패에 대한 자세한 정보를 문자열에 담아라</li>
+							<li>예외를 잡아서 버리지 마라</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Exception</h2>
+						<ul>
+							<li>Checked Exception / Runtime Exception</li>
+							<li>ref : <a href="http://bleujin.tistory.com/category/Framework/%EC%98%88%EC%99%B8%EC%B2%98%EB%A6%AC">예외처리</a></li>
+						</ul>
+					</section>
+				</section>
+				
+				<section>
+					<section>
+						<h2>Thread</h2>
+						<ul>
+							<li>When to use Thread ?</li>
+							<li>Stack / Heap / MethodArea</li>
+							<li>Synchronized</li>
+							<li>wait / notify / notifyAll</li>
+							<li>mutex / semaphore</li>
+						</ul>
+					</section>
+					
+					<section>
+						<h2>When to use Thread</h2>
+						
+						<ul>
+							<li>Thread as actor</li>
+							<li>Multi Thread / Multi Process</li>
+							<li>invocation / execution</li>
+							
+							<li>JDK5 java.util.concurrent</li>
+						</ul>
+					</section>
+					
+					<section>
+						<h2>Stack / Heap / MethodArea</h2>
+						
+						<li>공책 / 칠판</li>
+						<img src="http://www.java-forums.org/blogs/thread/attachments/2589d1326020979-processes-vs-threads-62.jpg" />
+					</section>
+					
+					<section>
+						<h2>Synchronized</h2>
+						<ul>
+							<li>synchronized 의미</li>
+							<li>synchronized 동작</li>
+							<img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRcacN1zwpYe_7WPOmdeNryXeWB1FR5QC2I4Wtyw-mQUqiOh81T" width="150%" height="150%"></li>
+							<li>invocation / execution</li>
+							<li>JDK5 java.util.concurrent</li>
+						</ul>
+					</section>
+					
+					<section>
+						<h2>ThreadDump 분석하기</h2>
+						<ul>
+							<li>jps -v / jstack pid</li>
+							<li>visualVM</li>
+							<li>ref : <a href="http://helloworld.naver.com/helloworld/10963">ThreadDump 분석하기</a></li>
+						</ul>
+					</section>
+				</section>
+				
+				<section>
+				
+					<section>
+						<h2>Garbage Collection</h2>
+						<ul>
+							<li>Object o = new Object();</li>
+							<img src="http://www.liferay.com/c/document_library/get_file?groupId=14&uuid=bcfe8bb7-f061-437a-a5e7-cf48cc553086" />
+							<img src="http://www.javaworld.com/javaworld/jw-01-2002/images/jw-0111-hotspot2.jpg" />
+						</ul>
+					</section>
+					
+					<section>
+						<h2>Garbage Collection</h2>
+						<ul>
+							<li><a href="http://helloworld.naver.com/helloworld/1329">Java Garbage Collection</a></li>
+						</ul>
+					</section>
+				</section>
+
+
+
+
+	<section>
+			<h2>Thanks for listening!</h2>
+			<h3>Questions?</h3>
+
+		 <div	style="padding-top: 1em">
+		 Slides available at<br />
+		 <b><a href="http://www.github.com/bleujin/aradon" style="font-size: bigger">http://www.github.com/bleujin/aradon</a></b>
+		 </div>
+		 
+		 <h5 style="padding-top: 2em">bleujin@gmail.com</h5>
+		 <h5>@i-on.net</h5>
+	</section>
+
+	<section>
+			<h2>Documentation &amp; Credits</h2>
+			
+			<ul>
+				<li><a href="http://www.github.com/bleujin/aradon">aradon</a></li>
+				<li style="padding-top: 1em">Presentation done with <a href="https://github.com/hakimel/reveal.js">reveal.js</a></li>
+				<li>Cool zooming done with <a href="https://github.com/hakimel/zoom.js">zoom.js</a></li>
+			</ul>
+			
+	</section>
+
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Displays presentation progress, max value changes via JS to reflect # of slides -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+		
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script src="js/highlight.js"></script>
+		<script src="js/zoom.js"></script>
+		<script>
+		$(document).ready(function() {
+			$('pre').click(function(event) {
+				event.preventDefault();
+				zoom.in( { element: event.target } );
+//				updateProgress()
+			})
+			$('img').click(function(event) {
+				event.preventDefault();
+				zoom.in( { element: event.target } );
+//				updateProgress();
+			})
+//			$(document).keypress(updateProgress)
+		})
+		function updateProgress() {
+			var slides = $("#reveal .slides > section")
+			var currentSlide = $("#reveal .slides .present")
+			var currentPosition = $(slides).index(currentSlide)
+			// dom.progressbar.style.width = ( indexh / ( document.querySelectorAll( HORIZONTAL_SLIDES_SELECTOR ).length - 1 ) ) * window.innerWidth + 'px';
+			console.log(" GOT " + slides.length + " pos " + currentPosition + " and innerWidth " + window.innerWidth);
+			$(".progress span").css("width", (currentPosition / (slides.length - 1) * window.innerWidth) + 'px' )
+		}
+		</script>
+		<script>
+			// Parse the query string into a key/value object
+			var query = {};
+			location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+				query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+			} );
+
+			Reveal.initialize({
+				// Display controls in the bottom right corner
+				controls: true,
+
+				// Display a presentation progress bar
+				progress: false,
+
+				// If true; each slide will be pushed to the browser history
+				history: true,
+
+				// Flags if mouse wheel navigation should be enabled
+				mouseWheel: true,
+
+				// Apply a 3D roll to links on hover
+				rollingLinks: true,
+
+				// UI style
+				theme: query.theme || 'default', // default/neon
+
+				// Transition style
+				transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+			});
+
+			hljs.initHighlightingOnLoad();
+		</script>
+
+	</body>
+</html>

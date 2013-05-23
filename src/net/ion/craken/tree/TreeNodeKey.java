@@ -12,12 +12,6 @@ import java.util.Set;
 import org.infinispan.marshall.AbstractExternalizer;
 import org.infinispan.util.Util;
 
-/**
- * A class that represents the key to a node
- * 
- * @author Manik Surtani
- * @since 4.0
- */
 public class TreeNodeKey implements Serializable {
 
 	private static final long serialVersionUID = 809910293671104885L;
