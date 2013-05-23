@@ -29,4 +29,4 @@ public class TestHelloWord extends TestCase {
 ```
 
 
-Html Pt : http://htmlpreview.github.com/?https://github.com/bleujin/craken/master/resource/docs/html/index.htm#/1
+Html Pt : http://htmlpreview.github.com/?https://github.com/bleujin/craken/master/resource/docs/html/index.htm
