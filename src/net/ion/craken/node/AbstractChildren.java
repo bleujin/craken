@@ -82,7 +82,10 @@ public abstract class AbstractChildren<T extends NodeCommon, C extends AbstractC
 		return filter(Predicates.<T>size(propId, size));
 	}
 
-	
+	public C where(String expression) {
+		return filter(Predicates.<T>where(expression)) ;
+	}
+
 	
 	
 

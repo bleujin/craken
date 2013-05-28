@@ -3,6 +3,7 @@ package net.ion.craken.node;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 import net.ion.craken.tree.Fqn;
@@ -52,5 +53,6 @@ public interface NodeCommon<T extends NodeCommon<T>> {
 
 	public IteratorList<T> refs(String refName) ;
 
+	<R> R transformer(Function<T, R> transformer) ;
 
 }

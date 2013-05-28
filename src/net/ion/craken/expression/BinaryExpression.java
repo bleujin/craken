@@ -1,4 +1,6 @@
-package net.ion.rosetta.bleujin.expression;
+package net.ion.craken.expression;
+
+import net.ion.craken.node.NodeCommon;
 
 public final class BinaryExpression extends ValueObject implements Expression {
 	public final Expression left;
@@ -9,5 +11,10 @@ public final class BinaryExpression extends ValueObject implements Expression {
 		this.left = left;
 		this.operator = op;
 		this.right = right;
+	}
+
+	public Comparable value(NodeCommon node) {
+
+		return operator.compute(left.value(node), right.value(node)) ;	
 	}
 }

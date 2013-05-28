@@ -1,4 +1,4 @@
-package net.ion.rosetta.bleujin.expression;
+package net.ion.craken.expression;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -11,11 +11,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * Base class that implements {@link Object#equals(Object)}, {@link Object#hashCode()} and {@code Object#toString()} on final fields.
- * 
- * @author Ben Yu
- */
 public abstract class ValueObject {
 
 	private volatile List<Object> fieldValues = null;

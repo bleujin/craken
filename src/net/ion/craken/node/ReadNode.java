@@ -12,7 +12,7 @@ import net.ion.framework.db.Rows;
 
 public interface ReadNode extends NodeCommon<ReadNode> {
 
-	<T> T transformer(Function<ReadNode, T> transformer) ;
+	
 	
 	<T> T toBean(Class<T> clz);
 

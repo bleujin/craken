@@ -113,6 +113,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 		return CrakenNodeRows.create(session, page.subList(screenList).iterator(), cparser.parse(cols).append(new ConstantColumn(count, "cnt")));
 	}
 
+
 }
 
 class ReloadIterator implements Iterator<ReadNode> {

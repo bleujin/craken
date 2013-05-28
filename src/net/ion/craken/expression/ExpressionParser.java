@@ -1,16 +1,19 @@
-package net.ion.rosetta.bleujin.expression;
+package net.ion.craken.expression;
 
+import java.util.List;
+
+import net.ion.craken.expression.Expression;
 import net.ion.rosetta.OperatorTable;
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
 import net.ion.rosetta.Parser.Reference;
-import net.ion.rosetta.bleujin.expression.Expression;
 import net.ion.rosetta.functors.Binary;
+import net.ion.rosetta.functors.Pair;
 import net.ion.rosetta.functors.Unary;
 import net.ion.rosetta.misc.Mapper;
-import static net.ion.rosetta.bleujin.expression.TerminalParser.parse;
-import static net.ion.rosetta.bleujin.expression.TerminalParser.phrase;
-import static net.ion.rosetta.bleujin.expression.TerminalParser.term;
+import static net.ion.craken.expression.TerminalParser.parse;
+import static net.ion.craken.expression.TerminalParser.phrase;
+import static net.ion.craken.expression.TerminalParser.term;
 
 
 public class ExpressionParser {
@@ -45,6 +48,18 @@ public class ExpressionParser {
 		return curry(TupleExpression.class).sequence(term("("), expr.sepBy(term(",")), term(")"));
 	}
 
+	static Parser<Expression> simpleCase(Parser<Expression> expr) {
+		return curry(SimpleCaseExpression.class).sequence(term("case"), expr, whenThens(expr, expr), term("else").next(expr).optional(), term("end"));
+	}
+
+	static Parser<Expression> fullCase(Parser<Expression> cond, Parser<Expression> expr) {
+		return curry(FullCaseExpression.class).sequence(term("case"), whenThens(cond, expr), term("else").next(expr).optional(), term("end"));
+	}
+	
+	private static Parser<List<Pair<Expression, Expression>>> whenThens(Parser<Expression> cond, Parser<Expression> expr) {
+		return Parsers.pair(term("when").next(cond), term("then").next(expr)).many1();
+	}
+
 	static <T> Parser<T> paren(Parser<T> parser) {
 		return parser.between(term("("), term(")"));
 	}
@@ -60,7 +75,8 @@ public class ExpressionParser {
 	
 	static Parser<Expression> expression(Parser<Expression> cond) {
 		Reference<Expression> reference = Parser.newReference();
-		Parser<Expression> atom = Parsers.or(NUMBER, STRING, WILDCARD, QUALIFIED_NAME);
+		Parser<Expression> lazyExpr = reference.lazy();
+		Parser<Expression> atom = Parsers.or(NUMBER, STRING, WILDCARD, QUALIFIED_NAME, simpleCase(lazyExpr), fullCase(cond, lazyExpr));
 		Parser<Expression> expression = arithmetic(atom).label("expression");
 		reference.set(expression);
 		return expression;
@@ -98,7 +114,7 @@ public class ExpressionParser {
 	static Parser<Expression> between(Parser<Expression> expr) {
 		return curry(BetweenExpression.class).sequence(expr, Parsers.or(term("between").retn(true), phrase("not between").retn(false)), expr, term("and"), expr);
 	}
-
+	
 	static Parser<Expression> in(Parser<Expression> expr) {
 		return binaryExpression(Op.IN).sequence(expr, term("in"), tuple(expr));
 	}
@@ -107,8 +123,7 @@ public class ExpressionParser {
 		return binaryExpression(Op.NOT_IN).sequence(expr, phrase("not in"), tuple(expr));
 	}
 
-	
-	
+
 	
 	/** logical **/
 	
@@ -127,13 +142,13 @@ public class ExpressionParser {
 	private static Parser<Binary<Expression>> binary(String name, Op op) {
 		return term(name).next(binaryExpression(op).binary());
 	}
+	private static Parser<Unary<Expression>> unary(String name, Op op) {
+		return term(name).next(unaryExpression(op).unary());
+	}
 	private static Mapper<Expression> binaryExpression(Op op) {
 		return curry(BinaryExpression.class, op);
 	}
 	
-	private static Parser<Unary<Expression>> unary(String name, Op op) {
-		return term(name).next(unaryExpression(op).unary());
-	}
 	private static Mapper<Expression> unaryExpression(Op op) {
 		return curry(UnaryExpression.class, op);
 	}

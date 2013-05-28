@@ -1,4 +1,4 @@
-package net.ion.rosetta.bleujin.expression;
+package net.ion.craken.expression;
 
 import static net.ion.rosetta.Parsers.between;
 
@@ -32,7 +32,7 @@ public final class TerminalParser {
 
 	static final Parser<QualifiedName> QUALIFIED_NAME = Mapper.curry(QualifiedName.class).sequence(NAME.sepBy1(term(".")));
 
-	static <T> T parse(Parser<T> parser, String source) {
+	public static <T> T parse(Parser<T> parser, String source) {
 		return parser.from(TOKENIZER, Scanners.SQL_DELIMITER).parse(source);
 	}
 

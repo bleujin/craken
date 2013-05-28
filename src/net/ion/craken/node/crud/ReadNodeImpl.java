@@ -13,6 +13,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.bean.ToBeanStrategy;
+import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -187,11 +188,11 @@ public class ReadNodeImpl implements ReadNode{
 		PropertyId referId = PropertyId.refer(refName);
 		if (hasProperty(referId)) {
 			Object val = property(referId).value() ;
-			if (val == null ) throw new IllegalArgumentException("not found ref :" + refName) ;
+			if (val == null ) throw new NodeNotExistsException("not found ref :" + refName) ;
 
 			return session.pathBy(val.toString(), true) ;
 		} else {
-			throw new IllegalArgumentException("not found ref :" + refName) ;
+			throw new NodeNotExistsException("not found ref :" + refName) ;
 		}
 	}
 	

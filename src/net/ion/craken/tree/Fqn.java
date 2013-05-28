@@ -65,95 +65,35 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 	// ----------------- END: Private constructors for use by factory methods only. ----------------------
 
-	/**
-	 * Retrieves an Fqn that represents the list of elements passed in.
-	 * 
-	 * @param names
-	 *            list of elements that comprise the Fqn
-	 * @return an Fqn
-	 * @since 4.0
-	 */
+
 	@SuppressWarnings("unchecked")
 	public static Fqn fromList(List<?> names) {
 		return new Fqn(names);
 	}
 
-	/**
-	 * Retrieves an Fqn that represents the array of elements passed in.
-	 * 
-	 * @param elements
-	 *            array of elements that comprise the Fqn
-	 * @return an Fqn
-	 * @since 4.0
-	 */
+
 	public static Fqn fromElements(Object... elements) {
 		Object[] copy = new Object[elements.length];
 		System.arraycopy(elements, 0, copy, 0, elements.length);
 		return new Fqn(copy);
 	}
 
-	/**
-	 * Retrieves an Fqn that represents the absolute Fqn of the relative Fqn passed in.
-	 * 
-	 * @param base
-	 *            base Fqn
-	 * @param relative
-	 *            relative Fqn
-	 * @return an Fqn
-	 * @since 4.0
-	 */
+
 	public static Fqn fromRelativeFqn(Fqn base, Fqn relative) {
 		return new Fqn(base, relative.elements);
 	}
 
-	/**
-	 * Retrieves an Fqn that represents the List<Object> of elements passed in, relative to the base Fqn.
-	 * 
-	 * @param base
-	 *            base Fqn
-	 * @param relativeElements
-	 *            relative List<Object> of elements
-	 * @return an Fqn
-	 * @since 4.0
-	 */
+
 	public static Fqn fromRelativeList(Fqn base, List<?> relativeElements) {
 		return new Fqn(base, relativeElements.toArray());
 	}
 
-	/**
-	 * Retrieves an Fqn that represents the array of elements passed in, relative to the base Fqn.
-	 * 
-	 * @param base
-	 *            base Fqn
-	 * @param relativeElements
-	 *            relative elements
-	 * @return an Fqn
-	 * @since 4.0
-	 */
+
 	public static Fqn fromRelativeElements(Fqn base, Object... relativeElements) {
 		return new Fqn(base, relativeElements);
 	}
 
-	/**
-	 * Returns a new Fqn from a string, where the elements are deliminated by one or more separator ({@link #SEPARATOR}) characters.<br>
-	 * <br>
-	 * Example use:<br>
-	 * 
-	 * <pre>
-	 * Fqn.fromString(&quot;/a/b/c/&quot;);
-	 * </pre>
-	 * 
-	 * <br>
-	 * is equivalent to:<br>
-	 * 
-	 * <pre>
-	 * Fqn.fromElements(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);
-	 * </pre>
-	 * 
-	 * @param stringRepresentation
-	 *            String representation of the Fqn
-	 * @return an Fqn<String> constructed from the string representation passed in
-	 */
+
 	public static Fqn fromString(String stringRepresentation) {
 		if (stringRepresentation == null || stringRepresentation.equals(SEPARATOR) || stringRepresentation.length() == 0)
 			return root();
@@ -164,29 +104,14 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch), String.class));
 	}
 
-	/**
-	 * Obtains an ancestor of the current Fqn. Literally performs <code>elements.subList(0, generation)</code> such that if <code> generation == Fqn.size() </code> then the return value is the Fqn itself (current generation), and if <code> generation == Fqn.size() - 1 </code> then the return value is the same as <code> Fqn.getParent() </code> i.e., just one generation behind the current
-	 * generation. <code> generation == 0 </code> would return Fqn.ROOT.
-	 * 
-	 * @param generation
-	 *            the generation of the ancestor to retrieve
-	 * @return an ancestor of the current Fqn
-	 */
+
 	public Fqn getAncestor(int generation) {
 		if (generation == 0)
 			return root();
 		return getSubFqn(0, generation);
 	}
 
-	/**
-	 * Obtains a sub-Fqn from the given Fqn. Literally performs <code>elements.subList(startIndex, endIndex)</code>
-	 * 
-	 * @param startIndex
-	 *            starting index
-	 * @param endIndex
-	 *            end index
-	 * @return a subFqn
-	 */
+
 	public Fqn getSubFqn(int startIndex, int endIndex) {
 		if (endIndex < startIndex)
 			throw new IllegalArgumentException("End index cannot be less than the start index!");
@@ -196,37 +121,24 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return new Fqn(el);
 	}
 
-	/**
-	 * @return the number of elements in the Fqn. The root node contains zero.
-	 */
+
 	public int size() {
 		return elements.length;
 	}
 
-	/**
-	 * @param n
-	 *            index of the element to return
-	 * @return Returns the nth element in the Fqn.
-	 */
+
 	public Object get(int n) {
 		return elements[n];
 	}
 
-	/**
-	 * @return the last element in the Fqn.
-	 * @see #getLastElementAsString
-	 */
+
 	public Object getLastElement() {
 		if (isRoot())
 			return null;
 		return elements[elements.length - 1];
 	}
 
-	/**
-	 * @param element
-	 *            element to find
-	 * @return true if the Fqn contains this element, false otherwise.
-	 */
+
 	public boolean hasElement(Object element) {
 		return indexOf(element) != -1;
 	}
@@ -246,9 +158,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return -1;
 	}
 
-	/**
-	 * Returns true if obj is a Fqn with the same elements.
-	 */
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -267,9 +177,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return true;
 	}
 
-	/**
-	 * Returns a hash code with Fqn elements.
-	 */
+
 	@Override
 	public int hashCode() {
 		if (hash_code == 0) {
@@ -278,14 +186,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return hash_code;
 	}
 
-	/**
-	 * Returns this Fqn as a string, prefixing the first element with a {@link Fqn#SEPARATOR} and joining each subsequent element with a {@link Fqn#SEPARATOR}. If this is the root Fqn, returns {@link Fqn#SEPARATOR}. Example:
-	 * 
-	 * <pre>
-	 * new Fqn(new Object[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }).toString(); // &quot;/a/b/c&quot;
-	 * Fqn.ROOT.toString(); // &quot;/&quot;
-	 * </pre>
-	 */
+
 	@Override
 	public String toString() {
 		if (stringRepresentation == null) {
@@ -294,21 +195,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return stringRepresentation;
 	}
 
-	/**
-	 * Returns true if this Fqn is child of parentFqn. Example usage:
-	 * 
-	 * <pre>
-	 * Fqn&lt;String&gt; f1 = Fqn.fromString(&quot;/a/b&quot;);
-	 * Fqn&lt;String&gt; f2 = Fqn.fromString(&quot;/a/b/c&quot;);
-	 * assertTrue(f1.isChildOf(f2));
-	 * assertFalse(f1.isChildOf(f1));
-	 * assertFalse(f2.isChildOf(f1));
-	 * </pre>
-	 * 
-	 * @param parentFqn
-	 *            candidate parent to test against
-	 * @return true if the target is a child of parentFqn
-	 */
+
 	public boolean isChildOf(Fqn parentFqn) {
 		return parentFqn.elements.length != elements.length && isChildOrEquals(parentFqn);
 	}
@@ -324,21 +211,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return elements.length == parentFqn.elements.length + 1 && isChildOf(parentFqn);
 	}
 
-	/**
-	 * Returns true if this Fqn is equals or the child of parentFqn. Example usage:
-	 * 
-	 * <pre>
-	 * Fqn&lt;String&gt; f1 = Fqn.fromString(&quot;/a/b&quot;);
-	 * Fqn&lt;String&gt; f2 = Fqn.fromString(&quot;/a/b/c&quot;);
-	 * assertTrue(f1.isChildOrEquals(f2));
-	 * assertTrue(f1.isChildOrEquals(f1));
-	 * assertFalse(f2.isChildOrEquals(f1));
-	 * </pre>
-	 * 
-	 * @param parentFqn
-	 *            candidate parent to test against
-	 * @return true if this Fqn is equals or the child of parentFqn.
-	 */
+
 	public boolean isChildOrEquals(Fqn parentFqn) {
 		Object[] parentEl = parentFqn.elements;
 		if (parentEl.length > elements.length) {
@@ -351,11 +224,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return true;
 	}
 
-	/**
-	 * Calculates a hash code by summing the hash code of all elements.
-	 * 
-	 * @return a calculated hashcode
-	 */
+
 	protected int calculateHashCode() {
 		int hashCode = 19;
 		for (Object o : elements)
@@ -377,19 +246,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return builder.length() == 0 ? SEPARATOR : builder.toString();
 	}
 
-	/**
-	 * Returns the parent of this Fqn. The parent of the root node is {@link #ROOT}. Examples:
-	 * 
-	 * <pre>
-	 * Fqn&lt;String&gt; f1 = Fqn.fromString(&quot;/a&quot;);
-	 * Fqn&lt;String&gt; f2 = Fqn.fromString(&quot;/a/b&quot;);
-	 * assertEquals(f1, f2.getParent());
-	 * assertEquals(Fqn.ROOT, f1.getParent().getParent());
-	 * assertEquals(Fqn.ROOT, Fqn.ROOT.getParent());
-	 * </pre>
-	 * 
-	 * @return the parent Fqn
-	 */
+
 	public Fqn getParent() {
 		switch (elements.length) {
 		case 0:
@@ -405,20 +262,12 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return ROOT;
 	}
 
-	/**
-	 * Returns true if this is a root Fqn.
-	 * 
-	 * @return true if the Fqn is Fqn.ROOT.
-	 */
+
 	public boolean isRoot() {
 		return elements.length == 0;
 	}
 
-	/**
-	 * If this is the root, returns {@link Fqn#SEPARATOR}.
-	 * 
-	 * @return a String representation of the last element that makes up this Fqn.
-	 */
+
 	public String getLastElementAsString() {
 		if (isRoot()) {
 			return SEPARATOR;
@@ -431,32 +280,18 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		}
 	}
 
-	/**
-	 * Peeks into the elements that build up this Fqn. The list returned is read-only, to maintain the immutable nature of Fqn.
-	 * 
-	 * @return an unmodifiable list
-	 */
+
 	public List<Object> peekElements() {
 		return Arrays.asList(elements);
 	}
 
-	/**
-	 * Compares this Fqn to another using {@link FqnComparator}.
-	 */
+
 	@Override
 	public int compareTo(Fqn fqn) {
 		return FqnComparator.INSTANCE.compare(this, fqn);
 	}
 
-	/**
-	 * Creates a new Fqn whose ancestor has been replaced with the new ancestor passed in.
-	 * 
-	 * @param oldAncestor
-	 *            old ancestor to replace
-	 * @param newAncestor
-	 *            nw ancestor to replace with
-	 * @return a new Fqn with ancestors replaced.
-	 */
+
 	public Fqn replaceAncestor(Fqn oldAncestor, Fqn newAncestor) {
 		if (!isChildOf(oldAncestor))
 			throw new IllegalArgumentException("Old ancestor must be an ancestor of the current Fqn!");

@@ -25,6 +25,7 @@ import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 public abstract class AbstractWriteNode implements WriteNode {
@@ -256,6 +257,9 @@ public abstract class AbstractWriteNode implements WriteNode {
 		return load(session(), tree().getParent()) ;
 	}
 	
+	public <T> T transformer(Function<WriteNode, T> function){
+		return function.apply(this) ;
+	}
 	
 	public boolean hasChild(String fqn){
 		return tree().hasChild(Fqn.fromString(fqn)) ;

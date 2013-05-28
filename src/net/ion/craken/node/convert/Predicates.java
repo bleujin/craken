@@ -8,6 +8,9 @@ import java.util.Set;
 
 import org.apache.commons.collections.ComparatorUtils;
 
+import net.ion.craken.expression.Expression;
+import net.ion.craken.expression.ExpressionParser;
+import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.tree.Fqn;
@@ -16,6 +19,7 @@ import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.rosetta.Parser;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -200,7 +204,17 @@ public class Predicates {
 	}
 	
 
-
+	public static <T extends NodeCommon> Predicate<T> where(String expression) {
+		Parser<Expression> parser = ExpressionParser.expression();
+		final Expression result = TerminalParser.parse(parser, expression);
+		
+		return new Predicate<T>(){
+			@Override
+			public boolean apply(T node) {
+				return Boolean.TRUE.equals(result.value(node));
+			}
+		} ;
+	}
 	
 	
 	
@@ -330,6 +344,7 @@ public class Predicates {
 		}
 
 	}
+
 
 
 }
