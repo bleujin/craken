@@ -47,11 +47,11 @@ public class TestExpressionParser extends TestCase {
 	}
 	
 
-	public void testWildcard() throws Exception {
-		Parser<Expression> parser = ExpressionParser.expression();
-		Expression result = TerminalParser.parse(parser, "this.* = 3");
-		Debug.line(result) ;
-	}
+//	public void testWildcard() throws Exception {
+//		Parser<Expression> parser = ExpressionParser.expression();
+//		Expression result = TerminalParser.parse(parser, "this.* = 3");
+//		Debug.line(result) ;
+//	}
 
 	public void testFunction() throws Exception {
 		Parser<Expression> parser = ExpressionParser.expression();
@@ -72,14 +72,13 @@ public class TestExpressionParser extends TestCase {
 		Debug.line(result) ;
 	}
 	
-	public void testSimple() throws Exception {
+	public void testSimpleCaseWhen() throws Exception {
 		Parser<Expression> parser = ExpressionParser.expression();
 		Expression result = TerminalParser.parse(parser, "case this.a when 'a' then 'd' end = 'd'");
 		Debug.line(result) ;
 	}
 	
-	
-	public void testCaseWhen() throws Exception {
+	public void testFullCaseWhen() throws Exception {
 		Parser<Expression> parser = ExpressionParser.expression();
 		Expression result = TerminalParser.parse(parser, "case when (this.a >= 'a') then this.b else this.c end = 'd'");
 		Debug.line(result) ;

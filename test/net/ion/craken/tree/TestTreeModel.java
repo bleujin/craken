@@ -22,7 +22,7 @@ public class TestTreeModel extends TestBaseCrud {
 		}) ;
 		
 		
-		TreeCache tcache = session.getWorkspace().getCache();
+		TreeCache tcache = session.workspace().getCache();
 		Cache cache = tcache.getCache();
 		
 		for (Object key : cache.keySet()){

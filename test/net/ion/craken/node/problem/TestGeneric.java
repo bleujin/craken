@@ -16,7 +16,7 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 public class TestGeneric extends TestBaseCrud {
 
 	public void testToBean() throws Exception {
-		session.getWorkspace().addListener(this) ;
+		session.workspace().addListener(this) ;
 
 		WriteNode node = session.tran(new TransactionJob<WriteNode>() {
 			@Override

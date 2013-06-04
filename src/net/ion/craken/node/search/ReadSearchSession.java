@@ -59,12 +59,14 @@ public class ReadSearchSession extends AbstractReadSession {
 	}
 	
 	public ReadSearchSession awaitIndex() throws InterruptedException, ExecutionException {
-		((WorkspaceSearch)getWorkspace()).awaitIndex() ;
+		((WorkspaceSearch)workspace()).awaitIndex() ;
 		
 		return this;
 	}
 	
-	
+	public <T> T getIndexInfo(IndexInfoHandler<T> indexInfo) {
+		return indexInfo.handle(this, central.newReader());
+	}
 
 
 	

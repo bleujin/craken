@@ -17,8 +17,10 @@ public final class FullCaseExpression extends ValueObject implements Expression 
 
 	@Override
 	public Comparable value(NodeCommon node) {
-		// TODO Auto-generated method stub
-		return null;
+		for (Pair<Expression, Expression> pair : cases) {
+			if (Boolean.TRUE.equals(pair.a.value(node))) return pair.b.value(node) ;
+		}
+		return defaultValue.value(node);
 	}
 }
 

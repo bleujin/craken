@@ -1,11 +1,18 @@
 package net.ion.craken.tree;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import net.ion.craken.io.BlobProxy;
+import net.ion.craken.io.BlobValue;
+import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.node.exception.NodeIOException;
+import net.ion.craken.node.exception.NodeNotValidException;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
@@ -15,15 +22,20 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public final static PropertyValue NotFound = new PropertyValue(SetUtil.EMPTY) ; 
 	
 	private final Set values ;
+	private transient GridFilesystem gfs;
 	
-	PropertyValue(Set set){
+	private PropertyValue(Set set){
 		this.values = SetUtil.orderedSet(set) ;
 	}
 	
 //	private Object writeReplace() throws ObjectStreamException {
 //		return new SerializedPropertyValue(values.toString()) ;
 //	}
-
+	
+	PropertyValue gfs(GridFilesystem gfs){
+		this.gfs = gfs ;
+		return this ;
+	}
 
 	public String toString(){
 		return ToStringBuilder.reflectionToString(this) ;
@@ -35,7 +47,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	}
 	
 	public Set asSet(){
-		return values ;
+		return Collections.unmodifiableSet(values) ;
 	}
 
 	public static PropertyValue createPrimitive(Object value) {
@@ -43,7 +55,16 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	}
 
 	public PropertyValue append(Object... vals) {
+		Object firstValue = value() ;
 		for (Object val : vals) {
+			if (val == null) continue ;
+			if (firstValue == null){
+				firstValue = val ;
+			}
+			if (! (firstValue.getClass().equals(val.getClass()))){
+				throw new NodeNotValidException("disallow different type in same property vlaue") ;
+			}
+			
 			values.add(val) ;
 		}
 		return this ;
@@ -69,6 +90,15 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}
 	}
 	
+	public BlobValue asBlob() {
+		final Object value = value() ;
+		if (value == null) return null;
+		if (value instanceof BlobProxy) {
+			return BlobValue.create(gfs, (BlobProxy)value) ;
+		}
+		throw new NodeIOException("this value is not blob type") ;
+	}
+	
 	public int size(){
 		return values.size() ;
 	}
@@ -89,6 +119,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}  
 		return 0;
 	}
+
 
 }
 

@@ -3,6 +3,8 @@ package net.ion.craken.node.search;
 import java.io.IOException;
 import java.util.Map;
 
+import net.ion.craken.io.GridFile;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
@@ -109,9 +111,8 @@ public class RepositorySearchImpl implements RepositorySearch {
 		}
 	}
 	
-	private TreeCache<PropertyId, PropertyValue> treeCache(String string) {
-		Cache<PropertyId, PropertyValue> cache = dftManager.getCache();
-		return new TreeCacheFactory().createTreeCache(cache) ;
+	private TreeCache<PropertyId, PropertyValue> treeCache(String cacheName) {
+		return new TreeCacheFactory().createTreeCache(dftManager, cacheName) ;
 	}
 	
 	

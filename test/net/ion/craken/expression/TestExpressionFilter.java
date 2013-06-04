@@ -3,6 +3,7 @@ package net.ion.craken.expression;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
 
 public class TestExpressionFilter extends TestBaseCrud {
@@ -87,7 +88,8 @@ public class TestExpressionFilter extends TestBaseCrud {
 		assertEquals(0, session.root().children().where("this.age in (21, 22)").toList().size()) ;
 
 		assertEquals(1, session.root().children().where("this.name in ('bleujin', 'hero')").toList().size()) ;
-
+		assertEquals(1, session.root().children().where("'bleujin' in (this.name, this.age)").toList().size()) ;
+		assertEquals(0, session.root().children().where("'hero' in (this.name, this.age)").toList().size()) ;
 	}
 	
 	public void testFunction() throws Exception {
@@ -95,12 +97,39 @@ public class TestExpressionFilter extends TestBaseCrud {
 		assertEquals(1, session.root().children().where("indexOf(this.name, 'bleu') = 0").toList().size()) ;
 	}
 	
-	public void testWildCard() throws Exception {
-		assertEquals(1, session.root().children().where("this.* = 'bleu'").toList().size()) ;
-		assertEquals(0, session.root().children().where("this.* = 'jin'").toList().size()) ;
+	public void testNumOper() throws Exception {
+		assertEquals(1, session.root().children().where("1 - 1 = 0").toList().size()) ;
+		assertEquals(1, session.root().children().where("1 * 1 = 1").toList().size()) ;
+		assertEquals(1, session.root().children().where("1 / 1 = 1").toList().size()) ;
+		assertEquals(1, session.root().children().where("1 % 1 = 0").toList().size()) ;
+		try {
+			assertEquals(1, session.root().children().where("1 * 'a' = 1").toList().size()) ;
+			fail() ;
+		} catch(ArithmeticException expect){}
+
 	}
 	
 	
+//	public void testWildCard() throws Exception {
+//		assertEquals(1, session.root().children().where("this.* = 'bleu'").toList().size()) ;
+//		assertEquals(0, session.root().children().where("this.* = 'jin'").toList().size()) ;
+//	}
+
+	
+	public void testQualifiedName() throws Exception {
+		assertEquals(1, session.root().children().where("this.address.city = 'seoul'").toList().size()) ;
+		assertEquals(1, session.root().children().where("address.city = 'seoul'").toList().size()) ;
+		assertEquals(0, session.root().children().where("address.city = 'busan'").toList().size()) ;
+	}
+	
+	
+	public void testSimpleCaseWhen() throws Exception {
+		assertEquals(1, session.root().children().where("case this.name when 'bleujin' then 'self' when 'hero' then 'self' else 'other' end = 'self'").toList().size()) ;
+	}
+	
+	public void testFullCaseWhen() throws Exception {
+		assertEquals(1, session.root().children().where("case when (this.age >= 20) then this.name else 'hello' end = 'bleujin'").toList().size()) ;
+	}
 	
 	
 	public void testAnd() throws Exception {

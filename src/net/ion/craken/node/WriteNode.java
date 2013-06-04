@@ -1,5 +1,7 @@
 package net.ion.craken.node;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 import net.ion.craken.node.crud.ReadChildren;
@@ -45,6 +47,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteNode fromJson(JsonObject json);
 
 	public boolean removeSelf();
+
+	public WriteNode blob(String string, InputStream input);
 
 
 

@@ -3,6 +3,8 @@ package net.ion.craken.node.crud;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import net.ion.craken.io.GridFile;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
@@ -12,6 +14,8 @@ import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.convert.rows.ColumnParserImpl;
 import net.ion.craken.node.search.RepositorySearch;
 import net.ion.craken.node.search.RepositorySearchImpl;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeCacheFactory;
 import net.ion.craken.tree.TreeNodeKey;
@@ -63,16 +67,18 @@ public class RepositoryImpl implements Repository{
 	}
 	
 	
+	// only use for test
+	public DefaultCacheManager dm(){
+		return dm ;
+	}
+	
+	
 	public Repository defineConfig(String cacheName, Configuration configuration) {
 		dm.defineConfiguration(cacheName, configuration) ;
 		return this ;
 	}
 
 	
-	private TreeCache<String, ? extends Object> treeCache(String cacheName) {
-		Cache<String, ? extends Object> cache = dm.getCache(cacheName);
-		return new TreeCacheFactory().createTreeCache(cache) ;
-	}
 
 	
 	public <T> T getAttribute(String key, Class<T> clz){
@@ -111,20 +117,24 @@ public class RepositoryImpl implements Repository{
 	}
 	
 	public ReadSessionImpl login(Credential credential, String wsname) {
-		return new ReadSessionImpl(credential, loadWorkspce(wsname));
+		return new ReadSessionImpl(credential, nodeWorkspce(wsname));
 	}
 	
-	private synchronized AbstractWorkspace loadWorkspce(String wsname){
+	private synchronized AbstractWorkspace nodeWorkspce(String wsname){
 		if (wss.containsKey(wsname)){
 			return wss.get(wsname) ;
 		} else {
-			final AbstractWorkspace created = WorkspaceImpl.create(this, treeCache(wsname + ".node"), wsname);
+			final AbstractWorkspace created = WorkspaceImpl.create(this, treeCache(wsname), wsname);
 			created.getNode("/") ;
 			wss.put(wsname, created) ;
 			return wss.get(wsname) ;
 		}
 	}
 
+
+	private TreeCache<PropertyId, PropertyValue> treeCache(String cacheName) {
+		return new TreeCacheFactory().createTreeCache(dm, cacheName) ;
+	}
 
 	public RepositorySearch forSearch() {
 		final RepositorySearchImpl result = new RepositorySearchImpl(this, dm);

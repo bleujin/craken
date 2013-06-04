@@ -64,6 +64,11 @@ public class WriteSearchSession implements WriteSession {
 	public Credential credential() {
 		return readSession.credential();
 	}
+
+	@Override
+	public Workspace workspace() {
+		return workspace;
+	}
 	
 
 }

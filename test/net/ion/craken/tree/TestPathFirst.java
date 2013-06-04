@@ -18,7 +18,6 @@ import org.infinispan.manager.DefaultCacheManager;
 public class TestPathFirst extends TestCase  {
 
 	private TreeCache tree;
-	private Cache<Object, Object> cache;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -26,8 +25,7 @@ public class TestPathFirst extends TestCase  {
 		Configuration config = new ConfigurationBuilder().invocationBatching().enable().build() ; // not indexable : indexing().enable().
 		final DefaultCacheManager dm = new DefaultCacheManager(config);
 		dm.start() ;
-		this.cache = dm.getCache() ;
-		this.tree = new TreeCacheFactory().createTreeCache(cache) ;
+		this.tree = new TreeCacheFactory().createTreeCache(dm, "ptest") ;
 	}
 	
 	public void testCreateTreeCache() throws Exception {
@@ -43,10 +41,10 @@ public class TestPathFirst extends TestCase  {
 	}
 
 	public void testFindInMany2() throws Exception {
-		TransactionManager tm = cache.getAdvancedCache().getTransactionManager();
+		TransactionManager tm = tree.getCache().getAdvancedCache().getTransactionManager();
 		for (int i : ListUtil.rangeNum(200000)) {
 			tm.begin() ;
-			cache.put(Fqn.fromString("persons/" + i), MapUtil.chainKeyMap().put("name", "bleujin").put("age", 20).put("num", i).toMap()) ;
+			tree.getCache().put(Fqn.fromString("persons/" + i), MapUtil.chainKeyMap().put("name", "bleujin").put("age", 20).put("num", i).toMap()) ;
 			tm.commit() ;
 		}
 	}

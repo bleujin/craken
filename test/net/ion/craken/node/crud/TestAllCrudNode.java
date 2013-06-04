@@ -3,6 +3,7 @@ package net.ion.craken.node.crud;
 import net.ion.craken.node.crud.property.TestAppend;
 import net.ion.craken.node.crud.property.TestBasicType;
 import net.ion.craken.node.crud.property.TestInnerChild;
+import net.ion.craken.node.problem.TestTransaction;
 import junit.framework.TestSuite;
 
 public class TestAllCrudNode extends TestSuite {

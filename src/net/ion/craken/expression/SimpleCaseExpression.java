@@ -19,7 +19,10 @@ public final class SimpleCaseExpression extends ValueObject implements Expressio
 
 	@Override
 	public Comparable value(NodeCommon node) {
-		// TODO Auto-generated method stub
-		return null;
+		Comparable conditionValue = condition.value(node);
+		for (Pair<Expression, Expression> pair : cases) {
+			if (conditionValue.equals(pair.a.value(node))) return pair.b.value(node) ;
+		}
+		return defaultValue.value(node);
 	}
 }

@@ -12,7 +12,7 @@ public class TestBackUpListener extends TestBaseCrud {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		session.getWorkspace().addListener(new MongoBackupListener("61.250.201.78", 27017, "craken", "craken")) ;
+		session.workspace().addListener(new MongoBackupListener("61.250.201.78", 27017, "craken", "craken")) ;
 	}
 	
 	public void testRegister() throws Exception {

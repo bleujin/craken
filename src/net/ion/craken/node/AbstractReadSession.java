@@ -69,6 +69,7 @@ public abstract class AbstractReadSession implements ReadSession{
 		return workspace.tran(tsession, tjob, handler) ;
 	}
 
+	@Override
 	public AbstractWorkspace workspace() {
 		return workspace;
 	}
@@ -78,9 +79,5 @@ public abstract class AbstractReadSession implements ReadSession{
 		return credential;
 	}
 
-	@Override
-	public Workspace getWorkspace() {
-		return workspace;
-	}
 
 }

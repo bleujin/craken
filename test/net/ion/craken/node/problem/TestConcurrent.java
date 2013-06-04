@@ -105,4 +105,25 @@ public class TestConcurrent extends TestBaseCrud {
 	}
 	
 	
+	public void testConcurrentReadWrite() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/bleujin").property("age", 20) ;
+				return null;
+			}
+		}) ;
+		ReadNode bleujin = session.pathBy("/bleujin");
+		Debug.line(bleujin.property("age")) ;
+		
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/bleujin").property("age", 30) ;
+				return null;
+			}
+		}) ;
+		Debug.line(bleujin.property("age")) ;
+	}
+	
 }

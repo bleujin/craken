@@ -15,10 +15,42 @@ public enum Op {
 				return ObjectUtil.toString(left) + ObjectUtil.toString(right);
 			}
 		}		
-	}, MINUS, MUL, DIV, MOD, NEG {
+	}, MINUS{
+		public Comparable compute(Comparable left, Comparable right) {
+			if (left instanceof BigDecimal && right instanceof BigDecimal) {
+				return ((BigDecimal)left).subtract( (BigDecimal) right) ;
+			} else {
+				throw new ArithmeticException() ;
+			}
+		}		
+	}, MUL{
+		public Comparable compute(Comparable left, Comparable right) {
+			if (left instanceof BigDecimal && right instanceof BigDecimal) {
+				return ((BigDecimal)left).multiply((BigDecimal) right) ;
+			} else {
+				throw new ArithmeticException() ;
+			}
+		}		
+	}, DIV{
+		public Comparable compute(Comparable left, Comparable right) {
+			if (left instanceof BigDecimal && right instanceof BigDecimal) {
+				return ((BigDecimal)left).divide( (BigDecimal) right) ;
+			} else {
+				throw new ArithmeticException() ;
+			}
+		}		
+	}, MOD{
+		public Comparable compute(Comparable left, Comparable right) {
+			if (left instanceof BigDecimal && right instanceof BigDecimal) {
+				return ((BigDecimal)left).remainder((BigDecimal) right) ;
+			} else {
+				throw new ArithmeticException() ;
+			}
+		}		
+	}, NEG {
 		public Comparable compute(Comparable operand) {
 			if (operand instanceof BigDecimal) return ((BigDecimal)operand).negate() ;
-			return null ;
+			throw new ArithmeticException() ;
 		}
 	}, 
 	
@@ -32,10 +64,15 @@ public enum Op {
 			return ((ComparableSet)right).contains(left) ;
 		}
 		
-	}, NOT_IN, CONTAIN, EQ{
+	}, NOT_IN{
 		@Override
 		public Boolean compute(Comparable left, Comparable right) {
-			Debug.line(left, right, left.equals(right)) ;
+			if (left == null || right == null || (! (right instanceof ComparableSet))) return false ;
+			return ! ((ComparableSet)right).contains(left) ;
+		}
+	}, CONTAIN, EQ{
+		@Override
+		public Boolean compute(Comparable left, Comparable right) {
 			return isNotNull(left, right) && left.equals(right) ;
 		}
 	}, GT {

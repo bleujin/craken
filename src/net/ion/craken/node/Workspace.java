@@ -1,7 +1,11 @@
 package net.ion.craken.node;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.Future;
 
+import net.ion.craken.io.BlobProxy;
 import net.ion.craken.node.crud.TestListener.DebugListener;
 import net.ion.craken.tree.TreeCache;
 
@@ -26,4 +30,6 @@ public interface Workspace {
 	public <T> T getAttribute(String key, Class<T> clz) ;
 
 	public TreeCache getCache();
+
+	public BlobProxy blob(String fqnPath, InputStream input) throws IOException;
 }

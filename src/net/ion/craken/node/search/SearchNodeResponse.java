@@ -42,7 +42,7 @@ public class SearchNodeResponse {
 		for (ReadDocument doc : response.getDocument()){
 			found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
 		};
-		this.cparser = session.getWorkspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
+		this.cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
 	}
 
 	public static SearchNodeResponse create(ReadSearchSession session, SearchResponse response) {

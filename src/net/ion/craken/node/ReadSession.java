@@ -22,7 +22,7 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public <T> T tranSync(TransactionJob<T> tjob) throws InterruptedException, ExecutionException;
 
-	public Workspace getWorkspace();
+	public Workspace workspace();
 
 
 

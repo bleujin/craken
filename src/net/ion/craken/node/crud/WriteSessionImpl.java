@@ -4,6 +4,7 @@ import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.search.WriteSearchNode;
@@ -54,5 +55,9 @@ public class WriteSessionImpl implements WriteSession {
 		return readSession.credential() ;
 	}
 
-	
+	@Override
+	public Workspace workspace() {
+		return workspace;
+	}
+
 }

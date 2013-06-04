@@ -8,11 +8,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.ion.craken.node.IteratorList;
-import net.ion.craken.node.PropertyHandler;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
-import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
@@ -20,7 +18,6 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.db.Rows;
-import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -28,17 +25,16 @@ import net.ion.framework.util.SetUtil;
 
 import org.apache.commons.collections.IteratorUtils;
 
-import com.amazonaws.transform.MapUnmarshaller;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 public class ReadNodeImpl implements ReadNode{
 
 	private ReadSession session ;
-	private TreeNode<PropertyId, PropertyValue> tree;
+	private TreeNode<PropertyId, PropertyValue> treeNode;
 	protected ReadNodeImpl(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
 		this.session = session ;
-		this.tree = inner ;
+		this.treeNode = inner ;
 	}
 
 	public static ReadNode load(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
@@ -49,16 +45,16 @@ public class ReadNodeImpl implements ReadNode{
 	public boolean equals(Object obj) {
 		if (! (obj instanceof ReadNodeImpl)) return false ;
 		ReadNodeImpl that = (ReadNodeImpl) obj ;
-		return tree.equals(that.tree) ;
+		return treeNode.equals(that.treeNode) ;
 	}
 	
 	@Override
 	public int hashCode(){
-		return tree.hashCode() ;
+		return treeNode.hashCode() ;
 	}
 	
 	public String toString(){
-		return this.getClass().getSimpleName() + "[fqn=" + tree.getFqn().toString() + "]";
+		return this.getClass().getSimpleName() + "[fqn=" + treeNode.getFqn().toString() + "]";
 	}
 
 	
@@ -70,24 +66,24 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	public Fqn fqn(){
-		return tree.getFqn() ;
+		return treeNode.getFqn() ;
 	}
 	
 	public int dataSize(){
-		return tree.dataSize() ;
+		return treeNode.dataSize() ;
 	}
 
 	public ReadNode parent(){
-		return load(session, tree.getParent()) ;
+		return load(session, treeNode.getParent()) ;
 	}
 	
 	public boolean hasChild(String relativeFqn){
-		return tree.hasChild(Fqn.fromString(relativeFqn)) ;
+		return treeNode.hasChild(Fqn.fromString(relativeFqn)) ;
 	}
 	
 	public ReadNode child(String fqn){
 //		return session.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
-		final TreeNode child = tree.getChild(Fqn.fromString(fqn));
+		final TreeNode child = treeNode.getChild(Fqn.fromString(fqn));
 		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
 		return load(session, child) ;
 	}
@@ -98,14 +94,14 @@ public class ReadNodeImpl implements ReadNode{
 	
 	public Set<String> childrenNames(){
 		Set<String> set = SetUtil.orderedSet(SetUtil.newSet());
-		for (Object object : tree.getChildrenNames()) {
+		for (Object object : treeNode.getChildrenNames()) {
 			set.add(ObjectUtil.toString(object)) ;
 		}
 		return set ;
 	}
 	
 	public ReadChildren children(){
-		return new ReadChildren(session, tree.getChildren().iterator()) ;
+		return new ReadChildren(session, treeNode.getChildren().iterator()) ;
 	}
 
 	public PropertyValue property(String key) {
@@ -119,20 +115,20 @@ public class ReadNodeImpl implements ReadNode{
 
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(tree.get(pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(treeNode.get(pid), PropertyValue.NotFound);
 	}
 
-	public Optional<PropertyValue> optional(String key) {
-		return Optional.fromNullable(tree.get(PropertyId.normal(key)));
-	}
+//	public Optional<PropertyValue> optional(String key) {
+//		return Optional.fromNullable(treeNode.get(PropertyId.normal(key)));
+//	}
 	
 
 	public Set<PropertyId> keys(){
-		return tree.getKeys() ;
+		return treeNode.getKeys() ;
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(tree.getData());
+		return Collections.unmodifiableMap(treeNode.getData());
 	}
 	
 	public <T> T transformer(Function<ReadNode, T> function){
@@ -169,7 +165,7 @@ public class ReadNodeImpl implements ReadNode{
 	
 	
 	public Object id(){
-		return tree.getFqn() ;
+		return treeNode.getFqn() ;
 	}
 	
 	public boolean hasProperty(PropertyId pid){

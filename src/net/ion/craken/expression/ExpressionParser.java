@@ -11,6 +11,9 @@ import net.ion.rosetta.functors.Binary;
 import net.ion.rosetta.functors.Pair;
 import net.ion.rosetta.functors.Unary;
 import net.ion.rosetta.misc.Mapper;
+import static net.ion.craken.expression.ExpressionParser.NUMBER;
+import static net.ion.craken.expression.ExpressionParser.QUALIFIED_NAME;
+import static net.ion.craken.expression.ExpressionParser.STRING;
 import static net.ion.craken.expression.TerminalParser.parse;
 import static net.ion.craken.expression.TerminalParser.phrase;
 import static net.ion.craken.expression.TerminalParser.term;
@@ -24,13 +27,16 @@ public class ExpressionParser {
 
 	static final Parser<Expression> QUALIFIED_NAME = curry(QualifiedNameExpression.class).sequence(TerminalParser.QUALIFIED_NAME);
 
+//	static final Parser<Expression> RELATION_NAME = curry(RelationNameExpression.class).sequence(TerminalParser.RELATION_NAME);
+
 	static final Parser<Expression> QUALIFIED_WILDCARD = curry(WildcardExpression.class).sequence(TerminalParser.QUALIFIED_NAME, TerminalParser.phrase(". *"));
 
 	static final Parser<Expression> WILDCARD = TerminalParser.term("*").<Expression> retn(new WildcardExpression(QualifiedName.of())).or(QUALIFIED_WILDCARD);
 
 	static final Parser<Expression> STRING = curry(StringExpression.class).sequence(TerminalParser.STRING);
 
-	
+	static final Parser<String> ALIAS = term("as").optional().next(TerminalParser.NAME);
+
 	public static Parser<Expression> expression(){
 		Reference<Expression> conditionRef = Parser.newReference();
 		Parser<Expression> expr = ExpressionParser.expression(conditionRef.lazy());
@@ -38,6 +44,24 @@ public class ExpressionParser {
 		conditionRef.set(cond) ;
 		return cond ;
 	}
+	
+	public static Parser<SelectProjection> selectProjection(){
+		Reference<Expression> conditionRef = Parser.newReference();
+		Parser<Expression> expr = ExpressionParser.selection(conditionRef.lazy());
+		Parser<Expression> cond = logical(compare(expr));
+		conditionRef.set(cond) ;
+		
+		return Mapper.curry(SelectProjection.class).sequence(list(projection(expr))) ;
+	}
+	
+	static final Parser<Projection> projection(Parser<Expression> expr) {
+		return Mapper.curry(Projection.class).sequence(expr, ALIAS.optional());
+	}
+
+	private static <T> Parser<List<T>> list(Parser<T> p) {
+		return p.sepBy1(term(","));
+	}
+	
 	
 	
 	static Parser<Expression> functionCall(Parser<Expression> param) {
@@ -76,11 +100,22 @@ public class ExpressionParser {
 	static Parser<Expression> expression(Parser<Expression> cond) {
 		Reference<Expression> reference = Parser.newReference();
 		Parser<Expression> lazyExpr = reference.lazy();
-		Parser<Expression> atom = Parsers.or(NUMBER, STRING, WILDCARD, QUALIFIED_NAME, simpleCase(lazyExpr), fullCase(cond, lazyExpr));
+		Parser<Expression> atom = Parsers.or(NUMBER, STRING, QUALIFIED_NAME, simpleCase(lazyExpr), fullCase(cond, lazyExpr)); // WILDCARD, 
 		Parser<Expression> expression = arithmetic(atom).label("expression");
 		reference.set(expression);
 		return expression;
 	}
+	
+	static Parser<Expression> selection(Parser<Expression> cond) {
+		Reference<Expression> reference = Parser.newReference();
+		Parser<Expression> lazyExpr = reference.lazy();
+		Parser<Expression> atom = Parsers.or(NUMBER, STRING, QUALIFIED_NAME, simpleCase(lazyExpr), fullCase(cond, lazyExpr)); // WILDCARD, 
+		Parser<Expression> expression = arithmetic(atom).label("expression");
+		reference.set(expression);
+		return expression;
+	}
+	
+	
 	
 	static Parser<Expression> condition(Parser<Expression> expr) {
 		Parser<Expression> atom = Parsers.or(compare(expr), in(expr), notIn(expr));

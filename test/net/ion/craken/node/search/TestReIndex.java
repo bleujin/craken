@@ -20,7 +20,7 @@ public class TestReIndex extends TestBaseCrud {
 		
 		
 		RepositorySearch rs = r.forSearch();
-		ReadSearchSession ss = rs.testLogin(session.getWorkspace().wsName());
+		ReadSearchSession ss = rs.testLogin(session.workspace().wsName());
 		
 		assertEquals(0, ss.createRequest("").find().size()) ; 
 

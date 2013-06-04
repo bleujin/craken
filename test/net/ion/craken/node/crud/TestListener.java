@@ -19,7 +19,7 @@ public class TestListener extends TestBaseCrud {
 
 	public void testAddListener() throws Exception {
 		final DebugListener listener = new DebugListener();
-		session.getWorkspace().addListener(listener) ;
+		session.workspace().addListener(listener) ;
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -34,7 +34,7 @@ public class TestListener extends TestBaseCrud {
 	
 	public void testRemoveListener() throws Exception {
 		final DebugListener listener = new DebugListener();
-		session.getWorkspace().addListener(listener) ;
+		session.workspace().addListener(listener) ;
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -44,7 +44,7 @@ public class TestListener extends TestBaseCrud {
 			}
 		}).get() ;
 		
-		session.getWorkspace().removeListener(listener) ;
+		session.workspace().removeListener(listener) ;
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {

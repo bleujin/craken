@@ -11,8 +11,6 @@ import net.ion.rosetta.misc.Mapper;
 
 /**
  * Lexers and terminal level parsers for SQL.
- * 
- * @author Ben Yu
  */
 public final class TerminalParser {
 
@@ -31,6 +29,8 @@ public final class TerminalParser {
 	static final Parser<String> NAME = between(term("["), Terminals.fragment(Tag.RESERVED, Tag.IDENTIFIER), term("]")).or(Terminals.Identifier.PARSER);
 
 	static final Parser<QualifiedName> QUALIFIED_NAME = Mapper.curry(QualifiedName.class).sequence(NAME.sepBy1(term(".")));
+
+//	static final Parser<RelationName> RELATION_NAME = Mapper.curry(RelationName.class).sequence(NAME.sepBy1(term("@")));
 
 	public static <T> T parse(Parser<T> parser, String source) {
 		return parser.from(TOKENIZER, Scanners.SQL_DELIMITER).parse(source);

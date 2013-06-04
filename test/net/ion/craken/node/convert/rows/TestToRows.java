@@ -45,9 +45,6 @@ public class TestToRows extends TestBaseSearch {
 		rows.debugPrint() ;
 	}
 	
-	
-	
-	
 	public void testChildProperty() throws Exception {
 		long start = System.currentTimeMillis() ;
 		final SearchNodeResponse find = session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();

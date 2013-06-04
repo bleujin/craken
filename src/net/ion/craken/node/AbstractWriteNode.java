@@ -1,5 +1,10 @@
 package net.ion.craken.node;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Iterator;
@@ -8,10 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.lang.ArrayUtils;
-
-import net.ion.craken.node.crud.WriteNodeImpl;
+import net.ion.craken.io.BlobProxy;
+import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -19,14 +22,15 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.ArrayUtil;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
+import org.apache.commons.collections.IteratorUtils;
+
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 
 public abstract class AbstractWriteNode implements WriteNode {
 
@@ -123,6 +127,28 @@ public abstract class AbstractWriteNode implements WriteNode {
 		return this ;
 	}
 	
+	
+	public WriteNode blob(String key, File file) {
+		try {
+			return blob(key, new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			throw new NodeIOException(e) ;
+		}
+	}
+
+	public WriteNode blob(String key, InputStream input) {
+		try {
+			BlobProxy blobValue = wsession.workspace().blob(wsession.workspace().wsName() + fqn().toString() + "." + key, input);
+			property(key, blobValue) ;
+		} catch (IOException e) {
+			throw new NodeIOException(e) ;
+		} finally {
+			IOUtil.closeSilent(input) ;
+		}
+		
+		return this ;
+	}
+
 	
 	public WriteNode addChild(String relativeFqn){
 //		final TreeNode find = inner.addChild(Fqn.fromString(relativeFqn));

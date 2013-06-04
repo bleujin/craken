@@ -1,4 +1,4 @@
-package net.ion.craken.node.crud;
+package net.ion.craken.node.problem;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
@@ -6,6 +6,7 @@ import java.util.concurrent.CountDownLatch;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TestBaseCrud;
 
 public class TestTransaction  extends TestBaseCrud {
 
@@ -54,7 +55,23 @@ public class TestTransaction  extends TestBaseCrud {
 
 		latch.await() ;
 		assertEquals(2, session.pathBy("/bleujin").keys().size()) ; // not cleard
-		
+	}
+	
+	public void testFailWriteNode() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/jin").property("name", "beujin");
+				throw new IllegalArgumentException("fail") ;
+			}
+		}, new TranExceptionHandler() {
+			@Override
+			public void handle(WriteSession tsession, Throwable ex) {
+				// 
+			}
+		}).get() ;
+
+		assertEquals(false, session.exists("/jin")) ;
 	}
 	
 }

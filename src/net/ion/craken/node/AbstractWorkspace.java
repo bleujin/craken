@@ -1,32 +1,37 @@
 package net.ion.craken.node;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import net.ion.craken.io.BlobProxy;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
-import net.ion.framework.util.ObjectUtil;
 
 public abstract class AbstractWorkspace implements Workspace{
 	
 
 	private Repository repository;
 	private String wsName;
-	private TreeCache treeCache;
+	private TreeCache<PropertyId, PropertyValue> treeCache;
 
-	protected AbstractWorkspace(Repository repository, TreeCache treeCache, String wsName) {
+	protected AbstractWorkspace(Repository repository, TreeCache<PropertyId, PropertyValue> treeCache, String wsName) {
 		this.repository = repository;
 		this.wsName = wsName;
 		this.treeCache = treeCache;
 
 //		this.treeCache.start();
 	}
+
 
 
 	public <T> T getAttribute(String key, Class<T> clz){
@@ -38,13 +43,16 @@ public abstract class AbstractWorkspace implements Workspace{
 		return wsName;
 	}
 	
-	public TreeCache getCache(){
+	// only use for test
+	public TreeCache<PropertyId, PropertyValue> getCache(){
 		return treeCache ;
 	}
 
+	
 
 	public void close() {
-		for(Object listener : treeCache.getCache().getListeners() ){
+		final Object[] caches = treeCache.getCache().getListeners().toArray(new Object[0]);
+		for(Object listener : caches ){
 			this.removeListener(listener) ;
 		}
 		
@@ -56,14 +64,14 @@ public abstract class AbstractWorkspace implements Workspace{
 		try {
 			beginTran();
 			
-			TreeNode found = treeCache.getNode(fqn);
+			TreeNode<PropertyId, PropertyValue> found = treeCache.getNode(fqn);
 			if (found == null) {
 				if (!treeCache.exists(fqn)) {
 					treeCache.put(fqn, MapUtil.EMPTY);
 					found = getNode(fqn);
 				}
 
-				TreeNode parent = found.getParent();
+				TreeNode<PropertyId, PropertyValue> parent = found.getParent();
 				while (! parent.getFqn().isRoot()) {
 					parent = parent.getParent();
 				}
@@ -86,7 +94,7 @@ public abstract class AbstractWorkspace implements Workspace{
 		return treeCache.exists(fqn);
 	}
 
-	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler handler) {
+	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler ehandler) {
 		final AbstractWorkspace workspace = this;
 		return repository.executor().submitTask(new Callable<T>() {
 
@@ -101,8 +109,9 @@ public abstract class AbstractWorkspace implements Workspace{
 //					ex.printStackTrace() ;
 					workspace.failEndTran();
 					wsession.failRollback();
-					handler.handle(wsession, ex);
-					throw ex;
+					ehandler.handle(wsession, ex);
+//					throw ex;
+					return null ;
 				} finally {
 					wsession.endCommit();
 				}
@@ -141,5 +150,12 @@ public abstract class AbstractWorkspace implements Workspace{
 		}
 		
 		treeCache.getCache().removeListener(listener) ;
+	}
+	
+	public BlobProxy blob(String fqnPath, InputStream input) throws IOException{
+		OutputStream output = treeCache.gfs().getOutput(fqnPath);
+		IOUtil.copyNClose(input, output) ;
+		
+		return BlobProxy.create(fqnPath) ;
 	}
 }

@@ -13,5 +13,5 @@ public interface WriteSession extends ISession<WriteNode> {
 	
 	public Credential credential() ;
 
-	
+	public Workspace workspace() ;
 }

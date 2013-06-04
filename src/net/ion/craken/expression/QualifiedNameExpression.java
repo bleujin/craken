@@ -17,6 +17,9 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 		return new QualifiedNameExpression(QualifiedName.of(names));
 	}
 
+	
+	
+	
 	@Override
 	public Comparable value(NodeCommon node) {
 		final Iterator<String> iter = qname.names.iterator();

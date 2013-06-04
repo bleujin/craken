@@ -47,7 +47,7 @@ public class TestWorkspace extends TestCase {
 	}
 	
 	public void testInterface() throws Exception {
-		Workspace workspace = session.getWorkspace();
+		Workspace workspace = session.workspace();
 
 		TreeCache cache = workspace.getCache();
 		for (Object key : cache.getCache().keySet()) {
@@ -57,7 +57,7 @@ public class TestWorkspace extends TestCase {
 
 	public void testMapReduce() throws Exception {
 		MapReduceTask<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>, String, Integer> task = 
-				new MapReduceTask<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>, String, Integer>(session.getWorkspace().getCache().getCache());
+				new MapReduceTask<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>, String, Integer>(session.workspace().getCache().getCache());
 		task.mappedWith(new WordCountMapper()).reducedWith(new WordCountReducer()) ;
 		
 		Map<String, Integer> map = task.execute();

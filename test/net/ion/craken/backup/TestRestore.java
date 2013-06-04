@@ -7,7 +7,7 @@ import net.ion.craken.node.crud.TestBaseCrud;
 public class TestRestore extends TestBaseCrud {
 	
 	public void xtestBackupData() throws Exception {
-		session.getWorkspace().addListener(MongoBackupListener.test()) ;
+		session.workspace().addListener(MongoBackupListener.test()) ;
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
