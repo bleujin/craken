@@ -44,7 +44,7 @@ public class ExpressionParser {
 	public static Parser<SelectProjection> selectProjection(){
 		Reference<Expression> conditionRef = Parser.newReference();
 		Parser<Expression> expr = ExpressionParser.selection(conditionRef.lazy());
-		Parser<Expression> cond = logical(compare(expr));
+		Parser<Expression> cond = ExpressionParser.logical(compare(expr));
 		conditionRef.set(cond) ;
 		
 		return Mapper.curry(SelectProjection.class).sequence(list(projection(expr))) ;

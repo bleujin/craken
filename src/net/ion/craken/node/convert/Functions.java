@@ -25,8 +25,12 @@ public class Functions {
 		return new Function<ReadNode, Rows>(){
 			@Override
 			public Rows apply(ReadNode node) {
+//				ColumnParser cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
+//				return CrakenNodeRows.create(session, ListUtil.toList(node).iterator() , cparser.parse(cols)) ;
+				
 				ColumnParser cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
 				return CrakenNodeRows.create(session, ListUtil.toList(node).iterator() , cparser.parse(cols)) ;
+
 			}
 		} ;
 	}

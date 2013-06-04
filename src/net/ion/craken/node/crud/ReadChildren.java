@@ -125,7 +125,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 	public Rows toAdRows(String expr) {
 		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
 		SelectProjection sp = TerminalParser.parse(parser, expr);
-		return AdNodeRows.create(session, iterator(), sp, 0, "cnt");
+		return AdNodeRows.create(session, iterator(), sp);
 	}
 
 

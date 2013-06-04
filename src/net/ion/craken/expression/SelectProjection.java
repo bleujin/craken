@@ -40,18 +40,17 @@ public class SelectProjection extends ValueObject {
 		this.projections = projections;
 	}
 
-	public RowSetMetaData getMetaType(ReadNode node, int screenCount, String scLabel) throws SQLException {
+	public RowSetMetaData getMetaType(ReadNode node, int columnCount) throws SQLException {
 		RowSetMetaData meta = new RowSetMetaDataImpl();
-		meta.setColumnCount(projections.size() + 1);
+		meta.setColumnCount(columnCount);
 
 		if (node == null) {
 			int i = 1;
 			for (Projection pro : projections) {
 				meta.setColumnName(i, pro.label()) ;
+				meta.setColumnLabel(i, pro.label()) ;
 				meta.setColumnType(i++, Types.OTHER);
 			}
-			meta.setColumnName(i, scLabel) ;
-			meta.setColumnType(i, Types.INTEGER) ;
 			return meta;
 		} else {
 			int i = 1;
@@ -59,29 +58,36 @@ public class SelectProjection extends ValueObject {
 				final Object value = pro.value(node);
 				if (value == null){
 					meta.setColumnName(i, pro.label()) ;
+					meta.setColumnLabel(i, pro.label()) ;
 					meta.setColumnType(i++, Types.OTHER);
 					continue ;
 				}
 				
 				Integer type = ObjectUtil.coalesce(TypeMappingMap.get(value.getClass()), Types.OTHER);
 				meta.setColumnName(i, pro.label()) ;
+				meta.setColumnLabel(i, pro.label()) ;
 				meta.setColumnType(i++, type);
 			}
-			
-			meta.setColumnName(i, scLabel) ;
-			meta.setColumnType(i, Types.INTEGER) ;
 		}
 
 		return meta;
 	}
 
-	public void updateObject(AdNodeRows adNodeRows, ReadNode rnode, int screenSize) throws SQLException {
-		int i = 1 ;
-		for (; i <= projections.size(); i++) {
+	public AdNodeRows updateObject(AdNodeRows adNodeRows, ReadNode rnode) throws SQLException {
+		for (int i = 1; i <= projections.size(); i++) {
 			final Projection projection = projections.get(i - 1);
+			
 			adNodeRows.updateObject(i, projection.value(rnode));
 		}
-		adNodeRows.updateObject(i, screenSize) ;
+		return adNodeRows ;
 	}
+
+	public int size() {
+		return projections.size();
+	}
+
+	
+	
+	
 
 }
