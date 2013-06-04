@@ -60,9 +60,7 @@ public class TestIndex extends TestBaseSearch {
 							return null;
 						}
 					});
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} catch (ExecutionException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}

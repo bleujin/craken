@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import net.ion.craken.io.TestException;
 import net.ion.craken.node.crud.property.TestAppend;
 import net.ion.craken.node.crud.property.TestBasicType;
 import net.ion.craken.node.crud.property.TestInnerChild;
@@ -23,6 +24,8 @@ public class TestAllCrudNode extends TestSuite {
 		suite.addTestSuite(TestInnerChild.class) ;
 		suite.addTestSuite(TestAppend.class) ;
 		suite.addTestSuite(TestTransformer.class) ;
+		
+		suite.addTestSuite(TestException.class) ;
 		return suite ;
 	}
 	

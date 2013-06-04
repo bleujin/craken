@@ -20,7 +20,7 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler);
 
-	public <T> T tranSync(TransactionJob<T> tjob) throws InterruptedException, ExecutionException;
+	public <T> T tranSync(TransactionJob<T> tjob) throws Exception;
 
 	public Workspace workspace();
 

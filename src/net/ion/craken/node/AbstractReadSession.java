@@ -59,8 +59,9 @@ public abstract class AbstractReadSession implements ReadSession{
 	}
 
 	@Override
-	public <T> T tranSync(TransactionJob<T> tjob) throws InterruptedException, ExecutionException {
-		return tran(tjob).get();
+	public <T> T tranSync(TransactionJob<T> tjob) throws Exception {
+		WriteSession tsession = new WriteSessionImpl(this, workspace);
+		return workspace.tran(tsession, tjob).get() ;
 	}
 
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {

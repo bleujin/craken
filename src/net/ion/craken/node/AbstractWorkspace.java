@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.ion.craken.io.BlobProxy;
@@ -94,6 +95,32 @@ public abstract class AbstractWorkspace implements Workspace{
 		return treeCache.exists(fqn);
 	}
 
+	
+	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
+		final AbstractWorkspace workspace = this;
+		return repository.executor().submitTask(new Callable<T>() {
+
+			@Override
+			public T call() throws Exception {
+				workspace.beginTran();
+				try {
+					T result = tjob.handle(wsession);
+					workspace.endTran();
+					return result;
+				} catch (Exception ex) {
+					throw ex;
+				} finally {
+					workspace.failEndTran();
+					wsession.failRollback();
+					wsession.endCommit();
+				}
+				
+			}
+		});
+	}
+
+	
+	
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler ehandler) {
 		final AbstractWorkspace workspace = this;
 		return repository.executor().submitTask(new Callable<T>() {

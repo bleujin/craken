@@ -109,7 +109,7 @@ public class MongoBackupListener implements WorkspaceListener, Restoreable {
 	}
 
 	@Override
-	public int restore(ReadSession session) throws InterruptedException, ExecutionException {
+	public int restore(ReadSession session) throws Exception {
 
 		final DBCursor dbc = col.find();
 		try {

@@ -37,7 +37,7 @@ public class TestBaseProcedure extends TestBaseCrud{
 		dbm.register("dummy", new QueryPackage(){
 			
 			@Function("addPersonWith")
-			public int addPerson(final String name, final int age, final String address) throws InterruptedException, ExecutionException{
+			public int addPerson(final String name, final int age, final String address) throws Exception{
 				return session().tranSync(new TransactionJob<Integer>() {
 					public Integer handle(WriteSession wsession) {
 						wsession.pathBy("/persons/" + name).property("name", name).property("age", age).property("address", address) ;
@@ -46,7 +46,7 @@ public class TestBaseProcedure extends TestBaseCrud{
 				}) ;
 			}
 			
-			public int batchWith(final String[] names, final int[] ages, final String[] address) throws InterruptedException, ExecutionException{
+			public int batchWith(final String[] names, final int[] ages, final String[] address) throws Exception{
 				return session().tranSync(new TransactionJob<Integer>() {
 					public Integer handle(WriteSession wsession) {
 						
