@@ -49,7 +49,7 @@ public class GridFilesystem {
 	}
 
 	public GridFilesystem(Cache<String, byte[]> data, Cache<String, GridFile.Metadata> metadata) {
-		this(data, metadata, 8000);
+		this(data, metadata, 64 * 1024);
 	}
 
 	/**

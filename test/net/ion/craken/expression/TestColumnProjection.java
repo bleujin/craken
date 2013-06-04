@@ -37,7 +37,10 @@ public class TestColumnProjection extends TestCase {
 	
 	public void testRelationName() throws Exception {
 		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
-		Debug.line(TerminalParser.parse(parser, "a.b b")) ; 
+		SelectProjection sp = TerminalParser.parse(parser, "a.b b, a.c d");
+		
+		
+		Debug.line(sp) ;
 	}
 
 }

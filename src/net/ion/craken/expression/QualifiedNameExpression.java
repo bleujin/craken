@@ -17,7 +17,9 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 		return new QualifiedNameExpression(QualifiedName.of(names));
 	}
 
-	
+	public String lastName(){
+		return qname.names.get(qname.names.size() -1) ;
+	}
 	
 	
 	@Override

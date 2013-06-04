@@ -3,15 +3,12 @@ package net.ion.craken.node.crud;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import net.ion.craken.io.GridFile;
-import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
-import net.ion.craken.node.convert.rows.ColumnParserImpl;
 import net.ion.craken.node.search.RepositorySearch;
 import net.ion.craken.node.search.RepositorySearchImpl;
 import net.ion.craken.tree.PropertyId;
@@ -24,7 +21,6 @@ import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
-import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -46,7 +42,7 @@ public class RepositoryImpl implements Repository{
 
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
-		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParserImpl()) ;
+		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser()) ;
 	}
 	
 	public static RepositoryImpl create() {

@@ -55,12 +55,12 @@ public class CrakenNodeRows extends RowsImpl {
 		return columns.getMetaType(ListUtil.create(node));
 	}
 
-	private void appendRow(NodeColumns columns, ReadNode firstRow, int screenSize) throws SQLException {
+	private void appendRow(NodeColumns columns, ReadNode rnode, int screenSize) throws SQLException {
 		super.afterLast();
 		super.moveToInsertRow();
 		for (int i = 1; i <= columns.size(); i++) {
 			final IColumn column = columns.get(i);
-			super.updateObject(i, column.getValue(firstRow));
+			super.updateObject(i, column.getValue(rnode));
 		}
 
 		super.insertRow();

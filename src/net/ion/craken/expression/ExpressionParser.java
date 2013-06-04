@@ -1,8 +1,10 @@
 package net.ion.craken.expression;
 
+import static net.ion.craken.expression.TerminalParser.phrase;
+import static net.ion.craken.expression.TerminalParser.term;
+
 import java.util.List;
 
-import net.ion.craken.expression.Expression;
 import net.ion.rosetta.OperatorTable;
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
@@ -11,12 +13,6 @@ import net.ion.rosetta.functors.Binary;
 import net.ion.rosetta.functors.Pair;
 import net.ion.rosetta.functors.Unary;
 import net.ion.rosetta.misc.Mapper;
-import static net.ion.craken.expression.ExpressionParser.NUMBER;
-import static net.ion.craken.expression.ExpressionParser.QUALIFIED_NAME;
-import static net.ion.craken.expression.ExpressionParser.STRING;
-import static net.ion.craken.expression.TerminalParser.parse;
-import static net.ion.craken.expression.TerminalParser.phrase;
-import static net.ion.craken.expression.TerminalParser.term;
 
 
 public class ExpressionParser {
