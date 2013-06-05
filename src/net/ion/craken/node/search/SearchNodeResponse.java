@@ -7,8 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import net.ion.craken.expression.ExpressionParser;
+import net.ion.craken.expression.SelectProjection;
+import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.convert.rows.AdNodeRows;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.convert.rows.CrakenNodeRows;
 import net.ion.craken.node.search.util.PredicateArgument;
@@ -19,6 +23,7 @@ import net.ion.framework.util.ListUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.search.SearchResponse;
+import net.ion.rosetta.Parser;
 
 import org.apache.ecs.xml.XML;
 
@@ -101,8 +106,12 @@ public class SearchNodeResponse {
 		return function.apply(this) ;
 	}
 
-	public Rows toRows(String... cols) throws SQLException {
-		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
+	public Rows toRows(String expr) throws SQLException {
+		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+		SelectProjection sp = TerminalParser.parse(parser, expr);
+		return AdNodeRows.create(session, iterator(), sp);
+		
+//		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
 	}
 
 	public IteratorList<ReadNode> iterator() {

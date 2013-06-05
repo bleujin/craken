@@ -84,6 +84,19 @@ public class TestToAdRow extends TestBaseCrud {
 		assertEquals(true, rows.firstRow().getBoolean("isbleujin")) ;
 	}
 	
+	public void testFunction() throws Exception {
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emps/bleujin").property("name", "bleujin").refTo("dept", "/dept/dev") ;
+				wsession.pathBy("/dept/dev").property("name", "dev").refTo("manager", "/emps/bleujin") ;
+				return null;
+			}
+		}) ;
+		Rows rows = session.pathBy("/emps").children().toAdRows("substring(this.name, 2) s");
+		rows.debugPrint() ;
+	}
+	
 	public void testRelation() throws Exception {
 		session.tranSync(new TransactionJob<Void>(){
 			@Override

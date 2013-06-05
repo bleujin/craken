@@ -42,5 +42,13 @@ public class TestColumnProjection extends TestCase {
 		
 		Debug.line(sp) ;
 	}
+	
+	public void testParent() throws Exception {
+		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+		SelectProjection sp = TerminalParser.parse(parser, "parent.b b");
+		
+		
+		Debug.line(sp) ;
+	}
 
 }

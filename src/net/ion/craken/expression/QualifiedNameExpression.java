@@ -35,7 +35,11 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 			if ("false".equalsIgnoreCase(nextString) && ! iter.hasNext()) return Boolean.FALSE ;
 			
 			
-			if ("this".equalsIgnoreCase(nextString)) continue ;
+			if ("this".equalsIgnoreCase(nextString) && iter.hasNext()) continue ;
+			if ("parent".equalsIgnoreCase(nextString)){
+				findNode = findNode.parent() ;
+				continue ;
+			}
 			if (findNode.hasChild(nextString)){
 				findNode = findNode.child(nextString) ;
 			} else if (findNode.hasRef(nextString)) {

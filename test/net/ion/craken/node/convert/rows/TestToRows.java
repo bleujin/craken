@@ -49,7 +49,7 @@ public class TestToRows extends TestBaseSearch {
 		long start = System.currentTimeMillis() ;
 		final SearchNodeResponse find = session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
 		long mid = System.currentTimeMillis() ;
-		Rows rows = find.toRows("name", "substr(writer, 2) writer", "index", "address/city acity", "../name boardname") ;
+		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, parent.name boardname") ;
 		
 		assertEquals(2, rows.getRowCount()) ;
 		
@@ -74,21 +74,21 @@ public class TestToRows extends TestBaseSearch {
 		}) ;
 		
 		final SearchNodeResponse find = session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
-		Rows rows = find.toRows("name", "substr(writer, 2) writer", "index", "address/city acity", "register@age age") ;
+		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, register.age age") ;
 		
 		Row first = rows.firstRow();
 		assertEquals(39, first.getInt("index")) ;
 		assertEquals("board1", first.getString("name")) ;
 		assertEquals("jin", first.getString("writer")) ;
 		assertEquals("seoul", first.getString("acity")) ;
-		assertEquals(20, first.getObject("age")) ;
+		assertEquals(20, first.getInt("age")) ;
 	}
 	
 	
 	public void testRefTo() throws Exception {
 
 		Rows rows = session.createRequest("").descending("index").skip(10).offset(2)
-			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name", "substr(writer, 2) writer", "index", "address/city acity", "address/city", "register@age age") ;
+			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name, substring(this.writer, 2) writer, index, address.city acity, address.city, register.age age") ;
 		
 		Row first = rows.firstRow();
 		assertEquals(39, first.getInt("index")) ;

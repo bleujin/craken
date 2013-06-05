@@ -63,11 +63,11 @@ public class TestBaseProcedure extends TestBaseCrud{
 			}
 			
 			public Rows findPersonBy(String name){
-				return session().pathBy("/persons", true).child(name).toRows("name", "age");
+				return session().pathBy("/persons", true).child(name).toRows("name, age");
 			}
 			
 			public Rows listPersonBy() throws SQLException{
-				return session().pathBy("/persons", true).children().toRows("name", "age");
+				return session().pathBy("/persons", true).children().toAdRows("name, age");
 			}
 			
 			public String toString(){

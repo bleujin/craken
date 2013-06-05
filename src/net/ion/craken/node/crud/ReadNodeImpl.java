@@ -225,7 +225,7 @@ public class ReadNodeImpl implements ReadNode{
 	}
 	
 	
-	public Rows toRows(String... cols){
-		return transformer(Functions.rowsFunction(session, cols)) ;
+	public Rows toRows(String expr){
+		return transformer(Functions.rowsFunction(session, expr)) ;
 	}
 }

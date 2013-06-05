@@ -14,7 +14,7 @@ import net.ion.rosetta.misc.Mapper;
  */
 public final class TerminalParser {
 
-	private static final String[] OPERATORS = { "+", "-", "*", "/", "%", ">", "<", "=", ">=", "<=", "<>", ".", ",", "(", ")", "[", "]" };
+	private static final String[] OPERATORS = {"+", "-", "*", "/", "%", ">", "<", "=", ">=", "<=", "<>", ".", ",", "(", ")", "[", "]"};
 
 	private static final String[] KEYWORDS = { "select", "distinct", "from", "as", "where", "group", "by", "having", "order", "asc", "desc", "and", "or", "not", "in", "exists", "between", "is",
 			"null", "like", "escape", "inner", "outer", "left", "right", "full", "cross", "join", "on", "union", "all", "case", "when", "then", "else", "end" };

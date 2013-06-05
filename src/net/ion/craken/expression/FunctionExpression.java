@@ -1,9 +1,12 @@
 package net.ion.craken.expression;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.ecs.xhtml.ins;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
@@ -52,11 +55,13 @@ public final class FunctionExpression extends ValueObject implements Expression 
 			int i = 0;
 			while (argIter.hasNext()) {
 				Object aobj = argIter.next();
-				argClz[i] = aobj.getClass();
-				argObj[i++] = aobj;
+				argClz[i] = (aobj.getClass().equals(BigDecimal.class)) ? int.class : aobj.getClass();
+				argObj[i++] = (aobj instanceof BigDecimal) ? ((BigDecimal)aobj).intValue() : aobj;
 			}
-
+			
 			final Object result = target.getClass().getMethod(fnName, argClz).invoke(target, argObj);
+			
+			
 			if ((result instanceof Integer) || result instanceof Long || result instanceof Float || result instanceof Double) return NumberUtil.createBigDecimal(result.toString()) ;
 			return (Comparable) result;
 		} catch (Throwable ex) {

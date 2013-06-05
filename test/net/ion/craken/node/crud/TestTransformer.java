@@ -53,7 +53,7 @@ public class TestTransformer extends TestBaseCrud {
 	}
 	
 	public void testToRowsFunction() throws Exception {
-		Rows rows = readnode.toRows("name", "age");
+		Rows rows = readnode.toRows("name, age");
 		
 		
 		assertEquals(20, rows.firstRow().getInt("age")) ;

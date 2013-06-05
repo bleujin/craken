@@ -1,9 +1,14 @@
 package net.ion.craken.expression;
 
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.MethodUtils;
 
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -39,4 +44,28 @@ public class TestParser extends TestBaseCrud {
 	}
 
 	
+	public void testInvoke() throws Exception {
+
+		Object ref = new MyRef() ;
+		
+		
+		Method[] mts = ref.getClass().getMethods();
+
+		Debug.line(Number.class.isAssignableFrom(int.class), Number.class.isAssignableFrom(Integer.class)) ;
+
+		
+		Object result = MethodUtils.invokeMethod(ref, "add", 3);
+		Debug.line(result) ;
+	}
+	
+}
+
+
+class MyRef {
+	private int sum = 0 ;
+	
+	public int add(Integer a){
+		this.sum = sum + a;
+		return sum ;
+	}
 }
