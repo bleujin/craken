@@ -93,6 +93,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public BlobValue asBlob() {
 		final Object value = value() ;
 		if (value == null) return null;
+		if (gfs == null) throw new NodeIOException("this value not accessable") ;
 		if (value instanceof BlobProxy) {
 			return BlobValue.create(gfs, (BlobProxy)value) ;
 		}
@@ -120,6 +121,15 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return 0;
 	}
 
+	public int hashCode(){
+		return values.hashCode() ;
+	}
+	
+	public boolean equals(Object obj){
+		if (! (obj instanceof PropertyValue)) return false ;
+		PropertyValue that = (PropertyValue) obj;
+		return this.values.equals(that.values) ;
+	}
 
 }
 

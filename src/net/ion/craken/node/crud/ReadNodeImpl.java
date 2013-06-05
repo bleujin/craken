@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,9 +29,9 @@ import org.apache.commons.collections.IteratorUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
-public class ReadNodeImpl implements ReadNode{
+public class ReadNodeImpl implements ReadNode, Serializable {
 
-	private ReadSession session ;
+	private transient ReadSession session ;
 	private TreeNode<PropertyId, PropertyValue> treeNode;
 	protected ReadNodeImpl(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
 		this.session = session ;

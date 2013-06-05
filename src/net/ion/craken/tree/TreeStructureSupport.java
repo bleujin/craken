@@ -27,6 +27,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	protected boolean exists(AdvancedCache<?, ?> cache, Fqn f) {
 		startAtomic();
 		try {
+//			return cache.get(new TreeNodeKey(f, TreeNodeKey.Type.DATA)) != null && cache.get(new TreeNodeKey(f, TreeNodeKey.Type.STRUCTURE)) != null;
 			return cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.DATA)) && cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.STRUCTURE));
 		} finally {
 			endAtomic();

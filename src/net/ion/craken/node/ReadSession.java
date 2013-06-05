@@ -1,8 +1,13 @@
 package net.ion.craken.node;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.google.common.base.Function;
+
+import net.ion.craken.mr.NodeMapReduce;
+import net.ion.craken.mr.NodeReducer;
 import net.ion.craken.tree.Fqn;
 
 
@@ -24,6 +29,9 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public Workspace workspace();
 
+	public <Ri, Rv, V> Future<V> mapReduce(NodeMapReduce<Ri, Rv> mapper, Function<Map<Ri, Rv>, V> function);
+
+	public <Ri, Rv> Map<Ri, Rv> mapReduceSync(NodeMapReduce<Ri, Rv> mapper);
 
 
 }

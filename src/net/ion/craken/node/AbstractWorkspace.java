@@ -15,6 +15,7 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 
@@ -184,5 +185,11 @@ public abstract class AbstractWorkspace implements Workspace{
 		IOUtil.copyNClose(input, output) ;
 		
 		return BlobProxy.create(fqnPath) ;
+	}
+
+
+
+	public IExecutor executor() {
+		return repository.executor() ;
 	}
 }

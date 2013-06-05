@@ -21,11 +21,11 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 	private static final boolean trace = log.isTraceEnabled();
 
 	private GridFilesystem gfs ;
-	public TreeCache(Cache<?, ?> cache, GridFilesystem gfs) {
+	public TreeCache(Cache<PropertyId, PropertyValue> cache, GridFilesystem gfs) {
 		this(cache.getAdvancedCache(), gfs);
 	}
 
-	private TreeCache(AdvancedCache<?, ?> cache, GridFilesystem gfs) {
+	private TreeCache(AdvancedCache<PropertyId, PropertyValue> cache, GridFilesystem gfs) {
 		super(cache, cache.getBatchContainer());
 		if (cache.getCacheConfiguration().indexing().enabled())
 			throw new ConfigurationException("TreeCache cannot be used with a Cache instance configured to use indexing!");
@@ -58,7 +58,7 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 		put(cache, fqn, data);
 	}
 
-	public void put(Fqn fqn, Map<? extends PropertyId, ? extends PropertyValue> data, Flag... flags) {
+	public void put(Fqn fqn, Map<PropertyId, ? extends PropertyValue> data, Flag... flags) {
 		put(cache.withFlags(flags), fqn, data);
 	}
 
@@ -364,7 +364,7 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 		return m.put(key, value);
 	}
 
-	public Cache<?, ?> getCache() {
+	public Cache<TreeNodeKey, AtomicMap<?, ?>> getCache() {
 		// Retrieve the advanced cache as a way to retrieve
 		// the cache behind the cache adapter.
 		return cache.getAdvancedCache();

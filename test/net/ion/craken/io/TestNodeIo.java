@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 
 import junit.framework.TestCase;
 
+import org.infinispan.configuration.cache.CacheLoaderConfigurationBuilder;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 
@@ -41,6 +42,7 @@ public class TestNodeIo extends TestCase {
 		
 		r.defineConfig("test.blobmeta",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
 				.sync().replTimeout(20000)
+				
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/store/test")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		this.session = r.testLogin("test") ;
