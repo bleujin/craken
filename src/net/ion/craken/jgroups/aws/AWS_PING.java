@@ -14,10 +14,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jgroups.PhysicalAddress;
-import org.jgroups.protocols.Discovery;
-import org.jgroups.stack.IpAddress;
 import org.jgroups.annotations.Property;
 import org.jgroups.conf.ClassConfigurator;
+import org.jgroups.protocols.Discovery;
+import org.jgroups.stack.IpAddress;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;

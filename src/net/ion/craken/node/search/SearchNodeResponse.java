@@ -13,8 +13,6 @@ import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.convert.rows.AdNodeRows;
-import net.ion.craken.node.convert.rows.ColumnParser;
-import net.ion.craken.node.convert.rows.CrakenNodeRows;
 import net.ion.craken.node.search.util.PredicateArgument;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Rows;
@@ -36,7 +34,7 @@ public class SearchNodeResponse {
 	private List<Fqn> found = ListUtil.newList();
 	private ReadSearchSession session ;
 	
-	private final ColumnParser cparser ;
+//	private final ColumnParser cparser ;
 	
 	public SearchNodeResponse(ReadSearchSession session, SearchResponse response) {
 		this.session = session ;
@@ -44,7 +42,7 @@ public class SearchNodeResponse {
 		for (ReadDocument doc : response.getDocument()){
 			found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
 		};
-		this.cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
+//		this.cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
 	}
 
 	public static SearchNodeResponse create(ReadSearchSession session, SearchResponse response) {

@@ -16,7 +16,6 @@
 package net.ion.rosetta;
 
 import static net.ion.rosetta.util.Checks.checkArgument;
-
 import net.ion.rosetta.annotations.Private;
 import net.ion.rosetta.functors.Map;
 import net.ion.rosetta.util.Strings;

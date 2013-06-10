@@ -1,6 +1,5 @@
 package net.ion.craken.db;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,14 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.MethodUtils;
-import org.apache.commons.lang.ClassUtils;
-
-import com.google.common.base.CharMatcher;
-
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.convert.bean.ProxyBean;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.db.IDBController;
 import net.ion.framework.db.Rows;
@@ -25,13 +17,14 @@ import net.ion.framework.db.manager.DBManager;
 import net.ion.framework.db.procedure.RepositoryService;
 import net.ion.framework.db.procedure.UserProcedure;
 import net.ion.framework.util.ArrayUtil;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+
+import org.apache.commons.beanutils.MethodUtils;
 
 public class CrakenManager extends DBManager {
 

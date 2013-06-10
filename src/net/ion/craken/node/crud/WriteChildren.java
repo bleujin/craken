@@ -5,22 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.ion.craken.node.AbstractChildren;
-import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.convert.Predicates;
 import net.ion.craken.node.search.util.SortUtil;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.UnmodifiableIterator;
 
 public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren>{
 

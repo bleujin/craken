@@ -2,8 +2,6 @@ package net.ion.craken.node.exception;
 
 import net.ion.craken.tree.Fqn;
 
-import org.apache.ecs.vxml.Throw;
-
 public class NotFoundPath extends IllegalArgumentException {
 
 	private static final long serialVersionUID = -2355219913059667636L;

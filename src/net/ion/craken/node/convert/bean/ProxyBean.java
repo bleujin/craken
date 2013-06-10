@@ -3,9 +3,7 @@ package net.ion.craken.node.convert.bean;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
-import net.ion.framework.util.Debug;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;

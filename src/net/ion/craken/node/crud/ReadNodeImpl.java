@@ -27,10 +27,10 @@ import net.ion.framework.util.SetUtil;
 import org.apache.commons.collections.IteratorUtils;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 
 public class ReadNodeImpl implements ReadNode, Serializable {
 
+	private static final long serialVersionUID = 1785904048897031227L;
 	private transient ReadSession session ;
 	private TreeNode<PropertyId, PropertyValue> treeNode;
 	protected ReadNodeImpl(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {

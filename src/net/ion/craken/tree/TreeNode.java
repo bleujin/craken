@@ -3,7 +3,6 @@ package net.ion.craken.tree;
 import java.util.Map;
 import java.util.Set;
 
-import org.infinispan.Cache;
 import org.infinispan.context.Flag;
 
 

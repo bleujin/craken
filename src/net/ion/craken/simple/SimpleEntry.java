@@ -6,7 +6,6 @@ import java.util.Map;
 import net.ion.craken.AbstractEntry;
 import net.ion.craken.EntryKey;
 import net.ion.framework.util.MapUtil;
-import net.ion.framework.util.StringUtil;
 
 public class SimpleEntry extends AbstractEntry{
 

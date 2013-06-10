@@ -1,9 +1,9 @@
 package net.ion.craken.io;
 
-import org.infinispan.Cache;
-
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.infinispan.Cache;
 
 /**
  * @author Bela Ban

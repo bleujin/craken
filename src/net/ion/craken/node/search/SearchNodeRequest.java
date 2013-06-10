@@ -1,30 +1,22 @@
 package net.ion.craken.node.search;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.search.SearchRequest;
-import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
 import net.ion.nsearcher.search.filter.FilterUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
 
 import org.apache.ecs.xml.XML;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.similar.MoreLikeThisQuery;
-import org.apache.lucene.util.Version;
 
 public class SearchNodeRequest {
 

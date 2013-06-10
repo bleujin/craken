@@ -5,21 +5,9 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.mr.NodeMapReduceTask;
-import net.ion.craken.mr.NodeMapReduce;
-import net.ion.craken.mr.NodeReducer;
-import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.search.util.TransactionJobs;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeCache;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -29,7 +17,6 @@ import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.MapReduceTask;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
-import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 
 public class TestMR extends TestCase {

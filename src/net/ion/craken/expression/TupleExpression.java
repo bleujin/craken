@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.ion.craken.node.NodeCommon;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
 
 public class TupleExpression extends ValueObject implements Expression {

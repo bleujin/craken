@@ -8,6 +8,8 @@ public interface TranExceptionHandler {
 		public void handle(WriteSession tsession, Throwable ex) {
 			ex.printStackTrace() ;
 		}} ;
+		
+	public TranExceptionHandler NULL = null;
 	
 	public void handle(WriteSession tsession, Throwable ex) ;
 

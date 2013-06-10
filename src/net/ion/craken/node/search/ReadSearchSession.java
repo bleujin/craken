@@ -12,7 +12,8 @@ import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.node.Workspace;
+import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.framework.util.StringUtil;
@@ -30,10 +31,17 @@ import org.apache.lucene.search.Query;
 public class ReadSearchSession extends AbstractReadSession {
 
 	private final Central central ;
+	private Future<Void> lastCommand;
 	
-	ReadSearchSession(Credential credential, WorkspaceSearch workspace, Central central) {
+	ReadSearchSession(Credential credential, Workspace workspace, Central central) {
 		super(credential, workspace) ;
 		this.central = central ;
+	}
+
+	@Override
+	public <T> T tranSync(TransactionJob<T> tjob) throws Exception {
+		WriteSession tsession = new WriteSearchSession(this, workspace(), central);
+		return workspace().tran(tsession, tjob, TranExceptionHandler.NULL).get() ;
 	}
 
 	@Override
@@ -58,8 +66,12 @@ public class ReadSearchSession extends AbstractReadSession {
 		return SearchNodeRequest.create(this, central.newSearcher(), central.searchConfig().parseQuery(analyzer, query));
 	}
 	
+	
+	
+	
+	
 	public ReadSearchSession awaitIndex() throws InterruptedException, ExecutionException {
-		((WorkspaceSearch)workspace()).awaitIndex() ;
+		if (lastCommand != null) lastCommand.get() ;
 		
 		return this;
 	}
@@ -99,6 +111,10 @@ public class ReadSearchSession extends AbstractReadSession {
 				return doc ;
 			}
 		});
+	}
+
+	public void asyncIndex(IndexJob<Void> indexJob) {
+		this.lastCommand = central.newIndexer().asyncIndex(indexJob);
 	}
 
 

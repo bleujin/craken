@@ -1,74 +1,121 @@
 package net.ion.craken.node.search;
 
-import net.ion.craken.node.AbstractWorkspace;
-import net.ion.craken.node.Credential;
-import net.ion.craken.node.ReadNode;
+import java.util.Map;
+import java.util.Stack;
+
+import net.ion.craken.node.AbstractWriteSession;
+import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
-import net.ion.craken.node.WriteNode;
-import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.WriteNodeImpl;
-import net.ion.craken.node.crud.WriteSessionImpl;
+import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
-import net.ion.framework.util.StringUtil;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.tree.PropertyId.PType;
+import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
-import net.ion.nsearcher.index.Indexer;
 
-public class WriteSearchSession implements WriteSession {
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.WildcardQuery;
 
-	private ReadSession readSession ;
-	private WriteSession winner ;
+public class WriteSearchSession extends AbstractWriteSession {
+
 	private Central central ;
-	private AbstractWorkspace workspace ;
+	private ReadSearchSession readSession ;
+	private Stack<TouchEvent> events = new Stack<TouchEvent>() ;
 	
-	public WriteSearchSession(ReadSearchSession readSearchSession, AbstractWorkspace workspace, Central central) {
-		this.readSession = readSearchSession ;
-		this.workspace = workspace ;
+	public WriteSearchSession(ReadSearchSession readSession, Workspace workspace, Central central) {
+		super(readSession, workspace) ;
+		this.readSession = readSession ;
 		this.central = central ;
 	}
 
-	public WriteNode pathBy(String fqn) {
-		return WriteSearchNode.loadTo(this, workspace.getNode(fqn)) ;
-	}
 	
-	public WriteNode pathBy(String fqn0, String... fqns) {
-		return WriteSearchNode.loadTo(this, workspace.getNode(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')))) ;
-	}
-
-	public WriteNode pathBy(Fqn fqn) {
-		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
-	}
-	
-	public WriteNode root() {
-		return pathBy("/");
-	}
-
-	public boolean exists(String fqn) {
-		return winner.exists(fqn) ;
-	}
-
 	@Override
 	public void endCommit() {
-		
-	}
-
-	@Override
-	public void failRollback() {
-		
-	}
-
-	@Override
-	public Credential credential() {
-		return readSession.credential();
-	}
-
-	@Override
-	public Workspace workspace() {
-		return workspace;
+		readSession.asyncIndex(new IndexJob<Void>() {
+			@Override
+			public Void handle(IndexSession isession) throws Exception {
+				TouchEvent[] eventArray = events.toArray(new TouchEvent[0]);
+				ReadSession readSession = WriteSearchSession.this.readSession() ;
+				for (TouchEvent event : eventArray) {
+					if (event.touch() == Touch.MODIFY){
+						WriteDocument doc = MyDocument.newDocument(event.fqn().toString());
+						doc.keyword(NodeCommon.NameProp, event.fqn().getLastElementAsString());
+						if (! readSession.exists(event.fqn())) continue ;
+						Map<PropertyId, PropertyValue> values = readSession.pathBy(event.fqn()).toMap();
+						for (PropertyId key : values.keySet()) {
+							if (key.type() == PType.REFER) {
+								doc.keyword("@" + key.getString(), values.get(key).stringValue()) ;  
+							} else {
+								doc.unknown(key.getString(), values.get(key).value());
+							}
+						}
+						isession.updateDocument(doc);
+					} else if (event.touch() == Touch.REMOVE){
+						isession.deleteTerm(new Term(IKeywordField.ISKey, event.fqn().toString())) ;
+					} else {
+						isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.ISKey, event.fqn().toString() + "/*"))) ;
+					}
+				}
+				
+				
+				return null;
+			}
+		});
 	}
 	
+	@Override
+	public void failRollback() {
+		events.clear() ;
+	}
 
+	@Override
+	public void notifyTouch(Fqn fqn, Touch touch) {
+		TouchEvent newEvent = new TouchEvent(fqn, touch) ;
+		synchronized (events) {
+			if (events.isEmpty()) events.add(newEvent) ;
+			else if (! newEvent.equals(events.peek())){
+				events.add(newEvent) ;
+			}
+		}
+	}
+}
+
+class TouchEvent {
+	
+	private Fqn fqn ;
+	private Touch touch ;
+	public TouchEvent(Fqn fqn, Touch touch){
+		this.fqn = fqn ;
+		this.touch = touch ;
+	}
+	
+	Fqn fqn(){
+		return fqn ;
+	}
+	
+	Touch touch(){
+		return touch ;
+	}
+	
+	@Override 
+	public boolean equals(Object obj){
+		if (! (obj instanceof TouchEvent)) return false ;
+		TouchEvent that = (TouchEvent) obj ;
+		return this.fqn.equals(that.fqn) && this.touch == that.touch ;
+	}
+	
+	@Override
+	public int hashCode(){
+		return fqn.hashCode() + touch.hashCode() ;
+	}
+	
+	public String toString(){
+		return "TouchEvent[fqn=" + fqn + ", touch:" + touch + "]" ;
+	}
 }

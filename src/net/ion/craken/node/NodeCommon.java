@@ -3,17 +3,15 @@ package net.ion.craken.node;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 
+import com.google.common.base.Function;
+
 public interface NodeCommon<T extends NodeCommon<T>> {
 	
-	public final static String IDProp = "__id" ;
-	public final static String NameProp = "__name";
+	final static String NameProp = "__name";
 	
 	public ISession<T> session() ;
 

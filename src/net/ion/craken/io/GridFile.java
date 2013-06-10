@@ -1,8 +1,7 @@
 package net.ion.craken.io;
 
-import org.infinispan.AdvancedCache;
-import org.infinispan.Cache;
-import org.jgroups.util.Util;
+import static java.lang.String.format;
+import static org.infinispan.context.Flag.FORCE_SYNCHRONOUS;
 
 import java.io.Externalizable;
 import java.io.File;
@@ -19,8 +18,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Set;
 
-import static java.lang.String.format;
-import static org.infinispan.context.Flag.FORCE_SYNCHRONOUS;
+import org.infinispan.AdvancedCache;
+import org.infinispan.Cache;
+import org.jgroups.util.Util;
 
 /**
  * Subclass of File to iterate through directories and files in a grid

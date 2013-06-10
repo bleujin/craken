@@ -11,7 +11,6 @@ import javax.sql.RowSetMetaData;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.convert.rows.AdNodeRows;
-import net.ion.craken.node.convert.rows.IColumn;
 import net.ion.framework.db.rowset.RowSetMetaDataImpl;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;

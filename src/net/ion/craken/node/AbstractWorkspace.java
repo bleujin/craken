@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.ion.craken.io.BlobProxy;
-import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -98,26 +96,7 @@ public abstract class AbstractWorkspace implements Workspace{
 
 	
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
-		final AbstractWorkspace workspace = this;
-		return repository.executor().submitTask(new Callable<T>() {
-
-			@Override
-			public T call() throws Exception {
-				workspace.beginTran();
-				try {
-					T result = tjob.handle(wsession);
-					workspace.endTran();
-					return result;
-				} catch (Exception ex) {
-					throw ex;
-				} finally {
-					workspace.failEndTran();
-					wsession.failRollback();
-					wsession.endCommit();
-				}
-				
-			}
-		});
+		return tran(wsession, tjob, null) ;
 	}
 
 	
@@ -137,8 +116,9 @@ public abstract class AbstractWorkspace implements Workspace{
 //					ex.printStackTrace() ;
 					workspace.failEndTran();
 					wsession.failRollback();
+					if (ehandler == null) throw ex ;
+					
 					ehandler.handle(wsession, ex);
-//					throw ex;
 					return null ;
 				} finally {
 					wsession.endCommit();

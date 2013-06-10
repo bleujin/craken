@@ -3,12 +3,9 @@ package net.ion.craken.node.search;
 import java.io.IOException;
 import java.util.List;
 
-import org.neo4j.helpers.Predicates;
-
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.search.util.PredicateArgument;
-import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 

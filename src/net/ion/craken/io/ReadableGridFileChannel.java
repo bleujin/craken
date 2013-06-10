@@ -1,11 +1,11 @@
 package net.ion.craken.io;
 
-import org.infinispan.Cache;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
+
+import org.infinispan.Cache;
 
 /**
  * @author Marko Luksa

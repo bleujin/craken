@@ -25,8 +25,8 @@ public class TestReIndex extends TestBaseCrud {
 		assertEquals(0, ss.createRequest("").find().size()) ; 
 
 		Future<AtomicInteger> future = ss.reIndex(ss.root());
-		assertEquals(2, future.get().get()) ;
-		assertEquals(2, ss.createRequest("").find().size()) ; 
+		assertEquals(1, future.get().get()) ;
+		assertEquals(1, ss.createRequest("").find().size()) ; 
 	}
 	
 	

@@ -19,6 +19,7 @@ import net.ion.nsearcher.common.IKeywordField;
 public class TestSearch extends TestBaseSearch {
 	
 	public void testQuery() throws Exception {
+		
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {

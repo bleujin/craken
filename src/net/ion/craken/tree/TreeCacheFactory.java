@@ -2,7 +2,6 @@ package net.ion.craken.tree;
 
 import net.ion.craken.io.GridFile;
 import net.ion.craken.io.GridFilesystem;
-import net.ion.craken.io.GridFile.Metadata;
 
 import org.infinispan.Cache;
 import org.infinispan.config.ConfigurationException;

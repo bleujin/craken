@@ -20,6 +20,14 @@ import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 
 public class TestIndex extends TestBaseSearch {
 
+	
+	public void testModify() throws Exception {
+		
+		
+		
+	}
+	
+	
 	public void testConcurrency() throws Exception {
 		Runnable task = new Runnable() {
 			@Override

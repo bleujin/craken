@@ -16,7 +16,6 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	public ReadChildren children();
 	
-
 	Rows toRows(String expr);
 
 

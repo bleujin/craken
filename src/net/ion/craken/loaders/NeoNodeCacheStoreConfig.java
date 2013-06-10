@@ -1,15 +1,8 @@
 package net.ion.craken.loaders;
 
-import java.util.concurrent.ExecutionException;
-
-import net.ion.framework.db.Page;
 import net.ion.neo.Credential;
 import net.ion.neo.NeoRepository;
 import net.ion.neo.ReadSession;
-import net.ion.neo.TransactionJob;
-import net.ion.neo.WriteNode;
-import net.ion.neo.WriteSession;
-import net.ion.neo.NeoWorkspace.RelType;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.infinispan.loaders.AbstractCacheStoreConfig;

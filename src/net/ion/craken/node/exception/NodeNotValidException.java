@@ -1,7 +1,5 @@
 package net.ion.craken.node.exception;
 
-import net.ion.craken.tree.TreeNode;
-
 import org.infinispan.CacheException;
 
 

@@ -5,7 +5,9 @@ import java.util.Map;
 
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.Credential;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.WorkspaceImpl;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
@@ -33,7 +35,7 @@ public class RepositorySearchImpl implements RepositorySearch {
 	private RepositoryImpl inner;
 	private DefaultCacheManager dftManager;
 	private Map<String, Central> centrals = MapUtil.newCaseInsensitiveMap();
-	private Map<String, WorkspaceSearch> wss = MapUtil.newCaseInsensitiveMap() ;
+	private Map<String, Workspace> wss = MapUtil.newCaseInsensitiveMap() ;
 
 	public RepositorySearchImpl(RepositoryImpl repository, DefaultCacheManager dftManager) {
 		this.inner = repository;
@@ -81,17 +83,17 @@ public class RepositorySearchImpl implements RepositorySearch {
 			central = centrals.get(wsname);
 		}
 
-		final WorkspaceSearch workspace = loadWorkspce(wsname, central);
+		final Workspace workspace = loadWorkspce(wsname, central);
 
 		return new ReadSearchSession(credential, workspace, central);
 	}
 
 	
-	private synchronized WorkspaceSearch loadWorkspce(String wsname, Central central){
+	private synchronized Workspace loadWorkspce(String wsname, Central central){
 		if (wss.containsKey(wsname)){
 			return wss.get(wsname) ;
 		} else {
-			final WorkspaceSearch created = WorkspaceSearch.create(this, central, treeCache(wsname + ".node"), wsname);
+			final WorkspaceImpl created = WorkspaceImpl.create(this, treeCache(wsname + ".node"), wsname);
 			created.getNode("/") ;
 			wss.put(wsname, created) ;
 			return wss.get(wsname) ;

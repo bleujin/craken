@@ -1,7 +1,6 @@
 package net.ion.craken.expression;
 
 import static net.ion.rosetta.Parsers.between;
-
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
 import net.ion.rosetta.Scanners;

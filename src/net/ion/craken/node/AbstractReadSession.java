@@ -1,14 +1,13 @@
 package net.ion.craken.node;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.mr.NodeMapReduce;
-import net.ion.craken.mr.NodeReducer;
+import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.crud.ReadNodeImpl;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.node.exception.NotFoundPath;
@@ -30,8 +29,8 @@ import com.google.common.base.Function;
 public abstract class AbstractReadSession implements ReadSession {
 
 	private Credential credential ;
-	private AbstractWorkspace workspace ;
-	protected AbstractReadSession(Credential credential, AbstractWorkspace workspace) {
+	private Workspace workspace ;
+	protected AbstractReadSession(Credential credential, Workspace workspace) {
 		this.credential = credential.clearSecretKey() ;
 		this.workspace = workspace ;
 	}
@@ -78,7 +77,7 @@ public abstract class AbstractReadSession implements ReadSession {
 	@Override
 	public <T> T tranSync(TransactionJob<T> tjob) throws Exception {
 		WriteSession tsession = new WriteSessionImpl(this, workspace);
-		return workspace.tran(tsession, tjob).get() ;
+		return workspace.tran(tsession, tjob, TranExceptionHandler.NULL).get() ;
 	}
 
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {
@@ -87,8 +86,11 @@ public abstract class AbstractReadSession implements ReadSession {
 		return workspace.tran(tsession, tjob, handler) ;
 	}
 
+	
+	
+	
 	@Override
-	public AbstractWorkspace workspace() {
+	public Workspace workspace() {
 		return workspace;
 	}
 
@@ -97,28 +99,32 @@ public abstract class AbstractReadSession implements ReadSession {
 		return credential;
 	}
 
-	public <Ri, Rv> Map<Ri, Rv> mapReduceSync(final NodeMapReduce<Ri, Rv> mapper){
-		TreeCache<PropertyId, PropertyValue> tcache = workspace().getCache();
-		Cache<TreeNodeKey, AtomicMap<?, ?>> cache = tcache.getCache();
-
-		NodeMapReduceTask<Ri, Rv> t = new NodeMapReduceTask<Ri, Rv>(cache);
-		return t.mappedWith(new OuterMapper(mapper)).reducedWith(new OuterReducer(mapper)).execute();
+	public <Ri, Rv> Map<Ri, Rv> mapReduceSync(final NodeMapReduce<Ri, Rv> mapper) throws InterruptedException, ExecutionException{
+		return asyncMapReduce(mapper).get();
 	}
 
 	
-	public <Ri, Rv, V> Future<V> mapReduce(NodeMapReduce<Ri, Rv> mapper, final Function<Map<Ri, Rv>, V> function){
-		TreeCache<PropertyId, PropertyValue> tcache = workspace().getCache();
-		Cache<TreeNodeKey, AtomicMap<?, ?>> cache = tcache.getCache();
-
-		NodeMapReduceTask<Ri, Rv> t = new NodeMapReduceTask<Ri, Rv>(cache);
-		final Future<Map<Ri, Rv>> future = t.mappedWith(new OuterMapper(mapper)).reducedWith(new OuterReducer(mapper)).executeAsynchronously();
-		
+	public <Ri, Rv, V> Future<V> mapReduce(final NodeMapReduce<Ri, Rv> mapper, final Function<Map<Ri, Rv>, V> function){
 		return workspace().executor().submitTask(new Callable<V>() {
 			@Override
 			public V call() throws Exception {
+				Future<Map<Ri, Rv>> future = asyncMapReduce(mapper);
 				return function.apply(future.get()) ;
 			}
 		}) ;
+	}
+
+	private <Ri, Rv> Future<Map<Ri, Rv>> asyncMapReduce(NodeMapReduce<Ri, Rv> mapper) {
+		TreeCache<PropertyId, PropertyValue> tcache = workspace().getCache();
+		Cache<TreeNodeKey, AtomicMap<?, ?>> cache = tcache.getCache();
+
+//		CacheMode cmode = cache.getCacheConfiguration().clustering().cacheMode();
+//		if (CacheMode.DIST_ASYNC != cmode || CacheMode.DIST_SYNC != cmode){
+//		}
+		
+		NodeMapReduceTask<Ri, Rv> t = new NodeMapReduceTask<Ri, Rv>(cache);
+		final Future<Map<Ri, Rv>> future = t.mappedWith(new OuterMapper(mapper)).reducedWith(new OuterReducer(mapper)).executeAsynchronously();
+		return future;
 	}
 	
 
@@ -133,7 +139,6 @@ public abstract class AbstractReadSession implements ReadSession {
 		@Override
 		public void map(TreeNodeKey key, AtomicMap<PropertyId, PropertyValue> map, Collector<Ri, Rv> iter) {
 			if (key.getContents() == TreeNodeKey.Type.STRUCTURE) return ;
-//			AbstractReadSession session = AbstractReadSession.this;
 
 			inner.map(key, map, iter) ;
 		}
