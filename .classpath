@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
 	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.2.3.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/mongo-java-driver-2.9.3(1).jar"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_3.6.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/mongo-java-driver-2.9.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
