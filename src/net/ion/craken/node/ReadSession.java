@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.ion.craken.mr.NodeMapReduce;
+import net.ion.craken.node.search.ReadSearchSession;
 import net.ion.craken.tree.Fqn;
 
 import com.google.common.base.Function;
@@ -32,5 +33,5 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public <Ri, Rv> Map<Ri, Rv> mapReduceSync(NodeMapReduce<Ri, Rv> mapper) throws InterruptedException, ExecutionException;
 
-
+	public ReadSession awaitIndex() throws InterruptedException, ExecutionException ;
 }
