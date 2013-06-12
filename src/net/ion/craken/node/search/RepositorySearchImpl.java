@@ -16,14 +16,17 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.MapUtil;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.config.CentralConfig;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.lucene.InfinispanDirectory;
+import org.infinispan.lucene.impl.DirectoryBuilderImpl;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
@@ -56,16 +59,17 @@ public class RepositorySearchImpl implements RepositorySearch {
 					final Cache<Object, Object> idxCache = dftManager.getCache(wsname + ".idx");
 					idxCache.start() ;
 					InfinispanDirectory dir = new InfinispanDirectory(idxCache);
-					central = MyCentralConfig.create(dir).build();
+					central = CentralConfig.oldFromDir(dir).build();
 					centrals.put(wsname, central);
 				} else {
-					dftManager.defineConfiguration(wsname + ".meta", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
-							.cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-
-					dftManager.defineConfiguration(wsname + ".chunks", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(10).invocationBatching().enable().loaders().preload(true).shared(false).passivation(
-							false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-
-					dftManager.defineConfiguration(wsname + ".locks", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
+//					dftManager.defineConfiguration(wsname + ".meta", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
+//							.cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+					
+//					dftManager.defineConfiguration(wsname + ".chunks", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(10).invocationBatching().enable().loaders().preload(true).shared(false).passivation(
+//							false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+					
+//					dftManager.defineConfiguration(wsname + ".locks", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
+					
 					final Cache<Object, Object> metaCache = dftManager.getCache(wsname + ".meta");
 					final Cache<Object, Object> chunkCache = dftManager.getCache(wsname + ".chunks");
 					final Cache<Object, Object> lockCache = dftManager.getCache(wsname + ".locks");
@@ -73,10 +77,11 @@ public class RepositorySearchImpl implements RepositorySearch {
 					metaCache.start() ;
 					chunkCache.start() ;
 					lockCache.start() ;
-
-					InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
 					
-					central = MyCentralConfig.create(dir).build();
+					Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 1024 * 10).create();
+//					InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
+					
+					central = CentralConfig.oldFromDir(dir).build();
 					centrals.put(wsname, central);
 				}
 			}

@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import net.ion.framework.util.Debug;
+
 import org.infinispan.Cache;
 import org.infinispan.config.ConfigurationException;
 import org.infinispan.container.entries.InternalCacheEntry;
@@ -315,6 +317,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		try {
 			final FileEntry fe;
 			final boolean expired;
+			
 			synchronized (entries) {
 				// lookup FileEntry of the key
 				fe = entries.get(key);

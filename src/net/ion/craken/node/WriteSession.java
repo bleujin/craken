@@ -19,4 +19,6 @@ public interface WriteSession extends ISession<WriteNode> {
 	public Workspace workspace() ;
 
 	public void notifyTouch(Fqn fqn, Touch touch);
+
+	public void continueUnit();
 }

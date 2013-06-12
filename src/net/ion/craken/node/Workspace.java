@@ -43,5 +43,6 @@ public interface Workspace {
 
 	public IExecutor executor();
 
+	public Workspace continueUnit(WriteSession wsession) ;
 
 }

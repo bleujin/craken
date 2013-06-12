@@ -10,7 +10,6 @@ public class WorkspaceImpl extends AbstractWorkspace {
 
 	WorkspaceImpl(Repository repository, TreeCache treeCache, String wsName) {
 		super(repository, treeCache, wsName) ;
-
 		treeCache.start();
 	}
 

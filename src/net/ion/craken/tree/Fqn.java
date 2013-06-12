@@ -19,9 +19,8 @@ import com.google.common.collect.Iterables;
 
 // @Immutable
 public class Fqn implements Comparable<Fqn>, Serializable {
-	/**
-	 * Separator between FQN elements.
-	 */
+
+	private static final long serialVersionUID = 7459897811324670392L;
 	public static final String SEPARATOR = "/";
 
 	private final Object[] elements;

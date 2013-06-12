@@ -62,7 +62,7 @@ public class WriteSearchSession extends AbstractWriteSession {
 						isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.ISKey, event.fqn().toString() + "/*"))) ;
 					}
 				}
-				
+				events.clear() ;
 				
 				return null;
 			}

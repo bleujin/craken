@@ -22,7 +22,7 @@ public class TestLoader extends TestCase {
 		super.setUp();
 		repository = RepositoryImpl.create();
 //		repository.defineConfig("test", createFastLocalCacheStore(9000, 100)) ;
-		repository.defineConfig("test.node", createFastLocalCacheStore(100, 100)) ;
+		repository.defineConfig("test.node", createFastLocalCacheStore(100)) ;
 		repository.start() ;
 	}
 	
@@ -56,7 +56,7 @@ public class TestLoader extends TestCase {
 		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).eviction().maxEntries(5000).strategy(EvictionStrategy.LRU).clustering().l1().hash().numOwners(2).build() ;
 	}
 	
-	private Configuration createFastLocalCacheStore(int port, int maxEntry) {
+	private Configuration createFastLocalCacheStore(int maxEntry) {
 		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching().clustering().hash().numOwners(2).unsafe()
 				.eviction().maxEntries(maxEntry)
 				.invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/store")

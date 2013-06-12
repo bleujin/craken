@@ -67,7 +67,10 @@ public class ReadSearchSession extends AbstractReadSession {
 	}
 	
 	
-	
+	// Use For Test
+	public Central central(){
+		return central ;
+	}
 	
 	
 	public ReadSearchSession awaitIndex() throws InterruptedException, ExecutionException {

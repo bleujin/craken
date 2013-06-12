@@ -14,6 +14,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.schedule.IExecutor;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 
@@ -139,6 +140,14 @@ public abstract class AbstractWorkspace implements Workspace{
 
 	private void beginTran() {
 		treeCache.begin();
+	}
+	
+
+	public Workspace continueUnit(WriteSession wsession) {
+		endTran() ;
+		wsession.endCommit() ;
+		beginTran() ;
+		return this ;
 	}
 
 	@Override
