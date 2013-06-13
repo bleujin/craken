@@ -19,6 +19,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.RandomUtil;
 
 import org.infinispan.Cache;
 import org.infinispan.config.ConfigurationException;
@@ -176,24 +177,30 @@ public class FastFileCacheStore extends AbstractCacheStore {
 	private FileEntry allocate(int len) {
 		synchronized (freeList) {
 			// lookup a free entry of sufficient size
-			SortedSet<FileEntry> candidates = freeList.tailSet(new FileEntry(0, len));
-			for (Iterator<FileEntry> it = candidates.iterator(); it.hasNext();) {
-				FileEntry free = it.next();
-				// ignore entries that are still in use by concurrent readers
-				if (free.isLocked())
-					continue;
-
-				// found one, remove from freeList
-				it.remove();
-				return free;
+			if (pctFree.allowFreeSpace()) {
+				SortedSet<FileEntry> candidates = freeList.tailSet(new FileEntry(0, len));
+				for (Iterator<FileEntry> it = candidates.iterator(); it.hasNext();) {
+					FileEntry free = it.next();
+					// ignore entries that are still in use by concurrent readers
+					if (free.isLocked())
+						continue;
+	
+					// found one, remove from freeList
+					it.remove();
+					return free;
+				}
 			}
-
+			
 			// no appropriate free section available, append at end of file
 			FileEntry fe = new FileEntry(filePos, len);
 			filePos += len;
+			pctFree.increase() ;
 			return fe;
 		}
 	}
+
+	private PctFree pctFree = new PctFree() ;
+	
 
 	private static final byte[] ZERO_INT = { 0, 0, 0, 0 };
 
@@ -292,6 +299,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 					file.truncate(0);
 					file.write(ByteBuffer.wrap(MAGIC), 0);
 					filePos = MAGIC.length;
+					
 				}
 			}
 		} catch (Exception e) {
@@ -305,6 +313,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 		try {
 			FileEntry fe = entries.remove(key);
 			free(fe);
+			pctFree.decrease() ;
 			return fe != null;
 		} catch (Exception e) {
 			throw new CacheLoaderException(e);
@@ -491,4 +500,23 @@ public class FastFileCacheStore extends AbstractCacheStore {
 			return (diff != 0) ? diff : offset > fe.offset ? 1 : -1;
 		}
 	}
+}
+
+
+class PctFree {
+	private int addedCount = 0 ;
+	
+	public boolean allowFreeSpace() {
+		return addedCount < 0; // 50%
+	}
+
+	public void increase(){
+		addedCount++ ;
+	}
+	
+	
+	public void decrease() {
+		addedCount-- ;
+	}
+	
 }

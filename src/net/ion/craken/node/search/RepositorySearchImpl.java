@@ -3,7 +3,6 @@ package net.ion.craken.node.search;
 import java.io.IOException;
 import java.util.Map;
 
-import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.RepositoryImpl;
@@ -19,14 +18,9 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.lucene.InfinispanDirectory;
-import org.infinispan.lucene.impl.DirectoryBuilderImpl;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
@@ -78,10 +72,10 @@ public class RepositorySearchImpl implements RepositorySearch {
 					chunkCache.start() ;
 					lockCache.start() ;
 					
-					Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 1024 * 10).create();
-//					InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
+//					Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 64).create(); // .chunkSize()
+					InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
 					
-					central = CentralConfig.oldFromDir(dir).build();
+					central = CentralConfig.oldFromDir(dir).indexConfigBuilder().build();
 					centrals.put(wsname, central);
 				}
 			}
