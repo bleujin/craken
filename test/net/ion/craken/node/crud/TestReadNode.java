@@ -1,7 +1,11 @@
 package net.ion.craken.node.crud;
 
+import com.sun.xml.internal.ws.addressing.WsaClientTube;
+
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.tree.PropertyValue;
 
 public class TestReadNode extends TestBaseCrud {
 
@@ -57,6 +61,42 @@ public class TestReadNode extends TestBaseCrud {
 		assertEquals(123, ((Integer)session.pathBy("/bleujin").property("notfound").value(123)).intValue()) ;
 	}
 
+
+	public void testChild() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin/address").property("city", "seoul").property("", "") ;
+				return null;
+			}
+		}) ;
+		
+		ReadNode node = session.pathBy("/bleujin").child("address");
+		assertEquals("/bleujin/address", node.fqn().toString()) ;
+	}
+	
+	public void testChildIfNotFoundRtnEmpty() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin/address").property("city", "seoul").property("", "") ;
+				return null;
+			}
+		}) ;
+		
+		ReadNode found = session.pathBy("/bleujin").child("address", true);
+		assertEquals("/bleujin/address", found.fqn().toString()) ;
+	 	assertEquals(true, found.toRows("this.city").next()) ;
+
+		
+		ReadNode notfound = session.pathBy("/bleujin").child("notfound", true);
+		assertEquals("/bleujin/notfound", notfound.fqn().toString()) ;
+	 	assertEquals(false, notfound.toRows("this.city").next()) ;
+		
+	 	
+	 	assertEquals(true, notfound.property("city") == PropertyValue.NotFound) ;
+
+	}
 	
 	
 	

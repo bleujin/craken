@@ -42,6 +42,7 @@ public class TestToRows extends TestBaseSearch {
 	
 	public void testFrom() throws Exception{
 		Rows rows = session.pathBy("/board1").children().toRows("name", "writer");
+
 		rows.debugPrint() ;
 	}
 	
