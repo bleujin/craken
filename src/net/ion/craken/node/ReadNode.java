@@ -18,7 +18,4 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	
 	Rows toRows(String expr);
 
-	ReadNode child(String string, boolean emptyifNotFound);
-
-
 }

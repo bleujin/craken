@@ -15,9 +15,9 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public ReadNode pathBy(String fqn0, String... fqns);
 
-	public ReadNode pathBy(String fqn, boolean createIf);
+	public ReadNode pathBy(String fqn, boolean emptyIfNotExist);
 
-	public ReadNode pathBy(Fqn fqn, boolean createIf);
+	public ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist);
 
 	public boolean exists(Fqn fqn);
 

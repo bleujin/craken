@@ -84,12 +84,12 @@ public class TestReadNode extends TestBaseCrud {
 			}
 		}) ;
 		
-		ReadNode found = session.pathBy("/bleujin").child("address", true);
+		ReadNode found = session.pathBy("/bleujin/address", true);
 		assertEquals("/bleujin/address", found.fqn().toString()) ;
 	 	assertEquals(true, found.toRows("this.city").next()) ;
 
 		
-		ReadNode notfound = session.pathBy("/bleujin").child("notfound", true);
+		ReadNode notfound = session.pathBy("/bleujin/notfound", true);
 		assertEquals("/bleujin/notfound", notfound.fqn().toString()) ;
 	 	assertEquals(false, notfound.toRows("this.city").next()) ;
 		

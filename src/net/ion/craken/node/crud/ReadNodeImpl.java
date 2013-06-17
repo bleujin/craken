@@ -8,11 +8,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import net.ion.craken.expression.ExpressionParser;
+import net.ion.craken.expression.SelectProjection;
+import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.ISession;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
+import net.ion.craken.node.convert.rows.AdNodeRows;
 import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
@@ -27,6 +31,7 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.rosetta.Parser;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.infinispan.context.Flag;
@@ -63,7 +68,9 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return this.getClass().getSimpleName() + "[fqn=" + treeNode.getFqn().toString() + "]";
 	}
 
-	
+	TreeNode<PropertyId, PropertyValue> treeNode(){
+		return treeNode ;
+	}
 	
 	// .. common 
 	
@@ -92,11 +99,6 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		final TreeNode child = treeNode.getChild(Fqn.fromString(fqn));
 		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
 		return load(session, child) ;
-	}
-	
-	public ReadNode child(String relativeFqn, boolean emptyifNotFound){
-		if (emptyifNotFound && (!hasChild(relativeFqn))) return new FakeReadNode(session, new FakeTreeNode(this.treeNode, Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(relativeFqn)))); 
-		return child(relativeFqn) ;
 	}
 	
 	
@@ -240,9 +242,15 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public Rows toRows(String expr){
 		return transformer(Functions.rowsFunction(session, expr)) ;
 	}
+	
+	public final static ReadNode fake(ReadSession session, Fqn fqn){
+		return new FakeReadNode(session, new FakeTreeNode(session, fqn));
+	} 
 }
 
 class FakeReadNode extends ReadNodeImpl {
+
+	private static final long serialVersionUID = -5073334525889136682L;
 	FakeReadNode(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
 		super(session, inner) ;
 	}
@@ -254,17 +262,20 @@ class FakeReadNode extends ReadNodeImpl {
 	
 	@Override
 	public Rows toRows(String expr){
-		return new FakeRows() ;
+		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+		SelectProjection sp = TerminalParser.parse(parser, expr);
+		return AdNodeRows.create(session(), IteratorUtils.EMPTY_ITERATOR, sp);		
+//		return FAKE ;
 	}
 }
 
 
 class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 
-	private TreeNode parent ;
+	private ReadSession session ;
 	private final Fqn fqn ;
-	FakeTreeNode(TreeNode parent, Fqn fqn){
-		this.parent = parent ;
+	FakeTreeNode(ReadSession session, Fqn fqn){
+		this.session = session ;
 		this.fqn = fqn ;
 	}
 	
@@ -375,12 +386,12 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 
 	@Override
 	public TreeNode<PropertyId, PropertyValue> getParent() {
-		return parent;
+		return ((ReadNodeImpl)session.pathBy(fqn.getParent(), true)).treeNode();
 	}
 
 	@Override
 	public TreeNode<PropertyId, PropertyValue> getParent(Flag... flags) {
-		return parent;
+		return ((ReadNodeImpl)session.pathBy(fqn.getParent(), true)).treeNode();
 	}
 
 	@Override
