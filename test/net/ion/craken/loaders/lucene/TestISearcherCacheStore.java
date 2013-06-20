@@ -1,7 +1,6 @@
 package net.ion.craken.loaders.lucene;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.problem.store.SampleWriteJob;
@@ -11,9 +10,6 @@ import net.ion.framework.util.RandomUtil;
 
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.loaders.file.FileCacheStore;
-import org.infinispan.lucene.cachestore.LuceneCacheLoader;
-import org.infinispan.lucene.cachestore.LuceneCacheLoaderConfig;
 
 
 public class TestISearcherCacheStore extends TestCase {

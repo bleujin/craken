@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
@@ -11,7 +12,7 @@ import java.util.Map.Entry;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
-import net.ion.craken.node.ISession;
+import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -23,17 +24,23 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
-import net.ion.craken.tree.TreeNodeImpl;
-import net.ion.framework.db.FakeRows;
 import net.ion.framework.db.Rows;
-import net.ion.framework.db.RowsImpl;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.search.filter.TermFilter;
 import net.ion.rosetta.Parser;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.context.Flag;
 
 import com.google.common.base.Function;
@@ -245,7 +252,48 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 	public final static ReadNode fake(ReadSession session, Fqn fqn){
 		return new FakeReadNode(session, new FakeTreeNode(session, fqn));
+	}
+
+	
+	@Override
+	public ChildQueryRequest childQuery(String query) throws IOException, ParseException {
+		if (StringUtil.isBlank(query)) return childQuery(new TermQuery(new Term(DocEntry.PARENT, this.fqn().toString()))) ;
+		
+		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
+		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
+		result.filter(new TermFilter(DocEntry.PARENT, this.fqn().toString())) ;
+		
+		return result;
 	} 
+	
+	public ChildQueryRequest childQuery(Query query) throws ParseException, IOException {
+		return ChildQueryRequest.create(session, session.newSearcher(), query);
+	}
+
+	
+	public ChildQueryRequest childQuery(String query, Analyzer analyzer) throws ParseException, IOException {
+		if (StringUtil.isBlank(query)){
+			return childQuery(new TermQuery(new Term(DocEntry.PARENT, this.fqn().toString()))) ;
+		}
+		
+		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
+		result.filter(new TermFilter(DocEntry.PARENT, this.fqn().toString())) ;
+		return result;
+	}
+
+	@Override
+	public ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException {
+		if (! includeAllTree) return childQuery(query) ;
+		
+		if (StringUtil.isBlank(query)) return childQuery(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith()))) ;
+		
+		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
+		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
+		result.filter(new QueryWrapperFilter(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith())))) ;
+		
+		return result;
+	}
+	
 }
 
 class FakeReadNode extends ReadNodeImpl {

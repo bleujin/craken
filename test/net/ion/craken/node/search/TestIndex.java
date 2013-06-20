@@ -1,22 +1,16 @@
 package net.ion.craken.node.search;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
-import net.ion.nsearcher.search.SearchResponse;
-
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 
 public class TestIndex extends TestBaseSearch {
 
@@ -33,7 +27,7 @@ public class TestIndex extends TestBaseSearch {
 			@Override
 			public void run() {
 				try {
-					r.testLogin("test").createRequest("bleujin").find().debugPrint();
+					r.testLogin("test").queryRequest("bleujin").find().debugPrint();
 					r.testLogin("test").tran(new TransactionJob<Void>() {
 						@Override
 						public Void handle(WriteSession wsession) {
@@ -80,8 +74,8 @@ public class TestIndex extends TestBaseSearch {
 		}
 
 		for (int i = 0; i < 100; i++) {
-			ReadSearchSession other = r.testLogin("test");
-			SearchNodeResponse response = other.createRequest("bleujin").find();
+			ReadSession other = r.testLogin("test");
+			ChildQueryResponse response = other.queryRequest("bleujin").find();
 			Debug.line(i, response.size(), response.first());
 			Thread.sleep(10);
 		}

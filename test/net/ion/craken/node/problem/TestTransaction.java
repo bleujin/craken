@@ -1,6 +1,5 @@
 package net.ion.craken.node.problem;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
 import net.ion.craken.node.TranExceptionHandler;

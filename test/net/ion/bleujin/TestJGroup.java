@@ -1,11 +1,10 @@
 package net.ion.bleujin;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.InfinityThread;
 
 import org.jgroups.tests.McastReceiverTest;
 import org.jgroups.tests.McastSenderTest;
-
-import junit.framework.TestCase;
 
 public class TestJGroup extends TestCase {
 

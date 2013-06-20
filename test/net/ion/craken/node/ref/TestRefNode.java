@@ -1,19 +1,12 @@
 package net.ion.craken.node.ref;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-
-import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.search.util.TransactionJobs;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.SetUtil;
+import net.ion.craken.node.crud.util.TransactionJobs;
 
 public class TestRefNode extends TestBaseCrud {
 

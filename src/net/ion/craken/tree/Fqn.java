@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ObjectUtil;
 
@@ -330,5 +329,9 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 	public String name() {
 		return ObjectUtil.toString(getLastElement()) ;
+	}
+
+	public String startWith() {
+		return isRoot() ? "/*" : toString() + "/*";
 	}
 }

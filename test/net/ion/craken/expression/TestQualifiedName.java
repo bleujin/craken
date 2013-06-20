@@ -3,7 +3,6 @@ package net.ion.craken.expression;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.framework.util.Debug;
 
 public class TestQualifiedName extends TestBaseCrud{
  

@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import junit.framework.TestCase;
-import net.ion.craken.io.GridFile;
-import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
@@ -16,7 +14,6 @@ import net.ion.framework.util.IOUtil;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 

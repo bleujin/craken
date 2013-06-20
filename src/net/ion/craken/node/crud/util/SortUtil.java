@@ -1,4 +1,4 @@
-package net.ion.craken.node.search.util;
+package net.ion.craken.node.crud.util;
 
 import java.util.ArrayList;
 import java.util.Collections;

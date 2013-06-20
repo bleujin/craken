@@ -5,13 +5,11 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
-
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.search.util.TransactionJobs;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;

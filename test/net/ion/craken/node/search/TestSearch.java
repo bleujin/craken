@@ -3,18 +3,14 @@ package net.ion.craken.node.search;
 
 import java.util.List;
 
-import com.google.common.base.Predicate;
-
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.search.util.ReadNodePredicate;
-import net.ion.craken.node.search.util.TransactionJobs;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.ChildQueryResponse;
+import net.ion.craken.node.crud.util.ReadNodePredicate;
+import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ListUtil;
-import net.ion.nsearcher.common.IKeywordField;
 
 public class TestSearch extends TestBaseSearch {
 	
@@ -29,7 +25,7 @@ public class TestSearch extends TestBaseSearch {
 		}) ;
 
 		// instantly search
-		SearchNodeResponse response = session.awaitIndex().createRequest("").find();
+		ChildQueryResponse response = session.queryRequest("").find();
 		assertEquals(1, response.size()) ;
 	}
 	
@@ -45,7 +41,7 @@ public class TestSearch extends TestBaseSearch {
 			}
 		}) ;
 		
-		SearchNodeResponse response = session.awaitIndex().createRequest("").skip(10).offset(10).ascending("index").find();
+		ChildQueryResponse response = session.queryRequest("").skip(10).offset(10).ascending("index").find();
 		assertEquals(10, response.size()) ;
 		assertEquals(500, response.totalCount()) ;
 	}
@@ -61,7 +57,7 @@ public class TestSearch extends TestBaseSearch {
 			}
 		}) ;
 		
-		SearchNodeResponse response = session.awaitIndex().createRequest("bleujin").find();
+		ChildQueryResponse response = session.queryRequest("bleujin").find();
 		assertEquals(1, response.size()) ;
 
 		ReadNode firstNode = response.first();
@@ -72,7 +68,7 @@ public class TestSearch extends TestBaseSearch {
 	
 	public void testOnRemove() throws Exception {
 		session.tranSync(TransactionJobs.dummyBleujin(10)) ;
-		assertEquals(10, session.awaitIndex().createRequest("bleujin").find().totalCount()) ;
+		assertEquals(10, session.queryRequest("bleujin").find().totalCount()) ;
 		
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
@@ -81,7 +77,7 @@ public class TestSearch extends TestBaseSearch {
 				return null ;
 			}
 		}) ;
-		assertEquals(0, session.awaitIndex().createRequest("bleujin").find().totalCount()) ;
+		assertEquals(0, session.queryRequest("bleujin").find().totalCount()) ;
 		
 	}
 	
@@ -97,10 +93,10 @@ public class TestSearch extends TestBaseSearch {
 			}
 		}) ;
 		
-		assertEquals(3, session.awaitIndex().createRequest("dev").find().size()) ;
+		assertEquals(3, session.queryRequest("dev").find().size()) ;
 		
 		
-		List<ReadNode> list = session.createRequest("dev").descending("name").find().predicated(ReadNodePredicate.belowAt("/emp")).toList();
+		List<ReadNode> list = session.queryRequest("dev").descending("name").find().predicated(ReadNodePredicate.belowAt("/emp")).toList();
 		Debug.line(list) ;
 	}
 	

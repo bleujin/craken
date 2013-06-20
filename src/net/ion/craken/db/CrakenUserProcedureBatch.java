@@ -1,5 +1,6 @@
 package net.ion.craken.db;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import net.ion.framework.db.IDBController;
 import net.ion.framework.db.procedure.UserProcedureBatch;
 import net.ion.framework.util.ObjectUtil;
+
+import org.apache.lucene.index.CorruptIndexException;
 
 public class CrakenUserProcedureBatch extends UserProcedureBatch {
 
@@ -41,6 +44,10 @@ public class CrakenUserProcedureBatch extends UserProcedureBatch {
 		} catch (SecurityException e) {
 			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
 		} catch (NoSuchFieldException e) {
+			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
+		} catch (CorruptIndexException e) {
+			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
+		} catch (IOException e) {
 			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
 		} 
 	}

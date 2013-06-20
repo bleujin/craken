@@ -1,5 +1,6 @@
 package net.ion.craken.db;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,6 +26,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.lucene.index.CorruptIndexException;
 
 public class CrakenManager extends DBManager {
 
@@ -54,7 +56,7 @@ public class CrakenManager extends DBManager {
 		return "craken";
 	}
 
-	public ReadSession session() {
+	public ReadSession session() throws CorruptIndexException, IOException {
 		return repository.testLogin(workspace);
 		// return repository.testLogin("test") ;
 	}
@@ -90,7 +92,7 @@ public class CrakenManager extends DBManager {
 		return this;
 	}
 
-	public int updateWith(CrakenUserProcedureBatch batch) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException, NoSuchFieldException, ExecutionException {
+	public int updateWith(CrakenUserProcedureBatch batch) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException, NoSuchFieldException, ExecutionException, CorruptIndexException, IOException {
 
 		Object result = callFunction(batch);
 
@@ -101,7 +103,7 @@ public class CrakenManager extends DBManager {
 		return -1;
 	}
 
-	public int updateWith(CrakenUserProcedure cupt) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException, NoSuchFieldException {
+	public int updateWith(CrakenUserProcedure cupt) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException, NoSuchFieldException, CorruptIndexException, IOException {
 
 		Object result = callFunction(cupt);
 
@@ -112,7 +114,7 @@ public class CrakenManager extends DBManager {
 		return -1;
 	}
 
-	private Object callFunction(UserProcedure cupt) throws SecurityException, NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+	private Object callFunction(UserProcedure cupt) throws SecurityException, NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, CorruptIndexException, IOException {
 		String packageName = StringUtil.substringBefore(cupt.getProcName(), "@");
 		String functionName = StringUtil.substringAfter(cupt.getProcName(), "@");
 
@@ -169,7 +171,7 @@ public class CrakenManager extends DBManager {
 		return (Object[]) val;
 	}
 
-	public Rows queryBy(CrakenUserProcedure cupt) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+	public Rows queryBy(CrakenUserProcedure cupt) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, CorruptIndexException, IOException {
 		Object result = callFunction(cupt);
 		if (result == null || (!Rows.class.isInstance(result)))
 			throw new IllegalStateException("returnType must be rows");

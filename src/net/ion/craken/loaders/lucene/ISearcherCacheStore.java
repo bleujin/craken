@@ -1,10 +1,8 @@
 package net.ion.craken.loaders.lucene;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,15 +15,8 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
-import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.parse.gson.JsonParser;
-import net.ion.framework.util.CollectionUtil;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
@@ -42,18 +33,13 @@ import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.config.ConfigurationException;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.container.entries.InternalCacheEntry;
-import org.infinispan.container.entries.MortalCacheEntry;
-import org.infinispan.container.entries.MortalCacheValue;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
@@ -65,13 +51,8 @@ import org.infinispan.lucene.InfinispanDirectory;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.marshall.StreamingMarshaller;
 
-import sun.swing.StringUIClientPropertyKey;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 @CacheLoaderMetadata(configurationClass = ISearcherCacheStoreConfig.class)
 public class ISearcherCacheStore extends AbCacheStore {
@@ -239,19 +220,18 @@ public class ISearcherCacheStore extends AbCacheStore {
 	private WriteDocument toWriteDocument(InternalCacheEntry entry) {
 		TreeNodeKey key = (TreeNodeKey) entry.getKey();
 		AtomicMap value = (AtomicMap) entry.getValue();
+		final WriteDocument doc = MyDocument.newDocument(key.idString());
 
 		JsonObject jobj = new JsonObject();
-		jobj.addProperty(NodeEntry.ID, key.idString());
-		jobj.addProperty(NodeEntry.LASTMODIFIED, System.currentTimeMillis());
-		jobj.add(NodeEntry.PROPS, fromMapToJson(key, value));
+		jobj.addProperty(DocEntry.ID, key.idString());
+		jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
+		jobj.add(DocEntry.PROPS, fromMapToJson(doc, key, value));
 
-		MyField dataField = MyField.manual(NodeEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED);
-		final WriteDocument doc = MyDocument.newDocument(key.idString());
-		doc.add(dataField);
+		doc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
 		return doc;
 	}
 
-	private final static JsonObject fromMapToJson(TreeNodeKey key, Map _map) {
+	private final static JsonObject fromMapToJson(WriteDocument doc, TreeNodeKey key, Map _map) {
 		if (key.getContents() == Type.STRUCTURE) {
 			JsonObject jso = new JsonObject();
 			AtomicMap<String, Fqn> map = (AtomicMap<String, Fqn>) _map;
@@ -262,8 +242,17 @@ public class ISearcherCacheStore extends AbCacheStore {
 		} else {
 			JsonObject jso = new JsonObject();
 			AtomicMap<PropertyId, PropertyValue> map = (AtomicMap<PropertyId, PropertyValue>) _map;
+			String parentPath = key.getFqn().isRoot() ? "" : key.getFqn().getParent().toString();
+			doc.keyword(DocEntry.PARENT, parentPath) ;
+			
 			for (Entry<PropertyId, PropertyValue> entry : map.entrySet()) {
-				jso.add(entry.getKey().idString(), entry.getValue().asJsonArray());
+				final String pstring = entry.getKey().idString(); // if type == refer, @
+				final PropertyValue pvalue = entry.getValue();
+				jso.add(pstring, pvalue.asJsonArray());
+				
+				for(Object e : pvalue.asSet()){
+					doc.unknown(pstring, e) ;
+				}
 			}
 			return jso;
 		}
@@ -281,7 +270,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 			if (read == null) {
 				return null;
 			}
-			InternalCacheEntry readObject = NodeEntry.create(JsonObject.fromString(read.get(NodeEntry.VALUE)));
+			InternalCacheEntry readObject = DocEntry.create(JsonObject.fromString(read.get(DocEntry.VALUE)));
 			if (readObject != null && readObject.isExpired(System.currentTimeMillis())) {
 				return null;
 			}
@@ -296,17 +285,17 @@ public class ISearcherCacheStore extends AbCacheStore {
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		try {
-			SearchResponse response = central.newSearcher().createRequest("").selections(NodeEntry.VALUE).offset(numEntries).find();
+			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
 			for (ReadDocument readDocument : docs) {
 				InternalCacheEntry ice = readDocument.transformer(new Function<ReadDocument, InternalCacheEntry>() {
 					@Override
 					public InternalCacheEntry apply(ReadDocument doc) {
-						String valueJson = doc.get(NodeEntry.VALUE);
+						String valueJson = doc.get(DocEntry.VALUE);
 						if (StringUtil.isBlank(valueJson))
 							return null;
-						return NodeEntry.create(JsonObject.fromString(valueJson));
+						return DocEntry.create(JsonObject.fromString(valueJson));
 					}
 				});
 				if (ice == null)
@@ -330,14 +319,14 @@ public class ISearcherCacheStore extends AbCacheStore {
 	@Override
 	public Set<Object> loadAllKeys(Set<Object> keysToExclude) throws CacheLoaderException {
 		try {
-			SearchResponse response = central.newSearcher().createRequest("").selections(NodeEntry.VALUE).find();
+			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 
 			Set<Object> result = new HashSet<Object>();
 			for (ReadDocument readDocument : docs) {
 				TreeNodeKey key = readDocument.transformer(new Function<ReadDocument, TreeNodeKey>() {
 					public TreeNodeKey apply(ReadDocument readDoc) {
-						String idString = JsonObject.fromString(readDoc.get(NodeEntry.VALUE)).asString(NodeEntry.ID);
+						String idString = JsonObject.fromString(readDoc.get(DocEntry.VALUE)).asString(DocEntry.ID);
 						return TreeNodeKey.fromString(idString);
 					}
 				});
@@ -352,73 +341,6 @@ public class ISearcherCacheStore extends AbCacheStore {
 		} catch (ParseException ex) {
 			throw new CacheLoaderException(ex);
 		}
-	}
-
-}
-
-class NodeEntry extends MortalCacheEntry {
-
-	static final String VALUE = "__value";
-
-	static final String ID = "__id";
-	static final String PROPS = "__props";
-	static final String LASTMODIFIED = "__lastmodified";
-
-	protected NodeEntry(Object key, MortalCacheValue cacheValue) {
-		super(key, cacheValue);
-	}
-
-	public static InternalCacheEntry create(JsonObject raw) {
-		TreeNodeKey nodeKey = TreeNodeKey.fromString(raw.asString(ID));
-
-		if (nodeKey.getContents() == Type.DATA)
-			return createDataEntry(nodeKey, raw);
-		else
-			return createStruEntry(nodeKey, raw);
-	}
-
-	// public static Collection<NodeEntry> creates(JsonObject raw) {
-	// return ListUtil.toList(create(raw));
-	// }
-
-	private static NodeEntry createStruEntry(TreeNodeKey nodeKey, JsonObject raw) {
-		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
-		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
-
-		JsonObject props = raw.getAsJsonObject(PROPS);
-		for (Entry<String, JsonElement> entry : props.entrySet()) {
-			String pkey = entry.getKey();
-			String absoluteFqn = entry.toString();
-			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
-		}
-
-		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
-		final NodeEntry create = new NodeEntry(nodeKey, mvalue);
-		return create;
-	}
-
-	private static NodeEntry createDataEntry(TreeNodeKey nodeKey, JsonObject raw) {
-		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
-		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
-
-		JsonObject props = raw.getAsJsonObject(PROPS);
-		for (Entry<String, JsonElement> entry : props.entrySet()) {
-			String pkey = entry.getKey();
-			JsonElement pvalue = entry.getValue();
-			if (pvalue.isJsonArray()) {
-				PropertyValue arrayValue = PropertyValue.createPrimitive(null);
-				for (JsonElement jele : (JsonArray) pvalue) {
-					arrayValue.append(jele.getAsJsonPrimitive().getValue());
-				}
-				nodeValue.put(PropertyId.fromIdString(pkey), arrayValue);
-			} else {
-				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.getAsJsonPrimitive().getValue()));
-			}
-		}
-
-		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
-		final NodeEntry create = new NodeEntry(nodeKey, mvalue);
-		return create;
 	}
 
 }

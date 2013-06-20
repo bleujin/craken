@@ -1,10 +1,7 @@
 package net.ion.craken.node.crud;
 
-import com.google.common.collect.Ordering;
-
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.framework.util.Debug;
 
 public class TestPredicate extends TestBaseCrud{
 

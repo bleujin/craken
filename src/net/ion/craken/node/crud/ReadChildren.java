@@ -16,7 +16,7 @@ import net.ion.craken.node.convert.rows.AdNodeRows;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.convert.rows.ConstantColumn;
 import net.ion.craken.node.convert.rows.CrakenNodeRows;
-import net.ion.craken.node.search.util.SortUtil;
+import net.ion.craken.node.crud.util.SortUtil;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;

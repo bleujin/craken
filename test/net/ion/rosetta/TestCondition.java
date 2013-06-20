@@ -1,24 +1,10 @@
 package net.ion.rosetta;
 
 import junit.framework.TestCase;
-import net.ion.craken.node.ReadNode;
-import net.ion.framework.util.Debug;
-import net.ion.rosetta.OperatorTable;
-import net.ion.rosetta.Parser;
-import net.ion.rosetta.Parsers;
-import net.ion.rosetta.Scanners;
-import net.ion.rosetta.Terminals;
 import net.ion.rosetta.functors.Binary;
 import net.ion.rosetta.functors.Map;
-import net.ion.rosetta.functors.Map2;
-import net.ion.rosetta.functors.Unary;
 import net.ion.rosetta.node.BinaryExpression;
 import net.ion.rosetta.node.Expression;
-import net.ion.rosetta.pattern.Pattern;
-import net.ion.rosetta.pattern.Patterns;
-
-
-import com.google.common.base.Predicate;
 
 public class TestCondition extends TestCase {
 	

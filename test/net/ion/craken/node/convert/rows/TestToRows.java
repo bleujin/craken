@@ -2,8 +2,7 @@ package net.ion.craken.node.convert.rows;
 
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.ReadChildren;
-import net.ion.craken.node.search.SearchNodeResponse;
+import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.craken.node.search.TestBaseSearch;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Row;
@@ -31,12 +30,12 @@ public class TestToRows extends TestBaseSearch {
 			}
 		}) ;
 		
-		session.awaitIndex() ;
+		
 	}
 
 	public void testFirst() throws Exception {
 		long start = System.currentTimeMillis() ;
-		session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(10).find().debugPrint() ;
+		session.queryRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(10).find().debugPrint() ;
 		Debug.line(System.currentTimeMillis() - start) ;
 	}
 	
@@ -48,7 +47,7 @@ public class TestToRows extends TestBaseSearch {
 	
 	public void testChildProperty() throws Exception {
 		long start = System.currentTimeMillis() ;
-		final SearchNodeResponse find = session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
+		final ChildQueryResponse find = session.queryRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
 		long mid = System.currentTimeMillis() ;
 		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, parent.name boardname") ;
 		
@@ -74,7 +73,7 @@ public class TestToRows extends TestBaseSearch {
 			}
 		}) ;
 		
-		final SearchNodeResponse find = session.createRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
+		final ChildQueryResponse find = session.queryRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
 		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, register.age age") ;
 		
 		Row first = rows.firstRow();
@@ -88,7 +87,7 @@ public class TestToRows extends TestBaseSearch {
 	
 	public void testRefTo() throws Exception {
 
-		Rows rows = session.createRequest("").descending("index").skip(10).offset(2)
+		Rows rows = session.queryRequest("").descending("index").skip(10).offset(2)
 			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name, substring(this.writer, 2) writer, index, address.city acity, address.city, register.age age") ;
 		
 		Row first = rows.firstRow();

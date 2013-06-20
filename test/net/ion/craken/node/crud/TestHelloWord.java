@@ -1,10 +1,10 @@
 package net.ion.craken.node.crud;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import junit.framework.TestCase;
 
 public class TestHelloWord extends TestCase {
 

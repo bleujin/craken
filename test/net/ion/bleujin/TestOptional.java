@@ -2,15 +2,11 @@ package net.ion.bleujin;
 
 import java.util.Map;
 
-import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
 import com.google.common.base.Optional;
-
-import junit.framework.TestCase;
 
 public class TestOptional extends TestBaseCrud {
 

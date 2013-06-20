@@ -1,13 +1,12 @@
 package net.ion.craken.tree;
 
-import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicHashMap;
-
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
+
+import org.infinispan.Cache;
+import org.infinispan.atomic.AtomicHashMap;
 
 public class TestTreeModel extends TestBaseCrud {
 

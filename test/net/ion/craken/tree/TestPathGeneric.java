@@ -2,7 +2,6 @@ package net.ion.craken.tree;
 
 import junit.framework.TestCase;
 
-import org.infinispan.Cache;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;

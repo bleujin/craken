@@ -1,10 +1,8 @@
 package net.ion.craken.expression;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
-
-
-import junit.framework.TestCase;
 
 public class TestExpressionParser extends TestCase {
 

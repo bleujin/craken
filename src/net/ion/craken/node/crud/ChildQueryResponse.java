@@ -1,4 +1,4 @@
-package net.ion.craken.node.search;
+package net.ion.craken.node.crud;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -12,8 +12,9 @@ import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.rows.AdNodeRows;
-import net.ion.craken.node.search.util.PredicateArgument;
+import net.ion.craken.node.crud.util.PredicateArgument;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
@@ -28,15 +29,15 @@ import org.apache.ecs.xml.XML;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
-public class SearchNodeResponse {
+public class ChildQueryResponse {
 
 	private SearchResponse response;
 	private List<Fqn> found ;
-	private ReadSearchSession session ;
+	private ReadSession session ;
 	
 //	private final ColumnParser cparser ;
 	
-	public SearchNodeResponse(ReadSearchSession session, SearchResponse response) {
+	public ChildQueryResponse(ReadSession session, SearchResponse response) {
 		this.session = session ;
 		this.response = response ;
 //		this.cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
@@ -58,8 +59,8 @@ public class SearchNodeResponse {
 	}
 	
 	
-	public static SearchNodeResponse create(ReadSearchSession session, SearchResponse response) {
-		return new SearchNodeResponse(session, response);
+	public static ChildQueryResponse create(ReadSession session, SearchResponse response) {
+		return new ChildQueryResponse(session, response);
 	}
 
 	public ReadNode first() {
@@ -75,8 +76,8 @@ public class SearchNodeResponse {
 	}
 
 	public int size() {
-		return response.totalCount() ;
-//		return response.getDocument().size();
+//		return response.totalCount() ;
+		return found().size();
 	}
 
 	public void debugPrint() throws IOException {
@@ -114,7 +115,7 @@ public class SearchNodeResponse {
 		return PredicatedResponse.create(predicate, result);
 	}
 
-	public <T> T transformer(Function<SearchNodeResponse, T> function) {
+	public <T> T transformer(Function<ChildQueryResponse, T> function) {
 		return function.apply(this) ;
 	}
 

@@ -1,8 +1,7 @@
 package net.ion.craken.node.crud;
 
-import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.Repository;
 import junit.framework.TestCase;
+import net.ion.craken.node.ReadSession;
 
 public class TestBaseCrud extends TestCase {
 

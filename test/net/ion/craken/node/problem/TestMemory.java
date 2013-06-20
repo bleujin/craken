@@ -9,19 +9,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.lucene.analysis.payloads.AbstractEncoder;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-
 import junit.framework.TestCase;
-
 import net.ion.craken.AbstractEntry;
 import net.ion.craken.Craken;
 import net.ion.craken.EntryKey;
 import net.ion.craken.LegContainer;
 import net.ion.craken.simple.EmanonKey;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ListUtil;
@@ -30,6 +24,9 @@ import net.ion.nradon.Radon;
 import net.ion.radon.core.Aradon;
 import net.ion.radon.impl.let.HelloWorldLet;
 import net.ion.radon.util.AradonTester;
+
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
 
 public class TestMemory extends TestCase {
 	private Radon radon;

@@ -1,7 +1,6 @@
 package net.ion.craken.node.crud;
 
 import net.ion.craken.node.Credential;
-import net.ion.framework.util.Debug;
 
 public class TestReadSession extends TestBaseCrud {
 

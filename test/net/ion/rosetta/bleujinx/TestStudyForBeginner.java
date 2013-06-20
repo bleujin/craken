@@ -2,6 +2,7 @@ package net.ion.rosetta.bleujinx;
 
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
@@ -12,11 +13,6 @@ import net.ion.rosetta.node.Expression;
 import net.ion.rosetta.node.RectExpression;
 import net.ion.rosetta.node.RotateExpression;
 import net.ion.rosetta.node.TranslateExpression;
-
-
-import scala.reflect.generic.UnPickler.Scan;
-
-import junit.framework.TestCase;
 
 public class TestStudyForBeginner extends TestCase{
 

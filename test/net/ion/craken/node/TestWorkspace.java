@@ -3,24 +3,19 @@ package net.ion.craken.node;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.tree.TreeNode;
-
 import junit.framework.TestCase;
-
-import org.apache.ecs.xhtml.map;
-import org.infinispan.atomic.AtomicHashMap;
-import org.infinispan.distexec.mapreduce.Collector;
-import org.infinispan.distexec.mapreduce.MapReduceTask;
-import org.infinispan.distexec.mapreduce.Mapper;
-import org.infinispan.distexec.mapreduce.Reducer;
-
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
+
+import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.distexec.mapreduce.Collector;
+import org.infinispan.distexec.mapreduce.MapReduceTask;
+import org.infinispan.distexec.mapreduce.Mapper;
+import org.infinispan.distexec.mapreduce.Reducer;
 
 public class TestWorkspace extends TestCase {
 

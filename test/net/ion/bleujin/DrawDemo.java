@@ -1,10 +1,7 @@
 package net.ion.bleujin;
 
-import net.ion.framework.util.InfinityThread;
-
-import org.infinispan.util.InfinispanCollections;
-
 import junit.framework.TestCase;
+import net.ion.framework.util.InfinityThread;
 
 public class DrawDemo extends TestCase {
 

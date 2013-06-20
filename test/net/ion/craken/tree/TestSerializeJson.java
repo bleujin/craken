@@ -6,9 +6,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Date;
 
-import net.ion.framework.parse.gson.JsonParser;
-import net.ion.framework.util.Debug;
 import junit.framework.TestCase;
+import net.ion.framework.util.Debug;
 
 public class TestSerializeJson extends TestCase {
 

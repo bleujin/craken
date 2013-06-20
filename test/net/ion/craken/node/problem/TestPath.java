@@ -5,7 +5,6 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.tree.Fqn;
-import net.ion.framework.util.Debug;
 
 public class TestPath extends TestBaseCrud{
 	

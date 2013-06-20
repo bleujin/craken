@@ -1,6 +1,5 @@
 package net.ion.craken.backup;
 
-import net.ion.craken.backup.MongoBackupListener;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.Functions;

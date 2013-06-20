@@ -1,12 +1,8 @@
 package net.ion.craken.loaders;
 
-import java.lang.reflect.Field;
-
 import junit.framework.TestCase;
-
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.InfinityThread;
 import net.ion.neo.Credential;
 import net.ion.neo.NeoRepository;
 import net.ion.neo.ReadSession;
@@ -15,23 +11,17 @@ import net.ion.neo.WriteNode;
 import net.ion.neo.WriteRelationship;
 import net.ion.neo.WriteSession;
 import net.ion.neo.NeoWorkspace.RelType;
-import net.ion.nsearcher.search.analyzer.MyKoreanAnalyzer;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.infinispan.Cache;
-import org.infinispan.configuration.cache.AbstractLoaderConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.cache.SingletonStoreConfiguration;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.util.InfinispanCollections;
 import org.neo4j.graphdb.Direction;
-
-import scala.reflect.generic.Trees.Star;
 
 public class TestNeoNodeCacheStore extends TestCase {
 

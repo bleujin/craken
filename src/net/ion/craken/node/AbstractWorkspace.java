@@ -14,19 +14,21 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.schedule.IExecutor;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
+import net.ion.nsearcher.config.Central;
 
 public abstract class AbstractWorkspace implements Workspace{
 	
 
 	private Repository repository;
+	private Central central ;
 	private String wsName;
 	private TreeCache<PropertyId, PropertyValue> treeCache;
 
-	protected AbstractWorkspace(Repository repository, TreeCache<PropertyId, PropertyValue> treeCache, String wsName) {
+	protected AbstractWorkspace(Repository repository, Central central, TreeCache<PropertyId, PropertyValue> treeCache, String wsName) {
 		this.repository = repository;
+		this.central = central ;
 		this.wsName = wsName;
 		this.treeCache = treeCache;
 
@@ -176,7 +178,10 @@ public abstract class AbstractWorkspace implements Workspace{
 		return BlobProxy.create(fqnPath) ;
 	}
 
-
+	@Override
+	public Central central() {
+		return central;
+	}
 
 	public IExecutor executor() {
 		return repository.executor() ;

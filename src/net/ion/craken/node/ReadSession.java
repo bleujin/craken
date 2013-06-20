@@ -1,12 +1,19 @@
 package net.ion.craken.node;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.mr.NodeMapReduce;
-import net.ion.craken.node.search.ReadSearchSession;
+import net.ion.craken.node.crud.ChildQueryRequest;
+import net.ion.craken.node.crud.IndexInfoHandler;
 import net.ion.craken.tree.Fqn;
+import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.search.Searcher;
+
+import org.apache.lucene.queryParser.ParseException;
 
 import com.google.common.base.Function;
 
@@ -33,5 +40,17 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public <Ri, Rv> Map<Ri, Rv> mapReduceSync(NodeMapReduce<Ri, Rv> mapper) throws InterruptedException, ExecutionException;
 
-	public ReadSession awaitIndex() throws InterruptedException, ExecutionException ;
+	@Deprecated
+	public ReadSession awaitListener() throws InterruptedException, ExecutionException ;
+
+	public Searcher newSearcher() throws IOException;
+
+	public Central central();
+
+	public <T> T getIndexInfo(IndexInfoHandler<T> indexInfo);
+
+	public ChildQueryRequest queryRequest(String string) throws IOException, ParseException;
+
+	@Deprecated
+	public Future<AtomicInteger> reIndex(ReadNode topNode);
 }

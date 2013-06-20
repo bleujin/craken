@@ -9,13 +9,9 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.search.ReadSearchSession;
-import net.ion.craken.node.search.RepositorySearch;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
-import net.ion.framework.util.StringUtil;
 
 
 public class TestMany extends TestCase {
@@ -49,9 +45,9 @@ public class TestMany extends TestCase {
 	
 	public void testMWithSearch() throws Exception {
 
-		RepositorySearch r = RepositoryImpl.testSingle().forSearch() ;
+		RepositoryImpl r = RepositoryImpl.testSingle()  ;
 		r.start() ;
-		ReadSearchSession session = r.testLogin("test");
+		ReadSession session = r.testLogin("test");
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -65,14 +61,14 @@ public class TestMany extends TestCase {
 		}).get() ;
 
 		int i = 0 ;
-		final IteratorList<ReadNode> children = session.awaitIndex().root().children();
+		final IteratorList<ReadNode> children = session.root().children();
 		while(children.hasNext()) {
 			i++ ;
 			children.next() ;
 		}
 		Debug.line(i) ;
 		
-		Debug.line(session.createRequest("").find().totalCount()) ;
+		Debug.line(session.queryRequest("").find().totalCount()) ;
 		r.shutdown() ;
 	}
 	

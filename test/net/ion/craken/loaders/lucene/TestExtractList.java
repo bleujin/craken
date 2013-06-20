@@ -3,15 +3,13 @@ package net.ion.craken.loaders.lucene;
 import java.util.HashSet;
 import java.util.List;
 
+import junit.framework.TestCase;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.ListUtil;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.google.common.collect.Lists;
-
-
-import net.ion.framework.util.CollectionUtil;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
-import junit.framework.TestCase;
 
 public class TestExtractList extends TestCase {
 

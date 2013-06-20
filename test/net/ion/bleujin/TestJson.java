@@ -3,12 +3,12 @@ package net.ion.bleujin;
 import java.io.StringReader;
 import java.util.ArrayList;
 
+import junit.framework.TestCase;
 import net.ion.framework.parse.gson.JsonNull;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.parse.gson.stream.JsonToken;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestJson extends TestCase {
 

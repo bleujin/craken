@@ -2,7 +2,6 @@ package net.ion.craken.node.convert.sample;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 
 public class Dept implements Serializable {

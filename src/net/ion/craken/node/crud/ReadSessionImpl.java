@@ -1,11 +1,27 @@
 package net.ion.craken.node.crud;
 
+import java.io.IOException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.node.AbstractReadSession;
 import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
-import net.ion.craken.node.search.ReadSearchSession;
+import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.ReadNode;
+import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.WriteDocument;
+import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
+import net.ion.nsearcher.search.Searcher;
+
+import org.apache.lucene.queryParser.ParseException;
 
 
 public class ReadSessionImpl extends AbstractReadSession{
@@ -15,10 +31,63 @@ public class ReadSessionImpl extends AbstractReadSession{
 	}
 
 	@Override
-	public ReadSessionImpl awaitIndex() throws InterruptedException, ExecutionException {
+	public ReadSessionImpl awaitListener() throws InterruptedException, ExecutionException {
 		
 		return this;
 	}
 
+	@Override
+	public Searcher newSearcher() throws IOException {
+		return central().newSearcher();
+	}
+
+
+	@Override
+	public <T> T getIndexInfo(IndexInfoHandler<T> indexInfo) {
+		return indexInfo.handle(this, central().newReader());
+	}
+
 	
+	public Future<AtomicInteger> reIndex(final ReadNode top) {
+		return null ;
+		
+//		return central().newIndexer().asyncIndex(new IndexJob<AtomicInteger>() {
+//			private AtomicInteger aint = new AtomicInteger() ;
+//			@Override
+//			public AtomicInteger handle(IndexSession is) throws Exception {
+//				index(is, top) ;
+//				return aint ;
+//			}
+//			
+//			private void index(IndexSession is, ReadNode node) throws IOException{
+//				IteratorList<ReadNode> iter = node.children();
+//				while(iter.hasNext()){
+//					index(is, iter.next()) ;
+//				}
+//				is.updateDocument(makeDocument(node));
+//				aint.incrementAndGet() ;
+//			}
+//			
+//			private WriteDocument makeDocument(ReadNode node){
+//				Fqn fqn = node.fqn() ;
+//				WriteDocument doc = MyDocument.newDocument(fqn.toString());
+//				doc.keyword(NodeCommon.NameProp, fqn.getLastElementAsString());
+//				for (PropertyId nodeKey : node.keys()) {
+//					doc.unknown(nodeKey.getString(), node.property(nodeKey.getString()).value());
+//				}
+//				
+//				return doc ;
+//			}
+//		});
+	}
+
+	public Central central() {
+		return workspace().central();
+	}
+
+	
+	@Override
+	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {
+		return root().childQuery(query, true);
+	}
 }

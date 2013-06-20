@@ -30,15 +30,12 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 		
-		session.awaitIndex() ;
-		
-		ReadNode readNode = session.createRequest("name:bleujin").find().first();
+		ReadNode readNode = session.queryRequest("name:bleujin").find().first();
 		
 		assertEquals("bleujin", readNode.property("name").value()) ;
 		assertEquals(15, readNode.property("age").value()) ;
 		
-		
-		assertEquals(3, session.createRequest("").find().toList().size()) ;
+		assertEquals(7, session.queryRequest("").find().toList().size()) ;
 		
 //		new InfinityThread().startNJoin() ;
 	}
@@ -52,7 +49,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 		
-		ReadNode readNode = session.awaitIndex().createRequest("name:bleujin").find().first();
+		ReadNode readNode = session.queryRequest("name:bleujin").find().first();
 		assertEquals(15, readNode.property("age").value()) ;
 		
 		session.tran(new TransactionJob<Void>() {
@@ -63,7 +60,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 
-	 	assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
+	 	assertEquals(0, session.queryRequest("").find().toList().size()) ;
 	}
 	
 
@@ -76,7 +73,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 		
-		ReadNode readNode = session.awaitIndex().createRequest("name:bleujin").find().first();
+		ReadNode readNode = session.queryRequest("name:bleujin").find().first();
 		assertEquals(15, readNode.property("age").value()) ;
 		
 		session.tran(new TransactionJob<Void>() {
@@ -87,7 +84,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 
-	 	assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
+	 	assertEquals(0, session.awaitListener().queryRequest("").find().toList().size()) ;
 	}
 	
 	
@@ -102,7 +99,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 		
-		assertEquals(2, session.awaitIndex().createRequest("").find().toList().size()) ;
+		assertEquals(3, session.queryRequest("").find().toList().size()) ;
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -112,7 +109,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 
-		assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
+		assertEquals(1, session.queryRequest("").find().toList().size()) ;
 		
 //	 	assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
 	}
@@ -128,7 +125,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 		
-		assertEquals(3, session.awaitIndex().createRequest("").find().toList().size()) ;
+		assertEquals(4, session.queryRequest("").find().toList().size()) ;
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -138,7 +135,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 
-		assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
+		assertEquals(1, session.queryRequest("").find().toList().size()) ;
 		
 //	 	assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
 	}

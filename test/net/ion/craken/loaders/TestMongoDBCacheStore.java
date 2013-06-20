@@ -3,16 +3,7 @@ package net.ion.craken.loaders;
 import java.io.Serializable;
 import java.util.List;
 
-import net.ion.craken.loaders.NewMongoDBCacheStore;
-import net.ion.framework.db.DBController;
-import net.ion.framework.db.IDBController;
-import net.ion.framework.db.manager.OracleCacheDBManager;
-import net.ion.framework.db.manager.OracleDBManager;
-import net.ion.framework.db.manager.OraclePoolDBManager;
-import net.ion.framework.db.mongo.jdbc.MongoConnection;
-import net.ion.framework.parse.gson.JsonElement;
-import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.parse.gson.JsonParser;
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
@@ -24,11 +15,6 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-import org.jboss.marshalling.SerializabilityChecker;
-
-import scala.actors.threadpool.Arrays;
-
-import junit.framework.TestCase;
 
 public class TestMongoDBCacheStore extends TestCase {
 

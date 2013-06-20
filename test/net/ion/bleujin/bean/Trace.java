@@ -1,7 +1,10 @@
 package net.ion.bleujin.bean;
 
-import net.sf.cglib.proxy.*;
-import java.util.*;
+import java.util.Arrays;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 /***
  * 

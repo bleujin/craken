@@ -1,0 +1,87 @@
+package net.ion.craken.loaders.lucene;
+
+import java.util.Map.Entry;
+
+import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.tree.TreeNodeKey;
+import net.ion.craken.tree.TreeNodeKey.Type;
+import net.ion.framework.parse.gson.JsonArray;
+import net.ion.framework.parse.gson.JsonElement;
+import net.ion.framework.parse.gson.JsonObject;
+
+import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.container.entries.InternalCacheEntry;
+import org.infinispan.container.entries.MortalCacheEntry;
+import org.infinispan.container.entries.MortalCacheValue;
+
+public 
+class DocEntry extends MortalCacheEntry {
+
+	static final String VALUE = "__value";
+
+	static final String ID = "__id";
+	static final String LASTMODIFIED = "__lastmodified";
+	static final String PROPS = "__props";
+	
+	
+	public static final String PARENT = "__parent" ;
+	protected DocEntry(Object key, MortalCacheValue cacheValue) {
+		super(key, cacheValue);
+	}
+
+	public static InternalCacheEntry create(JsonObject raw) {
+		TreeNodeKey nodeKey = TreeNodeKey.fromString(raw.asString(ID));
+
+		if (nodeKey.getContents() == Type.DATA)
+			return createDataEntry(nodeKey, raw);
+		else
+			return createStruEntry(nodeKey, raw);
+	}
+
+	// public static Collection<NodeEntry> creates(JsonObject raw) {
+	// return ListUtil.toList(create(raw));
+	// }
+
+	private static DocEntry createStruEntry(TreeNodeKey nodeKey, JsonObject raw) {
+		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
+		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
+
+		JsonObject props = raw.getAsJsonObject(PROPS);
+		for (Entry<String, JsonElement> entry : props.entrySet()) {
+			String pkey = entry.getKey();
+			String absoluteFqn = entry.toString();
+			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
+		}
+
+		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
+		final DocEntry create = new DocEntry(nodeKey, mvalue);
+		return create;
+	}
+
+	private static DocEntry createDataEntry(TreeNodeKey nodeKey, JsonObject raw) {
+		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
+		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
+
+		JsonObject props = raw.getAsJsonObject(PROPS);
+		for (Entry<String, JsonElement> entry : props.entrySet()) {
+			String pkey = entry.getKey();
+			JsonElement pvalue = entry.getValue();
+			if (pvalue.isJsonArray()) {
+				PropertyValue arrayValue = PropertyValue.createPrimitive(null);
+				for (JsonElement jele : (JsonArray) pvalue) {
+					arrayValue.append(jele.getAsJsonPrimitive().getValue());
+				}
+				nodeValue.put(PropertyId.fromIdString(pkey), arrayValue);
+			} else {
+				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.getAsJsonPrimitive().getValue()));
+			}
+		}
+
+		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
+		final DocEntry create = new DocEntry(nodeKey, mvalue);
+		return create;
+	}
+
+}

@@ -1,4 +1,4 @@
-package net.ion.craken.node.search.util;
+package net.ion.craken.node.crud.util;
 
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;

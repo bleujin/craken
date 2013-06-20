@@ -1,32 +1,16 @@
 package net.ion.craken.node.problem.store;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.WriteNode;
-import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.problem.TestConfig;
-import net.ion.craken.node.search.ReadSearchSession;
-import net.ion.craken.node.search.RepositorySearch;
-import net.ion.craken.node.search.util.ReadNodePredicate;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
-import net.ion.nsearcher.common.MyDocument;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.reader.InfoReader.InfoHandler;
 import net.ion.nsearcher.search.Searcher;
-import net.ion.radon.impl.util.CsvReader;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.util.ReaderUtil;
@@ -36,8 +20,7 @@ import org.infinispan.loaders.file.FileCacheStore;
 
 public class TestStoreInfinispanDir extends TestCase {
 
-	private ReadSearchSession session;
-	private RepositorySearch rs;
+	private ReadSession session;
 	private RepositoryImpl r;
 
 
@@ -65,13 +48,12 @@ public class TestStoreInfinispanDir extends TestCase {
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
 
 		
-		this.rs = r.forSearch();
-		this.session = rs.testLogin("test");
+		this.session = r.testLogin("test");
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		rs.shutdown();
+		r.shutdown();
 		super.tearDown();
 	}
 
@@ -88,7 +70,7 @@ public class TestStoreInfinispanDir extends TestCase {
 		Debug.line(searcher.createRequest("").find().totalCount(), System.currentTimeMillis() - start) ;
 		// new InfinityThread().startNJoin();
 
-		int totalCount = session.createRequest("").page(Page.ALL).find().totalCount() ;
+		int totalCount = session.root().childQuery("").page(Page.ALL).find().totalCount() ;
 		Debug.line(totalCount, System.currentTimeMillis() - start) ;
 		
 		central.close() ;
@@ -139,7 +121,6 @@ public class TestStoreInfinispanDir extends TestCase {
 
 		long start = System.currentTimeMillis();
 		session.tranSync(new SampleWriteJob(10000));
-		session.awaitIndex() ;
 		Debug.line(System.currentTimeMillis() - start);
 		
 		session.pathBy("/copy1").children().debugPrint() ;

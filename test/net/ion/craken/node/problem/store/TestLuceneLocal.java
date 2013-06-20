@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 
 import junit.framework.TestCase;
-
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.common.SearchConstant;

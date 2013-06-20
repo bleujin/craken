@@ -1,10 +1,7 @@
 package net.ion.craken.db;
 
-import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedures;
-import net.ion.framework.db.servant.StdOutServant;
 
 public class TestUserProcedures extends TestBaseProcedure {
 

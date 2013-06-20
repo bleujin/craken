@@ -4,12 +4,10 @@ import java.sql.ResultSetMetaData;
 import java.util.List;
 
 import net.ion.craken.node.ReadNode;
-import net.ion.craken.node.search.util.TransactionJobs;
+import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.db.Page;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
-
-import com.google.common.base.Predicate;
 
 public class TestReadChildren extends TestBaseCrud {
 

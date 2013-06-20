@@ -11,6 +11,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.schedule.IExecutor;
+import net.ion.nsearcher.config.Central;
 
 import org.infinispan.notifications.Listener;
 
@@ -44,5 +45,8 @@ public interface Workspace {
 	public IExecutor executor();
 
 	public Workspace continueUnit(WriteSession wsession) ;
+
+	public Central central();
+
 
 }

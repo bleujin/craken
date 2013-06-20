@@ -2,14 +2,12 @@ package net.ion.craken.node.crud.property;
 
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.framework.util.ArrayUtil;
 
 public class TestAppend extends TestBaseCrud {
 

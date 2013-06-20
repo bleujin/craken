@@ -3,11 +3,12 @@ package net.ion.craken.node.search;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 
-public class TestReIndex extends TestBaseCrud {
+public class TestReIndex extends TestBaseSearch {
 
 	public void testReIndex() throws Exception {
 		session.tranSync(new TransactionJob<Void>() {
@@ -19,14 +20,11 @@ public class TestReIndex extends TestBaseCrud {
 		}) ;
 		
 		
-		RepositorySearch rs = r.forSearch();
-		ReadSearchSession ss = rs.testLogin(session.workspace().wsName());
-		
-		assertEquals(0, ss.createRequest("").find().size()) ; 
+		assertEquals(1, session.queryRequest("").find().size()) ; 
 
-		Future<AtomicInteger> future = ss.reIndex(ss.root());
-		assertEquals(1, future.get().get()) ;
-		assertEquals(1, ss.createRequest("").find().size()) ; 
+		Future<AtomicInteger> future = session.reIndex(session.root());
+		assertEquals(2, future.get().get()) ; // root, bleujin
+		assertEquals(0, session.queryRequest("").find().size()) ; 
 	}
 	
 	

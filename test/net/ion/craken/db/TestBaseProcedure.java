@@ -1,11 +1,7 @@
 package net.ion.craken.db;
 
 import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
-import com.google.common.base.Predicate;
 
-import net.ion.craken.node.ReadNode;
-import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -14,9 +10,7 @@ import net.ion.craken.node.exception.AlreadyExistsException;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
-import net.ion.framework.db.procedure.IParameterQueryable;
 import net.ion.framework.db.servant.StdOutServant;
-import junit.framework.TestCase;
 
 public class TestBaseProcedure extends TestBaseCrud{
 

@@ -1,8 +1,14 @@
 package net.ion.bleujin.bean;
 
-import java.beans.*;
-import java.lang.reflect.*;
-import net.sf.cglib.proxy.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 /***
  * 

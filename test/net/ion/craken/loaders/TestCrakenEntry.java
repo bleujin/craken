@@ -1,24 +1,15 @@
 package net.ion.craken.loaders;
 
-import static net.ion.radon.repository.NodeConstants.ARADON_GROUP;
-import static net.ion.radon.repository.NodeConstants.ARADON_UID;
-
 import java.io.Serializable;
-import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 import net.ion.craken.AbstractEntry;
 import net.ion.craken.Craken;
 import net.ion.craken.EntryKey;
 import net.ion.craken.LegContainer;
-import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.NewMongoDBCacheStore;
 import net.ion.craken.simple.EmanonKey;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.RandomUtil;
 import net.ion.radon.core.PageBean;
-import net.ion.radon.repository.Node;
-import net.ion.radon.repository.PropertyFamily;
 import net.ion.radon.repository.RepositoryCentral;
 import net.ion.radon.repository.Session;
 
@@ -26,15 +17,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.loaders.file.FileCacheStore;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
-import com.mongodb.MongoOptions;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
 
 public class TestCrakenEntry extends TestCase {
 

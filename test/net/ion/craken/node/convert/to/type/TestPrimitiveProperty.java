@@ -9,7 +9,6 @@ import net.ion.craken.node.convert.bean.ProxyBean;
 import net.ion.craken.node.convert.bean.TypeStrategy;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
 
 public class TestPrimitiveProperty extends TestBaseCrud{
 
