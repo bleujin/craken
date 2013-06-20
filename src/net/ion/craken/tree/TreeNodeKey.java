@@ -35,6 +35,10 @@ public class TreeNodeKey implements Serializable {
 		return contents;
 	}
 
+	public String idString(){
+		return (contents == Type.STRUCTURE) ? "@" + fqn.toString() : fqn.toString() ;
+	}
+	
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -99,5 +103,10 @@ public class TreeNodeKey implements Serializable {
 		public Set<Class<? extends TreeNodeKey>> getTypeClasses() {
 			return Util.<Class<? extends TreeNodeKey>> asSet(TreeNodeKey.class);
 		}
+	}
+
+	public static TreeNodeKey fromString(String idString) {
+		return idString.startsWith("@") ? new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) : new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ; 
+//		return new TreeNodeKey(Fqn.fromString(idString), idString.startsWith("@") ? Type.STRUCTURE : Type.DATA);
 	}
 }

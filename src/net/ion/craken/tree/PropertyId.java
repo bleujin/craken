@@ -41,6 +41,14 @@ public class PropertyId implements Serializable {
 		return ToStringBuilder.reflectionToString(this) ;
 	}
 
+	public String idString(){
+		return (type == PType.REFER) ? "@" + key : key ;
+	}
+	
+	public final static PropertyId fromIdString(String idString){
+		return idString.startsWith("@") ? new PropertyId(PType.REFER, idString.substring(1)) : new PropertyId(PType.NORMAL, idString) ;
+	}
+	
 	public String getString() {
 		return key;
 	}

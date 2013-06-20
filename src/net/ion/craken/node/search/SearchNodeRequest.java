@@ -14,9 +14,11 @@ import net.ion.nsearcher.search.filter.TermFilter;
 import org.apache.ecs.xml.XML;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TermRangeFilter;
 
 public class SearchNodeRequest {
 
@@ -45,6 +47,97 @@ public class SearchNodeRequest {
 		searcher.andFilter(new TermFilter("@" + refName, target.toString())) ;
 		return this ;
 	}
+	
+	
+	
+
+	public SearchNodeRequest between(String field, int min, int max) {
+		return between(field, 1L * min, 1L * max);
+	}
+
+	public SearchNodeRequest between(String field, long min, long max) {
+		filter(NumericRangeFilter.newLongRange(field, min, max, true, true));
+		return this;
+	}
+
+	public SearchNodeRequest between(String field, double min, double max) {
+		filter(NumericRangeFilter.newDoubleRange(field, min, max, true, true));
+		return this;
+	}
+
+	public SearchNodeRequest between(String field, String minTerm, String maxTerm) {
+		filter(FilterUtil.and(TermRangeFilter.Less(field, maxTerm), TermRangeFilter.More(field, minTerm)));
+		return this;
+	}
+
+	public SearchNodeRequest lt(String field, int max) {
+		return lt(field, 1L * max);
+	}
+
+	public SearchNodeRequest lt(String field, long max) {
+		filter(NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, max, true, false));
+		return this;
+	}
+
+	public SearchNodeRequest lt(String field, double max) {
+		filter(NumericRangeFilter.newDoubleRange(field, Double.MIN_VALUE, max, true, false));
+		return this;
+	}
+
+	public SearchNodeRequest lte(String field, String max) {
+		filter(TermRangeFilter.Less(field, max));
+		return this;
+	}
+
+	public SearchNodeRequest lte(String field, int max) {
+		return lte(field, 1L * max);
+	}
+
+	public SearchNodeRequest lte(String field, long max) {
+		filter(NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, max, true, true));
+		return this;
+	}
+
+	public SearchNodeRequest lte(String field, double max) {
+		filter(NumericRangeFilter.newDoubleRange(field, Double.MIN_VALUE, max, true, true));
+		return this;
+	}
+
+	public SearchNodeRequest gt(String field, int min) {
+		return gt(field, 1L * min);
+	}
+
+	public SearchNodeRequest gt(String field, long min) {
+		filter(NumericRangeFilter.newLongRange(field, min, Long.MAX_VALUE, false, true));
+		return this;
+	}
+
+	public SearchNodeRequest gt(String field, double min) {
+		filter(NumericRangeFilter.newDoubleRange(field, min, Double.MAX_VALUE, false, true));
+		return this;
+	}
+
+	public SearchNodeRequest gte(String field, String min) {
+		filter(TermRangeFilter.More(field, min));
+		return this;
+	}
+
+	public SearchNodeRequest gte(String field, int min) {
+		return gte(field, 1L * min);
+	}
+
+	public SearchNodeRequest gte(String field, long min) {
+		filter(NumericRangeFilter.newLongRange(field, min, Long.MAX_VALUE, true, true));
+		return this;
+	}
+
+	public SearchNodeRequest gte(String field, double min) {
+		filter(NumericRangeFilter.newDoubleRange(field, min, Double.MAX_VALUE, true, true));
+		return this;
+	}
+	
+	
+	
 	
 	
 
@@ -114,6 +207,7 @@ public class SearchNodeRequest {
 	}
 
 	public SearchNodeResponse find() throws IOException, ParseException{
+		request.selections(IKeywordField.ISKey) ;
 		return SearchNodeResponse.create(session, searcher.search(request)) ;
 	}
 	

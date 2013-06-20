@@ -10,6 +10,8 @@ import net.ion.craken.io.BlobValue;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
+import net.ion.framework.parse.gson.JsonArray;
+import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
@@ -38,6 +40,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public String toString(){
 		return ToStringBuilder.reflectionToString(this) ;
+	}
+	
+	public JsonArray asJsonArray(){
+		return JsonParser.fromObject(values).getAsJsonArray() ;
 	}
 	
 	public Object value() {

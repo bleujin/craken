@@ -112,12 +112,39 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 
-		session.awaitIndex().createRequest("").find().debugPrint() ;
+		assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
 		
 //	 	assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
 	}
 	
 
+	public void testWhenRemoveChildren2() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().addChild("/emps/bleujin").property("name", "bleujin").property("age", 15).child("address").property("city", "seoul") ;
+				wsession.root().addChild("/emps/hero").property("name", "hero").property("age", 20) ;
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals(3, session.awaitIndex().createRequest("").find().toList().size()) ;
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/emps").removeChildren() ;
+				return null;
+			}
+		}).get() ;
+
+		assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
+		
+//	 	assertEquals(0, session.awaitIndex().createRequest("").find().toList().size()) ;
+	}
+	
+
+	
 	
 	
 	

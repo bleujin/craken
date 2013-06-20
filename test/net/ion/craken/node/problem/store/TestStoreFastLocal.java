@@ -1,23 +1,17 @@
 package net.ion.craken.node.problem.store;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.WriteNode;
-import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
-import net.ion.radon.impl.util.CsvReader;
 
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.lucene.cachestore.LuceneCacheLoader;
+import org.infinispan.lucene.cachestore.LuceneCacheLoaderConfig;
 
 public class TestStoreFastLocal extends TestCase {
 
@@ -38,13 +32,17 @@ public class TestStoreFastLocal extends TestCase {
 	
 	
 	public void testLuceneDirStore() throws Exception {
-		r.defineConfig("dir.node", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
-				.sync().replTimeout(20000)
-				.loaders().preload(true).shared(false).passivation(false)
-				.addCacheLoader().cacheLoader(new LuceneCacheLoader()).addProperty("location","c:/temp/resource/store/dir")
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-		this.session = r.testLogin("dir") ;
-		session.tran(new Job()).get() ;
+		r.defineConfig("test.node", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
+				.loaders().addLoader()
+					.cacheLoader(new LuceneCacheLoader())
+					.addProperty(LuceneCacheLoaderConfig.LOCATION_OPTION, "./resource/lucene")
+					.addProperty(LuceneCacheLoaderConfig.AUTO_CHUNK_SIZE_OPTION, "1024")
+					.loaders().preload(true).shared(false).passivation(false).build()) ;
+		
+		this.session = r.testLogin("test") ;
+		
+		
+		session.tran(new SampleWriteJob(1000)).get() ;
 		Debug.line("endGet") ;
 	}
 
@@ -53,11 +51,11 @@ public class TestStoreFastLocal extends TestCase {
 		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.sync().replTimeout(20000)
 //				.eviction().maxEntries(10000)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/local")
+				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location","./resource/local")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		
 		this.session = r.testLogin("test") ;
-		session.tran(new Job()).get() ;
+		session.tran(new SampleWriteJob(100000)).get() ;
 		Debug.line("endGet") ;
 	}
 	
@@ -77,31 +75,16 @@ public class TestStoreFastLocal extends TestCase {
 		
 	}
 	
-}
-
-class Job implements TransactionJob<Void> {
-
-	@Override
-	public Void handle(WriteSession wsession) throws Exception {
-		File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
+	public void testWrite() throws Exception {
+		ReadSession rs = r.testLogin("test");
+		rs.tranSync(new SampleWriteJob(10000)) ;
 		
-		CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
-		reader.setFieldDelimiter('\t') ;
-		String[] headers = reader.readLine();
-		String[] line = reader.readLine() ;
-		int max = 10000 ;
-		while(line != null && line.length > 0 && max-- > 0 ){
-//			if (headers.length != line.length ) continue ;
-			WriteNode wnode = wsession.pathBy("/" + max);
-			for (int ii = 0, last = headers.length; ii < last ; ii++) {
-				if (line.length > ii) wnode.property(headers[ii], line[ii]) ;
-			}
-			line = reader.readLine() ;
-			if ((max % 1000) == 0) System.out.print('.') ;
-		}
-		Debug.line("endFor") ;
-		reader.close() ;
-		Debug.line("endClose") ;
-		return null;
 	}
+	
+	public void testReadAtLocal() throws Exception {
+		ReadSession rs = r.testLogin("test");
+		rs.pathBy("/copy1").children().debugPrint() ;
+	}
+	
 }
+

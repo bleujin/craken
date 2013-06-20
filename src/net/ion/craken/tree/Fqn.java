@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import net.ion.framework.parse.gson.JsonElement;
+import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ObjectUtil;
 
 import org.infinispan.marshall.AbstractExternalizer;
@@ -131,6 +133,11 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 	}
 
 
+	public JsonPrimitive toJson(){
+		return new JsonPrimitive(toString()) ;
+	}
+	
+	
 	public Object getLastElement() {
 		if (isRoot())
 			return null;

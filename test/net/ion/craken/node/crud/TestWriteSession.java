@@ -53,5 +53,25 @@ public class TestWriteSession extends TestBaseCrud {
 		
 	}
 	
+	
+	public void testContinueUnit() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				for (int i = 0 ; i < 10 ; i++) {
+					wsession.pathBy("/bleujin/" + i).property("name", "bleujin").property("index", i) ;
+					if ((i % 2) == 0) {
+						wsession.continueUnit() ;
+					}
+				}
+				return null;
+			}
+		}) ;
+		
+		session.pathBy("/bleujin", true).children().debugPrint() ;
+		Thread.sleep(1000) ;
+		session.pathBy("/bleujin", true).children().debugPrint() ;
+		
+	}
 
 }

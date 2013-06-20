@@ -31,7 +31,7 @@ import com.google.common.base.Predicate;
 public class SearchNodeResponse {
 
 	private SearchResponse response;
-	private List<Fqn> found = ListUtil.newList();
+	private List<Fqn> found ;
 	private ReadSearchSession session ;
 	
 //	private final ColumnParser cparser ;
@@ -39,34 +39,48 @@ public class SearchNodeResponse {
 	public SearchNodeResponse(ReadSearchSession session, SearchResponse response) {
 		this.session = session ;
 		this.response = response ;
-		for (ReadDocument doc : response.getDocument()){
-			found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
-		};
 //		this.cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class) ;
 	}
 
+	
+	private List<Fqn> found() {
+		if (found == null){
+			found = ListUtil.newList() ;
+			try {
+				for (ReadDocument doc : response.getDocument()){
+					found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
+				};
+			} catch(IOException ex){
+				throw new IllegalStateException(ex); 
+			}
+		}
+		return found ;
+	}
+	
+	
 	public static SearchNodeResponse create(ReadSearchSession session, SearchResponse response) {
 		return new SearchNodeResponse(session, response);
 	}
 
 	public ReadNode first() {
-		return found.size() == 0 ? null : toList().get(0);
+		return found().size() == 0 ? null : toList().get(0);
 	}
 	
 	public List<ReadNode> toList(){
 		List<ReadNode> list = ListUtil.newList() ;
-		for (Fqn fqn : found) {
+		for (Fqn fqn : found()) {
 			list.add(session.pathBy(fqn)) ;
 		}
 		return list ;
 	}
 
 	public int size() {
-		return response.getDocument().size();
+		return response.totalCount() ;
+//		return response.getDocument().size();
 	}
 
 	public void debugPrint() throws IOException {
-		for (Fqn fqn : found) {
+		for (Fqn fqn : found()) {
 			Debug.line(session.pathBy(fqn)) ;
 		}
 	}
@@ -92,7 +106,7 @@ public class SearchNodeResponse {
 
 	public PredicatedResponse predicated(Predicate<PredicateArgument> predicate) {
 		List<PredicateArgument> result = ListUtil.newList() ;
-		for (Fqn fqn : found) {
+		for (Fqn fqn : found()) {
 			final PredicateArgument arg = PredicateArgument.create(session, fqn);
 			if (predicate.apply(arg)) result.add(arg) ;
 		} 
@@ -113,7 +127,7 @@ public class SearchNodeResponse {
 	}
 
 	public IteratorList<ReadNode> iterator() {
-		final Iterator<Fqn> iter = found.iterator();
+		final Iterator<Fqn> iter = found().iterator();
 		return new IteratorList<ReadNode>() {
 			@Override
 			public List<ReadNode> toList() {

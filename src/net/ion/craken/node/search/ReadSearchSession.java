@@ -39,14 +39,14 @@ public class ReadSearchSession extends AbstractReadSession {
 	}
 
 	@Override
-	public <T> T tranSync(TransactionJob<T> tjob) throws Exception {
-		WriteSession tsession = new WriteSearchSession(this, workspace(), central);
+	public <T> T tranSync(TransactionJob<T> tjob) throws InterruptedException, ExecutionException {
+		WriteSession tsession = new WriteSearchSession(this, workspace());
 		return workspace().tran(tsession, tjob, TranExceptionHandler.NULL).get() ;
 	}
 
 	@Override
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {
-		WriteSearchSession wsession = new WriteSearchSession(this, workspace(), central);
+		WriteSearchSession wsession = new WriteSearchSession(this, workspace());
 		return workspace().tran(wsession, tjob, handler) ;
 	}
 

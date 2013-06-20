@@ -24,14 +24,12 @@ import org.apache.lucene.search.WildcardQuery;
 
 public class WriteSearchSession extends AbstractWriteSession {
 
-	private Central central ;
 	private ReadSearchSession readSession ;
 	private Stack<TouchEvent> events = new Stack<TouchEvent>() ;
 	
-	public WriteSearchSession(ReadSearchSession readSession, Workspace workspace, Central central) {
+	public WriteSearchSession(ReadSearchSession readSession, Workspace workspace) {
 		super(readSession, workspace) ;
 		this.readSession = readSession ;
-		this.central = central ;
 	}
 
 	

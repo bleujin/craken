@@ -82,17 +82,17 @@ public class RepositorySearchImpl implements RepositorySearch {
 			central = centrals.get(wsname);
 		}
 
-		final Workspace workspace = loadWorkspce(wsname, central);
+		final Workspace workspace = loadWorkspce(wsname);
 
 		return new ReadSearchSession(credential, workspace, central);
 	}
 
 	
-	private synchronized Workspace loadWorkspce(String wsname, Central central){
+	private synchronized Workspace loadWorkspce(String wsname){
 		if (wss.containsKey(wsname)){
 			return wss.get(wsname) ;
 		} else {
-			final WorkspaceImpl created = WorkspaceImpl.create(this, treeCache(wsname + ".node"), wsname);
+			final WorkspaceImpl created = WorkspaceImpl.create(this, treeCache(wsname), wsname);
 			created.getNode("/") ;
 			wss.put(wsname, created) ;
 			return wss.get(wsname) ;
@@ -130,8 +130,4 @@ public class RepositorySearchImpl implements RepositorySearch {
 		return login(Credential.EMANON, wsname);
 	}
 
-	@CacheEntryModified
-	public void entryModified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap> e) {
-		return ;
-	}
 }
