@@ -28,27 +28,26 @@ public class TestRemoveChildren extends  TestCase {
 		r.shutdown();
 		super.tearDown();
 	}
-	
-	public void testLoad() throws Exception {
-//		session.tranSync(new SampleWriteJob(20));
-		ReadChildren children = session.root().children();
-		while(children.hasNext()){
-			Debug.line(children.next().fqn().toString()) ;
-		}
-	}
+
 	
 	public void testRemoveAfter() throws Exception {
 		session.tranSync(new SampleWriteJob(20));
+	 	assertEquals(20, session.root().children().toList().size()) ;
 		session.tranSync(new TransactionJob<Void>() {
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.root().removeChildren() ;
 				return null;
 			}
 		}) ;
+	 	assertEquals(0, session.root().children().toList().size()) ;
 		session.tranSync(new SampleWriteJob(20));
-		
-		session.pathBy("/10").fqn() ;
-		
-		session.root().children().debugPrint() ;
+	 	assertEquals(20, session.root().children().toList().size()) ;
+		session.tranSync(new TransactionJob<Void>() {
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.root().removeChildren() ;
+				return null;
+			}
+		}) ;
+	 	assertEquals(0, session.root().children().toList().size()) ;
 	}
 }
