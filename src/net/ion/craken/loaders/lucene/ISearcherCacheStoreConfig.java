@@ -5,6 +5,12 @@ import org.infinispan.loaders.AbstractCacheStoreConfig;
 public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
 	private static final long serialVersionUID = 1L;
 
+	
+	public final String Location = "location" ;
+	public final String MaxEntries = "maxEntries" ;
+	public final String ChunkSize = "chunkSize" ;
+	
+	
 	private String location = "./resource/index";
 	private int maxEntries = 10;
 	private int chunkSize = 1024 * 1024 * 10 ; 
@@ -23,21 +29,25 @@ public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
 		this.location = location;
 	}
 
-	public ISearcherCacheStoreConfig location(String location) {
-		setLocation(location);
-		return this;
-	}
-
-	public int getMaxEntries() {
-		return maxEntries;
-	}
-
 	public void setMaxEntries(int maxEntries) {
 		this.maxEntries = maxEntries;
 	}
 
-	public ISearcherCacheStoreConfig maxEntries(int maxEntries) {
-		setMaxEntries(maxEntries);
-		return this;
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
 	}
+
+	
+	public String location() {
+		return location;
+	}
+
+	public int maxEntries() {
+		return maxEntries;
+	}
+
+	public int chunkSize(){
+		return chunkSize ;
+	}
+	
 }

@@ -6,6 +6,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.node.exception.NodeNotExistsException;
 
 public class TestRefPathBy extends TestBaseCrud {
 
@@ -14,7 +15,7 @@ public class TestRefPathBy extends TestBaseCrud {
 		try {
 			session.pathBy("/").ref("friend");
 			fail();
-		} catch (IllegalArgumentException expect) {
+		} catch (NodeNotExistsException expect) {
 		}
 	}
 
@@ -27,7 +28,7 @@ public class TestRefPathBy extends TestBaseCrud {
 		try {
 			session.root().ref("notfound");
 			fail();
-		} catch (IllegalArgumentException expect) {
+		} catch (NodeNotExistsException expect) {
 		}
 	}
 

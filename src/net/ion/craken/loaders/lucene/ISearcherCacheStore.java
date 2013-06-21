@@ -16,7 +16,9 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
@@ -81,10 +83,10 @@ public class ISearcherCacheStore extends AbCacheStore {
 			EmbeddedCacheManager dftManager = cache().getCacheManager();
 			dftManager.defineConfiguration(wsname + ".meta", 
 					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
-					.cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/local").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+					.cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 			dftManager.defineConfiguration(wsname + ".chunks", 
-					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(10).invocationBatching().enable().loaders().preload(true).shared(false).passivation(
-					false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "./resource/local").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(
+					false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 			dftManager.defineConfiguration(wsname + ".locks", 
 					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
 			
@@ -106,7 +108,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 		lockCache.start() ;
 		
 //		Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 64).create(); // .chunkSize()
-		InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
+		InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, config.chunkSize());
 		
 //		String location = config.getLocation();
 //		if (location == null || location.trim().length() == 0)
@@ -251,7 +253,11 @@ public class ISearcherCacheStore extends AbCacheStore {
 				jso.add(pstring, pvalue.asJsonArray());
 				
 				for(Object e : pvalue.asSet()){
-					doc.unknown(pstring, e) ;
+					if (pstring.startsWith("@")){
+						doc.keyword(pstring, ObjectUtil.toString(e)) ;
+					} else {
+						doc.unknown(pstring, e) ;
+					}
 				}
 			}
 			return jso;

@@ -1,9 +1,13 @@
-package net.ion.craken.node;
+package net.ion.craken.node.mr;
 
 import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
+import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -17,7 +21,7 @@ import org.infinispan.distexec.mapreduce.MapReduceTask;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
 
-public class TestWorkspace extends TestCase {
+public class TestMapReduce extends TestCase {
 
 	
 	protected RepositoryImpl r ;

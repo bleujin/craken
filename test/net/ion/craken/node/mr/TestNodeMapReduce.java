@@ -1,4 +1,4 @@
-package net.ion.craken.mr;
+package net.ion.craken.node.mr;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
+import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;

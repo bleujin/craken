@@ -35,7 +35,7 @@ public class TestToRows extends TestBaseSearch {
 
 	public void testFirst() throws Exception {
 		long start = System.currentTimeMillis() ;
-		session.queryRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(10).find().debugPrint() ;
+		session.pathBy("/board1").childQuery("").descending("index").skip(10).offset(10).find().debugPrint() ;
 		Debug.line(System.currentTimeMillis() - start) ;
 	}
 	
@@ -47,7 +47,7 @@ public class TestToRows extends TestBaseSearch {
 	
 	public void testChildProperty() throws Exception {
 		long start = System.currentTimeMillis() ;
-		final ChildQueryResponse find = session.queryRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
+		final ChildQueryResponse find = session.pathBy("/board1").childQuery("").descending("index").skip(10).offset(2).find();
 		long mid = System.currentTimeMillis() ;
 		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, parent.name boardname") ;
 		
@@ -73,7 +73,7 @@ public class TestToRows extends TestBaseSearch {
 			}
 		}) ;
 		
-		final ChildQueryResponse find = session.queryRequest("").belowTo(Fqn.fromString("/board1")).descending("index").skip(10).offset(2).find();
+		final ChildQueryResponse find = session.pathBy("/board1").childQuery("").descending("index").skip(10).offset(2).find();
 		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, register.age age") ;
 		
 		Row first = rows.firstRow();
@@ -86,7 +86,6 @@ public class TestToRows extends TestBaseSearch {
 	
 	
 	public void testRefTo() throws Exception {
-
 		Rows rows = session.queryRequest("").descending("index").skip(10).offset(2)
 			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name, substring(this.writer, 2) writer, index, address.city acity, address.city, register.age age") ;
 		

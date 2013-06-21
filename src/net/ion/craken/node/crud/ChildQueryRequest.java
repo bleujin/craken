@@ -39,16 +39,10 @@ public class ChildQueryRequest {
 	public static ChildQueryRequest create(ReadSession session, Searcher searcher, Query query) {
 		return new ChildQueryRequest(session, query, searcher);
 	}
-	
-	
-	public ChildQueryRequest belowTo(Fqn topFqn) throws ParseException {
-		Query query = searcher.config().parseQuery(IKeywordField.ISKey + ":" + topFqn + "/*");
-		searcher.andFilter(new QueryWrapperFilter(query)) ;
-		return this;
-	}
+
 
 	public ChildQueryRequest refTo(String refName, Fqn target) throws ParseException {
-		searcher.andFilter(new TermFilter("@" + refName, target.toString())) ;
+		filter(new TermFilter("@" + refName, target.toString())) ;
 		return this ;
 	}
 	

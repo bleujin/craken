@@ -12,6 +12,7 @@ import net.ion.craken.node.Credential;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.nsearcher.common.MyDocument;
@@ -26,7 +27,7 @@ import org.apache.lucene.queryParser.ParseException;
 
 public class ReadSessionImpl extends AbstractReadSession{
 
-	public ReadSessionImpl(Credential credential, AbstractWorkspace workspace) {
+	public ReadSessionImpl(Credential credential, Workspace workspace) {
 		super(credential, workspace) ;
 	}
 
