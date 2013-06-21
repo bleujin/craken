@@ -10,6 +10,7 @@ import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.container.entries.InternalCacheEntry;
@@ -51,7 +52,7 @@ class DocEntry extends MortalCacheEntry {
 		JsonObject props = raw.getAsJsonObject(PROPS);
 		for (Entry<String, JsonElement> entry : props.entrySet()) {
 			String pkey = entry.getKey();
-			String absoluteFqn = entry.toString();
+			String absoluteFqn = entry.getValue().getAsString();
 			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
 		}
 

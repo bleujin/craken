@@ -18,7 +18,7 @@ public class TestAllRef extends TestCase{
 
 	
 	public static TestSuite suite(){
-		TestSuite suite = new TestSuite();
+		TestSuite suite = new TestSuite("Test All Reference");
 		
 		suite.addTestSuite(TestRefNode.class) ;
 		suite.addTestSuite(TestRefPathBy.class) ;

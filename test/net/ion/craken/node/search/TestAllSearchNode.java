@@ -5,7 +5,7 @@ import junit.framework.TestSuite;
 public class TestAllSearchNode extends TestSuite {
 
 	public static TestSuite suite(){
-		TestSuite suite = new TestSuite("Test All CrakenNode") ;
+		TestSuite suite = new TestSuite("Test All Node Search") ;
 		suite.addTestSuite(TestFirst.class) ;
 
 		suite.addTestSuite(TestFilter.class) ;

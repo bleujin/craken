@@ -75,7 +75,9 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return this.getClass().getSimpleName() + "[fqn=" + treeNode.getFqn().toString() + "]";
 	}
 
-	TreeNode<PropertyId, PropertyValue> treeNode(){
+	
+	// only use for test
+	public TreeNode<PropertyId, PropertyValue> treeNode(){
 		return treeNode ;
 	}
 	
@@ -143,7 +145,6 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 //		return Optional.fromNullable(treeNode.get(PropertyId.normal(key)));
 //	}
 	
-
 	public Set<PropertyId> keys(){
 		return treeNode.getKeys() ;
 	}

@@ -76,21 +76,13 @@ public class ISearcherCacheStore extends AbCacheStore {
 
 	@Override
 	public void start() throws CacheLoaderException {
-		super.start();
 		try {
 			// open the data file
 			this.wsname = StringUtil.substringBefore(cache().getName(), ".node");
-			EmbeddedCacheManager dftManager = cache().getCacheManager();
-			dftManager.defineConfiguration(wsname + ".meta", 
-					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
-					.cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-			dftManager.defineConfiguration(wsname + ".chunks", 
-					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(
-					false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-			dftManager.defineConfiguration(wsname + ".locks", 
-					new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
-			
 			this.central = CentralConfig.oldFromDir(createDir()).build();
+
+			super.start();
+
 		} catch (Exception e) {
 			throw new CacheLoaderException(e);
 		}
@@ -157,13 +149,17 @@ public class ISearcherCacheStore extends AbCacheStore {
 	@Override
 	public boolean remove(Object _key) throws CacheLoaderException {
 		final TreeNodeKey key = (TreeNodeKey) _key;
-		return central.newIndexer().index(new IndexJob<Boolean>() {
-			@Override
-			public Boolean handle(IndexSession isession) throws Exception {
-				isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
-				return Boolean.TRUE;
-			}
-		});
+//		return central.newIndexer().index(new IndexJob<Boolean>() {
+//			@Override
+//			public Boolean handle(IndexSession isession) throws Exception {
+//				isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
+//
+//				Debug.line(key.idString()) ;
+//
+//				return Boolean.TRUE;
+//			}
+//		});
+		return true ;
 	}
 
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
@@ -264,15 +260,17 @@ public class ISearcherCacheStore extends AbCacheStore {
 		}
 	}
 
+	
+	private int loadCount = 0 ;
 	@Override
 	public InternalCacheEntry load(Object _key) throws CacheLoaderException {
 		try {
 
-//			Debug.line("load", _key);
 
 			TreeNodeKey key = (TreeNodeKey) _key;
 			ReadDocument read = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).findOne();
 
+//			Debug.line(loadCount++ , "load", _key, read);
 			if (read == null) {
 				return null;
 			}

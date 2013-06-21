@@ -3,22 +3,36 @@ package net.ion.craken.node.crud.property;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.tree.PropertyValue;
 
 public class TestProperty extends TestBaseCrud {
 
 	
 	public void testIdIsHangul() throws Exception {
-		
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").property("¿Ã∏ß", "bleu").property("º∫", "jin").property("«Æ ≥◊¿”", "bleujin") ;
+				wsession.pathBy("/bleujin").property("Ïù¥Î¶Ñ", "bleu").property("ÏÑ±", "jin").property("ÌíÄÎÑ§ÏûÑ", "bleujin") ;
 				return null;
 			}
 		}) ;
 		
-		assertEquals("jin", session.pathBy("/bleujin").property("º∫").value()) ;
-		assertEquals("bleujin", session.pathBy("/bleujin").property("«Æ ≥◊¿”").value()) ;
+		assertEquals("jin", session.pathBy("/bleujin").property("ÏÑ±").value()) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("ÌíÄÎÑ§ÏûÑ").value()) ;
+		
+	}
+	
+	public void testCaseSensitive() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/bleujin").property("FirstName", "bleu").property("LastName", "jin").property("FullName", "bleujin") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals("jin", session.pathBy("/bleujin").property("LastName").value()) ;
+		assertEquals(PropertyValue.NotFound, session.pathBy("/bleujin").property("lastname") ) ;
 		
 	}
 }

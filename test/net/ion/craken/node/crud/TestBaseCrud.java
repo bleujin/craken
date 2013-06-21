@@ -1,6 +1,7 @@
 package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
+import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 
 public class TestBaseCrud extends TestCase {
@@ -10,7 +11,9 @@ public class TestBaseCrud extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		this.r = RepositoryImpl.testSingle() ;
+		this.r = RepositoryImpl.create() ;
+		r.defineWorkspaceForTest("test", ISearcherCacheStoreConfig.createDefault()) ;
+		
 		r.start() ;
 		this.session = r.testLogin("test") ;
 	}

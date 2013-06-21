@@ -10,7 +10,7 @@ public class TestFilter extends TestBaseSearch {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		session.tranSync(TransactionJobs.dummyBleujin(20)) ;
+		session.tranSync(TransactionJobs.dummyEmp(20)) ;
 	}
 	
 	public void testNumericRangeQuery() throws Exception {

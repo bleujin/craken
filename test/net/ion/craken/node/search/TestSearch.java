@@ -67,7 +67,7 @@ public class TestSearch extends TestBaseSearch {
 	
 	
 	public void testOnRemove() throws Exception {
-		session.tranSync(TransactionJobs.dummyBleujin(10)) ;
+		session.tranSync(TransactionJobs.dummyEmp(10)) ;
 		assertEquals(10, session.queryRequest("bleujin").find().totalCount()) ;
 		
 		session.tranSync(new TransactionJob<Void>(){

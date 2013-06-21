@@ -11,13 +11,13 @@ public class TransactionJobs {
 			@Override
 			public Void handle(WriteSession wsession) {
 				for (int i : ListUtil.rangeNum(count)) {
-					wsession.root().addChild(prefixFqn).addChild("" + i).property("name", "bleujin").property("dummy", i) ;
+					wsession.root().addChild(prefixFqn).property("prefix", prefixFqn).addChild("" + i).property("name", "bleujin").property("dummy", i) ;
 				}
 				return null;
 			}
 		} ;
 	}
-	public final static TransactionJob<Void> dummyBleujin(final int count){
+	public final static TransactionJob<Void> dummyEmp(final int count){
 		return dummy("/emp", count) ; 
 	}
 }

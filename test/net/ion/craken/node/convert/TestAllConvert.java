@@ -18,7 +18,7 @@ public class TestAllConvert extends TestCase{
 
 	
 	public static TestSuite suite(){
-		TestSuite suite = new TestSuite();
+		TestSuite suite = new TestSuite("Test All Node Convert");
 		
 		suite.addTestSuite(TestFromJson.class) ;
 		suite.addTestSuite(TestToPropertyMap.class) ;

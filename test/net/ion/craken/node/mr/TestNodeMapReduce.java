@@ -37,16 +37,7 @@ public class TestNodeMapReduce extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		GlobalConfiguration gconfig = GlobalConfigurationBuilder
-		.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
-		Configuration config = new ConfigurationBuilder()
-			.eviction().maxEntries(20).strategy(EvictionStrategy.LRU)
-			.loaders().preload(true).shared(false).passivation(false)
-				.addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/store/test").clustering().cacheMode(CacheMode.DIST_SYNC)
-			.invocationBatching().enable().build();
-		this.r = RepositoryImpl.create(gconfig);
-		r.defineConfig("my.node", config);
-	
+		this.r = RepositoryImpl.create();
 		r.start();
 	
 		this.session = r.testLogin("my");

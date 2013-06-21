@@ -50,6 +50,8 @@ public interface ReadSession extends ISession<ReadNode> {
 	public <T> T getIndexInfo(IndexInfoHandler<T> indexInfo);
 
 	public ChildQueryRequest queryRequest(String string) throws IOException, ParseException;
+	
+	
 
 	@Deprecated
 	public Future<AtomicInteger> reIndex(ReadNode topNode);
