@@ -15,7 +15,7 @@ public class TestDistDefault extends TestCase {
 		RepositoryImpl r = RepositoryImpl.create();
 		r.defineConfig("test.node", TestConfig.createFastLocalCacheStore(5));
 
-		ReadSession session = r.testLogin("test");
+		ReadSession session = r.login("test");
 		session.tranSync(TransactionJobs.dummy("/bleujin", 10));
 
 		session.pathBy("/bleujin").children().debugPrint();

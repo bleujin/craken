@@ -48,7 +48,7 @@ public class TestStoreInfinispanDir extends TestCase {
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
 
 		
-		this.session = r.testLogin("test");
+		this.session = r.login("test");
 	}
 
 	@Override

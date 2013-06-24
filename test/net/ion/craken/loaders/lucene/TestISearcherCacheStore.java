@@ -37,7 +37,7 @@ public class TestISearcherCacheStore extends TestCase {
 		
 		r.start() ;
 		
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 		long start = System.currentTimeMillis() ;
 		session.tran(new SampleWriteJob(200)).get() ;
 		
@@ -49,7 +49,7 @@ public class TestISearcherCacheStore extends TestCase {
 
 		r.start() ;
 		
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 		long start = System.currentTimeMillis() ;
 		for (int i : ListUtil.rangeNum(20)) {
 			Debug.line(session.pathBy("/" + RandomUtil.nextInt(200)).toMap()) ;

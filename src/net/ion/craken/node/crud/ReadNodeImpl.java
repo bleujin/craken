@@ -267,28 +267,19 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return result;
 	} 
 	
+	
 	public ChildQueryRequest childQuery(Query query) throws ParseException, IOException {
 		return ChildQueryRequest.create(session, session.newSearcher(), query);
 	}
 
 	
-	public ChildQueryRequest childQuery(String query, Analyzer analyzer) throws ParseException, IOException {
-		if (StringUtil.isBlank(query)){
-			return childQuery(new TermQuery(new Term(DocEntry.PARENT, this.fqn().toString()))) ;
-		}
-		
-		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
-		result.filter(new TermFilter(DocEntry.PARENT, this.fqn().toString())) ;
-		return result;
-	}
-
 	@Override
-	public ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException {
-		if (! includeAllTree) return childQuery(query) ;
+	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException {
+		if (! includeDecentTree) return childQuery(query) ;
 		
 		if (StringUtil.isBlank(query)) return childQuery(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith()))) ;
 		
-		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
+		Analyzer analyzer = session().queryAnalyzer() ;
 		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
 		result.filter(new QueryWrapperFilter(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith())))) ;
 		

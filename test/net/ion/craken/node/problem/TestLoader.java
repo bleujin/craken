@@ -34,7 +34,7 @@ public class TestLoader extends TestCase {
 	
 	
 	public void testWrite() throws Exception {
-		ReadSession session = repository.testLogin("test");
+		ReadSession session = repository.login("test");
 		
 		session.tranSync(new TransactionJob<Void>() {
 			public Void handle(WriteSession wsession) {
@@ -47,7 +47,7 @@ public class TestLoader extends TestCase {
 	}
 	
 	public void testRead() throws Exception {
-		ReadSession session = repository.testLogin("test");
+		ReadSession session = repository.login("test");
 		session.pathBy("/board", true).children().debugPrint() ;
 	}
 	

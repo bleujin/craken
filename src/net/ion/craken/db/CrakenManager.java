@@ -57,7 +57,7 @@ public class CrakenManager extends DBManager {
 	}
 
 	public ReadSession session() throws CorruptIndexException, IOException {
-		return repository.testLogin(workspace);
+		return repository.login(workspace);
 		// return repository.testLogin("test") ;
 	}
 

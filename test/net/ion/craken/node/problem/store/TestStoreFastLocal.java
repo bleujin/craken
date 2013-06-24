@@ -39,7 +39,7 @@ public class TestStoreFastLocal extends TestCase {
 					.addProperty(LuceneCacheLoaderConfig.AUTO_CHUNK_SIZE_OPTION, "1024")
 					.loaders().preload(true).shared(false).passivation(false).build()) ;
 		
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 		
 		
 		session.tran(new SampleWriteJob(1000)).get() ;
@@ -54,7 +54,7 @@ public class TestStoreFastLocal extends TestCase {
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location","./resource/local")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 		session.tran(new SampleWriteJob(100000)).get() ;
 		Debug.line("endGet") ;
 	}
@@ -66,7 +66,7 @@ public class TestStoreFastLocal extends TestCase {
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/local")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 		for (int i : ListUtil.rangeNum(10)) {
 //			session.root().children().where("this.id = '/m/0hxhkfn'").debugPrint() ;
 			Debug.line(session.pathBy("99999").toMap()) ;
@@ -76,13 +76,13 @@ public class TestStoreFastLocal extends TestCase {
 	}
 	
 	public void testWrite() throws Exception {
-		ReadSession rs = r.testLogin("test");
+		ReadSession rs = r.login("test");
 		rs.tranSync(new SampleWriteJob(10000)) ;
 		
 	}
 	
 	public void testReadAtLocal() throws Exception {
-		ReadSession rs = r.testLogin("test");
+		ReadSession rs = r.login("test");
 		rs.pathBy("/copy1").children().debugPrint() ;
 	}
 	

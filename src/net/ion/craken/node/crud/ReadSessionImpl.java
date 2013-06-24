@@ -12,6 +12,7 @@ import net.ion.craken.node.Credential;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -22,13 +23,17 @@ import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.Searcher;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 
 
 public class ReadSessionImpl extends AbstractReadSession{
 
-	public ReadSessionImpl(Credential credential, Workspace workspace) {
+	private Analyzer queryAnalyzer ;
+	
+	public ReadSessionImpl(Credential credential, Workspace workspace, Analyzer queryAnalyzer) {
 		super(credential, workspace) ;
+		this.queryAnalyzer = queryAnalyzer ;
 	}
 
 	@Override
@@ -44,7 +49,7 @@ public class ReadSessionImpl extends AbstractReadSession{
 
 
 	@Override
-	public <T> T getIndexInfo(IndexInfoHandler<T> indexInfo) {
+	public <T> T indexInfo(IndexInfoHandler<T> indexInfo) {
 		return indexInfo.handle(this, central().newReader());
 	}
 
@@ -90,5 +95,16 @@ public class ReadSessionImpl extends AbstractReadSession{
 	@Override
 	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {
 		return root().childQuery(query, true);
+	}
+
+	@Override
+	public Analyzer queryAnalyzer() {
+		return queryAnalyzer;
+	}
+
+	@Override
+	public ReadSession queryAnayzler(Analyzer analyzer) {
+		this.queryAnalyzer = analyzer ;
+		return this;
 	}
 }

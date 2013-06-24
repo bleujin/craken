@@ -40,7 +40,7 @@ public class TestNodeIo extends TestCase {
 				
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/store/test")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 	}
 	
 	@Override

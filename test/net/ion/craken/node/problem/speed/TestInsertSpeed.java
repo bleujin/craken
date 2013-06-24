@@ -28,7 +28,7 @@ public class TestInsertSpeed extends TestCase {
 		this.r = RepositoryImpl.create();
 		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxEntries(10).chunkSize(1024 * 1024 * 10));
 		r.start();
-		this.session = r.testLogin("test");
+		this.session = r.login("test");
 	}
 
 	@Override
@@ -40,33 +40,11 @@ public class TestInsertSpeed extends TestCase {
 	// 30sec per 20k(create, about 700 over per sec 6.21, 44M)
 	// 18sec per 20k(update, about 1k lower per sec 6.21 70M)
 	public void testCreateWhenEmpty() throws Exception {
-		
-		int loopCount = 100 ;
-//		session.tranSync(new TransactionJob<Void>() {
-//			@Override
-//			public Void handle(WriteSession wsession) throws Exception {
-//				wsession.root().removeChildren() ;
-//				return null;
-//			}
-//		}) ;
-		
+		int loopCount = 20000 ;
 		long start = System.currentTimeMillis();
-		session.tranSync(new SampleWriteJob(100));
+		session.tranSync(new SampleWriteJob(loopCount));
 
-		Integer result = session.root().children().transform(new Function<Iterator<ReadNode>, Integer>() {
-			private int count = 0 ;
-			public Integer apply(Iterator<ReadNode> nodes) {
-				while(nodes.hasNext()){
-					count++ ;
-					nodes.next() ;
-				}
-				return count;
-			}
-		});
-		
-		assertEquals(loopCount, result.intValue()) ;
-//		
-//		Debug.line(System.currentTimeMillis() - start);
+		Debug.line(System.currentTimeMillis() - start);
 	}
 	
 	// 18, 14, 14, 15, 14  -> 95M

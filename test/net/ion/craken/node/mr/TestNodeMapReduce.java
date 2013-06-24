@@ -40,7 +40,7 @@ public class TestNodeMapReduce extends TestCase {
 		this.r = RepositoryImpl.create();
 		r.start();
 	
-		this.session = r.testLogin("my");
+		this.session = r.login("my");
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {

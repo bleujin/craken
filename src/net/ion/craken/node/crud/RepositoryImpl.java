@@ -24,6 +24,8 @@ import net.ion.framework.util.MapUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -113,14 +115,22 @@ public class RepositoryImpl implements Repository{
 		return executor ;
 	}
 	
-	public ReadSession testLogin(String wsname) throws CorruptIndexException, IOException {
-		return login(Credential.EMANON, wsname) ;
+	public ReadSession login(String wsname) throws CorruptIndexException, IOException {
+		final AbstractWorkspace workspace = loadWorkspce(wsname);
+		Analyzer queryAnalyzer = workspace.central().searchConfig().queryAnalyzer();
+		return new ReadSessionImpl(Credential.EMANON, workspace, queryAnalyzer);
 	}
 	
-	public ReadSessionImpl login(Credential credential, String wsname) throws CorruptIndexException, IOException {
-		
+	public ReadSessionImpl login(String wsname, Analyzer queryAnalyzer) throws CorruptIndexException, IOException {
 		final AbstractWorkspace workspace = loadWorkspce(wsname);
-		return new ReadSessionImpl(credential, workspace);
+		return new ReadSessionImpl(Credential.EMANON, workspace, queryAnalyzer);
+	}
+
+	
+	public ReadSessionImpl login(Credential credential, String wsname, Analyzer queryAnalyzer) throws CorruptIndexException, IOException {
+		final AbstractWorkspace workspace = loadWorkspce(wsname);
+		
+		return new ReadSessionImpl(credential, workspace, queryAnalyzer);
 	}
 	
 	private synchronized AbstractWorkspace loadWorkspce(String wsname) throws CorruptIndexException, IOException{
@@ -194,6 +204,7 @@ public class RepositoryImpl implements Repository{
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new ISearcherCacheStore()).addProperty("location", config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 	}
+
 
 
 	

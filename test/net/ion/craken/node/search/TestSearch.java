@@ -95,6 +95,8 @@ public class TestSearch extends TestBaseSearch {
 		
 		assertEquals(3, session.queryRequest("dev").find().size()) ;
 		
+		assertEquals(0, session.root().childQuery("dev", false).find().size()) ;
+		assertEquals(1, session.pathBy("/dept").childQuery("dev", false).find().size()) ;
 		
 		List<ReadNode> list = session.queryRequest("dev").descending("name").find().predicated(ReadNodePredicate.belowAt("/emp")).toList();
 		Debug.line(list) ;

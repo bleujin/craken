@@ -29,7 +29,7 @@ public class TestMapReduce extends TestCase {
 
 	public void setUp() throws Exception {
 		this.r = RepositoryImpl.create() ;
-		this.session = r.testLogin("test") ;
+		this.session = r.login("test") ;
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {

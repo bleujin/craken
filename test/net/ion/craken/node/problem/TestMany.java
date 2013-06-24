@@ -20,7 +20,7 @@ public class TestMany extends TestCase {
 	public void testM() throws Exception{
 		Repository r = RepositoryImpl.testSingle();
 		r.start() ;
-		ReadSession session = r.testLogin("test");
+		ReadSession session = r.login("test");
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -47,7 +47,7 @@ public class TestMany extends TestCase {
 
 		RepositoryImpl r = RepositoryImpl.testSingle()  ;
 		r.start() ;
-		ReadSession session = r.testLogin("test");
+		ReadSession session = r.login("test");
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override

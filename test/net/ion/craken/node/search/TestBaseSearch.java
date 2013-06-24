@@ -20,7 +20,7 @@ public class TestBaseSearch extends TestCase {
 		r.defineWorkspaceForTest("test", ISearcherCacheStoreConfig.createDefault()) ;
 		
 		r.start() ;
-		this.session = r.testLogin("test");
+		this.session = r.login("test");
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import net.ion.craken.tree.Fqn;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 
 import com.google.common.base.Function;
@@ -47,7 +48,7 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public Central central();
 
-	public <T> T getIndexInfo(IndexInfoHandler<T> indexInfo);
+	public <T> T indexInfo(IndexInfoHandler<T> indexInfo);
 
 	public ChildQueryRequest queryRequest(String string) throws IOException, ParseException;
 	
@@ -55,4 +56,8 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	@Deprecated
 	public Future<AtomicInteger> reIndex(ReadNode topNode);
+
+	public Analyzer queryAnalyzer();
+	
+	public ReadSession queryAnayzler(Analyzer analyzer) ;
 }

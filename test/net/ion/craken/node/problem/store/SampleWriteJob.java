@@ -35,8 +35,10 @@ public class SampleWriteJob implements TransactionJob<Void> {
 			line = reader.readLine() ;
 			if ((max % 1000) == 0) {
 				System.out.print('.') ;
+			} 
+			if ((max % 2000) == 0) {
 				wsession.continueUnit() ;
-			}
+			} 
 		}
 		reader.close() ;
 		Debug.line("endJob") ;

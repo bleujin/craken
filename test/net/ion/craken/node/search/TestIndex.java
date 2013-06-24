@@ -27,8 +27,8 @@ public class TestIndex extends TestBaseSearch {
 			@Override
 			public void run() {
 				try {
-					r.testLogin("test").queryRequest("bleujin").find().debugPrint();
-					r.testLogin("test").tran(new TransactionJob<Void>() {
+					r.login("test").queryRequest("bleujin").find().debugPrint();
+					r.login("test").tran(new TransactionJob<Void>() {
 						@Override
 						public Void handle(WriteSession wsession) {
 							wsession.root().addChild("/" + RandomUtil.nextInt(3)).property("name", new String[] { "jin", "bleujin", "hero" }[RandomUtil.nextInt(3)]);
@@ -74,7 +74,7 @@ public class TestIndex extends TestBaseSearch {
 		}
 
 		for (int i = 0; i < 100; i++) {
-			ReadSession other = r.testLogin("test");
+			ReadSession other = r.login("test");
 			ChildQueryResponse response = other.queryRequest("bleujin").find();
 			Debug.line(i, response.size(), response.first());
 			Thread.sleep(10);

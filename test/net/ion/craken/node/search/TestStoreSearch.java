@@ -36,7 +36,7 @@ public class TestStoreSearch extends TestCase {
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		r.start() ;
 		
-		this.session = r.testLogin("test");
+		this.session = r.login("test");
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
@@ -134,7 +134,7 @@ public class TestStoreSearch extends TestCase {
 	
 	
 	public void testIndexInfo() throws Exception {
-		int maxDoc = session.getIndexInfo(new IndexInfoHandler<Integer>() {
+		int maxDoc = session.indexInfo(new IndexInfoHandler<Integer>() {
 			@Override
 			public Integer handle(ReadSession session, InfoReader infoReader) {
 				try {

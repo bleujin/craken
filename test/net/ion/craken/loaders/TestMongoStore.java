@@ -34,7 +34,7 @@ public class TestMongoStore extends TestCase {
 		
 		repo.start() ;
 		
-		this.session = repo.testLogin("mywork") ;
+		this.session = repo.login("mywork") ;
 	}
 	
 	public void tearDown() {

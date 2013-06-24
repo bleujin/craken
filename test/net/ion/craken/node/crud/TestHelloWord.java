@@ -11,7 +11,7 @@ public class TestHelloWord extends TestCase {
 	public void testHello() throws Exception {
 		Repository r = RepositoryImpl.testSingle() ;
 		r.start() ;
-		ReadSession session = r.testLogin("mywork") ;
+		ReadSession session = r.login("mywork") ;
 		
 		session.tranSync(new TransactionJob<Void>() {
 			public Void handle(WriteSession wsession) {

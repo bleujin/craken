@@ -24,7 +24,7 @@ public class TestEvictionInSearch extends TestCase{
 		r.start() ;
 
 		
-		ReadSession session = r.testLogin("test");
+		ReadSession session = r.login("test");
 		
 		session.tranSync(TransactionJobs.dummyEmp(20)) ;
 		

@@ -20,7 +20,7 @@ public class TestRemoveChildren extends  TestCase {
 		this.r = RepositoryImpl.create();
 		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxEntries(10).chunkSize(1024 * 1024 * 10));
 		r.start();
-		this.session = r.testLogin("test");
+		this.session = r.login("test");
 	}
 
 	@Override

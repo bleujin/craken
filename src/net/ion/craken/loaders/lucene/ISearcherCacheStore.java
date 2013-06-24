@@ -149,17 +149,16 @@ public class ISearcherCacheStore extends AbCacheStore {
 	@Override
 	public boolean remove(Object _key) throws CacheLoaderException {
 		final TreeNodeKey key = (TreeNodeKey) _key;
-//		return central.newIndexer().index(new IndexJob<Boolean>() {
-//			@Override
-//			public Boolean handle(IndexSession isession) throws Exception {
-//				isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
-//
-//				Debug.line(key.idString()) ;
-//
-//				return Boolean.TRUE;
-//			}
-//		});
-		return true ;
+		return central.newIndexer().index(new IndexJob<Boolean>() {
+			@Override
+			public Boolean handle(IndexSession isession) throws Exception {
+				isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
+
+				Debug.line(key.idString()) ;
+				return Boolean.TRUE;
+			}
+		});
+//		return true ;
 	}
 
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
