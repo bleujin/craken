@@ -22,5 +22,7 @@
 	<classpathentry kind="lib" path="lib/ref/isearcher_3.6.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/mongo-java-driver-2.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/infinispan521_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/testng-5.8-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/ref/aclient_0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

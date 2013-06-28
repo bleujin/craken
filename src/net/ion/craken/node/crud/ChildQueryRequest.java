@@ -9,6 +9,7 @@ import net.ion.framework.db.Page;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.search.SearchRequest;
+import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
 import net.ion.nsearcher.search.filter.FilterUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
@@ -232,8 +233,9 @@ public class ChildQueryRequest {
 		request.selections(IKeywordField.ISKey) ;
 		
 		
+		final SearchResponse response = searcher.search(request);
 		
-		return ChildQueryResponse.create(session, searcher.search(request)) ;
+		return ChildQueryResponse.create(session, response) ;
 	}
 	
 	public ReadNode findOne() throws IOException, ParseException {

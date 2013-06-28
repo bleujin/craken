@@ -59,7 +59,7 @@ public abstract class AbstractWorkspace implements Workspace{
 			this.removeListener(listener) ;
 		}
 		
-		treeCache.getCache().stop() ;
+//		treeCache.getCache().stop() ;
 		treeCache.stop();
 	}
 

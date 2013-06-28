@@ -27,6 +27,7 @@ import net.ion.nsearcher.config.CentralConfig;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.store.SingleInstanceLockFactory;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -52,12 +53,16 @@ public class RepositoryImpl implements Repository{
 	
 	public static RepositoryImpl create() {
 		GlobalConfiguration gconfig = GlobalConfigurationBuilder
-			.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
+			.defaultClusteredBuilder()
+				.transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml")
+				.build();
 		return create(gconfig) ;
 	}
 
 	public static RepositoryImpl create(GlobalConfiguration gconfig) {
-		Configuration config = new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build() ; // not indexable : indexing().enable().
+		Configuration config = new ConfigurationBuilder()
+		.locking().lockAcquisitionTimeout(20000).concurrencyLevel(5000).useLockStriping(false)
+		.clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build() ; // not indexable : indexing().enable().
 		return new RepositoryImpl(new DefaultCacheManager(gconfig, config));
 	}
 
@@ -138,11 +143,16 @@ public class RepositoryImpl implements Repository{
 			return wss.get(wsname) ;
 		} else {
 			Central central = null;
-			if (dm.getTransport() == null) { // when testSingle
+			if (dm.getTransport() == null || dm.getCacheNames().size() == 1) { // when testSingle
 				final Cache<Object, Object> idxCache = dm.getCache(wsname + ".idx");
-				idxCache.start() ;
+				
+//				idxCache.start() ;
 				InfinispanDirectory dir = new InfinispanDirectory(idxCache);
+				dir.setLockFactory(new SingleInstanceLockFactory()) ;
 				central = CentralConfig.oldFromDir(dir).build();
+				
+				
+				
 			} else {
 //						dftManager.defineConfiguration(wsname + ".meta", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
 //								.cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
@@ -156,9 +166,9 @@ public class RepositoryImpl implements Repository{
 				final Cache<Object, Object> chunkCache = dm.getCache(wsname + ".chunks");
 				final Cache<Object, Object> lockCache = dm.getCache(wsname + ".locks");
 				
-				metaCache.start() ;
-				chunkCache.start() ;
-				lockCache.start() ;
+//				metaCache.start() ;
+//				chunkCache.start() ;
+//				lockCache.start() ;
 				
 //						Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 64).create(); // .chunkSize()
 				InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
@@ -191,8 +201,10 @@ public class RepositoryImpl implements Repository{
 		defineConfig(wsName + ".chunks", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+
 		defineConfig(wsName + ".locks", 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
+				new ConfigurationBuilder()
+				.clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
 		
 		log.info(wsName + " created") ;
 	}
@@ -203,6 +215,12 @@ public class RepositoryImpl implements Repository{
 //				.eviction().maxEntries(10000)
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new ISearcherCacheStore()).addProperty("location", config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		
+		
+		defineConfig(wsName + ".idx", 
+				new ConfigurationBuilder()
+				.clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
+		
 	}
 
 

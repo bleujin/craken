@@ -48,6 +48,7 @@ public class ChildQueryResponse {
 		if (found == null){
 			found = ListUtil.newList() ;
 			try {
+				
 				for (ReadDocument doc : response.getDocument()){
 					found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
 				};
