@@ -110,21 +110,23 @@ public abstract class AbstractWorkspace implements Workspace{
 
 			@Override
 			public T call() throws Exception {
-				workspace.beginTran();
+				boolean fail = false ;
 				try {
+					workspace.beginTran();
 					T result = tjob.handle(wsession);
-					workspace.endTran();
+					wsession.endCommit();
 					return result;
-				} catch (Exception ex) {
+				} catch (Throwable ex) {
 //					ex.printStackTrace() ;
+					fail = true ;
 					workspace.failEndTran();
 					wsession.failRollback();
-					if (ehandler == null) throw ex ;
+					if (ehandler == null) throw new Exception(ex) ;
 					
 					ehandler.handle(wsession, ex);
 					return null ;
 				} finally {
-					wsession.endCommit();
+					if (! fail) workspace.endTran();
 				}
 				
 			}
@@ -133,6 +135,7 @@ public abstract class AbstractWorkspace implements Workspace{
 	}
 
 	private void failEndTran() {
+		
 		treeCache.failEnd();
 	}
 
@@ -146,8 +149,9 @@ public abstract class AbstractWorkspace implements Workspace{
 	
 
 	public Workspace continueUnit(WriteSession wsession) {
-		endTran() ;
 		wsession.endCommit() ;
+		endTran() ;
+		
 		beginTran() ;
 		return this ;
 	}

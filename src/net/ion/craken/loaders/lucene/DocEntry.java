@@ -1,5 +1,10 @@
 package net.ion.craken.loaders.lucene;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.Map.Entry;
 
 import net.ion.craken.tree.Fqn;
@@ -13,22 +18,25 @@ import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.AtomicMap;
+import org.infinispan.container.entries.ImmortalCacheEntry;
+import org.infinispan.container.entries.ImmortalCacheValue;
 import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.container.entries.MortalCacheEntry;
 import org.infinispan.container.entries.MortalCacheValue;
 
-public 
-class DocEntry extends MortalCacheEntry {
+public class DocEntry extends ImmortalCacheEntry implements Serializable{
+	private static final long serialVersionUID = 8793021912637163008L;
 
 	static final String VALUE = "__value";
 
 	static final String ID = "__id";
 	static final String LASTMODIFIED = "__lastmodified";
 	static final String PROPS = "__props";
-	
-	
-	public static final String PARENT = "__parent" ;
-	protected DocEntry(Object key, MortalCacheValue cacheValue) {
+
+	public static final String PARENT = "__parent";
+
+	public DocEntry(Object key, ImmortalCacheValue cacheValue) {
 		super(key, cacheValue);
 	}
 
@@ -56,8 +64,8 @@ class DocEntry extends MortalCacheEntry {
 			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
 		}
 
-		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
-		final DocEntry create = new DocEntry(nodeKey, mvalue);
+//		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
+		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
 		return create;
 	}
 
@@ -80,9 +88,12 @@ class DocEntry extends MortalCacheEntry {
 			}
 		}
 
-		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
-		final DocEntry create = new DocEntry(nodeKey, mvalue);
+//		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
+		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
 		return create;
 	}
 
+
 }
+
+

@@ -166,9 +166,9 @@ public class RepositoryImpl implements Repository{
 				final Cache<Object, Object> chunkCache = dm.getCache(wsname + ".chunks");
 				final Cache<Object, Object> lockCache = dm.getCache(wsname + ".locks");
 				
-//				metaCache.start() ;
-//				chunkCache.start() ;
-//				lockCache.start() ;
+				metaCache.start() ;
+				chunkCache.start() ;
+				lockCache.start() ;
 				
 //						Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 64).create(); // .chunkSize()
 				InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsname, 1024 * 1024 * 10);
@@ -192,6 +192,7 @@ public class RepositoryImpl implements Repository{
 	public void defineWorkspace(String wsName, ISearcherCacheStoreConfig config) {
 		defineConfig(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.eviction().maxEntries(2000)
+				.transaction().syncCommitPhase(true).syncRollbackPhase(true)
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new ISearcherCacheStore()).addProperty("location", config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 

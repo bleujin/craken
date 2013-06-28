@@ -162,6 +162,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 	}
 
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
+//		if (true) return ;
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {

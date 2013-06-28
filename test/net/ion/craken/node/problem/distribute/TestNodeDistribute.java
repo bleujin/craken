@@ -1,6 +1,7 @@
 package net.ion.craken.node.problem.distribute;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -8,46 +9,55 @@ import java.util.concurrent.Executors;
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.RandomUtil;
 
 public class TestNodeDistribute extends TestCase {
 
-	private ReadSession session;
 	private RepositoryImpl r;
+	private ExecutorService workerPool;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		new File("./resource/local").delete() ;
+		FileUtil.deleteDirectory(new File("./resource/local")) ;
 		
 		this.r = RepositoryImpl.create();
 		r.defineWorkspace("test", ISearcherCacheStoreConfig.createDefault()) ;
-		this.session = r.login("test");
+		r.start() ;
+		this.workerPool = Executors.newCachedThreadPool();
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
 		r.shutdown() ;
+		workerPool.shutdown() ;
 		super.tearDown();
 	}
 	
 	
-	public void testRunThread() throws Exception {
-
-		ExecutorService es = Executors.newCachedThreadPool();
-
+	public void testReadNWrite() throws Exception {
 		while (true) {
-			es.submit(new ReadJobEntry(session));
-			es.submit(new WriteJobEntry(session));
-			Thread.sleep(1000) ;
+			workerPool.submit(new ReadJobEntry(r));
+			workerPool.submit(new WriteJobEntry(r));
+			Thread.sleep(100) ;
 		}
-
 	}
+	
+	public void testRead() throws Exception {
+		while (true) {
+			workerPool.submit(new ReadJobEntry(r));
+			Thread.sleep(100) ;
+		}
+	}
+	
+	
 }
 
 
@@ -55,8 +65,8 @@ public class TestNodeDistribute extends TestCase {
 class ReadJobEntry implements Callable<Void> {
 	
 	private ReadSession session ;
-	public ReadJobEntry(ReadSession session){
-		this.session = session ;
+	public ReadJobEntry(Repository r) throws IOException{
+		this.session = r.login("test") ;
 	}
 	
 	@Override
@@ -69,13 +79,13 @@ class ReadJobEntry implements Callable<Void> {
 class WriteJobEntry implements Callable<Void> {
 
 	private ReadSession session ;
-	public WriteJobEntry(ReadSession session){
-		this.session = session ;
+	public WriteJobEntry(Repository r) throws IOException{
+		this.session = r.login("test") ;
 	}
 
 	@Override
 	public Void call() throws Exception {
-		session.tranSync(new TransactionJob<Void>() {
+		return session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				int idx = RandomUtil.nextInt(10);
@@ -83,7 +93,6 @@ class WriteJobEntry implements Callable<Void> {
 				return null;
 			}
 		});
-		return null;
 	}
 }
 

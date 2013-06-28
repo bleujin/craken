@@ -1,5 +1,7 @@
 package net.ion.craken.node.problem.distribute;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,6 +12,7 @@ import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
 
@@ -21,10 +24,12 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -36,11 +41,15 @@ import org.infinispan.manager.DefaultCacheManager;
 
 public class TestLuceneDistribute extends TestCase  {
 	
-	private InfinispanDirectory dir;
+	private Directory dir;
 	private DefaultCacheManager dm;
 	private ExecutorService es;
+	private ExecutorService ses;
 
-	public void setUp() {
+	public void setUp() throws Exception{
+		FileUtil.deleteDirectory(new File("resource/local")) ;
+		FileUtil.deleteDirectory(new File("resource/simple")) ;
+		
 		GlobalConfiguration gconfig = GlobalConfigurationBuilder
 			.defaultClusteredBuilder()
 			.transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml")
@@ -49,6 +58,7 @@ public class TestLuceneDistribute extends TestCase  {
 		String wsName = "test";
 		this.dm = new DefaultCacheManager(gconfig);
 		ISearcherCacheStoreConfig config = ISearcherCacheStoreConfig.createDefault();
+		
 		dm.defineConfiguration(wsName + ".meta", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
@@ -62,19 +72,25 @@ public class TestLuceneDistribute extends TestCase  {
 		
 		this.dir = new InfinispanDirectory(dm.getCache("test.meta"), dm.getCache("test.chunks"), dm.getCache("test.locks"), "testdir", 1024 * 1024);
 		
+		dm.start() ;
 		this.es = Executors.newCachedThreadPool();
+		this.ses = Executors.newSingleThreadExecutor() ;
+		
 	}
 	
-	public void tearDown() {
+	public void tearDown() throws Exception{
 		es.shutdown() ;
+		ses.shutdown() ;
 		dir.close() ;
+		dm.stop() ;
 	}
 
 	public void testReadNWrite() throws Exception {
+		
 		for (int i = 0; i < 1000; i++) {
 			es.submit(new ReadJob(dir));
-			es.submit(new WriteJob(dir));
-			Thread.sleep(200);
+			ses.submit(new WriteJob(dir));
+			Thread.sleep(100);
 		}
 
 		
@@ -84,7 +100,7 @@ public class TestLuceneDistribute extends TestCase  {
 	
 
 	public void testRead() throws Exception {
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1000; i++) {
 			es.submit(new ReadJob(dir));
 			Thread.sleep(200);
 		}
@@ -138,14 +154,15 @@ class ReadJob implements Callable<Void>{
 	
 	@Override
 	public Void call() throws Exception {
-		IndexReader reader = IndexReader.open(dir);
-		IndexSearcher searcher = new IndexSearcher(reader);
-
+		IndexReader reader = null ;
+		IndexSearcher searcher = null ;
 		try {
+			reader = IndexReader.open(dir);
+			searcher = new IndexSearcher(reader);
 			Debug.line(searcher.search(new MatchAllDocsQuery(), 1).totalHits) ;
 		} finally {
-			IOUtil.closeQuietly(reader) ;
 			IOUtil.closeQuietly(searcher) ;
+			IOUtil.closeQuietly(reader) ;
 		}
 		
 		return null;
@@ -165,14 +182,14 @@ class WriteJob implements Callable<Void>{
 	public Void call() throws Exception {
 		IndexWriter iw = null ;
 		try {
-			iw = new IndexWriter(dir, new StandardAnalyzer(Version.LUCENE_CURRENT), MaxFieldLength.UNLIMITED);
+			iw = LuceneSettings.openWriter(dir, 5000);
 			String key = new ObjectId().toString() ;
 			for (int i = 0; i < 3 ; i++) {
 				iw.addDocument(TestLuceneDistribute.createDoc(key, i));
 			}
 			iw.commit() ;
 		} catch(Throwable e){
-			if (iw != null) iw.rollback();
+			if (iw != null) try{ iw.rollback();} catch(IOException ignore){System.out.println(ignore.getMessage()) ;}
 			e.printStackTrace() ;
 		} finally {
 			IOUtil.closeQuietly(iw) ;
