@@ -12,8 +12,8 @@ public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
 	
 	
 	private String location = "./resource/index";
-	private int maxEntries = 10;
-	private int chunkSize = 1024 * 1024 * 10 ; 
+	private int maxEntries = 100;
+	private int chunkSize = 1024 * 512 ; 
 	
 
 	public ISearcherCacheStoreConfig() {

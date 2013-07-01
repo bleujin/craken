@@ -193,14 +193,19 @@ public class RepositoryImpl implements Repository{
 		defineConfig(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.eviction().maxEntries(2000)
 				.transaction().syncCommitPhase(true).syncRollbackPhase(true)
+				.locking().lockAcquisitionTimeout(20000)
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new ISearcherCacheStore()).addProperty("location", config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 
 		defineConfig(wsName + ".meta", 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
+				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable()
+				.locking().lockAcquisitionTimeout(20000)
+				.loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 		defineConfig(wsName + ".chunks", 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
+				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxEntries()).invocationBatching().enable()
+				.locking().lockAcquisitionTimeout(20000)
+				.loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 
 		defineConfig(wsName + ".locks", 

@@ -15,6 +15,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
+import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.RandomUtil;
 
@@ -26,7 +27,7 @@ public class TestNodeDistribute extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		FileUtil.deleteDirectory(new File("./resource/local")) ;
+//		FileUtil.deleteDirectory(new File("./resource/local")) ;
 		
 		this.r = RepositoryImpl.create();
 		r.defineWorkspace("test", ISearcherCacheStoreConfig.createDefault()) ;
@@ -46,14 +47,14 @@ public class TestNodeDistribute extends TestCase {
 		while (true) {
 			workerPool.submit(new ReadJobEntry(r));
 			workerPool.submit(new WriteJobEntry(r));
-			Thread.sleep(100) ;
+			Thread.sleep(500) ;
 		}
 	}
 	
 	public void testRead() throws Exception {
 		while (true) {
 			workerPool.submit(new ReadJobEntry(r));
-			Thread.sleep(100) ;
+			Thread.sleep(500) ;
 		}
 	}
 	

@@ -90,7 +90,7 @@ public class TestISearchDistribute extends TestCase {
 		for (int i = 0; i < 1000; i++) {
 			workerPool.submit(new CentralIndexJob(central)) ;
 			workerPool.submit(new CentralSearchJob(central)) ;
-			Thread.sleep(100) ;
+			Thread.sleep(20) ;
 		}
 		new InfinityThread().startNJoin() ;
 	}
