@@ -7,6 +7,8 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.Map.Entry;
 
+import net.ion.craken.io.BlobProxy;
+import net.ion.craken.io.BlobValue;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -28,11 +30,11 @@ import org.infinispan.container.entries.MortalCacheValue;
 public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	private static final long serialVersionUID = 8793021912637163008L;
 
-	static final String VALUE = "__value";
+	public static final String VALUE = "__value";
 
-	static final String ID = "__id";
-	static final String LASTMODIFIED = "__lastmodified";
-	static final String PROPS = "__props";
+	public static final String ID = "__id";
+	public static final String LASTMODIFIED = "__lastmodified";
+	public static final String PROPS = "__props";
 
 	public static final String PARENT = "__parent";
 
@@ -80,7 +82,15 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 			if (pvalue.isJsonArray()) {
 				PropertyValue arrayValue = PropertyValue.createPrimitive(null);
 				for (JsonElement jele : (JsonArray) pvalue) {
-					arrayValue.append(jele.getAsJsonPrimitive().getValue());
+//					arrayValue.append(jele.getAsJsonPrimitive().getValue());
+					if (jele.isJsonObject()){
+						arrayValue.append(BlobProxy.create(jele.getAsJsonObject().asString("fqnPath"))) ;
+					} else if (jele.isJsonPrimitive() && jele.getAsJsonPrimitive().isNumber()){
+						final long aslong = jele.getAsJsonPrimitive().getAsLong();
+						arrayValue.append(aslong);
+					} else {
+						arrayValue.append(jele.getAsJsonPrimitive().getValue());
+					}
 				}
 				nodeValue.put(PropertyId.fromIdString(pkey), arrayValue);
 			} else {

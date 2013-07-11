@@ -24,7 +24,7 @@ public class TestPathFirst extends TestCase  {
 		Configuration config = new ConfigurationBuilder().invocationBatching().enable().build() ; // not indexable : indexing().enable().
 		final DefaultCacheManager dm = new DefaultCacheManager(config);
 		dm.start() ;
-		this.tree = new TreeCacheFactory().createTreeCache(dm, "ptest") ;
+		this.tree = TreeCacheFactory.createTreeCache(dm, "ptest") ;
 	}
 	
 	public void testCreateTreeCache() throws Exception {

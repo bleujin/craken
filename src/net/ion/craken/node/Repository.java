@@ -6,6 +6,7 @@ import org.apache.lucene.analysis.Analyzer;
 
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.schedule.IExecutor;
+import net.ion.nsearcher.config.Central;
 
 public interface Repository {
 
@@ -23,5 +24,7 @@ public interface Repository {
 	
 	public <T> T getAttribute(String key, Class<T> clz) ;
 	
-	public RepositoryImpl putAttribute(String key, Object value) ;
+	public Repository putAttribute(String key, Object value) ;
+
+	public Central central(String wsName);
 }

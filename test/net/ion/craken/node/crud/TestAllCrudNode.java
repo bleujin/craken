@@ -19,6 +19,7 @@ public class TestAllCrudNode extends TestSuite {
 		suite.addTestSuite(TestTransaction.class) ;
 		suite.addTestSuite(TestWriteNode.class) ;
 		suite.addTestSuite(TestWriteSession.class) ;
+		suite.addTestSuite(TestWorkspace.class) ;
 		
 		suite.addTestSuite(TestBasicType.class) ;
 		suite.addTestSuite(TestInnerChild.class) ;

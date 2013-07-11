@@ -6,12 +6,11 @@ import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import javax.transaction.xa.XAException;
-
-import org.infinispan.CacheException;
+import org.infinispan.loaders.AbstractCacheStoreConfig;
 
 import net.ion.craken.io.BlobProxy;
 import net.ion.craken.listener.WorkspaceListener;
+import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -29,13 +28,13 @@ public abstract class AbstractWorkspace implements Workspace {
 	private Central central;
 	private String wsName;
 	private TreeCache<PropertyId, PropertyValue> treeCache;
+	private AbstractCacheStoreConfig config;
 
-	protected AbstractWorkspace(Repository repository, Central central, TreeCache<PropertyId, PropertyValue> treeCache, String wsName) {
+	protected AbstractWorkspace(Repository repository, TreeCache<PropertyId, PropertyValue> treeCache, String wsName, AbstractCacheStoreConfig config) {
 		this.repository = repository;
-		this.central = central;
 		this.wsName = wsName;
 		this.treeCache = treeCache;
-
+		this.config = config ;
 		// this.treeCache.start();
 	}
 
@@ -179,10 +178,17 @@ public abstract class AbstractWorkspace implements Workspace {
 
 	@Override
 	public Central central() {
-		return central;
+		return repository.central(wsName) ;
 	}
 
 	public IExecutor executor() {
 		return repository.executor();
 	}
+	
+	@Override
+	public AbstractCacheStoreConfig config() {
+		return config;
+	}
+
+
 }

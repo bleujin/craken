@@ -33,7 +33,7 @@ public class TestISearcherCacheStore extends TestCase {
 	// 30sec per 20k(create, about 700 over per sec)
 	// 18sec per 20k(load, about 1k lower per sec)
 	public void testLuceneDirStore() throws Exception {
-		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxEntries(10).chunkSize(1024 * 1024 * 10)) ;
+		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxChunkEntries(10).chunkSize(1024 * 1024 * 10)) ;
 		
 		r.start() ;
 		
@@ -45,7 +45,7 @@ public class TestISearcherCacheStore extends TestCase {
 	}
 	
 	public void testFind() throws Exception {
-		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxEntries(10).chunkSize(1024 * 1024 * 10)) ;
+		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxChunkEntries(10).chunkSize(1024 * 1024 * 10)) ;
 
 		r.start() ;
 		

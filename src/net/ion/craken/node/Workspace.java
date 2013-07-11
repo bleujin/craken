@@ -13,6 +13,7 @@ import net.ion.craken.tree.TreeNode;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.nsearcher.config.Central;
 
+import org.infinispan.loaders.AbstractCacheStoreConfig;
 import org.infinispan.notifications.Listener;
 
 @Listener
@@ -47,6 +48,8 @@ public interface Workspace {
 	public Workspace continueUnit(WriteSession wsession) ;
 
 	public Central central();
+
+	public AbstractCacheStoreConfig config();
 
 
 }

@@ -10,7 +10,7 @@ import org.infinispan.manager.DefaultCacheManager;
 
 public class TreeCacheFactory {
 
-	public <K, V> TreeCache<K, V> createTreeCache(DefaultCacheManager dftManager, String cacheName) {
+	public static <K, V> TreeCache<K, V> createTreeCache(DefaultCacheManager dftManager, String cacheName) {
 
 		// Validation to make sure that the cache is not null.
 

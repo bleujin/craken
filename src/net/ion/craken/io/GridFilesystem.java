@@ -15,12 +15,6 @@ import org.infinispan.context.Flag;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
-/**
- * Entry point for GridFile and GridInputStream / GridOutputStream
- * 
- * @author Bela Ban
- * @author Marko Luksa
- */
 public class GridFilesystem {
 
 	private static final Log log = LogFactory.getLog(GridFilesystem.class);

@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk6_27"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/IFramework"/>
 	<classpathentry kind="lib" path="lib/ref/aradon_0.9.jar"/>
 	<classpathentry kind="lib" path="lib/ref/mongonode_0.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>

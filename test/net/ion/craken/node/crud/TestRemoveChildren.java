@@ -18,7 +18,7 @@ public class TestRemoveChildren extends  TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxEntries(10).chunkSize(1024 * 1024 * 10));
+		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/local").maxChunkEntries(10).chunkSize(1024 * 1024 * 10));
 		r.start();
 		this.session = r.login("test");
 	}

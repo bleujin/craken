@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
+import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
@@ -12,6 +13,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.IOUtil;
 
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -25,21 +27,24 @@ public class TestNodeIo extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
-				.sync().replTimeout(20000)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/store/test")
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-
-		r.defineConfig("test.blobdata",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
-				.sync().replTimeout(20000)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/store/test")
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		r.defineWorkspace("test", ISearcherCacheStoreConfig.create()) ;
 		
-		r.defineConfig("test.blobmeta",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
-				.sync().replTimeout(20000)
-				
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/store/test")
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+//		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
+//				.sync().replTimeout(20000)
+//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/iotest")
+//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+//
+//		r.defineConfig("test.blobdata",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
+//				.sync().replTimeout(20000)
+//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/iotest")
+//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+//		
+//		r.defineConfig("test.blobmeta",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
+//				.sync().replTimeout(20000)
+//				
+//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/iotest")
+//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		
 		this.session = r.login("test") ;
 	}
 	
@@ -62,6 +67,11 @@ public class TestNodeIo extends TestCase {
 		}) ;
 		
 		Debug.line(session.pathBy("/bleujin").property("config").asBlob().toFile()) ;
+
+		final PropertyValue property = session.pathBy("/bleujin").property("config");
+		final BlobValue blob = property.asBlob();
+		Debug.debug(IOUtil.toString(blob.toInputStream())) ;
+
 	}
 	
 	public void testRead() throws Exception {
@@ -72,7 +82,7 @@ public class TestNodeIo extends TestCase {
 		final BlobValue blob = property.asBlob();
 		final File file = blob.toFile();
 		Debug.line(file, file.getParentFile(), file.isDirectory()) ;
-//		Debug.debug(IOUtil.toString(blob.toInputStream())) ;
+		Debug.debug(IOUtil.toString(blob.toInputStream())) ;
 	}
 	
 	

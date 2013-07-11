@@ -18,8 +18,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import net.ion.framework.util.Debug;
+
 import org.infinispan.Cache;
 import org.infinispan.config.ConfigurationException;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.container.entries.InternalCacheValue;
 import org.infinispan.loaders.AbstractCacheStore;
@@ -223,7 +228,7 @@ public class FastFileCacheStore extends AbstractCacheStore {
 			byte[] key = getMarshaller().objectToByteBuffer(entry.getKey());
 			byte[] data = getMarshaller().objectToByteBuffer(entry.toInternalCacheValue());
 
-			
+//			Debug.line(entry) ;
 			// allocate file entry and store in cache file
 			int len = KEY_POS + key.length + data.length;
 			FileEntry fe = allocate(len);
@@ -497,6 +502,17 @@ public class FastFileCacheStore extends AbstractCacheStore {
 			return (diff != 0) ? diff : offset > fe.offset ? 1 : -1;
 		}
 	}
+	
+	
+
+	public static Configuration testCacheStore(String location, int maxEntry) {
+		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().hash().numOwners(2).unsafe()
+				.eviction().maxEntries(maxEntry)
+				.invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", location)
+				// ./resource/temp
+				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build();
+	}
+	 
 }
 
 

@@ -53,7 +53,7 @@ public class TestISearchDistribute extends TestCase {
 				.addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
 				.build());
 		dm.defineConfiguration(wsName + ".chunks", 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
+				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxChunkEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
 				.build());
 		
@@ -144,9 +144,6 @@ class CentralIndexJob implements Callable<Void> {
 		}) ;
 		return null;
 	}
-	
-	
-	
 	
 }
 

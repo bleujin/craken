@@ -8,11 +8,13 @@ public class TestBaseCrud extends TestCase {
 
 	protected RepositoryImpl r ;
 	protected ReadSession session;
+	protected ISearcherCacheStoreConfig config;
 
 	@Override
 	protected void setUp() throws Exception {
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspaceForTest("test", ISearcherCacheStoreConfig.createDefault()) ;
+		this.config = ISearcherCacheStoreConfig.createDefault();
+		r.defineWorkspaceForTest("test", config) ;
 		
 		r.start() ;
 		this.session = r.login("test") ;
