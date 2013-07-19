@@ -14,6 +14,10 @@ public abstract class AbstractWriteSession implements WriteSession{
 		this.workspace = workspace ;
 	}
 	
+	public WriteNode resetBy(String fqn){
+		return WriteNodeImpl.loadTo(this, workspace.resetNode(fqn)) ;
+	}
+	
 	public WriteNode pathBy(String fqn) {
 		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
 	}

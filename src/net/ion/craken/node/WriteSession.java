@@ -8,6 +8,8 @@ import net.ion.craken.tree.Fqn;
 
 public interface WriteSession extends ISession<WriteNode> {
 
+	public WriteNode resetBy(String fqn);
+	
 	public WriteNode pathBy(String fqn0, String... fqns)  ;
 
 	public void failRollback();
@@ -21,4 +23,5 @@ public interface WriteSession extends ISession<WriteNode> {
 	public void notifyTouch(Fqn fqn, Touch touch);
 
 	public void continueUnit();
+
 }

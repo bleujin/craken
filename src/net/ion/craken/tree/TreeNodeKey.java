@@ -19,7 +19,15 @@ public class TreeNodeKey implements Serializable {
 	final Type contents;
 
 	public static enum Type {
-		DATA, STRUCTURE
+		DATA, STRUCTURE ;
+		
+		public boolean isStructure(){
+			return this == STRUCTURE ;
+		}
+		
+		public boolean isData(){
+			return this == DATA ;
+		}
 	}
 
 	public TreeNodeKey(Fqn fqn, Type contents) {
@@ -31,7 +39,7 @@ public class TreeNodeKey implements Serializable {
 		return fqn;
 	}
 
-	public Type getContents() {
+	public Type getType() {
 		return contents;
 	}
 

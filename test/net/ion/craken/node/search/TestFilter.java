@@ -24,9 +24,7 @@ public class TestFilter extends TestBaseSearch {
 	public void testAndFilter() throws Exception {
 		session.queryRequest("").filter(new TermFilter("name", "bleujin")).lt("dummy", 10).find().debugPrint() ;
 	}
-	
-	
-	
+
 	public void testQueryParse() throws Exception {
 		assertEquals(true, "3".matches("-?\\d+")) ;
 		assertEquals(true, "-3".matches("-?\\d+")) ;

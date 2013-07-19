@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherCacheStore;
+import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStore;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -15,6 +16,7 @@ import net.ion.craken.node.crud.IndexInfoHandler;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
+import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.reader.InfoReader;
 
 import org.infinispan.configuration.cache.CacheMode;
@@ -29,11 +31,11 @@ public class TestStoreSearch extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
-				.sync().replTimeout(20000)
+		r.defineWorkspace("test",  CentralCacheStoreConfig.createDefault().location("./resource/local")) ;
+//				.sync().replTimeout(20000)
 //				.eviction().maxEntries(10000)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new ISearcherCacheStore()).addProperty("location","./resource/local")
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new OldCacheStore()).addProperty("location","./resource/local")
+//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		r.start() ;
 		
 		this.session = r.login("test");

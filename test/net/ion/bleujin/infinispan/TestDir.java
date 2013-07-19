@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.util.List;
 
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.WriteNode;
 import net.ion.framework.util.Debug;
@@ -46,7 +46,7 @@ public class TestDir extends TestCase {
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig);
 		String wsName = "test" ;
 		
-		ISearcherCacheStoreConfig config = ISearcherCacheStoreConfig.create().location("./resource/ff3") ;
+		OldCacheStoreConfig config = OldCacheStoreConfig.create().location("./resource/ff3") ;
 		
 		dcm.defineConfiguration(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.eviction().maxEntries(config.maxNodeEntry())

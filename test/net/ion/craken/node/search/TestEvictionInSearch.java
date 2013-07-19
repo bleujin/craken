@@ -1,7 +1,7 @@
 package net.ion.craken.node.search;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherCacheStore;
+import net.ion.craken.loaders.lucene.OldCacheStore;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -19,7 +19,7 @@ public class TestEvictionInSearch extends TestCase{
 		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.sync().replTimeout(20000)
 				.eviction().maxEntries(10)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new ISearcherCacheStore()).addProperty("location","./resource/local")
+				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new OldCacheStore()).addProperty("location","./resource/local")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		r.start() ;
 

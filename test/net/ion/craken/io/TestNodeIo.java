@@ -5,7 +5,8 @@ import java.io.FileInputStream;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
@@ -27,7 +28,7 @@ public class TestNodeIo extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", ISearcherCacheStoreConfig.create()) ;
+		r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
 		
 //		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 //				.sync().replTimeout(20000)

@@ -7,27 +7,32 @@ import java.util.Map;
 import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicHashMapProxy;
 import org.infinispan.atomic.AtomicMap;
+import org.infinispan.atomic.AtomicMapLookup;
+import org.infinispan.batch.AutoBatchSupport;
 import org.infinispan.batch.BatchContainer;
 import org.infinispan.context.Flag;
 import org.infinispan.util.Immutables;
 import org.infinispan.util.Util;
 
-public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<PropertyId, PropertyValue> {
+public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<PropertyId, PropertyValue>{
+
 	private GridFilesystem gfs ;
 	private Fqn fqn;
 	private TreeNodeKey dataKey, structureKey;
 
 	public TreeNodeImpl(Fqn fqn, GridFilesystem gfs, AdvancedCache<?, ?> cache, BatchContainer batchContainer) {
-		super(cache, batchContainer);
+		super(cache, batchContainer) ;
 		this.gfs = gfs ;
 		this.fqn = fqn;
 		this.dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA);
 		this.structureKey = new TreeNodeKey(fqn, TreeNodeKey.Type.STRUCTURE);
+		this.batchContainer = batchContainer ;
 	}
 
 	@Override
@@ -60,7 +65,7 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 		startAtomic();
 		try {
 			Set<TreeNode<PropertyId, PropertyValue>> result = new HashSet<TreeNode<PropertyId, PropertyValue>>();
-			for (Fqn f : getStructure().values()) {
+			for (Fqn f : getStructure(structureKey).values()) {
 				TreeNodeImpl n = new TreeNodeImpl(f, gfs, cache, batchContainer);
 				result.add(n);
 			}
@@ -81,7 +86,7 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 	}
 
 	private Set<Object> getChildrenNames(AdvancedCache<?, ?> cache) {
-		return Immutables.immutableSetCopy(getStructure(cache).keySet());
+		return Immutables.immutableSetCopy(getStructure(structureKey).keySet());
 	}
 
 	@Override
@@ -138,15 +143,16 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 			Fqn absoluteChildFqn = Fqn.fromRelativeFqn(fqn, f);
 
 			// 1) first register it with the parent
-			AtomicMap<Object, Fqn> structureMap = getStructure(cache);
-			structureMap.put(f.getLastElement(), absoluteChildFqn);
+//			AtomicMap<Object, Fqn> structureMap = getStructure(structureKey);
+//			structureMap.put(f.getLastElement(), absoluteChildFqn);
 
+//			Debug.line(f, new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE)) ;
+//			cache.remove(new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE));
+			
 			// 2) then create the structure and data maps
 			createNodeInCache(cache, absoluteChildFqn);
 
-			final TreeNodeImpl result = new TreeNodeImpl(absoluteChildFqn, gfs, cache, batchContainer);
-
-			return result;
+			return new TreeNodeImpl(absoluteChildFqn, gfs, cache, batchContainer);
 		} finally {
 			endAtomic();
 		}
@@ -177,7 +183,7 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 	}
 
 	private boolean removeChild(AdvancedCache cache, Object childName) {
-		AtomicMap<Object, Fqn> s = getStructure(cache);
+		AtomicMap<Object, Fqn> s = getStructure(structureKey);
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
 			TreeNode<PropertyId, PropertyValue> child = new TreeNodeImpl(childFqn, gfs, cache, batchContainer);
@@ -408,7 +414,7 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 		if (f.size() > 1) {
 			// indirect child.
 			Fqn absoluteFqn = Fqn.fromRelativeFqn(fqn, f);
-			return exists(cache, absoluteFqn);
+			return exists(absoluteFqn);
 		} else {
 			return hasChild(f.getLastElement());
 		}
@@ -425,7 +431,7 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 	}
 
 	private boolean hasChild(AdvancedCache<?, ?> cache, Object o) {
-		return getStructure(cache).containsKey(o);
+		return getStructure(structureKey).containsKey(o);
 	}
 
 	@Override
@@ -452,7 +458,7 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 	}
 
 	private void removeChildren(AdvancedCache<?, ?> cache) {
-		Map<Object, Fqn> s = getStructure(cache);
+		Map<Object, Fqn> s = getStructure(structureKey);
 		for (Object o : Immutables.immutableSetCopy(s.keySet()))
 			removeChild(cache, o);
 	}
@@ -465,13 +471,6 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 		return getAtomicMap(cache, dataKey);
 	}
 
-	AtomicMap<Object, Fqn> getStructure() {
-		return getAtomicMap(structureKey);
-	}
-
-	private AtomicMap<Object, Fqn> getStructure(AdvancedCache<?, ?> cache) {
-		return getAtomicMap(cache, structureKey);
-	}
 
 	public boolean equals(Object o) {
 		if (this == o)
@@ -495,7 +494,12 @@ public class TreeNodeImpl extends TreeStructureSupport implements TreeNode<Prope
 	public String toString() {
 		return "TreeNode{" + "fqn=" + fqn + '}';
 	}
+	
+	
+	
 }
+
+
 
 
 class ReadMap implements Map<PropertyId, PropertyValue>{
@@ -566,19 +570,18 @@ class ReadMap implements Map<PropertyId, PropertyValue>{
 
 	@Override
 	public PropertyValue put(PropertyId key, PropertyValue value) {
-		return null;
+		throw new UnsupportedOperationException() ;
 	}
 
 	@Override
 	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> m) {
-		
+		throw new UnsupportedOperationException() ;
 	}
 
 	@Override
 	public PropertyValue remove(Object key) {
-		return null;
+		throw new UnsupportedOperationException() ;
 	}
 
 	
 }
-

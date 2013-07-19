@@ -1,15 +1,18 @@
-package net.ion.bleujin.infinispan;
+package net.ion.craken.loaders.lucene;
 
+import java.io.File;
 import java.io.IOException;
 
-import net.ion.craken.loaders.lucene.LazyCentralConfig;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.infinispan.loaders.AbstractCacheStoreConfig;
-import org.infinispan.manager.CacheContainer;
 
 public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 
@@ -20,8 +23,6 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 	
 	
 	private String location = "./resource/index";
-	private int maxChunkEntries = 5;
-	private int chunkSize = 1024 * 1024 * 50 ; 
 	private int lockTimeoutMs = 60 * 1000 ;
 
 	private int maxNodeEntry = 2000;
@@ -49,37 +50,16 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 		this.location = location;
 	}
 
-	public void setMaxChunkEntries(int maxEntries) {
-		this.maxChunkEntries = maxEntries;
-	}
-
-	public void setChunkSize(int chunkSize) {
-		this.chunkSize = chunkSize;
-	}
-
 	
 	public String location() {
 		return location;
 	}
-
-	public int maxChunkEntries() {
-		return maxChunkEntries;
-	}
-
-	public int chunkSize(){
-		return chunkSize ;
-	}
-
 
 	public CentralCacheStoreConfig location(String path) {
 		setLocation(path) ;
 		return this;
 	}
 
-	public CentralCacheStoreConfig maxChunkEntries(int maxEntries) {
-		setMaxChunkEntries(maxEntries) ;
-		return this;
-	}
 
 	public CentralCacheStoreConfig maxNodeEntry(int maxNodeEntry){
 		this.maxNodeEntry = maxNodeEntry ;
@@ -89,11 +69,7 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 	public int maxNodeEntry(){
 		return maxNodeEntry ;
 	}
-	
-	public CentralCacheStoreConfig chunkSize(int chunkSize){
-		setChunkSize(chunkSize) ;
-		return this ;
-	}
+
 
 	public CentralCacheStoreConfig lockTimeoutMs(int lockTimeoutMs){
 		this.lockTimeoutMs = lockTimeoutMs ;
@@ -108,7 +84,20 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 	
 	
 	public Central buildCentral() throws CorruptIndexException, IOException {
-		return CentralConfig.newLocalFile().dirFile(location()).indexConfigBuilder().setRamBufferSizeMB(128).build();
+		Directory dir = null ;
+		if (StringUtil.isBlank(location)) {
+			dir = new RAMDirectory() ;
+		} else {
+			final File file = new File(location);
+			if (! file.exists()) file.mkdirs() ;
+			dir = FSDirectory.open(file) ;
+		}
+		final Central result = lazyConfig.dir(dir).build();
+		
+		Debug.line('i', this.hashCode(), this) ;
+		
+		return result ;
+//		CentralConfig.newLocalFile().dirFile(location()).indexConfigBuilder().setRamBufferSizeMB(128).build();
 	}
 	
 	public CentralConfig centralConfig(){

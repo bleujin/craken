@@ -142,7 +142,7 @@ public abstract class AbstractReadSession implements ReadSession {
 		
 		@Override
 		public void map(TreeNodeKey key, AtomicMap<PropertyId, PropertyValue> map, Collector<Ri, Rv> iter) {
-			if (key.getContents() == TreeNodeKey.Type.STRUCTURE) return ;
+			if (key.getType() == TreeNodeKey.Type.STRUCTURE) return ;
 
 			inner.map(key, map, iter) ;
 		}

@@ -66,7 +66,7 @@ public class TestListener extends TestBaseCrud {
 		@CacheEntryModified
 		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){
 			if (e.isPre()) return ;
-			if (e.getKey().getContents() == Type.DATA)  {
+			if (e.getKey().getType() == Type.DATA)  {
 				aint.incrementAndGet() ;
 				Debug.line("listener", e.getKey(), e.getValue().entrySet()) ;
 			}

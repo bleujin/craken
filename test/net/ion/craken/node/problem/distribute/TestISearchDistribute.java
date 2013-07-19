@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
@@ -46,7 +46,7 @@ public class TestISearchDistribute extends TestCase {
 		this.repository = RepositoryImpl.create(gconfig);
 		
 		String wsName = "test";
-		ISearcherCacheStoreConfig config = ISearcherCacheStoreConfig.createDefault() ;
+		OldCacheStoreConfig config = OldCacheStoreConfig.createDefault() ;
 		this.dm = repository.dm();
 		dm.defineConfiguration(wsName + ".meta", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)

@@ -87,7 +87,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 		TreeNodeKey nodeKey = (TreeNodeKey) entry.getKey();
 
 		Map outerMap = MapUtil.newMap();
-		if (nodeKey.getContents() == TreeNodeKey.Type.STRUCTURE) {
+		if (nodeKey.getType() == TreeNodeKey.Type.STRUCTURE) {
 			outerMap.put("_id", "@" + nodeKey.getFqn().toString());
 			for (Entry<String, Fqn> childEle : ((AtomicHashMap<String, Fqn>) entry.getValue()).entrySet()) {
 				outerMap.put(childEle.getKey(), childEle.getValue().toString());
@@ -150,7 +150,7 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 	}
 
 	private DBObject createDBObjectKey(TreeNodeKey key) {
-		return key.getContents() == Type.DATA ? new BasicDBObject("_id", key.getFqn().toString()) : new BasicDBObject("_id", "@" + key.getFqn().toString());
+		return key.getType() == Type.DATA ? new BasicDBObject("_id", key.getFqn().toString()) : new BasicDBObject("_id", "@" + key.getFqn().toString());
 		// return AradonId.create(this.cache.getName(), key).toNodeObject().getDBObject();
 	}
 	
@@ -296,7 +296,7 @@ class NodeEntry extends MortalCacheEntry {
 	}
 
 	public static InternalCacheEntry create(TreeNodeKey key, DBObject raw) {
-		if (key.getContents() == Type.DATA)
+		if (key.getType() == Type.DATA)
 			return createDataEntry(raw);
 		else
 			return createStruEntry(raw);

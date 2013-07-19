@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import junit.framework.TestCase;
 
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
@@ -57,7 +57,7 @@ public class TestLuceneDistribute extends TestCase  {
 		
 		String wsName = "test";
 		this.dm = new DefaultCacheManager(gconfig);
-		ISearcherCacheStoreConfig config = ISearcherCacheStoreConfig.createDefault();
+		OldCacheStoreConfig config = OldCacheStoreConfig.createDefault();
 		
 		dm.defineConfiguration(wsName + ".meta", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)

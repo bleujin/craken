@@ -5,7 +5,8 @@ import java.util.Iterator;
 import com.google.common.base.Function;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -26,7 +27,7 @@ public class TestInsertSpeed extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", ISearcherCacheStoreConfig.create().location("./resource/fff").maxChunkEntries(10).chunkSize(1024 * 1024 * 10));
+		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/fff"));
 		r.start();
 		this.session = r.login("test");
 	}

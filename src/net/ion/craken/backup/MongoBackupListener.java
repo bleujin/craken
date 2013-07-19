@@ -70,7 +70,7 @@ public class MongoBackupListener implements WorkspaceListener, Restoreable {
 		if (e.isPre())
 			return;
 
-		if (e.getKey().getContents() == Type.DATA) {
+		if (e.getKey().getType() == Type.DATA) {
 			Map outer = MapUtil.newMap();
 
 			Map<String, Object> properties = MapUtil.newMap();

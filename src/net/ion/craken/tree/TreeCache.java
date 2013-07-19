@@ -6,11 +6,13 @@ import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.exception.NodeNotExistsException;
+import net.ion.framework.util.MapUtil;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.CacheException;
 import org.infinispan.atomic.AtomicMap;
+import org.infinispan.batch.BatchContainer;
 import org.infinispan.config.ConfigurationException;
 import org.infinispan.context.Flag;
 import org.infinispan.util.logging.Log;
@@ -43,40 +45,59 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 	}
 
 	private TreeNode<PropertyId, PropertyValue> getRoot(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache) {
-		return new TreeNodeImpl(Fqn.ROOT, gfs, cache, batchContainer);
+		return createTreeNode(Fqn.ROOT, gfs, cache, batchContainer);
 	}
 
-	public V put(String fqn, K key, V value) {
-		return put(cache, Fqn.fromString(fqn), key, value);
+	public TreeNode<PropertyId, PropertyValue> merge(Fqn fqn) {
+		startAtomic();
+		try {
+			createNodeInCache(cache, fqn) ;
+			return new TreeNodeImpl(fqn, gfs, cache, batchContainer);
+		} finally {
+			endAtomic();
+		}
+		
+		
+		
+//		TreeNode<PropertyId, PropertyValue> n = getNode(cache, fqn);
+//		if (n == null)
+//			createNodeInCache(cache, fqn);
+//		n = getNode(cache, fqn);
+//		return n ;
 	}
 
-	public V put(String fqn, K key, V value, Flag... flags) {
-		return put(cache.withFlags(flags), Fqn.fromString(fqn), key, value);
-	}
-
-	public void put(Fqn fqn, Map<? extends PropertyId, ? extends PropertyValue> data) {
-		put(cache, fqn, data);
-	}
-
-	public void put(Fqn fqn, Map<PropertyId, ? extends PropertyValue> data, Flag... flags) {
-		put(cache.withFlags(flags), fqn, data);
-	}
-
-	private void put(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, Map<? extends PropertyId, ? extends PropertyValue> data) {
-		TreeNode<PropertyId, PropertyValue> n = getNode(cache, fqn);
-		if (n == null)
-			createNodeInCache(cache, fqn);
-		n = getNode(cache, fqn);
-		n.putAll(data);
-	}
-
-	public void put(String fqn, Map<? extends PropertyId, ? extends PropertyValue> data) {
-		put(cache, Fqn.fromString(fqn), data);
-	}
-
-	public void put(String fqn, Map<? extends PropertyId, ? extends PropertyValue> data, Flag... flags) {
-		put(cache.withFlags(flags), Fqn.fromString(fqn), data);
-	}
+//	private TreeNode<PropertyId, PropertyValue> merge(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, Map<? extends PropertyId, ? extends PropertyValue> data) {
+//		TreeNode<PropertyId, PropertyValue> n = getNode(cache, fqn);
+//		if (n == null)
+//			createNodeInCache(cache, fqn);
+//		n = getNode(cache, fqn);
+//		n.putAll(data);
+//		return n ;
+//	}
+//
+//	private V put(String fqn, K key, V value) {
+//		return put(cache, Fqn.fromString(fqn), key, value);
+//	}
+//	
+//	private V put(String fqn, K key, V value, Flag... flags) {
+//		return put(cache.withFlags(flags), Fqn.fromString(fqn), key, value);
+//	}
+//	
+//	private void put(Fqn fqn, Map<PropertyId, ? extends PropertyValue> data, Flag... flags) {
+//		merge(cache.withFlags(flags), fqn, data);
+//	}
+//	
+//	public void put(Fqn fqn, Map<? extends String, ?> data) {
+//		Map<PropertyId, PropertyValue> modMap = MapUtil.newMap() ;
+//		for (String key : data.keySet()) {
+//			modMap.put(PropertyId.fromIdString(key), PropertyValue.createPrimitive(data.get(key))) ;
+//		}
+//		merge(cache, fqn, modMap);
+//	}
+//
+//	private void put(String fqn, Map<? extends PropertyId, ? extends PropertyValue> data, Flag... flags) {
+//		merge(cache.withFlags(flags), Fqn.fromString(fqn), data);
+//	}
 
 	public AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache(){
 		return cache ;
@@ -148,47 +169,31 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 	
 	
 
-	public TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn) {
-		return getNode(cache, fqn);
-	}
-
-	public TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn, Flag... flags) {
-		return getNode(cache.withFlags(flags), fqn);
-	}
-
 	private TreeNode<PropertyId, PropertyValue> getNode(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn) {
-		if (exists(cache, fqn))
-			return new TreeNodeImpl(fqn, gfs, cache, batchContainer);
+		if (exists(fqn))
+			return createTreeNode(fqn, gfs, cache, batchContainer);
 		else
 			return null;
 	}
 
-	public TreeNode<PropertyId, PropertyValue> getNode(String fqn) {
-		return getNode(cache, Fqn.fromString(fqn));
-	}
+//	private TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn) {
+//		return getNode(cache, fqn);
+//	}
+//	
+//	private TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn, Flag... flags) {
+//		return getNode(cache.withFlags(flags), fqn);
+//	}
+//	
+//	private TreeNode<PropertyId, PropertyValue> getNode(String fqn) {
+//		return getNode(cache, Fqn.fromString(fqn));
+//	}
+//
+//	private TreeNode<PropertyId, PropertyValue> getNode(String fqn, Flag... flags) {
+//		return getNode(cache.withFlags(flags), Fqn.fromString(fqn));
+//	}
 
-	public TreeNode<PropertyId, PropertyValue> getNode(String fqn, Flag... flags) {
-		return getNode(cache.withFlags(flags), Fqn.fromString(fqn));
-	}
-
-	
-	
-	
-	
-	
-	public V get(Fqn fqn, K key) {
-		return get(cache, fqn, key);
-	}
-
-	public V get(Fqn fqn, K key, Flag... flags) {
-		return get(cache.withFlags(flags), fqn, key);
-	}
-
-	private V get(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, K key) {
-		Map<K, V> m = getAtomicMap(cache, new TreeNodeKey(fqn, TreeNodeKey.Type.DATA));
-		if (m == null)
-			return null;
-		return m.get(key);
+	private TreeNode<PropertyId, PropertyValue> createTreeNode(Fqn fqn, GridFilesystem gfs, AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, BatchContainer batchContainer) {
+		return new TreeNodeImpl(fqn, gfs, cache, batchContainer);
 	}
 
 	
@@ -196,27 +201,49 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 	
 	
 	
+//	private V get(Fqn fqn, K key) {
+//		return get(cache, fqn, key);
+//	}
+//
+//	private V get(Fqn fqn, K key, Flag... flags) {
+//		return get(cache.withFlags(flags), fqn, key);
+//	}
+//
+//	private V get(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, K key) {
+//		Map<K, V> m = getAtomicMap(cache, new TreeNodeKey(fqn, TreeNodeKey.Type.DATA));
+//		if (m == null)
+//			return null;
+//		return m.get(key);
+//	}
+
 	
-	public boolean exists(String f) {
-		return exists(cache, Fqn.fromString(f));
-	}
+	
+	
+	
+	
+	
+//	private boolean exists(String f) {
+//		return exists(cache, Fqn.fromString(f));
+//	}
+//
+//	private boolean exists(String fqn, Flag... flags) {
+//		return exists(cache.withFlags(flags), Fqn.fromString(fqn));
+//	}
+//
+//	private boolean exists(Fqn fqn, Flag... flags) {
+//		return exists(cache.withFlags(flags), fqn);
+//	}
+//
+//	private V get(String fqn, K key) {
+//		return get(cache, Fqn.fromString(fqn), key);
+//	}
+//
+//	private V get(String fqn, K key, Flag... flags) {
+//		return get(cache.withFlags(flags), Fqn.fromString(fqn), key);
+//	}
 
-	public boolean exists(String fqn, Flag... flags) {
-		return exists(cache.withFlags(flags), Fqn.fromString(fqn));
-	}
-
-	public boolean exists(Fqn fqn, Flag... flags) {
-		return exists(cache.withFlags(flags), fqn);
-	}
-
-	public V get(String fqn, K key) {
-		return get(cache, Fqn.fromString(fqn), key);
-	}
-
-	public V get(String fqn, K key, Flag... flags) {
-		return get(cache.withFlags(flags), Fqn.fromString(fqn), key);
-	}
-
+	
+	
 	public void move(Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
 		move(cache, nodeToMoveFqn, newParentFqn);
 	}
@@ -251,7 +278,7 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 				if (trace) log.trace("Did not find the node that needs to be moved. Returning...");
 				return; // nothing to do here!
 			}
-			if (!exists(cache, newParentFqn)) {
+			if (!exists(newParentFqn)) {
 				// then we need to silently create the new parent
 				createNodeInCache(cache, newParentFqn);
 				if (trace) log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
@@ -365,8 +392,7 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 	}
 
 	public Cache<TreeNodeKey, AtomicMap<?, ?>> getCache() {
-		// Retrieve the advanced cache as a way to retrieve
-		// the cache behind the cache adapter.
+		// Retrieve the advanced cache as a way to retrieve the cache behind the cache adapter.
 		return cache.getAdvancedCache();
 	}
 
@@ -382,7 +408,7 @@ public class TreeCache<K, V> extends TreeStructureSupport {
 
 	private void createRoot() {
 		if (!exists(Fqn.ROOT))
-			createNodeInCache(Fqn.ROOT);
+			createNodeInCache(cache, Fqn.ROOT);
 	}
 
 	public String toString() {

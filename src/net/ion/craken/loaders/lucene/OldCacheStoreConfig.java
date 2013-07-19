@@ -13,7 +13,7 @@ import org.infinispan.loaders.AbstractCacheStoreConfig;
 import org.infinispan.lucene.InfinispanDirectory;
 import org.infinispan.manager.CacheContainer;
 
-public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
+public class OldCacheStoreConfig extends AbstractCacheStoreConfig {
 
 	private static final long serialVersionUID = 6447733241304613130L;
 	public final static String Location = "location" ;
@@ -30,16 +30,16 @@ public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
 	private LazyCentralConfig lazyConfig = new LazyCentralConfig() ;
 	private Central central = null ;
 
-	public ISearcherCacheStoreConfig() {
-		setCacheLoaderClassName(ISearcherCacheStore.class.getName());
+	public OldCacheStoreConfig() {
+		setCacheLoaderClassName(OldCacheStore.class.getName());
 	}
 	
-	public static ISearcherCacheStoreConfig create() {
-		return new ISearcherCacheStoreConfig();
+	public static OldCacheStoreConfig create() {
+		return new OldCacheStoreConfig();
 	}
 	
-	public static ISearcherCacheStoreConfig createDefault() {
-		return ISearcherCacheStoreConfig.create().location("./resource/local") ;
+	public static OldCacheStoreConfig createDefault() {
+		return OldCacheStoreConfig.create().location("./resource/local") ;
 	}
 	
 
@@ -74,17 +74,17 @@ public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
 	}
 
 
-	public ISearcherCacheStoreConfig location(String path) {
+	public OldCacheStoreConfig location(String path) {
 		setLocation(path) ;
 		return this;
 	}
 
-	public ISearcherCacheStoreConfig maxChunkEntries(int maxEntries) {
+	public OldCacheStoreConfig maxChunkEntries(int maxEntries) {
 		setMaxChunkEntries(maxEntries) ;
 		return this;
 	}
 
-	public ISearcherCacheStoreConfig maxNodeEntry(int maxNodeEntry){
+	public OldCacheStoreConfig maxNodeEntry(int maxNodeEntry){
 		this.maxNodeEntry = maxNodeEntry ;
 		return this ;
 	}
@@ -93,12 +93,12 @@ public class ISearcherCacheStoreConfig extends AbstractCacheStoreConfig {
 		return maxNodeEntry ;
 	}
 	
-	public ISearcherCacheStoreConfig chunkSize(int chunkSize){
+	public OldCacheStoreConfig chunkSize(int chunkSize){
 		setChunkSize(chunkSize) ;
 		return this ;
 	}
 
-	public ISearcherCacheStoreConfig lockTimeoutMs(int lockTimeoutMs){
+	public OldCacheStoreConfig lockTimeoutMs(int lockTimeoutMs){
 		this.lockTimeoutMs = lockTimeoutMs ;
 		return this ;
 	}

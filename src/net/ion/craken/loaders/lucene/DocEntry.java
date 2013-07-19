@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map.Entry;
 
 import net.ion.craken.io.BlobProxy;
@@ -18,6 +19,8 @@ import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.common.ReadDocument;
 
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.atomic.AtomicMap;
@@ -42,20 +45,34 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 		super(key, cacheValue);
 	}
 
-	public static InternalCacheEntry create(JsonObject raw) {
+	public static InternalCacheEntry create(TreeNodeKey parentKey, List<ReadDocument> docs) {
+		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
+		for (ReadDocument doc : docs) {
+			nodeValue.put(StringUtil.substringAfterLast(doc.docId(), doc.get(PARENT)), Fqn.fromString(doc.docId())) ;
+		}
+		MortalCacheValue mv = new MortalCacheValue(nodeValue, System.currentTimeMillis(), 1000);
+		
+		return mv.toInternalCacheEntry(parentKey) ;
+//		final DocEntry create = new DocEntry(parentKey, mv);
+//		return create;
+	}
+
+	
+	public static InternalCacheEntry create(ReadDocument findDoc) {
+		final String jsonString = findDoc.get(DocEntry.VALUE);
+		if (StringUtil.isBlank(jsonString)) return null ;
+		
+		JsonObject raw = JsonObject.fromString(jsonString) ;
 		TreeNodeKey nodeKey = TreeNodeKey.fromString(raw.asString(ID));
 
-		if (nodeKey.getContents() == Type.DATA)
-			return createDataEntry(nodeKey, raw);
-		else
-			return createStruEntry(nodeKey, raw);
+		return createDataEntry(nodeKey, raw);
 	}
 
 	// public static Collection<NodeEntry> creates(JsonObject raw) {
 	// return ListUtil.toList(create(raw));
 	// }
 
-	private static DocEntry createStruEntry(TreeNodeKey nodeKey, JsonObject raw) {
+	private static InternalCacheEntry createStruEntry(TreeNodeKey nodeKey, JsonObject raw) {
 		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
 		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
 
@@ -65,13 +82,14 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 			String absoluteFqn = entry.getValue().getAsString();
 			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
 		}
-
-//		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
-		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
-		return create;
+		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey) ;
+//		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
+//		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, System.currentTimeMillis(), 10 * 1000);
+//		final DocEntry create = new DocEntry(nodeKey, mvalue);
+//		return create;
 	}
 
-	private static DocEntry createDataEntry(TreeNodeKey nodeKey, JsonObject raw) {
+	private static InternalCacheEntry createDataEntry(TreeNodeKey nodeKey, JsonObject raw) {
 		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
 		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
 
@@ -98,10 +116,12 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 			}
 		}
 
+		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey) ;
 //		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, lastmodified, System.currentTimeMillis());
-		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
-		return create;
+//		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
+//		return create;
 	}
+
 
 
 }

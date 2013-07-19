@@ -11,16 +11,10 @@ import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
+import net.ion.nsearcher.search.filter.TermFilter;
 
 public class TestIndex extends TestBaseSearch {
 
-	
-	public void testModify() throws Exception {
-		
-		
-		
-	}
-	
 	
 	public void testConcurrency() throws Exception {
 		Runnable task = new Runnable() {
@@ -41,10 +35,12 @@ public class TestIndex extends TestBaseSearch {
 			}
 		};
 		ExecutorService exec = Executors.newFixedThreadPool(5);
-		for (int i : ListUtil.rangeNum(100)) {
+		for (int i : ListUtil.rangeNum(50)) {
 			exec.submit(task);
 		}
+		exec.shutdown() ;
 		exec.awaitTermination(5, TimeUnit.SECONDS);
+		exec.shutdownNow() ;
 	}
 
 	public void testIndex() throws Exception {

@@ -20,7 +20,9 @@ import org.infinispan.notifications.Listener;
 public interface Workspace {
 	
 	public String wsName() ;
-	
+
+	public TreeNode<PropertyId, PropertyValue> resetNode(String fqn);
+
 	public TreeNode<PropertyId, PropertyValue> getNode(String fqn) ;
 	
 	public TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn);
@@ -50,6 +52,7 @@ public interface Workspace {
 	public Central central();
 
 	public AbstractCacheStoreConfig config();
+
 
 
 }

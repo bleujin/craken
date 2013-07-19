@@ -1,4 +1,4 @@
-package net.ion.bleujin.infinispan;
+package net.ion.craken.loaders.lucene;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -9,13 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import net.ion.craken.loaders.lucene.DocEntry;
+import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
@@ -25,6 +26,7 @@ import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.SearchResponse;
@@ -34,44 +36,51 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.container.entries.InternalCacheEntry;
-import org.infinispan.loaders.AbstractCacheStore;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
+import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.loaders.modifications.Modification;
 import org.infinispan.loaders.modifications.Remove;
 import org.infinispan.loaders.modifications.Store;
+import org.infinispan.lucene.InfinispanDirectory;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.marshall.StreamingMarshaller;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-@CacheLoaderMetadata(configurationClass = CentralCacheStoreConfig.class)
-public class CentralCacheStore extends AbstractCacheStore {
+@CacheLoaderMetadata(configurationClass = OldCacheStoreConfig.class)
+public class OldCacheStore extends AbCacheStore {
 
-	private CentralCacheStoreConfig config;
+	private OldCacheStoreConfig config;
 	private Central central;
+	private String wsname;
 
 	@Override
 	public Class<? extends CacheLoaderConfig> getConfigurationClass() {
-		return CentralCacheStoreConfig.class;
+		return OldCacheStoreConfig.class;
 	}
 
 	@Override
 	public void init(CacheLoaderConfig config, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
 		super.init(config, cache, m);
-		this.config = (CentralCacheStoreConfig) config;
+		this.config = (OldCacheStoreConfig) config;
 	}
 
 	@Override
 	public void start() throws CacheLoaderException {
 		try {
 			// open the data file
-			this.central = config.buildCentral() ; 
-			
+			this.wsname = StringUtil.substringBefore(cache().getName(), ".node");
+			this.central = config.buildCentral(wsname,  cache().getCacheManager()) ; 
+
 			super.start();
 
 		} catch (Exception e) {
@@ -197,7 +206,7 @@ public class CentralCacheStore extends AbstractCacheStore {
 	}
 
 	private final static JsonObject fromMapToJson(WriteDocument doc, TreeNodeKey key, Map _map) {
-		if (key.getContents() == Type.STRUCTURE) {
+		if (key.getType() == Type.STRUCTURE) {
 			JsonObject jso = new JsonObject();
 			AtomicMap<String, Fqn> map = (AtomicMap<String, Fqn>) _map;
 			for (Entry<String, Fqn> entry : map.entrySet()) {
@@ -228,6 +237,7 @@ public class CentralCacheStore extends AbstractCacheStore {
 	}
 
 	
+	private int loadCount = 0 ;
 	@Override
 	public InternalCacheEntry load(Object _key) throws CacheLoaderException {
 		try {
@@ -240,7 +250,7 @@ public class CentralCacheStore extends AbstractCacheStore {
 			if (read == null) {
 				return null;
 			}
-			InternalCacheEntry readObject = DocEntry.create(JsonObject.fromString(read.get(DocEntry.VALUE)));
+			InternalCacheEntry readObject = DocEntry.create(read);
 			if (readObject != null && readObject.isExpired(System.currentTimeMillis())) {
 				return null;
 			}
@@ -262,10 +272,7 @@ public class CentralCacheStore extends AbstractCacheStore {
 				InternalCacheEntry ice = readDocument.transformer(new Function<ReadDocument, InternalCacheEntry>() {
 					@Override
 					public InternalCacheEntry apply(ReadDocument doc) {
-						String valueJson = doc.get(DocEntry.VALUE);
-						if (StringUtil.isBlank(valueJson))
-							return null;
-						return DocEntry.create(JsonObject.fromString(valueJson));
+						return DocEntry.create(doc);
 					}
 				});
 				if (ice == null)
@@ -314,7 +321,7 @@ public class CentralCacheStore extends AbstractCacheStore {
 	}
 
 	public Central central() {
-		return this.central ;
+		return central;
 	}
 
 }

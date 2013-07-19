@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -26,62 +25,54 @@ import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.SearchResponse;
+import net.ion.nsearcher.search.Searcher;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.container.entries.InternalCacheEntry;
+import org.infinispan.loaders.AbstractCacheStore;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
-import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.loaders.modifications.Modification;
 import org.infinispan.loaders.modifications.Remove;
 import org.infinispan.loaders.modifications.Store;
-import org.infinispan.lucene.InfinispanDirectory;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.marshall.StreamingMarshaller;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-@CacheLoaderMetadata(configurationClass = ISearcherCacheStoreConfig.class)
-public class ISearcherCacheStore extends AbCacheStore {
+@CacheLoaderMetadata(configurationClass = CentralCacheStoreConfig.class)
+public class CentralCacheStore extends AbstractCacheStore implements SearcherCacheStore {
 
-	private ISearcherCacheStoreConfig config;
+	private CentralCacheStoreConfig config;
 	private Central central;
-	private String wsname;
 
 	@Override
 	public Class<? extends CacheLoaderConfig> getConfigurationClass() {
-		return ISearcherCacheStoreConfig.class;
+		return CentralCacheStoreConfig.class;
 	}
 
 	@Override
 	public void init(CacheLoaderConfig config, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
 		super.init(config, cache, m);
-		this.config = (ISearcherCacheStoreConfig) config;
+		this.config = (CentralCacheStoreConfig) config;
 	}
 
 	@Override
 	public void start() throws CacheLoaderException {
 		try {
 			// open the data file
-			this.wsname = StringUtil.substringBefore(cache().getName(), ".node");
-			this.central = config.buildCentral(wsname,  cache().getCacheManager()) ; 
-
 			super.start();
+			this.central = config.buildCentral() ; 
 
 		} catch (Exception e) {
 			throw new CacheLoaderException(e);
@@ -139,6 +130,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
 //		if (true) return ;
+		System.out.print('.') ;
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
@@ -148,7 +140,9 @@ public class ISearcherCacheStore extends AbCacheStore {
 					switch (m.getType()) {
 					case STORE:
 						Store s = (Store) m;
-						isession.updateDocument(toWriteDocument(s.getStoredEntry()));
+						final WriteDocument doc = toWriteDocument(s.getStoredEntry());
+						if (doc == null) break ;
+						isession.updateDocument(doc);
 						break;
 					case CLEAR:
 						isession.deleteAll();
@@ -180,6 +174,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 	@Override
 	public void store(InternalCacheEntry entry) throws CacheLoaderException {
 		final WriteDocument doc = toWriteDocument(entry);
+		if (doc == null) return ;
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
@@ -193,7 +188,13 @@ public class ISearcherCacheStore extends AbCacheStore {
 
 	private WriteDocument toWriteDocument(InternalCacheEntry entry) {
 		TreeNodeKey key = (TreeNodeKey) entry.getKey();
+		if (key.getType() == Type.STRUCTURE) return null ;
+		
 		AtomicMap value = (AtomicMap) entry.getValue();
+		
+		if ("/".equals(key.idString())){
+			Debug.debug("") ;
+		}
 		final WriteDocument doc = MyDocument.newDocument(key.idString());
 
 		JsonObject jobj = new JsonObject();
@@ -206,7 +207,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 	}
 
 	private final static JsonObject fromMapToJson(WriteDocument doc, TreeNodeKey key, Map _map) {
-		if (key.getContents() == Type.STRUCTURE) {
+		if (key.getType().isStructure()) {
 			JsonObject jso = new JsonObject();
 			AtomicMap<String, Fqn> map = (AtomicMap<String, Fqn>) _map;
 			for (Entry<String, Fqn> entry : map.entrySet()) {
@@ -237,20 +238,22 @@ public class ISearcherCacheStore extends AbCacheStore {
 	}
 
 	
-	private int loadCount = 0 ;
 	@Override
 	public InternalCacheEntry load(Object _key) throws CacheLoaderException {
 		try {
 
-
 			TreeNodeKey key = (TreeNodeKey) _key;
+			if (key.getType().isStructure()){
+				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.idString().substring(1) ))).offset(1000000).find().getDocument();
+				return DocEntry.create(key, docs) ;
+			}
+//			central.newSearcher().createRequest("").find().getDocument()
 			ReadDocument read = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).findOne();
-
-//			Debug.line(loadCount++ , "load", _key, read);
+//			Debug.line(key, "", read, Thread.currentThread().getStackTrace()) ;
 			if (read == null) {
 				return null;
 			}
-			InternalCacheEntry readObject = DocEntry.create(JsonObject.fromString(read.get(DocEntry.VALUE)));
+			InternalCacheEntry readObject = DocEntry.create(read);
 			if (readObject != null && readObject.isExpired(System.currentTimeMillis())) {
 				return null;
 			}
@@ -272,10 +275,7 @@ public class ISearcherCacheStore extends AbCacheStore {
 				InternalCacheEntry ice = readDocument.transformer(new Function<ReadDocument, InternalCacheEntry>() {
 					@Override
 					public InternalCacheEntry apply(ReadDocument doc) {
-						String valueJson = doc.get(DocEntry.VALUE);
-						if (StringUtil.isBlank(valueJson))
-							return null;
-						return DocEntry.create(JsonObject.fromString(valueJson));
+						return DocEntry.create(doc);
 					}
 				});
 				if (ice == null)
@@ -321,6 +321,10 @@ public class ISearcherCacheStore extends AbCacheStore {
 		} catch (ParseException ex) {
 			throw new CacheLoaderException(ex);
 		}
+	}
+
+	public Central central() {
+		return this.central ;
 	}
 
 }

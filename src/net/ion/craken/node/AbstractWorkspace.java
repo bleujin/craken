@@ -10,7 +10,7 @@ import org.infinispan.loaders.AbstractCacheStoreConfig;
 
 import net.ion.craken.io.BlobProxy;
 import net.ion.craken.listener.WorkspaceListener;
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -60,22 +60,26 @@ public abstract class AbstractWorkspace implements Workspace {
 		// treeCache.getCache().stop() ;
 		treeCache.stop();
 	}
+	
+	public TreeNode<PropertyId, PropertyValue> resetNode(String fqnString){
+		try {
+			beginTran() ;
+			Fqn fqn = Fqn.fromString(fqnString) ;
+			return treeCache.merge(fqn) ;
+		} finally {
+			endTran() ;
+		}
+	}
 
 	public TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn) {
 		try {
 			beginTran();
 
-			TreeNode<PropertyId, PropertyValue> found = treeCache.getNode(fqn);
-			if (found == null) {
-				if (!treeCache.exists(fqn)) {
-					treeCache.put(fqn, MapUtil.EMPTY);
-					found = getNode(fqn);
-				}
-
-				TreeNode<PropertyId, PropertyValue> parent = found.getParent();
-				while (!parent.getFqn().isRoot()) {
-					parent = parent.getParent();
-				}
+			TreeNode<PropertyId, PropertyValue> found = treeCache.merge(fqn) ;
+			
+			TreeNode<PropertyId, PropertyValue> parent = found.getParent(); // create parent path
+			while (!parent.getFqn().isRoot()) {
+				parent = parent.getParent();
 			}
 
 			return found;
@@ -93,7 +97,7 @@ public abstract class AbstractWorkspace implements Workspace {
 	}
 
 	public boolean exists(String fqn) {
-		return treeCache.exists(fqn);
+		return treeCache.exists(Fqn.fromString(fqn));
 	}
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
@@ -116,7 +120,7 @@ public abstract class AbstractWorkspace implements Workspace {
 					workspace.failEndTran();
 					wsession.failRollback();
 					if (ehandler == null)
-						throw new Exception(ex);
+						if (ex instanceof Exception) throw (Exception)ex ; else throw new Exception(ex);
 
 					ehandler.handle(wsession, ex);
 					return null;

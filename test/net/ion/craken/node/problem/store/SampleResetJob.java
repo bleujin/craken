@@ -10,11 +10,11 @@ import net.ion.craken.node.WriteSession;
 import net.ion.framework.util.Debug;
 import net.ion.radon.impl.util.CsvReader;
 
-public class SampleWriteJob implements TransactionJob<Void> {
+public class SampleResetJob implements TransactionJob<Void> {
 
 	private int max = 0 ;
 	
-	public SampleWriteJob(int max){
+	public SampleResetJob(int max){
 		this.max = max ;
 	}
 	
@@ -26,16 +26,14 @@ public class SampleWriteJob implements TransactionJob<Void> {
 		reader.setFieldDelimiter('\t') ;
 		String[] headers = reader.readLine();
 		String[] line = reader.readLine() ;
-		
 		while(line != null && line.length > 0 && max-- > 0 ){
 //			if (headers.length != line.length ) continue ;
-			WriteNode wnode = wsession.pathBy("/" + max);
-			Debug.line(wnode) ;
+			WriteNode wnode = wsession.resetBy("/" + max);
 			for (int ii = 0, last = headers.length; ii < last ; ii++) {
 				if (line.length > ii) wnode.property(headers[ii], line[ii]) ;
 			}
 			line = reader.readLine() ;
-			if ((max % 1000) == 0) {
+			if ((max % 5000) == 0) {
 				System.out.print('.') ;
 				wsession.continueUnit() ;
 			} 

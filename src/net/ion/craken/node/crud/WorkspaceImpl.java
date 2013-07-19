@@ -2,7 +2,7 @@ package net.ion.craken.node.crud;
 
 import org.infinispan.loaders.AbstractCacheStoreConfig;
 
-import net.ion.craken.loaders.lucene.ISearcherCacheStoreConfig;
+import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Repository;
 import net.ion.craken.tree.TreeCache;
