@@ -3,11 +3,21 @@ package net.ion.craken.loaders.lucene;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -15,10 +25,9 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
-import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.common.MyField;
@@ -28,7 +37,6 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.SearchResponse;
-import net.ion.nsearcher.search.Searcher;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
@@ -49,12 +57,14 @@ import org.infinispan.marshall.StreamingMarshaller;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.sun.jmx.remote.internal.ArrayQueue;
 
 @CacheLoaderMetadata(configurationClass = CentralCacheStoreConfig.class)
 public class CentralCacheStore extends AbstractCacheStore implements SearcherCacheStore {
 
 	private CentralCacheStoreConfig config;
 	private Central central;
+	ScheduledExecutorService sche = Executors.newSingleThreadScheduledExecutor();
 
 	@Override
 	public Class<? extends CacheLoaderConfig> getConfigurationClass() {
@@ -72,8 +82,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		try {
 			// open the data file
 			super.start();
-			this.central = config.buildCentral() ; 
-
+			this.central = config.buildCentral();
 		} catch (Exception e) {
 			throw new CacheLoaderException(e);
 		}
@@ -82,10 +91,12 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public void stop() throws CacheLoaderException {
 		try {
-			IOUtil.closeQuietly(central);
-		} catch (Exception e) {
-			throw new CacheLoaderException(e);
+			sche.shutdown() ;
+			sche.awaitTermination(1, TimeUnit.SECONDS) ;
+		} catch (InterruptedException ignore) {
+			ignore.printStackTrace();
 		}
+		IOUtil.closeQuietly(central);
 		super.stop();
 	}
 
@@ -117,6 +128,9 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public boolean remove(Object _key) throws CacheLoaderException {
 		final TreeNodeKey key = (TreeNodeKey) _key;
+		if (key.getType().isStructure())
+			return false;
+
 		return central.newIndexer().index(new IndexJob<Boolean>() {
 			@Override
 			public Boolean handle(IndexSession isession) throws Exception {
@@ -125,60 +139,53 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				return Boolean.TRUE;
 			}
 		});
-//		return true ;
+		// return true ;
 	}
 
+	private ArrayBlockingQueue<Modification> queue = new ArrayBlockingQueue<Modification>(100000);
+	volatile boolean runningIndex = false ;
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
-//		if (true) return ;
-		System.out.print('.') ;
-		central.newIndexer().index(new IndexJob<Void>() {
-			@Override
-			public Void handle(IndexSession isession) throws Exception {
-
-				List<Modification> extMods = extractModiEvent(mods) ;
-				for (Modification m : extMods) {
-					switch (m.getType()) {
-					case STORE:
-						Store s = (Store) m;
-						final WriteDocument doc = toWriteDocument(s.getStoredEntry());
-						if (doc == null) break ;
-						isession.updateDocument(doc);
-						break;
-					case CLEAR:
-						isession.deleteAll();
-						break;
-					case REMOVE:
-						
-						Remove r = (Remove) m;
-						final TreeNodeKey key = (TreeNodeKey) r.getKey();
-						isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
-						break;
-					default:
-						throw new IllegalArgumentException("Unknown modification type " + m.getType());
-					}
+		
+		
+		try {
+			if (mods.size() <= 1) {
+				for (Modification modification : mods) {
+					queue.put(modification);
 				}
 				
-				return null;
+				if (runningIndex) return ;
+				sche.submit(new IndexCallable(this, this.queue)) ;
+				
+			} else {
+				LinkedBlockingQueue<Modification> groupQueue = new LinkedBlockingQueue<Modification>();
+				groupQueue.addAll(extractModiEvent(mods)) ;
+				sche.submit(new IndexCallable(this, groupQueue)).get() ;
 			}
+		} catch (ExecutionException e) {
+			throw new CacheLoaderException(e.getCause()) ;
+		} catch (InterruptedException e) {
+			throw new CacheLoaderException(e);
+		}
 
-		});
 	}
 
+	private List<? extends Modification> extractModiEvent(List<? extends Modification> ori) {
+		if (ori.size() == 1)
+			return ori;
 
-	private List<Modification> extractModiEvent(List<? extends Modification> ori) {
 		final ListOrderedSet result = new ListOrderedSet();
-		result.addAll(Lists.reverse(ori)) ;
-		return Lists.reverse(Lists.newArrayList(result)) ;
+		result.addAll(Lists.reverse(ori));
+		return Lists.reverse(Lists.newArrayList(result));
 	}
-	
+
 	@Override
 	public void store(InternalCacheEntry entry) throws CacheLoaderException {
 		final WriteDocument doc = toWriteDocument(entry);
-		if (doc == null) return ;
+		if (doc == null)
+			return;
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
-
 				isession.updateDocument(doc);
 				return null;
 			}
@@ -186,15 +193,16 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	}
 
-	private WriteDocument toWriteDocument(InternalCacheEntry entry) {
+	WriteDocument toWriteDocument(InternalCacheEntry entry) {
 		TreeNodeKey key = (TreeNodeKey) entry.getKey();
-		if (key.getType() == Type.STRUCTURE) return null ;
-		
+		if (key.getType() == Type.STRUCTURE)
+			return null;
+
 		AtomicMap value = (AtomicMap) entry.getValue();
-		
-		if ("/".equals(key.idString())){
-			Debug.debug("") ;
-		}
+
+		// if ("/".equals(key.idString())){
+		// Debug.debug("") ;
+		// }
 		final WriteDocument doc = MyDocument.newDocument(key.idString());
 
 		JsonObject jobj = new JsonObject();
@@ -206,30 +214,30 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		return doc;
 	}
 
-	private final static JsonObject fromMapToJson(WriteDocument doc, TreeNodeKey key, Map _map) {
+	private final static JsonObject fromMapToJson(WriteDocument doc, TreeNodeKey key, Map valueMap) {
 		if (key.getType().isStructure()) {
 			JsonObject jso = new JsonObject();
-			AtomicMap<String, Fqn> map = (AtomicMap<String, Fqn>) _map;
-			for (Entry<String, Fqn> entry : map.entrySet()) {
+			AtomicMap<String, Fqn> childPaths = (AtomicMap<String, Fqn>) valueMap;
+			for (Entry<String, Fqn> entry : childPaths.entrySet()) {
 				jso.put(entry.getKey(), entry.getKey());
 			}
 			return jso;
 		} else {
 			JsonObject jso = new JsonObject();
-			AtomicMap<PropertyId, PropertyValue> map = (AtomicMap<PropertyId, PropertyValue>) _map;
+			AtomicMap<PropertyId, PropertyValue> propertyMap = (AtomicMap<PropertyId, PropertyValue>) valueMap;
 			String parentPath = key.getFqn().isRoot() ? "" : key.getFqn().getParent().toString();
-			doc.keyword(DocEntry.PARENT, parentPath) ;
-			
-			for (Entry<PropertyId, PropertyValue> entry : map.entrySet()) {
+			doc.keyword(DocEntry.PARENT, parentPath);
+
+			for (Entry<PropertyId, PropertyValue> entry : propertyMap.entrySet()) {
 				final String pstring = entry.getKey().idString(); // if type == refer, @
 				final PropertyValue pvalue = entry.getValue();
 				jso.add(pstring, pvalue.asJsonArray());
-				
-				for(Object e : pvalue.asSet()){
-					if (pstring.startsWith("@")){
-						doc.keyword(pstring, ObjectUtil.toString(e)) ;
+
+				for (Object e : pvalue.asSet()) {
+					if (pstring.startsWith("@")) {
+						doc.keyword(pstring, ObjectUtil.toString(e));
 					} else {
-						doc.unknown(pstring, e) ;
+						doc.unknown(pstring, e);
 					}
 				}
 			}
@@ -237,19 +245,18 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		}
 	}
 
-	
 	@Override
 	public InternalCacheEntry load(Object _key) throws CacheLoaderException {
 		try {
 
 			TreeNodeKey key = (TreeNodeKey) _key;
-			if (key.getType().isStructure()){
-				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.idString().substring(1) ))).offset(1000000).find().getDocument();
-				return DocEntry.create(key, docs) ;
+			if (key.getType().isStructure()) {
+				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.idString().substring(1)))).offset(1000000).find().getDocument();
+				return DocEntry.create(key, docs);
 			}
-//			central.newSearcher().createRequest("").find().getDocument()
+			// central.newSearcher().createRequest("").find().getDocument()
 			ReadDocument read = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).findOne();
-//			Debug.line(key, "", read, Thread.currentThread().getStackTrace()) ;
+			// Debug.line(key, "", read, Thread.currentThread().getStackTrace()) ;
 			if (read == null) {
 				return null;
 			}
@@ -324,7 +331,60 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	}
 
 	public Central central() {
-		return this.central ;
+		return this.central;
 	}
 
+}
+
+
+class IndexCallable implements Callable<Integer>{
+
+	private CentralCacheStore parent ;
+	private BlockingQueue<? extends Modification> queue ;
+	
+	IndexCallable(CentralCacheStore parent, BlockingQueue<? extends Modification> queue){
+		this.parent = parent ;
+		this.queue = queue ;
+	}
+	
+	@Override
+	public Integer call() throws Exception {
+		parent.runningIndex = true ;
+		boolean nextTry = queue.size() > 0 ;
+		Integer indexedCount = parent.central().newIndexer().index(new IndexJob<Integer>() {
+			@Override
+			public Integer handle(IndexSession isession) throws Exception {
+				int count = 0;
+				while(queue.size() > 0) {
+					count++;
+					Modification m = queue.take() ;
+					switch (m.getType()) {
+					case STORE:
+						Store s = (Store) m;
+						final WriteDocument doc = parent.toWriteDocument(s.getStoredEntry());
+						if (doc == null)
+							break;
+						isession.updateDocument(doc);
+						break;
+					case CLEAR:
+						isession.deleteAll();
+						break;
+					case REMOVE:
+
+						Remove r = (Remove) m;
+						final TreeNodeKey key = (TreeNodeKey) r.getKey();
+						isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
+						break;
+					default:
+						throw new IllegalArgumentException("Unknown modification type " + m.getType());
+					}
+				}
+				return count;
+			}
+		}); // end index
+		if (nextTry) parent.sche.schedule(this, 100, TimeUnit.MILLISECONDS) ;
+		parent.runningIndex = false ;
+		return indexedCount ;
+	}
+	
 }

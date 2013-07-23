@@ -90,7 +90,7 @@ public class TestDir extends TestCase {
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 10000; i++) {
 					isession.insertDocument(MyDocument.testDocument().add(MyField.keyword("name", "bleujin")).add(MyField.number("index", i))) ;
 				}
 				return null;
@@ -127,7 +127,7 @@ public class TestDir extends TestCase {
 				reader.setFieldDelimiter('\t') ;
 				String[] headers = reader.readLine();
 				String[] line = reader.readLine() ;
-				int max = 60000 ;
+				int max = 100000 ;
 				while(line != null && line.length > 0 && max-- > 0 ){
 //					if (headers.length != line.length ) continue ;
 					WriteDocument wnode = MyDocument.newDocument("" + max) ;
@@ -137,10 +137,8 @@ public class TestDir extends TestCase {
 					indexsession.updateDocument(wnode) ;
 					
 					line = reader.readLine() ;
-					if ((max % 1000) == 0) {
-						System.out.print('.') ;
-					}
 					if ((max % 2000) == 0) {
+						System.out.print('.') ;
 						indexsession.continueUnit() ;
 					} 
 				}
@@ -152,8 +150,11 @@ public class TestDir extends TestCase {
 		
 	}
 	
+	// 21 sec
 	public void testSpeedFs() throws Exception {
-		final FSDirectory dir = FSDirectory.open(new File("./resource/ff4"));
+		final File file = new File("./resource/ff4");
+		if (! file.exists()) file.mkdirs() ;
+		final FSDirectory dir = FSDirectory.open(file);
 		central = CentralConfig.oldFromDir(dir).build() ;
 		
 		central.newIndexer().index(new IndexJob<Void>() {

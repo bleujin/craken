@@ -50,9 +50,10 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 		for (ReadDocument doc : docs) {
 			nodeValue.put(StringUtil.substringAfterLast(doc.docId(), doc.get(PARENT)), Fqn.fromString(doc.docId())) ;
 		}
-		MortalCacheValue mv = new MortalCacheValue(nodeValue, System.currentTimeMillis(), 1000);
 		
-		return mv.toInternalCacheEntry(parentKey) ;
+		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(parentKey);
+//		MortalCacheValue mv = new MortalCacheValue(nodeValue, System.currentTimeMillis(), 1000);
+//		return mv.toInternalCacheEntry(parentKey) ;
 //		final DocEntry create = new DocEntry(parentKey, mv);
 //		return create;
 	}

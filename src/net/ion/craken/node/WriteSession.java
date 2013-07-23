@@ -24,4 +24,6 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public void continueUnit();
 
+	public WriteSession ignoreIndex(String... fields);
+
 }

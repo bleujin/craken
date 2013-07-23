@@ -22,8 +22,8 @@ public class OldCacheStoreConfig extends AbstractCacheStoreConfig {
 	
 	
 	private String location = "./resource/index";
-	private int maxChunkEntries = 5;
-	private int chunkSize = 1024 * 1024 * 50 ; 
+	private int maxChunkEntries = 200 ;
+	private int chunkSize = 1024 * 1024 ; 
 	private int lockTimeoutMs = 60 * 1000 ;
 
 	private int maxNodeEntry = 2000;

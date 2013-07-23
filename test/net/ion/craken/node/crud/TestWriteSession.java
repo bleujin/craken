@@ -74,4 +74,22 @@ public class TestWriteSession extends TestBaseCrud {
 		
 	}
 
+	
+	public void testIgnoreIndex() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.ignoreIndex("name") ;
+				for (int i = 0; i < 5; i++) {
+					wsession.pathBy("/index/" + i).property("index", i).property("name", "bleujin") ;
+				}
+				return null;
+			}
+		}).get() ;
+		
+//		session.pathBy("/index").children().debugPrint() ;
+		session.pathBy("/index").childQuery("").find().debugPrint() ;
+//		Thread.sleep(100) ;
+	}
+	
 }

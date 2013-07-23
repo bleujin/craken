@@ -25,7 +25,7 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 	private String location = "./resource/index";
 	private int lockTimeoutMs = 60 * 1000 ;
 
-	private int maxNodeEntry = 2000;
+	private int maxNodeEntry = 1000 ;
 	private LazyCentralConfig lazyConfig = new LazyCentralConfig() ;
 
 	public CentralCacheStoreConfig() {
@@ -94,7 +94,7 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 		}
 		final Central result = lazyConfig.dir(dir).build();
 		
-		Debug.line('i', this.hashCode(), this) ;
+//		Debug.line('i', this.hashCode(), this) ;
 		
 		return result ;
 //		CentralConfig.newLocalFile().dirFile(location()).indexConfigBuilder().setRamBufferSizeMB(128).build();

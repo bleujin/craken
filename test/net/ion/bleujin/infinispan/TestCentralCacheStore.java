@@ -20,6 +20,7 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.remoting.transport.jgroups.SuspectException;
 
 public class TestCentralCacheStore extends TestCase {
 
@@ -62,14 +63,20 @@ public class TestCentralCacheStore extends TestCase {
 			List<ReadNode> nodes = session.pathBy("/bleujin").children().toList();
 			if (nodes.size() > 0) {
 				Debug.line(nodes.size());
-				session.tranSync(new TransactionJob<Void>() {
-					@Override
-					public Void handle(WriteSession wsession) throws Exception {
-						final int nextInt = RandomUtil.nextInt(1000);
-						wsession.pathBy("/bleujin/" + nextInt).property("name", "bleujin").property("index", nextInt) ;
-						return null;
-					}
-				}) ;
+				try {
+					session.tranSync(new TransactionJob<Void>() {
+						@Override
+						public Void handle(WriteSession wsession) throws Exception {
+							final int nextInt = RandomUtil.nextInt(1000);
+							wsession.pathBy("/bleujin/" + nextInt).property("name", "bleujin").property("index", nextInt) ;
+							return null;
+						}
+					}) ;
+				} catch(SuspectException expect) {
+					Debug.line(expect) ;
+				} catch(Throwable expect) {
+					expect.printStackTrace();
+				} ;
 				Thread.sleep(7000);
 			}
 		}

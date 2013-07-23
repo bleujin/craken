@@ -70,4 +70,9 @@ public abstract class AbstractWriteSession implements WriteSession{
 	public void continueUnit(){
 		workspace().continueUnit(this) ;
 	}
+	
+	public WriteSession ignoreIndex(String... fields){
+		
+		return this ;
+	}
 }
