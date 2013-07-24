@@ -13,6 +13,7 @@ public class PropertyId implements Serializable {
 
 	private final PType type;
 	private final String key;
+	private boolean ignoreIndex = false ;
 	
 	private PropertyId(PType type, String key){
 		this.type = type ;
@@ -55,5 +56,14 @@ public class PropertyId implements Serializable {
 
 	public PType type() {
 		return type;
+	}
+
+	public PropertyId ignoreIndex() {
+		ignoreIndex = true ;
+		return this ;
+	}
+	
+	public boolean isIgnoreIndex(){
+		return ignoreIndex ;
 	}
 }

@@ -113,7 +113,7 @@ public class TestStoreSearch extends TestCase {
 	}
 	
 	public void testWhere() throws Exception {
-		ChildQueryResponse response = session.pathBy("/bleujin").childQuery("").where("dummy:3").find() ;
+		ChildQueryResponse response = session.pathBy("/bleujin").childQuery("").query("dummy:3").find() ;
 		assertEquals(1, response.totalCount()) ;
 	}
 	

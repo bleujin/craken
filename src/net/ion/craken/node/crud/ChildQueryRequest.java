@@ -151,12 +151,20 @@ public class ChildQueryRequest {
 		return this;
 	}
 
+	public ChildQueryRequest where(String fnString) {
+		throw new UnsupportedOperationException("currently not supported") ;
+//		filter(new FunctionFilter(fnString)) ;
+//		return this ;
+	}
+
+
+	
 	public ChildQueryRequest wildcard(String field, Object value) {
 		filter(new QueryWrapperFilter(new WildcardQuery(new Term(field, ObjectUtil.toString(value))))) ;
 		return this;
 	}
 
-	public ChildQueryRequest where(String query) throws ParseException {
+	public ChildQueryRequest query(String query) throws ParseException {
 		filter(new QueryWrapperFilter(session.central().searchConfig().parseQuery(query))) ;
 		return this;
 	}
@@ -232,9 +240,7 @@ public class ChildQueryRequest {
 	public ChildQueryResponse find() throws IOException, ParseException{
 		request.selections(IKeywordField.ISKey) ;
 		
-		
 		final SearchResponse response = searcher.search(request);
-		
 		return ChildQueryResponse.create(session, response) ;
 	}
 	
@@ -251,7 +257,7 @@ public class ChildQueryRequest {
 		return request.toString() ;
 	}
 
-
+	
 
 
 

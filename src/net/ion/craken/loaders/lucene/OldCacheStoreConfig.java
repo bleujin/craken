@@ -2,7 +2,6 @@ package net.ion.craken.loaders.lucene;
 
 import java.io.IOException;
 
-import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 

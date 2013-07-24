@@ -1,26 +1,16 @@
 package net.ion.craken.node.crud;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.node.AbstractReadSession;
-import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
-import net.ion.craken.node.IteratorList;
-import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.nsearcher.common.MyDocument;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.analysis.Analyzer;

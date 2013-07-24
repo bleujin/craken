@@ -2,9 +2,9 @@ package net.ion.craken.loaders.lucene;
 
 import java.io.IOException;
 
-import org.apache.lucene.store.Directory;
-
 import net.ion.nsearcher.config.CentralConfig;
+
+import org.apache.lucene.store.Directory;
 
 public class LazyCentralConfig extends CentralConfig{
 

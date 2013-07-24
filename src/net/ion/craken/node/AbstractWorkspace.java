@@ -6,21 +6,18 @@ import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import org.infinispan.loaders.AbstractCacheStoreConfig;
-
 import net.ion.craken.io.BlobProxy;
 import net.ion.craken.listener.WorkspaceListener;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.schedule.IExecutor;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.MapUtil;
 import net.ion.nsearcher.config.Central;
+
+import org.infinispan.loaders.AbstractCacheStoreConfig;
 
 public abstract class AbstractWorkspace implements Workspace {
 

@@ -1,14 +1,19 @@
 package net.ion.craken.node;
 
+import java.util.Set;
+
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 
 public abstract class AbstractWriteSession implements WriteSession{
 
 	private ReadSession readSession ;
 	private Workspace workspace ;
+	private Set<String> ignoreProperyIds = SetUtil.newSet() ;   
 	protected AbstractWriteSession(ReadSession readSession, Workspace workspace){
 		this.readSession = readSession ;
 		this.workspace = workspace ;
@@ -72,7 +77,18 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 	
 	public WriteSession ignoreIndex(String... fields){
-		
+		for (String field : fields) {
+			ignoreProperyIds.add(field) ;
+		}
 		return this ;
 	}
+	
+	public PropertyId idInfoTo(PropertyId pid){
+		if (ignoreProperyIds.contains(pid.idString())){
+			pid.ignoreIndex() ;
+		}
+		
+		return pid ;
+	}
+	
 }

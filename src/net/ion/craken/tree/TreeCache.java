@@ -6,7 +6,6 @@ import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.exception.NodeNotExistsException;
-import net.ion.framework.util.MapUtil;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;

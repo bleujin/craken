@@ -3,11 +3,9 @@ package net.ion.craken.loaders.lucene;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -25,8 +23,8 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
@@ -57,7 +55,6 @@ import org.infinispan.marshall.StreamingMarshaller;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.sun.jmx.remote.internal.ArrayQueue;
 
 @CacheLoaderMetadata(configurationClass = CentralCacheStoreConfig.class)
 public class CentralCacheStore extends AbstractCacheStore implements SearcherCacheStore {
@@ -200,9 +197,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 		AtomicMap value = (AtomicMap) entry.getValue();
 
-		// if ("/".equals(key.idString())){
-		// Debug.debug("") ;
-		// }
 		final WriteDocument doc = MyDocument.newDocument(key.idString());
 
 		JsonObject jobj = new JsonObject();
@@ -229,10 +223,15 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 			doc.keyword(DocEntry.PARENT, parentPath);
 
 			for (Entry<PropertyId, PropertyValue> entry : propertyMap.entrySet()) {
-				final String pstring = entry.getKey().idString(); // if type == refer, @
+				final PropertyId pid = entry.getKey();
+				final String pstring = pid.idString(); // if type == refer, @
 				final PropertyValue pvalue = entry.getValue();
 				jso.add(pstring, pvalue.asJsonArray());
 
+				if (pid.isIgnoreIndex()){
+					continue ;
+				}
+				
 				for (Object e : pvalue.asSet()) {
 					if (pstring.startsWith("@")) {
 						doc.keyword(pstring, ObjectUtil.toString(e));

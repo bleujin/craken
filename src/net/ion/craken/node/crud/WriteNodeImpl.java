@@ -67,6 +67,20 @@ public class WriteNodeImpl implements WriteNode{
 		return wsession ;
 	}
 
+	
+	private PropertyId createNormalId(String key){
+		return wsession.idInfoTo(PropertyId.normal(key)) ; 
+	}
+	
+	private PropertyId createReferId(String key){
+		return wsession.idInfoTo(PropertyId.refer(key)) ;
+	}
+	
+	
+	
+	
+	
+	
 
 	public WriteNode property(String key, Object value) {
 		if (value != null && value.getClass().isArray()) {
@@ -77,8 +91,10 @@ public class WriteNodeImpl implements WriteNode{
 	        }
 			return append(key, list.toArray()) ;
 		}
-		return property(PropertyId.normal(key), PropertyValue.createPrimitive(value)) ;
+		return property(createNormalId(key), PropertyValue.createPrimitive(value)) ;
 	}
+	
+	
 	
 	private WriteNode property(PropertyId pid, PropertyValue pvalue){
 		touch(Touch.MODIFY) ;
@@ -90,25 +106,25 @@ public class WriteNodeImpl implements WriteNode{
 	public WriteNode propertyIfAbsent(String key, Object value){
 		touch(Touch.MODIFY) ;
 		
-		tree().putIfAbsent(PropertyId.normal(key), PropertyValue.createPrimitive(value));
+		tree().putIfAbsent(createNormalId(key), PropertyValue.createPrimitive(value));
 		return this ;
 	}
 
 	public PropertyValue propertyIfAbsentEnd(String key, Object value){
 		touch(Touch.MODIFY) ;
 		
-		return ObjectUtil.coalesce(tree().putIfAbsent(PropertyId.normal(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound) ;
+		return ObjectUtil.coalesce(tree().putIfAbsent(createNormalId(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound) ;
 	}
 	
 
 	public PropertyValue replace(String key, Object value){
 		touch(Touch.MODIFY) ;
-		return ObjectUtil.coalesce(tree().replace(PropertyId.normal(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound)  ;
+		return ObjectUtil.coalesce(tree().replace(createNormalId(key), PropertyValue.createPrimitive(value)), PropertyValue.NotFound)  ;
 	}
 	
 	public boolean replace(String key, Object oldValue, Object newValue){
 		touch(Touch.MODIFY) ;
-		return tree().replace(PropertyId.normal(key), PropertyValue.createPrimitive(oldValue), PropertyValue.createPrimitive(newValue)) ;
+		return tree().replace(createNormalId(key), PropertyValue.createPrimitive(oldValue), PropertyValue.createPrimitive(newValue)) ;
 	}
 	
 	public WriteNode propertyAll(Map<String, ? extends Object> map){
@@ -120,32 +136,30 @@ public class WriteNodeImpl implements WriteNode{
 
 	
 	public WriteNode append(String key, Object... value){
+		touch(Touch.MODIFY) ;
 		PropertyValue findValue = property(key) ;
 		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
 		
 		findValue.append(value) ;
 		
-		tree().put(PropertyId.normal(key), findValue) ;
-		
-		touch(Touch.MODIFY) ;
+		tree().put(createNormalId(key), findValue) ;
 		return this ;
 	}
 	
-	
 
 	public WriteNode replaceAll(Map<String, ? extends Object> newMap){
-		tree().replaceAll(modMap(newMap)) ;
 		touch(Touch.MODIFY) ;
+		tree().replaceAll(modMap(newMap)) ;
 		return this ;
 	}
 	
 	
 	public WriteNode unset(String key){
-		tree().remove(PropertyId.normal(key)) ;
 		touch(Touch.MODIFY) ;
+		tree().remove(createNormalId(key)) ;
 		return this ;
 	}
-	
+
 	
 	public WriteNode clear(){
 		touch(Touch.MODIFY) ;
@@ -206,9 +220,8 @@ public class WriteNodeImpl implements WriteNode{
 		return keys().contains(pid) ;
 	}
 
-	
 	public WriteNode ref(String refName) {
-		PropertyId referId = PropertyId.refer(refName);
+		PropertyId referId = createReferId(refName);
 		if (hasProperty(referId)) {
 			Object val = property(referId).value() ;
 			if (val == null) new IllegalArgumentException("not found ref :" + refName) ;
@@ -220,7 +233,7 @@ public class WriteNodeImpl implements WriteNode{
 
 	public IteratorList<WriteNode> refs(String refName){
 		
-		PropertyId referId = PropertyId.refer(refName);
+		PropertyId referId = createReferId(refName);
 		final Iterator<String> iter = hasProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
 		
 		return new IteratorList<WriteNode>() {
@@ -276,14 +289,14 @@ public class WriteNodeImpl implements WriteNode{
 	private Map<PropertyId, PropertyValue> modMap(Map<String, ? extends Object> map) {
 		Map<PropertyId, PropertyValue> modMap = MapUtil.newMap() ;
 		for (Entry<String, ? extends Object> entry : map.entrySet()) {
-			modMap.put(PropertyId.normal(entry.getKey()), PropertyValue.createPrimitive(entry.getValue())) ;
+			modMap.put(createNormalId(entry.getKey()), PropertyValue.createPrimitive(entry.getValue())) ;
 		}
 		return modMap;
 	}
 	
 	
 	public WriteNode refTo(String refName, String fqn){
-		PropertyId referId = PropertyId.refer(refName);
+		PropertyId referId = createReferId(refName);
 		tree().put(referId, PropertyValue.createPrimitive(fqn)) ;
 
 		touch(Touch.MODIFY) ;
@@ -293,7 +306,7 @@ public class WriteNodeImpl implements WriteNode{
 
 	public WriteNode refTos(String refName, String fqn){
 		
-		PropertyId referId = PropertyId.refer(refName);
+		PropertyId referId = createReferId(refName);
 		PropertyValue findValue = property(referId) ;
 		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
 		
@@ -353,15 +366,15 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public PropertyValue property(String key) {
-		return property(PropertyId.normal(key));
+		return property(createNormalId(key));
 	}
 	
 	public boolean hasRef(String refName){
-		return keys().contains(PropertyId.refer(refName)) ;
+		return keys().contains(createReferId(refName)) ;
 	}
 	
 	public boolean hasRef(String refName, Fqn fqn){
-		return property(PropertyId.refer(refName)).asSet().contains(fqn.toString()) ;
+		return property(createReferId(refName)).asSet().contains(fqn.toString()) ;
 	}
 	
 	public PropertyValue extendProperty(String propPath) {

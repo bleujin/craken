@@ -154,6 +154,8 @@ public class RepositoryImpl implements Repository{
 	
 	public Central central(String wsName){
 		SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
+		if (cacheStore == null) throw new IllegalArgumentException("not defined workspace") ;
+
 		return cacheStore.central() ;
 	}
 

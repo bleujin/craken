@@ -2,11 +2,10 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
-
-import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.nsearcher.config.Central;
+
+import org.apache.lucene.analysis.Analyzer;
 
 public interface Repository {
 

@@ -79,17 +79,36 @@ public class TestWriteSession extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.ignoreIndex("name") ;
-				for (int i = 0; i < 5; i++) {
-					wsession.pathBy("/index/" + i).property("index", i).property("name", "bleujin") ;
-				}
+				wsession.pathBy("/index/0").property("index", 0).property("name", "bleujin") ;
 				return null;
 			}
 		}).get() ;
 		
-//		session.pathBy("/index").children().debugPrint() ;
-		session.pathBy("/index").childQuery("").find().debugPrint() ;
-//		Thread.sleep(100) ;
+		assertEquals(1, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
+
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/index/1").property("index", 1).property("name", "bleujin") ;
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
+
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.ignoreIndex("name") ;
+				wsession.pathBy("/index/2").property("index", 2).property("name", "bleujin") ;
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
+		
+		assertEquals("bleujin", session.pathBy("/index/2").property("name").stringValue()) ;
+
 	}
 	
 }

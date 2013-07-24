@@ -1,34 +1,24 @@
 package net.ion.craken.loaders.lucene;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map.Entry;
 
 import net.ion.craken.io.BlobProxy;
-import net.ion.craken.io.BlobValue;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.ReadDocument;
 
 import org.infinispan.atomic.AtomicHashMap;
-import org.infinispan.atomic.AtomicMap;
 import org.infinispan.container.entries.ImmortalCacheEntry;
 import org.infinispan.container.entries.ImmortalCacheValue;
 import org.infinispan.container.entries.InternalCacheEntry;
-import org.infinispan.container.entries.MortalCacheEntry;
-import org.infinispan.container.entries.MortalCacheValue;
 
 public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	private static final long serialVersionUID = 8793021912637163008L;
