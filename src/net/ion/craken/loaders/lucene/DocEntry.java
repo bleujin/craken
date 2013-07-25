@@ -38,7 +38,7 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	public static InternalCacheEntry create(TreeNodeKey parentKey, List<ReadDocument> docs) {
 		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
 		for (ReadDocument doc : docs) {
-			nodeValue.put(StringUtil.substringAfterLast(doc.docId(), doc.get(PARENT)), Fqn.fromString(doc.docId())) ;
+			nodeValue.put(StringUtil.substringAfterLast(doc.docId(), "/"), Fqn.fromString(doc.docId())) ;
 		}
 		
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(parentKey);
