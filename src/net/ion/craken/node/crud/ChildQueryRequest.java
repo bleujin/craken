@@ -152,9 +152,8 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest where(String fnString) {
-		throw new UnsupportedOperationException("currently not supported") ;
-//		filter(new FunctionFilter(fnString)) ;
-//		return this ;
+		filter(new FunctionFilter(fnString)) ;
+		return this ;
 	}
 
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
+import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
 
 import org.apache.lucene.index.IndexReader;
@@ -21,8 +22,6 @@ public class FunctionFilter extends Filter {
 	public FunctionFilter(String fnExpression) {
 		this.fnExpression = fnExpression ;
 		
-		Parser<Expression> parser = ExpressionParser.expression();
-		final Expression result = TerminalParser.parse(parser, fnExpression);
 		
 	}
 
@@ -31,6 +30,15 @@ public class FunctionFilter extends Filter {
 		OpenBitSet result = new OpenBitSet(reader.maxDoc());
 		// TODO Auto-generated method stub
 		return result;
+	}
+
+	public Filter create() {
+		Parser<Expression> parser = ExpressionParser.expression();
+		final Expression expression = TerminalParser.parse(parser, fnExpression);
+		
+		Debug.line(expression) ;
+		
+		return null ;
 	}
 
 }

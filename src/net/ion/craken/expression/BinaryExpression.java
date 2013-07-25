@@ -14,7 +14,6 @@ public final class BinaryExpression extends ValueObject implements Expression {
 	}
 
 	public Comparable value(NodeCommon node) {
-
 		return operator.compute(left.value(node), right.value(node)) ;	
 	}
 }
