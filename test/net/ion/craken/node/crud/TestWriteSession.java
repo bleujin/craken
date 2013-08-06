@@ -68,9 +68,9 @@ public class TestWriteSession extends TestBaseCrud {
 			}
 		}) ;
 		
-		session.pathBy("/bleujin", true).children().debugPrint() ;
+		session.ghostBy("/bleujin").children().debugPrint() ;
 		Thread.sleep(1000) ;
-		session.pathBy("/bleujin", true).children().debugPrint() ;
+		session.ghostBy("/bleujin").children().debugPrint() ;
 		
 	}
 

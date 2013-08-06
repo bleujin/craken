@@ -16,6 +16,7 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
+import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.StringUtil;
 
 import org.infinispan.Cache;
@@ -39,20 +40,28 @@ public abstract class AbstractReadSession implements ReadSession {
 		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/'))) ;
 	}
 
+	public ReadNode ghostBy(String fqn0, String... fqns) {
+		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')), true) ;
+	}
+	
+	public ReadNode ghostBy(Fqn fqn) {
+		return pathBy(fqn, true) ;
+	}
+
 	public ReadNode pathBy(Fqn fqn) {
 		return pathBy(fqn, false) ;
 	}
 
-	public ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
+	protected ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
 		if (exists(fqn)) {
 			return ReadNodeImpl.load(this, workspace.pathNode(fqn));
 		} else if (emptyIfNotExist) {
-			return ReadNodeImpl.fake(this, fqn) ;
+			return ReadNodeImpl.ghost(this, fqn) ;
 		}
 		else throw new NotFoundPath(fqn) ;
 	}
 
-	public ReadNode pathBy(String fqn, boolean emptyIfNotExist) {
+	protected ReadNode pathBy(String fqn, boolean emptyIfNotExist) {
 		return pathBy(Fqn.fromString(fqn), emptyIfNotExist) ;
 	}
 

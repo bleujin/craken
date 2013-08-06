@@ -5,6 +5,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 
 import net.ion.craken.node.Credential;
+import net.ion.craken.node.ReadNode;
 import net.ion.framework.util.Debug;
 
 public class TestReadSession extends TestBaseCrud {
@@ -49,6 +50,21 @@ public class TestReadSession extends TestBaseCrud {
 		}
 	}
 
+	
+	public void testNotFoundPath2Ignore() throws Exception {
+		assertEquals(false, session.exists("/notfound")) ;
+		ReadNode fake = session.ghostBy("/notfound");
+		
+		assertEquals(true, fake != null) ;
+		assertEquals(0, fake.children().toList().size()) ;
+
+		ReadNode ghost = session.ghostBy("/notfound");
+		
+		assertEquals(true, ghost != null) ;
+		assertEquals(0, ghost.children().toList().size()) ;
+
+	
+	}
 	
 	
 	public void testMyAnalyzer() throws Exception {

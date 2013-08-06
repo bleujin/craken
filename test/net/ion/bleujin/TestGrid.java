@@ -1,4 +1,4 @@
-package net.ion.craken.io;
+package net.ion.bleujin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import junit.framework.TestCase;
+import net.ion.craken.io.GridFile;
+import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.GridFile.Metadata;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;

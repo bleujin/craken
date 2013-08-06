@@ -51,7 +51,7 @@ public class TestMongoStore extends TestCase {
 			}
 		}) ;
 		
-		session.pathBy("/", true).children().debugPrint() ;
+		session.ghostBy("/").children().debugPrint() ;
 	}
 	
 	public void testRead() throws Exception {
@@ -59,7 +59,7 @@ public class TestMongoStore extends TestCase {
 		final ReadNode readNode = session.pathBy("/bleujin");
 		Debug.line(readNode.toMap()) ; 
 		
-		session.pathBy("/", true).children().debugPrint() ;
+		session.ghostBy("/").children().debugPrint() ;
 	}
 	
 }

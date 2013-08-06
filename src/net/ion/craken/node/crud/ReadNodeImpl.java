@@ -208,7 +208,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 			Object val = property(referId).value() ;
 			if (val == null ) throw new NodeNotExistsException("not found ref :" + refName) ;
 
-			return session.pathBy(val.toString(), true) ;
+			return session.ghostBy(val.toString()) ;
 		} else {
 			throw new NodeNotExistsException("not found ref :" + refName) ;
 		}
@@ -236,7 +236,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 			@Override
 			public ReadNode next() {
-				return session.pathBy(iter.next(), true);
+				return session.ghostBy(iter.next());
 			}
 		};
 	}
@@ -251,8 +251,8 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return transformer(Functions.rowsFunction(session, expr)) ;
 	}
 	
-	public final static ReadNode fake(ReadSession session, Fqn fqn){
-		return new FakeReadNode(session, new FakeTreeNode(session, fqn));
+	public final static ReadNode ghost(ReadSession session, Fqn fqn){
+		return new GhostReadNode(session, new GhostTreeNode(session, fqn));
 	}
 
 	
@@ -288,10 +288,10 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 }
 
-class FakeReadNode extends ReadNodeImpl {
+class GhostReadNode extends ReadNodeImpl {
 
 	private static final long serialVersionUID = -5073334525889136682L;
-	FakeReadNode(ReadSession session, TreeNode inner) {
+	GhostReadNode(ReadSession session, TreeNode inner) {
 		super(session, inner) ;
 	}
 	
@@ -310,11 +310,11 @@ class FakeReadNode extends ReadNodeImpl {
 }
 
 
-class FakeTreeNode extends TreeNode {
+class GhostTreeNode extends TreeNode {
 
 	private ReadSession session ;
 	private final Fqn fqn ;
-	FakeTreeNode(ReadSession session, Fqn fqn){
+	GhostTreeNode(ReadSession session, Fqn fqn){
 		super(null, null, null, null) ;
 		this.session = session ;
 		this.fqn = fqn ;
@@ -375,7 +375,7 @@ class FakeTreeNode extends TreeNode {
 
 	@Override
 	public TreeNode getParent() {
-		return ((ReadNodeImpl)session.pathBy(fqn.getParent(), true)).treeNode();
+		return ((ReadNodeImpl)session.ghostBy(fqn.getParent())).treeNode();
 	}
 
 	@Override

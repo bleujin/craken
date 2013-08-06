@@ -85,7 +85,7 @@ public class TestConcurrent extends TestBaseCrud {
 		Runnable rtask = new Runnable(){
 			@Override
 			public void run() {
-				Debug.line(session.pathBy("/bleujin", true).children().toList().size());
+				Debug.line(session.ghostBy("/bleujin").children().toList().size());
 			}
 		} ;
 		

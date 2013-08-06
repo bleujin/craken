@@ -46,7 +46,7 @@ public class TestInfinispanDir extends TestCase {
 	
 	public void testRunning() throws Exception {
 		while(true){
-			final List<ReadNode> children = session.pathBy("/bleujin", true).children().toList();
+			final List<ReadNode> children = session.ghostBy("/bleujin").children().toList();
 			if (children.size() > 0){
 				Debug.line(children.size()) ;
 //				Debug.line(session.workspace().central().newSearcher().search("").totalCount()) ;
@@ -76,7 +76,7 @@ public class TestInfinispanDir extends TestCase {
 	
 	
 	public void testRead() throws Exception {
-		session.pathBy("/bleujin", true).children().debugPrint() ;
+		session.ghostBy("/bleujin").children().debugPrint() ;
 	}
 	
 	

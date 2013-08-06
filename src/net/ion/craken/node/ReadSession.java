@@ -21,11 +21,11 @@ import com.google.common.base.Function;
 
 public interface ReadSession extends ISession<ReadNode> {
 
+	public ReadNode ghostBy(String fqn0, String... fqns);
+
+	public ReadNode ghostBy(Fqn fqn);
+
 	public ReadNode pathBy(String fqn0, String... fqns);
-
-	public ReadNode pathBy(String fqn, boolean emptyIfNotExist);
-
-	public ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist);
 
 	public boolean exists(Fqn fqn);
 
@@ -52,11 +52,6 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public ChildQueryRequest queryRequest(String string) throws IOException, ParseException;
 	
-	
-
-	@Deprecated
-	public Future<AtomicInteger> reIndex(ReadNode topNode);
-
 	public Analyzer queryAnalyzer();
 	
 	public ReadSession queryAnayzler(Analyzer analyzer) ;

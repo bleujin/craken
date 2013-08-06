@@ -29,23 +29,6 @@ public class TestNodeIo extends TestCase {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
 		r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
-		
-//		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
-//				.sync().replTimeout(20000)
-//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/iotest")
-//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-//
-//		r.defineConfig("test.blobdata",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
-//				.sync().replTimeout(20000)
-//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/iotest")
-//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-//		
-//		r.defineConfig("test.blobmeta",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
-//				.sync().replTimeout(20000)
-//				
-//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/iotest")
-//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-		
 		this.session = r.login("test") ;
 	}
 	

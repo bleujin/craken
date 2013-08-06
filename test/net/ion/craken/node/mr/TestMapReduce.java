@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
@@ -14,6 +15,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
+import net.ion.nsearcher.config.CentralConfig;
 
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.atomic.AtomicMap;
@@ -30,6 +32,7 @@ public class TestMapReduce extends TestCase {
 
 	public void setUp() throws Exception {
 		this.r = RepositoryImpl.create() ;
+		this.r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
 		this.session = r.login("test") ;
 		session.tranSync(new TransactionJob<Void>() {
 			@Override

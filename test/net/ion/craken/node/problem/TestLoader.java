@@ -48,7 +48,7 @@ public class TestLoader extends TestCase {
 	
 	public void testRead() throws Exception {
 		ReadSession session = repository.login("test");
-		session.pathBy("/board", true).children().debugPrint() ;
+		session.ghostBy("/board").children().debugPrint() ;
 	}
 	
 	

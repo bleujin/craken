@@ -26,7 +26,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 	private final Object[] elements;
 	private transient int hash_code = 0;
-
 	/**
 	 * Immutable root Fqn.
 	 */
@@ -37,8 +36,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 	 */
 	protected String stringRepresentation;
 	private static final Object[] EMPTY_ARRAY = ReflectionUtil.EMPTY_CLASS_ARRAY;
-
-	// ----------------- START: Private constructors for use by factory methods only. ----------------------
 
 	private Fqn(Object... elements) {
 		this.elements = elements;
@@ -71,7 +68,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return new Fqn(names);
 	}
 
-
+	
 	public static Fqn fromElements(Object... elements) {
 		Object[] copy = new Object[elements.length];
 		System.arraycopy(elements, 0, copy, 0, elements.length);

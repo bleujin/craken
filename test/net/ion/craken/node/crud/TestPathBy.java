@@ -142,7 +142,7 @@ public class TestPathBy extends TestBaseCrud {
 		} catch(IllegalArgumentException expect){
 		}
 		
-		session.pathBy("/notexist", true) ; // create
+		session.ghostBy("/notexist") ; // ignore
 	}
 	
 	
