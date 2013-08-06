@@ -69,4 +69,8 @@ public class PredicatedResponse {
 	public NodeCommon<ReadNode> last() {
 		return readNode(founded.size() -1);
 	}
+
+	public int totoalCount() {
+		return founded.size() ;
+	}
 }

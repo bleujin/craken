@@ -46,9 +46,9 @@ public class TestResponsePredicate extends TestBaseSearch {
 				return null;
 			}
 		}) ;
-		final PredicatedResponse response = session.queryRequest("").descending("name").find().predicated(ResponsePredicates.where("this.age between 20 and 22 and this.name in ('hero', 'dev')"));
+		final PredicatedResponse response = session.queryRequest("").descending("name").find().predicated(ResponsePredicates.where("age between 20 and 22 and this.name in ('hero', 'dev')"));
 		response.debugPrint() ;
-		
+		assertEquals(2, response.totoalCount()) ;
 	}
 	
 	
