@@ -168,24 +168,13 @@ Global Config....(jgroups-udp.xml)
     mcast_addr="228.100.2.3"
     .....		
     
-Workspace Config.....
-
-	new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().clustering().hash().unsafe()
-	    .eviction().maxEntries(maxEntry)
-	    .invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
-	    .addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "WEB-INF/resource/store")
-	    .purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build();
 
 Create Repository
 	repository = RepositoryImpl.create(GlobalConfigurationBuilder
 	    .defaultClusteredBuilder().transport().clusterName("mysearch")
 		.addProperty("configurationFile", PathMaker.getFilePath(getIXSSDocBase(), "WEB-INF/jgroups-udp.xml")).build());
 		
-		repository.defineConfig("ixss.node", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().clustering().hash().unsafe()
-	        .eviction().maxEntries(maxEntry)
-	        .invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
-	        .addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", "WEB-INF/resource/store")
-	        .purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		repository.defineWorkspace("ixss", CentralCacheStoreConfig.create().location("./resource/store")) ;
 		
 		repository.start() ;
    				
@@ -216,7 +205,7 @@ Create Repository
 		repo.defineConfig("mywork.node", defaultConf) ;
 		r.start() ;
 		
-		ReadSession session = r.testLogin("mywork") ;
+		ReadSession session = r.login("mywork") ;
 		session.tranSync(new TransactionJob<Void>() {
 		    @Override
 		    public Void handle(WriteSession wsession) {

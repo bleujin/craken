@@ -2,6 +2,8 @@ package net.ion.craken.expression;
 
 import java.math.BigDecimal;
 
+import org.apache.lucene.search.Filter;
+
 import net.ion.framework.util.ObjectUtil;
 
 
@@ -69,7 +71,12 @@ public enum Op {
 			if (left == null || right == null || (! (right instanceof ComparableSet))) return false ;
 			return ! ((ComparableSet)right).contains(left) ;
 		}
-	}, CONTAIN, EQ{
+	}, CONTAIN{
+		@Override
+		public Boolean compute(Comparable left, Comparable right) {
+			return isNotNull(left, right) && left.equals(right) ;
+		}
+	}, EQ{
 		@Override
 		public Boolean compute(Comparable left, Comparable right) {
 			return isNotNull(left, right) && left.equals(right) ;
@@ -94,6 +101,8 @@ public enum Op {
 		public Boolean compute(Comparable left, Comparable right) {
 			return isNotNull(left, right) && isSameComparable(left, right) && left.compareTo(right) <= 0;
 		}
+		
+		
 	}, NE {
 		@Override
 		public Boolean compute(Comparable left, Comparable right) {
@@ -123,11 +132,7 @@ public enum Op {
 		}
 	} ;
 
-	
-	public Comparable compute(Comparable left, Comparable right) {
-		return false;
-	}
-	
+
 	protected boolean isNotNull(Comparable left, Comparable right){
 		return left != null && right != null ; 
 	}
@@ -143,7 +148,11 @@ public enum Op {
 		}
 		return false;
 	}
-
+	
+	public Comparable compute(Comparable left, Comparable right) {
+		return false;
+	}
+	
 	public Comparable compute(Comparable value) {
 		return false;
 	}

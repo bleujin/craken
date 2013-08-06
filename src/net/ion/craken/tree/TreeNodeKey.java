@@ -15,8 +15,9 @@ import org.infinispan.util.Util;
 public class TreeNodeKey implements Serializable {
 
 	private static final long serialVersionUID = 809910293671104885L;
-	final Fqn fqn;
-	final Type contents;
+	private final Fqn fqn;
+	private final Type contents;
+	private Action action = Action.MERGE ;
 
 	public static enum Type {
 		DATA, STRUCTURE ;
@@ -29,10 +30,14 @@ public class TreeNodeKey implements Serializable {
 			return this == DATA ;
 		}
 	}
-
-	public TreeNodeKey(Fqn fqn, Type contents) {
+	
+		public TreeNodeKey(Fqn fqn, Type contents) {
 		this.contents = contents;
 		this.fqn = fqn;
+	}
+		
+	public static enum Action {
+		MERGE, RESET, CREATE
 	}
 
 	public Fqn getFqn() {
@@ -43,8 +48,30 @@ public class TreeNodeKey implements Serializable {
 		return contents;
 	}
 
+	public TreeNodeKey resetAction(){
+		this.action = Action.RESET ;
+		return this ;
+	}
+	
+	public TreeNodeKey createAction(){
+		this.action = Action.CREATE ;
+		return this ;
+	}
+	
+	public Action action(){
+		return action ;
+	}
+	
+	
+	
+
+
 	public String idString(){
 		return (contents == Type.STRUCTURE) ? "@" + fqn.toString() : fqn.toString() ;
+	}
+	
+	public String fqnString(){
+		return fqn.toString() ;
 	}
 	
 	public boolean equals(Object o) {
@@ -73,6 +100,7 @@ public class TreeNodeKey implements Serializable {
 	}
 
 	public static class Externalizer extends AbstractExternalizer<TreeNodeKey> {
+		private static final long serialVersionUID = 8630641407515513659L;
 		private static final byte DATA_BYTE = 1;
 		private static final byte STRUCTURE_BYTE = 2;
 

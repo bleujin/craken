@@ -49,13 +49,13 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	private static final long serialVersionUID = 1785904048897031227L;
 	private transient ReadSession session ;
-	private TreeNode<PropertyId, PropertyValue> treeNode;
-	protected ReadNodeImpl(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
+	private TreeNode treeNode;
+	protected ReadNodeImpl(ReadSession session, TreeNode  inner) {
 		this.session = session ;
 		this.treeNode = inner ;
 	}
 
-	public static ReadNode load(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
+	public static ReadNode load(ReadSession session, TreeNode inner) {
 		return new ReadNodeImpl(session, inner);
 	}
 	
@@ -77,7 +77,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	
 	// only use for test
-	public TreeNode<PropertyId, PropertyValue> treeNode(){
+	public TreeNode treeNode(){
 		return treeNode ;
 	}
 	
@@ -291,7 +291,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 class FakeReadNode extends ReadNodeImpl {
 
 	private static final long serialVersionUID = -5073334525889136682L;
-	FakeReadNode(ReadSession session, TreeNode<PropertyId, PropertyValue> inner) {
+	FakeReadNode(ReadSession session, TreeNode inner) {
 		super(session, inner) ;
 	}
 	
@@ -310,22 +310,18 @@ class FakeReadNode extends ReadNodeImpl {
 }
 
 
-class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
+class FakeTreeNode extends TreeNode {
 
 	private ReadSession session ;
 	private final Fqn fqn ;
 	FakeTreeNode(ReadSession session, Fqn fqn){
+		super(null, null, null, null) ;
 		this.session = session ;
 		this.fqn = fqn ;
 	}
 	
 	@Override
-	public TreeNode<PropertyId, PropertyValue> addChild(Fqn f) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public TreeNode<PropertyId, PropertyValue> addChild(Fqn f, Flag... flags) {
+	public TreeNode addChild(Fqn f) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
@@ -335,17 +331,7 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 	}
 
 	@Override
-	public void clearData(Flag... flags) {
-		
-	}
-
-	@Override
 	public int dataSize() {
-		return 0;
-	}
-
-	@Override
-	public int dataSize(Flag... flags) {
 		return 0;
 	}
 
@@ -354,40 +340,18 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 		return PropertyValue.NotFound;
 	}
 
-	@Override
-	public PropertyValue get(PropertyId key, Flag... flags) {
-		return PropertyValue.NotFound;
-	}
 
 	@Override
-	public TreeNode<PropertyId, PropertyValue> getChild(Fqn f) {
+	public TreeNode getChild(Fqn f) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
-	@Override
-	public TreeNode<PropertyId, PropertyValue> getChild(Fqn f, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
 
 	@Override
-	public TreeNode<PropertyId, PropertyValue> getChild(Object name) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public TreeNode<PropertyId, PropertyValue> getChild(Object name, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public Set<TreeNode<PropertyId, PropertyValue>> getChildren() {
+	public Set<TreeNode> getChildren() {
 		return SetUtil.EMPTY;
 	}
 
-	@Override
-	public Set<TreeNode<PropertyId, PropertyValue>> getChildren(Flag... flags) {
-		return SetUtil.EMPTY;
-	}
 
 	@Override
 	public Set<Object> getChildrenNames() {
@@ -395,17 +359,7 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 	}
 
 	@Override
-	public Set<Object> getChildrenNames(Flag... flags) {
-		return SetUtil.EMPTY;
-	}
-
-	@Override
 	public Map<PropertyId, PropertyValue> getData() {
-		return MapUtil.EMPTY;
-	}
-
-	@Override
-	public Map<PropertyId, PropertyValue> getData(Flag... flags) {
 		return MapUtil.EMPTY;
 	}
 
@@ -420,17 +374,7 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 	}
 
 	@Override
-	public Set<PropertyId> getKeys(Flag... flags) {
-		return SetUtil.EMPTY;
-	}
-
-	@Override
-	public TreeNode<PropertyId, PropertyValue> getParent() {
-		return ((ReadNodeImpl)session.pathBy(fqn.getParent(), true)).treeNode();
-	}
-
-	@Override
-	public TreeNode<PropertyId, PropertyValue> getParent(Flag... flags) {
+	public TreeNode getParent() {
 		return ((ReadNodeImpl)session.pathBy(fqn.getParent(), true)).treeNode();
 	}
 
@@ -440,17 +384,7 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 	}
 
 	@Override
-	public boolean hasChild(Fqn f, Flag... flags) {
-		return false;
-	}
-
-	@Override
 	public boolean hasChild(Object o) {
-		return false;
-	}
-
-	@Override
-	public boolean hasChild(Object o, Flag... flags) {
 		return false;
 	}
 
@@ -465,27 +399,13 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 	}
 
 	@Override
-	public PropertyValue put(PropertyId key, PropertyValue value, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
 	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
-	@Override
-	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
 
 	@Override
 	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value, Flag... flags) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
@@ -494,18 +414,9 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
-	@Override
-	public PropertyValue remove(PropertyId key, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
 
 	@Override
 	public boolean removeChild(Fqn f) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public boolean removeChild(Fqn f, Flag... flags) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
@@ -515,17 +426,7 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 	}
 
 	@Override
-	public boolean removeChild(Object childName, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
 	public void removeChildren() {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public void removeChildren(Flag... flags) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
@@ -534,18 +435,9 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
-	@Override
-	public PropertyValue replace(PropertyId key, PropertyValue value, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
 
 	@Override
 	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue, Flag... flags) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
@@ -554,9 +446,121 @@ class FakeTreeNode implements TreeNode<PropertyId, PropertyValue> {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
-	@Override
-	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map, Flag... flags) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
+
 	
+//	@Override
+//	public Set<Object> getChildrenNames(Flag... flags) {
+//		return SetUtil.EMPTY;
+//	}
+//
+//	@Override
+//	public Map<PropertyId, PropertyValue> getData(Flag... flags) {
+//		return MapUtil.EMPTY;
+//	}
+//
+//	@Override
+//	public Set<PropertyId> getKeys(Flag... flags) {
+//		return SetUtil.EMPTY;
+//	}
+//
+//	@Override
+//	public TreeNode<PropertyId, PropertyValue> getParent(Flag... flags) {
+//		return ((ReadNodeImpl)session.pathBy(fqn.getParent(), true)).treeNode();
+//	}
+
+//	@Override
+//	public boolean hasChild(Fqn f, Flag... flags) {
+//		return false;
+//	}
+//	
+//	@Override
+//	public boolean hasChild(Object o, Flag... flags) {
+//		return false;
+//	}
+//
+//	@Override
+//	public PropertyValue put(PropertyId key, PropertyValue value, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node") ;
+//	}
+//
+//	@Override
+//	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node") ;
+//	}
+//	@Override
+//	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node") ;
+//	}
+//	@Override
+//	public PropertyValue remove(PropertyId key, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+//
+//	@Override
+//	public boolean removeChild(Fqn f, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+//
+//	@Override
+//	public boolean removeChild(Object childName, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+//
+//	@Override
+//	public void removeChildren(Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+//
+//	@Override
+//	public PropertyValue replace(PropertyId key, PropertyValue value, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+//
+//	@Override
+//	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+//
+//	@Override
+//	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node");
+//	}
+	
+
+//	@Override
+//	public void clearData(Flag... flags) {
+//		
+//	}
+//
+//	@Override
+//	public int dataSize(Flag... flags) {
+//		return 0;
+//	}
+//
+//	@Override
+//	public PropertyValue get(PropertyId key, Flag... flags) {
+//		return PropertyValue.NotFound;
+//	}
+//
+//	@Override
+//	public TreeNode<PropertyId, PropertyValue> getChild(Fqn f, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node") ;
+//	}
+//	
+//	@Override
+//	public TreeNode<PropertyId, PropertyValue> getChild(Object name, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node") ;
+//	}
+//	
+//
+//	@Override
+//	public TreeNode<PropertyId, PropertyValue> addChild(Fqn f, Flag... flags) {
+//		throw new UnsupportedOperationException("current node is empty node") ;
+//	}
+//
+//	@Override
+//	public Set<TreeNode<PropertyId, PropertyValue>> getChildren(Flag... flags) {
+//		return SetUtil.EMPTY;
+//	}
+
 }

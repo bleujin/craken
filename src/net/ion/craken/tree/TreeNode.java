@@ -1,107 +1,302 @@
 package net.ion.craken.tree;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.infinispan.context.Flag;
+import net.ion.craken.io.GridFilesystem;
+import net.ion.framework.util.ObjectUtil;
+
+import org.infinispan.AdvancedCache;
+import org.infinispan.atomic.AtomicHashMapProxy;
+import org.infinispan.atomic.AtomicMap;
+import org.infinispan.batch.BatchContainer;
+import org.infinispan.util.Immutables;
+import org.infinispan.util.Util;
 
 
-// @ThreadSafe
-public interface TreeNode<K, V> {
+public class TreeNode extends TreeStructureSupport {
 
-	TreeNode<K, V> getParent();
+	private GridFilesystem gfs ;
+	private Fqn fqn;
+	private TreeNodeKey dataKey, structureKey;
 
-	TreeNode<K, V> getParent(Flag... flags);
+	public TreeNode(Fqn fqn, GridFilesystem gfs, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, BatchContainer batchContainer) {
+		super(cache, batchContainer) ;
+		this.gfs = gfs ;
+		this.fqn = fqn;
+		this.dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA);
+		this.structureKey = new TreeNodeKey(fqn, TreeNodeKey.Type.STRUCTURE);
+		this.batchContainer = batchContainer ;
+	}
 
-	Set<TreeNode<K, V>> getChildren();
+	public TreeNode getParent() {
+		if (fqn.isRoot())
+			return this;
+		return new TreeNode(fqn.getParent(), gfs, cache, batchContainer);
+	}
 
-	Set<TreeNode<K, V>> getChildren(Flag... flags);
+	public Set<TreeNode> getChildren() {
+		Set<TreeNode> result = new HashSet<TreeNode>();
+		for (Fqn f : getStructure(structureKey).values()) {
+			result.add(new TreeNode(f, gfs, cache, batchContainer));
+		}
+		return Immutables.immutableSetWrap(result);
+	}
 
-	Set<Object> getChildrenNames();
+	public Set<Object> getChildrenNames() {
+		return Immutables.immutableSetCopy(getStructure(structureKey).keySet());
+	}
 
-	Set<Object> getChildrenNames(Flag... flags);
+	public Map<PropertyId, PropertyValue> getData() {
+		return Collections.unmodifiableMap(new ReadMap(gfs, getDataInternal()));
+	}
 
-	Map<K, V> getData();
+	public Set<PropertyId> getKeys() {
+		return getData().keySet();
+	}
 
-	Map<K, V> getData(Flag... flags);
+	public Fqn getFqn() {
+		return fqn;
+	}
 
-	Set<K> getKeys();
+	public TreeNode addChild(Fqn f) {
+		Fqn absoluteChildFqn = Fqn.fromRelativeFqn(fqn, f);
 
-	Set<K> getKeys(Flag... flags);
+		// 1) first register it with the parent
+		// AtomicMap<Object, Fqn> structureMap = getStructure(structureKey);
+		// structureMap.put(f.getLastElement(), absoluteChildFqn);
 
-	Fqn getFqn();
+		// Debug.line(f, new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE)) ;
+		// cache.remove(new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE));
 
-	TreeNode<K, V> addChild(Fqn f);
+		// 2) then create the structure and data maps
+		mergeAncestor(absoluteChildFqn);
 
-	TreeNode<K, V> addChild(Fqn f, Flag... flags);
+		return new TreeNode(absoluteChildFqn, gfs, cache, batchContainer);
+	}
 
-	boolean removeChild(Fqn f);
+	public boolean removeChild(Fqn f) {
+		return removeChild(f.getLastElement());
+	}
 
-	boolean removeChild(Fqn f, Flag... flags);
+	public boolean removeChild(Object childName) {
+		AtomicMap<Object, Fqn> s = getStructure(structureKey);
+		Fqn childFqn = s.remove(childName);
+		if (childFqn != null) {
+			TreeNode child = new TreeNode(childFqn, gfs, cache, batchContainer);
+			child.removeChildren();
+			child.clearData(); // this is necessary in case we have a remove and then an add on the same node, in the same tx.
+			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.DATA));
+			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.STRUCTURE));
+			return true;
+		}
 
-	boolean removeChild(Object childName);
+		return false;
+	}
+	
+	public TreeNode getChild(Fqn f) {
+		if (hasChild(f))
+			return new TreeNode(Fqn.fromRelativeFqn(fqn, f), gfs, cache, batchContainer);
+		else
+			return null;
+	}
 
-	boolean removeChild(Object childName, Flag... flags);
+	public PropertyValue put(PropertyId key, PropertyValue value) {
 
-	TreeNode<K, V> getChild(Fqn f);
+		AtomicHashMapProxy<PropertyId, PropertyValue> map = (AtomicHashMapProxy<PropertyId, PropertyValue>) getDataInternal();
+		return map.put(key, value);
+	}
 
-	TreeNode<K, V> getChild(Fqn f, Flag... flags);
+	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value) {
+		AtomicMap<PropertyId, PropertyValue> data = getDataInternal();
+		if (!data.containsKey(key)) {
+			return data.put(key, value);
+		}
+		return data.get(key);
+	}
 
-	TreeNode<K, V> getChild(Object name);
+	public PropertyValue replace(PropertyId key, PropertyValue value) {
+		AtomicMap<PropertyId, PropertyValue> map = getAtomicMap(dataKey);
+		if (map.containsKey(key))
+			return map.put(key, value);
+		else
+			return null;
+	}
 
-	TreeNode<K, V> getChild(Object name, Flag... flags);
+	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue) {
+		AtomicMap<PropertyId, PropertyValue> data = getDataInternal();
+		PropertyValue old = data.get(key);
+		if (Util.safeEquals(oldValue, old)) {
+			data.put(key, newValue);
+			return true;
+		}
+		return false;
+	}
 
-	V put(K key, V value);
+	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
+		getDataInternal().putAll(map);
+	}
 
-	V put(K key, V value, Flag... flags);
+	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
+		AtomicMap<PropertyId, PropertyValue> data = getDataInternal();
+		data.clear();
+		data.putAll(map);
+	}
 
-	V putIfAbsent(K key, V value);
+	public PropertyValue get(PropertyId key) {
+		return getData().get(key);
+	}
 
-	V putIfAbsent(K key, V value, Flag... flags);
+	public PropertyValue remove(PropertyId key) {
+		return getDataInternal().remove(key);
+	}
+	public void clearData() {
+		getDataInternal().clear();
+	}
 
-	V replace(K key, V value);
+	public int dataSize() {
+		return getData().size();
+	}
 
-	V replace(K key, V value, Flag... flags);
+	public boolean hasChild(Fqn f) {
+		if (f.size() > 1) {
+			// indirect child.
+			Fqn absoluteFqn = Fqn.fromRelativeFqn(fqn, f);
+			return exists(absoluteFqn);
+		} else {
+			return hasChild(f.getLastElement());
+		}
+	}
 
-	boolean replace(K key, V oldValue, V newValue);
+	public boolean hasChild(Object o) {
+		return getStructure(structureKey).containsKey(o);
+	}
 
-	boolean replace(K key, V oldValue, V newValue, Flag... flags);
+	public boolean isValid() {
+		return cache.containsKey(dataKey);
+	}
 
-	void putAll(Map<? extends K, ? extends V> map);
+	public void removeChildren() {
+		Map<Object, Fqn> s = getStructure(structureKey);
+		for (Object o : Immutables.immutableSetCopy(s.keySet()))
+			removeChild(o);
+	}
+	
+	AtomicMap<PropertyId, PropertyValue> getDataInternal() {
+		return getAtomicMap(dataKey);
+	}
 
-	void putAll(Map<? extends K, ? extends V> map, Flag... flags);
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 
-	void replaceAll(Map<? extends K, ? extends V> map);
+		TreeNode node = (TreeNode) o;
 
-	void replaceAll(Map<? extends K, ? extends V> map, Flag... flags);
+		if (fqn != null ? !fqn.equals(node.fqn) : node.fqn != null)
+			return false;
 
-	V get(K key);
+		return true;
+	}
 
-	V get(K key, Flag... flags);
+	public int hashCode() {
+		return (fqn != null ? fqn.hashCode() : 0);
+	}
 
-	V remove(K key);
+	@Override
+	public String toString() {
+		return "TreeNode{" + "fqn=" + fqn + '}';
+	}
+	
+}
 
-	V remove(K key, Flag... flags);
 
-	void clearData();
 
-	void clearData(Flag... flags);
 
-	int dataSize();
+class ReadMap implements Map<PropertyId, PropertyValue>{
 
-	int dataSize(Flag... flags);
+	private final GridFilesystem gfs ;
+	private final Map<PropertyId, PropertyValue> internal ; 
+	public ReadMap(GridFilesystem gfs, AtomicMap<PropertyId, PropertyValue> internal) {
+		this.gfs = gfs ;
+		this.internal = internal ;
+	}
 
-	boolean hasChild(Fqn f);
+	@Override
+	public void clear() {
+		internal.clear() ;
+	}
 
-	boolean hasChild(Fqn f, Flag... flags);
+	@Override
+	public boolean containsKey(Object key) {
+		return internal.containsKey(key);
+	}
 
-	boolean hasChild(Object o);
+	@Override
+	public boolean containsValue(Object value) {
+		return internal.containsValue(value);
+	}
 
-	boolean hasChild(Object o, Flag... flags);
+	@Override
+	public boolean isEmpty() {
+		return internal.isEmpty();
+	}
 
-	boolean isValid();
+	@Override
+	public Set<PropertyId> keySet() {
+		return internal.keySet();
+	}
 
-	void removeChildren();
+	@Override
+	public int size() {
+		return internal.size();
+	}
 
-	void removeChildren(Flag... flags);
+	
+	
+
+	@Override
+	public Set<java.util.Map.Entry<PropertyId, PropertyValue>> entrySet() {
+		for (PropertyValue pvalue : internal.values()) {
+			pvalue.gfs(gfs) ;
+		}
+		return internal.entrySet() ;
+	}
+
+	@Override
+	public PropertyValue get(Object key) {
+		final PropertyValue value = ObjectUtil.coalesce(internal.get(key), PropertyValue.NotFound);
+		return value.gfs(gfs);
+	}
+
+	@Override
+	public Collection<PropertyValue> values() {
+		for (PropertyValue pv : internal.values()) {
+			pv.gfs(gfs) ;
+		}
+		return internal.values();
+	}
+	
+	
+
+	@Override
+	public PropertyValue put(PropertyId key, PropertyValue value) {
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> m) {
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public PropertyValue remove(Object key) {
+		throw new UnsupportedOperationException() ;
+	}
+
+
 }

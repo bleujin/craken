@@ -32,6 +32,7 @@ import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.lucene.analysis.kr.utils.StringUtil;
 
 import com.google.common.base.Function;
 
@@ -39,26 +40,26 @@ public class WriteNodeImpl implements WriteNode{
 
 
 	private WriteSession wsession ;
-	private TreeNode<PropertyId, PropertyValue> inner ;
+	private TreeNode inner ;
 	
 	public enum Touch {
 		MODIFY, REMOVE, REMOVECHILDREN
 	}
 	
-	private WriteNodeImpl(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) {
+	private WriteNodeImpl(WriteSession wsession, TreeNode inner) {
 		this.wsession = wsession ;
 		this.inner = inner ;
 	}
 	
-	public static WriteNode loadTo(WriteSession wsession, TreeNode<PropertyId, PropertyValue> node) {
-		return new WriteNodeImpl(wsession, node);
+	public static WriteNode loadTo(WriteSession wsession, TreeNode inner) {
+		return new WriteNodeImpl(wsession, inner);
 	}
 
-	public WriteNode load(WriteSession wsession, TreeNode<PropertyId, PropertyValue> inner) {
+	public WriteNode load(WriteSession wsession, TreeNode inner) {
 		return new WriteNodeImpl(wsession, inner);
 	}
 	
-	protected TreeNode<PropertyId, PropertyValue> tree(){
+	protected TreeNode tree(){
 		return inner ;
 	}
 
@@ -297,7 +298,8 @@ public class WriteNodeImpl implements WriteNode{
 	
 	public WriteNode refTo(String refName, String fqn){
 		PropertyId referId = createReferId(refName);
-		tree().put(referId, PropertyValue.createPrimitive(fqn)) ;
+		if (StringUtil.isBlank(fqn)) tree().remove(referId) ;
+		else tree().put(referId, PropertyValue.createPrimitive(fqn)) ;
 
 		touch(Touch.MODIFY) ;
 		return this ;
@@ -399,7 +401,7 @@ public class WriteNodeImpl implements WriteNode{
 	}
 
 	public WriteChildren children(){
-		final Iterator<TreeNode<PropertyId, PropertyValue>> iter = tree().getChildren().iterator();
+		final Iterator<TreeNode> iter = tree().getChildren().iterator();
 		return new WriteChildren(session(), iter) ;
 	}
 	

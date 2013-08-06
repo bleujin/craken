@@ -45,7 +45,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	public ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
 		if (exists(fqn)) {
-			return ReadNodeImpl.load(this, workspace.getNode(fqn));
+			return ReadNodeImpl.load(this, workspace.pathNode(fqn));
 		} else if (emptyIfNotExist) {
 			return ReadNodeImpl.fake(this, fqn) ;
 		}
@@ -62,7 +62,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	
 	public boolean exists(String fqn) {
-		return workspace.exists(fqn);
+		return workspace.exists(Fqn.fromString(fqn));
 	}
 
 	public boolean exists(Fqn fqn) {
@@ -119,8 +119,8 @@ public abstract class AbstractReadSession implements ReadSession {
 	}
 
 	private <Ri, Rv> Future<Map<Ri, Rv>> asyncMapReduce(NodeMapReduce<Ri, Rv> mapper) {
-		TreeCache<PropertyId, PropertyValue> tcache = workspace().getCache();
-		Cache<TreeNodeKey, AtomicMap<?, ?>> cache = tcache.getCache();
+		TreeCache  tcache = workspace().getCache();
+		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = tcache.cache();
 
 //		CacheMode cmode = cache.getCacheConfiguration().clustering().cacheMode();
 //		if (CacheMode.DIST_ASYNC != cmode || CacheMode.DIST_SYNC != cmode){

@@ -45,7 +45,7 @@ public class ReadSessionImpl extends AbstractReadSession{
 
 	
 	public Future<AtomicInteger> reIndex(final ReadNode top) {
-		return null ;
+		throw new UnsupportedOperationException() ;
 		
 //		return central().newIndexer().asyncIndex(new IndexJob<AtomicInteger>() {
 //			private AtomicInteger aint = new AtomicInteger() ;

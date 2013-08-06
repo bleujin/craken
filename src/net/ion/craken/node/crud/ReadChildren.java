@@ -40,7 +40,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 
 	private final ReadSession session;
 
-	public ReadChildren(ReadSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter) {
+	public ReadChildren(ReadSession session, Iterator<TreeNode> iter) {
 		this.session = session;
 		this.iter = new ReloadIterator(session, iter);
 	}
@@ -148,6 +148,10 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), sp, count, "cnt");
 	}
 
+	public ReadNode firstNode() {
+		return hasNext() ? next() : null;
+	}
+
 
 
 }
@@ -155,18 +159,18 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 class ReloadIterator implements Iterator<ReadNode> {
 
 	private ReadSession session;
-	private Iterator<TreeNode<PropertyId, PropertyValue>> oriIter;
+	private Iterator<TreeNode> oriIter;
 
-	public ReloadIterator(ReadSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter) {
+	public ReloadIterator(ReadSession session, Iterator<TreeNode> iter) {
 		this.session = session;
 		this.oriIter = iter;
 	}
 
 	public ReloadIterator reload(int skip, int offset, final List<Predicate<ReadNode>> filters, final List<SortElement> sorts) {
 
-		Comparator<TreeNode<PropertyId, PropertyValue>> mycomparator = new Comparator<TreeNode<PropertyId, PropertyValue>>() {
+		Comparator<TreeNode> mycomparator = new Comparator<TreeNode>() {
 			@Override
-			public int compare(TreeNode<PropertyId, PropertyValue> left, TreeNode<PropertyId, PropertyValue> right) {
+			public int compare(TreeNode left, TreeNode  right) {
 
 				for (SortElement sele : sorts) {
 					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propid()));
@@ -182,9 +186,9 @@ class ReloadIterator implements Iterator<ReadNode> {
 			}
 		};
 
-		Predicate<TreeNode<PropertyId, PropertyValue>> myfilter = new Predicate<TreeNode<PropertyId, PropertyValue>>() {
+		Predicate<TreeNode> myfilter = new Predicate<TreeNode>() {
 			@Override
-			public boolean apply(TreeNode<PropertyId, PropertyValue> treeNode) {
+			public boolean apply(TreeNode treeNode) {
 				if (filters.size() == 0)
 					return true;
 				for (Predicate<ReadNode> filter : filters) {
@@ -196,7 +200,7 @@ class ReloadIterator implements Iterator<ReadNode> {
 		};
 
 		if (sorts.size() == 0) { // no sort
-			Iterator<TreeNode<PropertyId, PropertyValue>> iterator =  Iterators.limit(Iterators.filter(oriIter, myfilter), skip + offset);
+			Iterator<TreeNode> iterator =  Iterators.limit(Iterators.filter(oriIter, myfilter), skip + offset);
 			Iterators.advance(iterator, skip) ;
 			return new ReloadIterator(session, iterator);
 		} 
@@ -209,7 +213,7 @@ class ReloadIterator implements Iterator<ReadNode> {
 		// }, skip + offset);
 		// return new ReloadIterator(session, sorted.subList(skip, sorted.size()).iterator()) ;
 
-		List<TreeNode<PropertyId, PropertyValue>> result = SortUtil.selectTopN(oriIter, myfilter, mycomparator, skip + offset);
+		List<TreeNode> result = SortUtil.selectTopN(oriIter, myfilter, mycomparator, skip + offset);
 		return new ReloadIterator(session, result.subList(skip, result.size()).iterator());
 
 	}

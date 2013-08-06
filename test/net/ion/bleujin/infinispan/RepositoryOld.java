@@ -17,6 +17,7 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.node.crud.ReadSessionImpl;
 import net.ion.craken.node.crud.WorkspaceImpl;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
@@ -167,14 +168,14 @@ public class RepositoryOld implements Repository{
 
 			
 			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, treeCache(wsName), wsName, ObjectUtil.coalesce(configs.get(wsName), config));
-			newWorkspace.getNode("/") ;
+			newWorkspace.pathNode(Fqn.ROOT) ;
 			wss.put(wsName, newWorkspace) ;
 			return wss.get(wsName) ;
 		}
 	}
 
 
-	private TreeCache<PropertyId, PropertyValue> treeCache(String cacheName) {
+	private TreeCache treeCache(String cacheName) {
 		return TreeCacheFactory.createTreeCache(dm, cacheName) ;
 	}
 

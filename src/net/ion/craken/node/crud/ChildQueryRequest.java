@@ -6,7 +6,6 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;
-import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.SearchResponse;
@@ -15,15 +14,10 @@ import net.ion.nsearcher.search.filter.FilterUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
 
 import org.apache.ecs.xml.XML;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TermRangeFilter;
-import org.apache.lucene.search.WildcardQuery;
 
 public class ChildQueryRequest {
 
@@ -47,7 +41,12 @@ public class ChildQueryRequest {
 		return this ;
 	}
 	
-	
+	public ChildQueryRequest in(String field, String... values) {
+		if (values == null || values.length == 0) return this ;
+		
+		filter(Filters.in(field, values)) ;
+		return this ;
+	}
 	
 
 	public ChildQueryRequest between(String field, int min, int max) {
@@ -55,43 +54,37 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest between(String field, long min, long max) {
-		filter(NumericRangeFilter.newLongRange(field, min, max, true, true));
+		filter(Filters.between(field, min, max));
 		return this;
 	}
 
-	public ChildQueryRequest between(String field, double min, double max) {
-		filter(NumericRangeFilter.newDoubleRange(field, min, max, true, true));
-		return this;
-	}
 
 	public ChildQueryRequest between(String field, String minTerm, String maxTerm) {
-		filter(FilterUtil.and(TermRangeFilter.Less(field, maxTerm), TermRangeFilter.More(field, minTerm)));
+		filter(Filters.between(field, minTerm, maxTerm));
 		return this;
 	}
 
+	
 	
 	public ChildQueryRequest lt(String field, int max) {
 		return lt(field, 1L * max);
 	}
 
 	public ChildQueryRequest lt(String field, long max) {
-		filter(NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, max, true, false));
-		return this;
-	}
-
-	public ChildQueryRequest lt(String field, double max) {
-		filter(NumericRangeFilter.newDoubleRange(field, Double.MIN_VALUE, max, true, false));
+		filter(Filters.lt(field, max));
 		return this;
 	}
 
 	public ChildQueryRequest lt(String field, String higherTerm) {
-		filter(new TermRangeFilter(field, null, higherTerm, false, false));
+		filter(Filters.lt(field, higherTerm));
 		return this;
 	}
 
 	
+	
+	
 	public ChildQueryRequest lte(String field, String higherTerm) {
-		filter(new TermRangeFilter(field, null, higherTerm, false, true));
+		filter(Filters.lte(field, higherTerm));
 		return this;
 	}
 
@@ -100,35 +93,29 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest lte(String field, long max) {
-		filter(NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, max, true, true));
+		filter(Filters.lte(field, max));
 		return this;
 	}
 
-	public ChildQueryRequest lte(String field, double max) {
-		filter(NumericRangeFilter.newDoubleRange(field, Double.MIN_VALUE, max, true, true));
-		return this;
-	}
-
+	
+	
 	public ChildQueryRequest gt(String field, int min) {
 		return gt(field, 1L * min);
 	}
 
 	public ChildQueryRequest gt(String field, long min) {
-		filter(NumericRangeFilter.newLongRange(field, min, Long.MAX_VALUE, false, true));
-		return this;
-	}
-
-	public ChildQueryRequest gt(String field, double min) {
-		filter(NumericRangeFilter.newDoubleRange(field, min, Double.MAX_VALUE, false, true));
+		filter(Filters.gt(field, min));
 		return this;
 	}
 
 	public ChildQueryRequest gt(String field, String lowerTerm) {
-		filter( new TermRangeFilter(field, lowerTerm, null, false, false));
+		filter(Filters.gt(field, lowerTerm));
 		return this;
 	}
+	
+	
 	public ChildQueryRequest gte(String field, String lowerTerm) {
-		filter( new TermRangeFilter(field, lowerTerm, null, true, false));
+		filter(Filters.gte(field, lowerTerm));
 		return this;
 	}
 
@@ -137,39 +124,39 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest gte(String field, long min) {
-		filter(NumericRangeFilter.newLongRange(field, min, Long.MAX_VALUE, true, true));
+		filter(Filters.gte(field, min));
 		return this;
 	}
 
-	public ChildQueryRequest gte(String field, double min) {
-		filter(NumericRangeFilter.newDoubleRange(field, min, Double.MAX_VALUE, true, true));
+	
+	public ChildQueryRequest eq(String field, Object value) {
+		filter(Filters.eq(field, value)) ;
 		return this;
 	}
 	
-	public ChildQueryRequest eq(String field, Object value) {
-		filter(new TermFilter(field, ObjectUtil.toString(value))) ;
-		return this;
+	public ChildQueryRequest ne(String field, String value){
+		filter(Filters.ne(field, value)) ;
+		return this ;
 	}
+	
 
 	public ChildQueryRequest where(String fnString) {
-		filter(new FunctionFilter(fnString)) ;
+		filter(Filters.where(fnString)) ;
 		return this ;
 	}
 
 
 	
 	public ChildQueryRequest wildcard(String field, Object value) {
-		filter(new QueryWrapperFilter(new WildcardQuery(new Term(field, ObjectUtil.toString(value))))) ;
+		filter(Filters.wildcard(field, value)) ;
 		return this;
 	}
 
 	public ChildQueryRequest query(String query) throws ParseException {
-		filter(new QueryWrapperFilter(session.central().searchConfig().parseQuery(query))) ;
+		filter(Filters.query(session.central().searchConfig(), query)) ;
 		return this;
 	}
 
-	
-	
 	
 
 	public ChildQueryRequest skip(int skip){
@@ -255,10 +242,5 @@ public class ChildQueryRequest {
 	public String toString() {
 		return request.toString() ;
 	}
-
-	
-
-
-
 
 }

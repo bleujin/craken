@@ -36,6 +36,11 @@ public class TestTransaction  extends TestBaseCrud {
 	}
 
 
+	public void testDefault() throws Exception {
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").stringValue()) ;
+		assertEquals("hero", session.pathBy("/hero").property("name").stringValue()) ;
+	}
+	
 	
 	public void testFailSession() throws Exception {
 		final CountDownLatch latch = new CountDownLatch(1) ;
@@ -71,6 +76,24 @@ public class TestTransaction  extends TestBaseCrud {
 		}).get() ;
 
 		assertEquals(false, session.exists("/jin")) ;
+	}
+	
+	public void testAllRollback() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/hero").property("name", "mod");
+				wsession.pathBy("/jin").property("name", "beujin");
+				throw new IllegalArgumentException("fail") ;
+			}
+		}, new TranExceptionHandler() {
+			@Override
+			public void handle(WriteSession tsession, Throwable ex) {
+				// 
+			}
+		}).get() ;
+		assertEquals(false, session.exists("/jin")) ;
+		assertEquals("hero", session.pathBy("/hero").property("name").stringValue()) ;
 	}
 	
 }

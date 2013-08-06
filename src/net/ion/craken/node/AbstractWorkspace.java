@@ -24,10 +24,10 @@ public abstract class AbstractWorkspace implements Workspace {
 	private Repository repository;
 	private Central central;
 	private String wsName;
-	private TreeCache<PropertyId, PropertyValue> treeCache;
+	private TreeCache treeCache;
 	private AbstractCacheStoreConfig config;
 
-	protected AbstractWorkspace(Repository repository, TreeCache<PropertyId, PropertyValue> treeCache, String wsName, AbstractCacheStoreConfig config) {
+	protected AbstractWorkspace(Repository repository, TreeCache treeCache, String wsName, AbstractCacheStoreConfig config) {
 		this.repository = repository;
 		this.wsName = wsName;
 		this.treeCache = treeCache;
@@ -44,12 +44,12 @@ public abstract class AbstractWorkspace implements Workspace {
 	}
 
 	// only use for test
-	public TreeCache<PropertyId, PropertyValue> getCache() {
+	public TreeCache getCache() {
 		return treeCache;
 	}
 
 	public void close() {
-		final Object[] caches = treeCache.getCache().getListeners().toArray(new Object[0]);
+		final Object[] caches = treeCache.cache().getListeners().toArray(new Object[0]);
 		for (Object listener : caches) {
 			this.removeListener(listener);
 		}
@@ -58,43 +58,36 @@ public abstract class AbstractWorkspace implements Workspace {
 		treeCache.stop();
 	}
 	
-	public TreeNode<PropertyId, PropertyValue> resetNode(String fqnString){
+	public TreeNode createNode(Fqn fqn){
 		try {
 			beginTran() ;
-			Fqn fqn = Fqn.fromString(fqnString) ;
-			return treeCache.merge(fqn) ;
+			return treeCache.createWith(fqn) ;
+		} finally {
+			endTran() ;
+		}
+	}
+	
+	public TreeNode resetNode(Fqn fqn){
+		try {
+			beginTran() ;
+			return treeCache.resetWith(fqn) ;
 		} finally {
 			endTran() ;
 		}
 	}
 
-	public TreeNode<PropertyId, PropertyValue> getNode(Fqn fqn) {
+	public TreeNode pathNode(Fqn fqn) {
 		try {
 			beginTran();
-
-			TreeNode<PropertyId, PropertyValue> found = treeCache.merge(fqn) ;
-			
-			TreeNode<PropertyId, PropertyValue> parent = found.getParent(); // create parent path
-			while (!parent.getFqn().isRoot()) {
-				parent = parent.getParent();
-			}
-
-			return found;
+			return treeCache.mergeWith(fqn) ;
 		} finally {
 			endTran();
 		}
 	}
-
-	public TreeNode<PropertyId, PropertyValue> getNode(String fqn) {
-		return getNode(Fqn.fromString(fqn));
-	}
+	
 
 	public boolean exists(Fqn fqn) {
 		return treeCache.exists(fqn);
-	}
-
-	public boolean exists(String fqn) {
-		return treeCache.exists(Fqn.fromString(fqn));
 	}
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
@@ -131,7 +124,6 @@ public abstract class AbstractWorkspace implements Workspace {
 	}
 
 	private void failEndTran() {
-
 		treeCache.failEnd();
 	}
 
@@ -157,7 +149,7 @@ public abstract class AbstractWorkspace implements Workspace {
 			((WorkspaceListener) listener).registered(this);
 		}
 
-		treeCache.getCache().addListener(listener);
+		treeCache.cache().addListener(listener);
 		return this;
 	}
 
@@ -167,7 +159,7 @@ public abstract class AbstractWorkspace implements Workspace {
 			((WorkspaceListener) listener).unRegistered(this);
 		}
 
-		treeCache.getCache().removeListener(listener);
+		treeCache.cache().removeListener(listener);
 	}
 
 	public BlobProxy blob(String fqnPath, InputStream input) throws IOException {

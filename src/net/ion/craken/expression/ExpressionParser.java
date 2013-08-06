@@ -122,7 +122,7 @@ public class ExpressionParser {
 	/** boolean **/
 	
 	static Parser<Expression> compare(Parser<Expression> expr) {
-		return Parsers.or(compare(expr, ">", Op.GT), compare(expr, ">=", Op.GE), compare(expr, "<", Op.LT), compare(expr, "<=", Op.LE), compare(expr, "=", Op.EQ), compare(expr, "<>", Op.NE),
+		return Parsers.or(compare(expr, ">", Op.GT), compare(expr, ">=", Op.GE), compare(expr, "<", Op.LT), compare(expr, "<=", Op.LE), compare(expr, "=", Op.EQ), compare(expr, "==", Op.CONTAIN), compare(expr, "<>", Op.NE),
 				nullCheck(expr), like(expr), between(expr));
 	}
 
@@ -136,7 +136,7 @@ public class ExpressionParser {
 
 	static Parser<Expression> logical(Parser<Expression> expr) {
 		Reference<Expression> ref = Parser.newReference();
-		Parser<Expression> parser = new OperatorTable<Expression>().prefix(unary("not", Op.NOT), 30).infixl(binary("and", Op.AND), 20).infixl(binary("or", Op.OR), 10)
+		Parser<Expression> parser = new OperatorTable<Expression>().prefix(unary("not", Op.NOT), 30).infixl(binary("and", Op.AND), 20).infixl(binary("&&", Op.AND), 20).infixl(binary("or", Op.OR), 10).infixl(binary("||", Op.OR), 10)
 				.build(paren(ref.lazy()).or(expr)).label("logical expression");
 		ref.set(parser);
 		return parser;

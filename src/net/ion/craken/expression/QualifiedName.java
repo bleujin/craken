@@ -19,4 +19,8 @@ public final class QualifiedName extends ValueObject implements Iterable<String>
 	public Iterator<String> iterator() {
 		return names.iterator();
 	}
+	
+	public String last(){
+		return names.get(names.size()-1) ;
+	}
 }

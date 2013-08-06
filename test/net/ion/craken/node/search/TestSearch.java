@@ -6,8 +6,9 @@ import java.util.List;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.convert.Predicates;
 import net.ion.craken.node.crud.ChildQueryResponse;
-import net.ion.craken.node.crud.util.ReadNodePredicate;
+import net.ion.craken.node.crud.util.ResponsePredicate;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -81,26 +82,6 @@ public class TestSearch extends TestBaseSearch {
 		
 	}
 	
-	public void testBelow() throws Exception {
-		session.tranSync(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/emp/bleujin").property("name", "bleujin").property("job", "dev") ;
-				wsession.root().addChild("/emp/hero").property("name", "hero") ;
-				wsession.root().addChild("/dept/dev").property("name", "dev") ;
-				wsession.root().addChild("/emp/jin").property("name", "jin").property("job", "dev") ;
-				return null;
-			}
-		}) ;
-		
-		assertEquals(3, session.queryRequest("dev").find().size()) ;
-		
-		assertEquals(0, session.root().childQuery("dev", false).find().size()) ;
-		assertEquals(1, session.pathBy("/dept").childQuery("dev", false).find().size()) ;
-		
-		List<ReadNode> list = session.queryRequest("dev").descending("name").find().predicated(ReadNodePredicate.belowAt("/emp")).toList();
-		Debug.line(list) ;
-	}
 	
 
 	

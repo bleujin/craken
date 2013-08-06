@@ -24,12 +24,6 @@ public class FqnComparator implements Comparator<Fqn>, Serializable {
 			return 1;
 		}
 
-		// if (fqn1.getClass().equals(StringFqn.class) && fqn2.getClass().equals(StringFqn.class))
-		// {
-		// StringFqn sfqn1 = (StringFqn) fqn1;
-		// StringFqn sfqn2 = (StringFqn) fqn2;
-		// return sfqn1.stringRepresentation.compareTo(sfqn2.stringRepresentation);
-		// }
 		int size = Math.min(s1, s2);
 
 		for (int i = 0; i < size; i++) {
@@ -56,7 +50,8 @@ public class FqnComparator implements Comparator<Fqn>, Serializable {
 	}
 
 	/**
-	 * Compares two Fqn elements. If e1 and e2 are the same class and e1 implements Comparable, returns e1.compareTo(e2). Otherwise, returns e1.toString().compareTo(e2.toString()).
+	 * Compares two Fqn elements. If e1 and e2 are the same class and e1 implements Comparable, returns e1.compareTo(e2). 
+	 * Otherwise, returns e1.toString().compareTo(e2.toString()).
 	 */
 	@SuppressWarnings("unchecked")
 	private int compareElements(Object e1, Object e2) {

@@ -79,5 +79,10 @@ public class TestReadChildren extends TestBaseCrud {
 	}
 	
 	
+	public void testFirstNode() throws Exception {
+		ReadNode readNode = session.pathBy("/bleujin").children().lte("dummy", 5).descending("dummy").firstNode();
+		assertEquals(5, readNode.property("dummy").intValue(0)) ;
+		
+	}
 	
 }

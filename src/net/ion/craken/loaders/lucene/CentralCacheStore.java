@@ -21,6 +21,7 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
+import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -126,7 +127,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	public boolean remove(Object _key) throws CacheLoaderException {
 		final TreeNodeKey key = (TreeNodeKey) _key;
 		if (key.getType().isStructure())
-			return false;
+			return true;
 
 		return central.newIndexer().index(new IndexJob<Boolean>() {
 			@Override
@@ -177,7 +178,8 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	@Override
 	public void store(InternalCacheEntry entry) throws CacheLoaderException {
-		final WriteDocument doc = toWriteDocument(entry);
+		TreeNodeKey key = (TreeNodeKey) entry.getKey();
+		final WriteDocument doc = toWriteDocument(key, entry);
 		if (doc == null)
 			return;
 		central.newIndexer().index(new IndexJob<Void>() {
@@ -187,11 +189,9 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				return null;
 			}
 		});
-
 	}
 
-	WriteDocument toWriteDocument(InternalCacheEntry entry) {
-		TreeNodeKey key = (TreeNodeKey) entry.getKey();
+	WriteDocument toWriteDocument(TreeNodeKey key, InternalCacheEntry entry) {
 		if (key.getType() == Type.STRUCTURE)
 			return null;
 
@@ -249,12 +249,14 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		try {
 
 			TreeNodeKey key = (TreeNodeKey) _key;
+			if (key.action() == Action.RESET || key.action() == Action.CREATE) return null ;
+			
 			if (key.getType().isStructure()) {
-				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.idString().substring(1)))).offset(1000000).find().getDocument();
+				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.fqnString()))).selections(IKeywordField.ISKey).offset(1000000).find().getDocument();
 				return DocEntry.create(key, docs);
 			}
 			// central.newSearcher().createRequest("").find().getDocument()
-			ReadDocument read = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).findOne();
+			ReadDocument read = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).selections(DocEntry.VALUE).findOne();
 			// Debug.line(key, "", read, Thread.currentThread().getStackTrace()) ;
 			if (read == null) {
 				return null;
@@ -274,7 +276,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		try {
-			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).find();
+			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
 			for (ReadDocument readDocument : docs) {
@@ -360,10 +362,13 @@ class IndexCallable implements Callable<Integer>{
 					switch (m.getType()) {
 					case STORE:
 						Store s = (Store) m;
-						final WriteDocument doc = parent.toWriteDocument(s.getStoredEntry());
+						TreeNodeKey forStoreKey = (TreeNodeKey) s.getStoredEntry().getKey() ;
+						final WriteDocument doc = parent.toWriteDocument(forStoreKey, s.getStoredEntry());
 						if (doc == null)
 							break;
-						isession.updateDocument(doc);
+						if (forStoreKey.action() == Action.CREATE) 
+							isession.insertDocument(doc) ; 
+						else isession.updateDocument(doc);
 						break;
 					case CLEAR:
 						isession.deleteAll();
@@ -371,8 +376,9 @@ class IndexCallable implements Callable<Integer>{
 					case REMOVE:
 
 						Remove r = (Remove) m;
-						final TreeNodeKey key = (TreeNodeKey) r.getKey();
-						isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
+						final TreeNodeKey forRemoveKey = (TreeNodeKey) r.getKey();
+						if (forRemoveKey.getType().isStructure()) continue ;
+						isession.deleteTerm(new Term(IKeywordField.ISKey, forRemoveKey.idString()));
 						break;
 					default:
 						throw new IllegalArgumentException("Unknown modification type " + m.getType());

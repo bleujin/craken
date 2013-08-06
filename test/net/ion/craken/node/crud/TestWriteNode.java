@@ -95,6 +95,7 @@ public class TestWriteNode extends TestBaseCrud {
 			}
 		}).get() ;
 		assertEquals(0, session.pathBy("/bleujin").keys().size()) ;
+		assertEquals(2, session.pathBy("/hero").keys().size()) ;
 	}
 	
 	public void testReplace() throws Exception {

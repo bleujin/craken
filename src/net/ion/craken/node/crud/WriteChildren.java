@@ -29,7 +29,7 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren>{
 	private List<Predicate<WriteNode>> filters;
 	
 	private final WriteSession session ;
-	public WriteChildren(WriteSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter){
+	public WriteChildren(WriteSession session, Iterator<TreeNode> iter){
 		this.session = session ;
 		this.iter = new ReloadWriteIterator(session, iter);
 	}
@@ -93,17 +93,17 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren>{
 class ReloadWriteIterator implements Iterator<WriteNode>{
 
 	private WriteSession session ;
-	private Iterator<TreeNode<PropertyId, PropertyValue>> oriIter ;
+	private Iterator<TreeNode> oriIter ;
 	
-	public ReloadWriteIterator(WriteSession session, Iterator<TreeNode<PropertyId, PropertyValue>> iter) {
+	public ReloadWriteIterator(WriteSession session, Iterator<TreeNode> iter) {
 		this.session = session ;
 		this.oriIter = iter ;
 	}
 	
 	public ReloadWriteIterator reload(int skip, int offset, final List<Predicate<WriteNode>> filters, final List<SortElement> sorts) {
-		Comparator<TreeNode<PropertyId, PropertyValue>> mycomparator = new Comparator<TreeNode<PropertyId, PropertyValue>>(){
+		Comparator<TreeNode> mycomparator = new Comparator<TreeNode>(){
 			@Override
-			public int compare(TreeNode<PropertyId, PropertyValue> left, TreeNode<PropertyId, PropertyValue> right) {
+			public int compare(TreeNode left, TreeNode right) {
 				
 				for (SortElement sele : sorts) {
 					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propid()));
@@ -118,9 +118,9 @@ class ReloadWriteIterator implements Iterator<WriteNode>{
 			}
 		} ;
 		
-		Predicate<TreeNode<PropertyId, PropertyValue>> myfilter = new Predicate<TreeNode<PropertyId, PropertyValue>>() {
+		Predicate<TreeNode> myfilter = new Predicate<TreeNode>() {
 			@Override
-			public boolean apply(TreeNode<PropertyId, PropertyValue> treeNode) {
+			public boolean apply(TreeNode treeNode) {
 				if (filters.size() == 0) return true ;
 				for (Predicate<WriteNode> filter : filters) {
 					if (! filter.apply(WriteNodeImpl.loadTo(session, treeNode))) return false;
@@ -130,12 +130,12 @@ class ReloadWriteIterator implements Iterator<WriteNode>{
 		};
 		
 		if (sorts.size() == 0) { // no sort
-			Iterator<TreeNode<PropertyId, PropertyValue>> iterator = Iterators.limit(Iterators.filter(oriIter, myfilter), skip + offset);
+			Iterator<TreeNode> iterator = Iterators.limit(Iterators.filter(oriIter, myfilter), skip + offset);
 			Iterators.advance(iterator, skip) ;
 			return new ReloadWriteIterator(session, iterator);
 		} 
 		
-		List<TreeNode<PropertyId, PropertyValue>> result = SortUtil.selectTopN(oriIter, myfilter, mycomparator, skip + offset);
+		List<TreeNode> result = SortUtil.selectTopN(oriIter, myfilter, mycomparator, skip + offset);
 		return new ReloadWriteIterator(session, result.subList(skip, result.size()).iterator()) ;
 	}
 

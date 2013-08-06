@@ -14,7 +14,7 @@ import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.rows.AdNodeRows;
-import net.ion.craken.node.crud.util.PredicateArgument;
+import net.ion.craken.node.crud.util.ResponsePredicate;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
@@ -27,7 +27,6 @@ import net.ion.rosetta.Parser;
 import org.apache.ecs.xml.XML;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 
 public class ChildQueryResponse {
 
@@ -106,14 +105,14 @@ public class ChildQueryResponse {
 		response.awaitPostFuture() ;
 	}
 
-	public PredicatedResponse predicated(Predicate<PredicateArgument> predicate) {
-		List<PredicateArgument> result = ListUtil.newList() ;
+	public PredicatedResponse predicated(ResponsePredicate rp) {
+		List<Fqn> result = ListUtil.newList() ;
 		for (Fqn fqn : found()) {
-			final PredicateArgument arg = PredicateArgument.create(session, fqn);
-			if (predicate.apply(arg)) result.add(arg) ;
+			if (! rp.isContinue()) break ;
+			if (rp.apply(session, fqn)) result.add(fqn) ;
 		} 
 		
-		return PredicatedResponse.create(predicate, result);
+		return PredicatedResponse.create(rp, session, result);
 	}
 
 	public <T> T transformer(Function<ChildQueryResponse, T> function) {

@@ -13,6 +13,8 @@ public interface WriteSession extends ISession<WriteNode> {
 	
 	public WriteNode pathBy(String fqn0, String... fqns)  ;
 
+	public WriteNode createBy(String fqn);
+
 	public void failRollback();
 
 	public void endCommit();
@@ -28,4 +30,5 @@ public interface WriteSession extends ISession<WriteNode> {
 	public WriteSession ignoreIndex(String... fields);
 
 	public PropertyId idInfoTo(PropertyId pid) ;
+
 }

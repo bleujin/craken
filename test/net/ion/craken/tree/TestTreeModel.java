@@ -22,7 +22,7 @@ public class TestTreeModel extends TestBaseCrud {
 		
 		
 		TreeCache tcache = session.workspace().getCache();
-		Cache cache = tcache.getCache();
+		Cache cache = tcache.cache();
 		
 		for (Object key : cache.keySet()){
 			AtomicHashMap value = (AtomicHashMap) cache.get(key);

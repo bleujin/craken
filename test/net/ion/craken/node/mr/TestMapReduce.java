@@ -16,6 +16,7 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.MapReduceTask;
 import org.infinispan.distexec.mapreduce.Mapper;
@@ -48,15 +49,15 @@ public class TestMapReduce extends TestCase {
 	public void testInterface() throws Exception {
 		Workspace workspace = session.workspace();
 
-		TreeCache cache = workspace.getCache();
-		for (Object key : cache.getCache().keySet()) {
-			Debug.line(key, key.getClass(), cache.getCache().get(key));
+		TreeCache tcache = workspace.getCache();
+		for (Object key : tcache.cache().keySet()) {
+			Debug.line(key, key.getClass(), tcache.cache().get(key));
 		}
 	}
 
 	public void testMapReduce() throws Exception {
-		MapReduceTask<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>, String, Integer> task = 
-				new MapReduceTask<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>, String, Integer>(session.workspace().getCache().getCache());
+		MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer> task = 
+				new MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer>(session.workspace().getCache().cache());
 		task.mappedWith(new WordCountMapper()).reducedWith(new WordCountReducer()) ;
 		
 		Map<String, Integer> map = task.execute();
@@ -64,11 +65,11 @@ public class TestMapReduce extends TestCase {
 
 	}
 
-	static class WordCountMapper implements Mapper<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>, String, Integer> {
+	static class WordCountMapper implements Mapper<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer> {
 		private static final long serialVersionUID = -5943370243108735560L;
 
 		@Override
-		public void map(TreeNodeKey key, AtomicHashMap<PropertyId, PropertyValue> value, Collector<String, Integer> c) {
+		public void map(TreeNodeKey key, AtomicMap<PropertyId, PropertyValue> value, Collector<String, Integer> c) {
 			PropertyValue pvalue = value.get(PropertyId.normal("age"));
 			if (pvalue == null) return ;
 			for (Object ivalue : pvalue.asSet()) {

@@ -180,18 +180,6 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 		}
 	}
 
-	// private InternalCacheEntry toInternalCacheEntry(DBObject raw) {
-	//		
-	// return NodeEntry.create(raw) ;
-	//		
-	//		
-	// byte[] bytes = (byte[]) raw.get(ValueName);
-	// final InternalCacheEntry readObject = (InternalCacheEntry) marshaller.objectFromByteBuffer(bytes);
-	//
-	// readObject.setValue(raw);
-	// return readObject ;
-	// }
-
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 
@@ -210,26 +198,6 @@ public class NewMongoDBCacheStore extends AbstractCacheStore {
 			cursor.close();
 		}
 	}
-
-	// private Object transObject(DBObject raw) throws ClassNotFoundException {
-	// Object fieldObject = raw.get("fields");
-	// String clzName = ObjectUtil.toString(raw.get(ClassName));
-	// final JsonElement jsonElement = JsonParser.fromObject(fieldObject);
-	// if (jsonElement.isJsonPrimitive()) {
-	// if (jsonElement.getAsJsonPrimitive().getValue() instanceof LazilyParsedNumber) {
-	// long longValue = ((LazilyParsedNumber) jsonElement.getAsJsonPrimitive().getValue()).longValue();
-	// return longValue;
-	// } else {
-	// return jsonElement.getAsJsonPrimitive().getValue();
-	// }
-	//
-	// } else {
-	//
-	// final Class<?> clz = Class.forName(clzName);
-	// Object newObject = jsonElement.getAsJsonObject().getAsObject(clz);
-	// return newObject;
-	// }
-	// }
 
 	@Override
 	protected void purgeInternal() throws CacheLoaderException {

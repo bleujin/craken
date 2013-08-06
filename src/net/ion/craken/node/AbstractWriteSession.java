@@ -19,20 +19,38 @@ public abstract class AbstractWriteSession implements WriteSession{
 		this.workspace = workspace ;
 	}
 	
+	private Set<Fqn> ancestors = SetUtil.newSet() ;
+	
+	public WriteNode createBy(String fqn){
+		final Fqn self = forCreateAncestor(fqn);
+		return WriteNodeImpl.loadTo(this, workspace.createNode(self)) ;
+	}
+	
 	public WriteNode resetBy(String fqn){
-		return WriteNodeImpl.loadTo(this, workspace.resetNode(fqn)) ;
+		final Fqn self = forCreateAncestor(fqn);
+		return WriteNodeImpl.loadTo(this, workspace.resetNode(self)) ;
+	}
+
+	private Fqn forCreateAncestor(String fqn) {
+		final Fqn self = Fqn.fromString(fqn);
+		Fqn parent = self.getParent() ;
+		while(! parent.isRoot()) {
+			ancestors.add(parent) ;
+			parent = parent.getParent() ;
+		}
+		return self;
 	}
 	
 	public WriteNode pathBy(String fqn) {
-		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
+		return pathBy(Fqn.fromString(fqn)) ;
 	}
 
 	public WriteNode pathBy(String fqn0, String... fqns) {
-		return WriteNodeImpl.loadTo(this, workspace.getNode(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')))) ;
+		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/'))) ;
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		return WriteNodeImpl.loadTo(this, workspace.getNode(fqn)) ;
+		return WriteNodeImpl.loadTo(this, workspace.pathNode(fqn)) ;
 	}
 	
 	public WriteNode root() {
@@ -40,7 +58,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 
 	public boolean exists(String fqn) {
-		return workspace.exists(fqn) ;
+		return workspace.exists(Fqn.fromString(fqn)) ;
 	}
 
 	@Override
@@ -55,7 +73,9 @@ public abstract class AbstractWriteSession implements WriteSession{
 	
 	@Override
 	public void endCommit() {
-		
+		for (Fqn parent : ancestors) {
+			workspace.pathNode(parent) ;
+		}
 	}
 	
 	@Override

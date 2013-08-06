@@ -15,6 +15,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
@@ -144,7 +145,7 @@ public class RepositoryImpl implements Repository{
 			CentralCacheStoreConfig config = configs.get(wsName);
 
 			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, treeCache(wsName), wsName, ObjectUtil.coalesce(configs.get(wsName), config));
-			newWorkspace.getNode("/") ;
+			newWorkspace.pathNode(Fqn.ROOT) ;
 			wss.put(wsName, newWorkspace) ;
 			
 			return wss.get(wsName) ;
@@ -159,7 +160,7 @@ public class RepositoryImpl implements Repository{
 		return cacheStore.central() ;
 	}
 
-	private TreeCache<PropertyId, PropertyValue> treeCache(String cacheName) {
+	private TreeCache treeCache(String cacheName) {
 		return TreeCacheFactory.createTreeCache(dm, cacheName) ;
 	}
 
