@@ -50,7 +50,7 @@ public class RepositoryImpl implements Repository{
 	
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
-		this.dm.addListener(new WorkspaceListner()) ;
+		this.dm.addListener(new RepositoryListener()) ;
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser()) ;
 	}
 	

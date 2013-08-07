@@ -20,7 +20,7 @@ import org.infinispan.notifications.cachemanagerlistener.event.CacheStoppedEvent
 import org.infinispan.notifications.cachemanagerlistener.event.ViewChangedEvent;
 
 @Listener(sync = false)
-public class WorkspaceListner {
+public class RepositoryListener {
 
 	@ViewChanged
 	public void startedCache(ViewChangedEvent event){
