@@ -24,7 +24,7 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 	private String location = "./resource/index";
 	private int lockTimeoutMs = 60 * 1000 ;
 
-	private int maxNodeEntry = 20000 ;
+	private int maxNodeEntry = 30000 ;
 	private LazyCentralConfig lazyConfig = new LazyCentralConfig() ;
 
 	public CentralCacheStoreConfig() {
