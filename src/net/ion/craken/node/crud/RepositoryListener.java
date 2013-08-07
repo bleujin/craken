@@ -34,7 +34,7 @@ public class RepositoryListener {
 		List<String> list = ListUtil.newList() ;
 		
 		for (int i = 0; i < list.size(); i++) {
-			Debug.line() ;
+		
 		}
 		
 		Debug.line(event) ;
