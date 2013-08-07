@@ -37,6 +37,8 @@ import org.infinispan.loaders.CacheLoaderManager;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.manager.DefaultCacheManager;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
+
 public class RepositoryImpl implements Repository{
 	
 	private IExecutor executor = new IExecutor(0, 3) ;
@@ -48,6 +50,7 @@ public class RepositoryImpl implements Repository{
 	
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
+		this.dm.addListener(new WorkspaceListner()) ;
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser()) ;
 	}
 	
@@ -103,7 +106,14 @@ public class RepositoryImpl implements Repository{
 	}
 	
 	public void start(){
-		dm.start() ;
+		try {
+			for (String wsName : configs.keySet()) {
+				loadWorkspce(wsName);
+			}
+			dm.start();
+		} catch(IOException ex){
+			throw new IllegalStateException(ex) ;
+		}
 	}
 	
 	
@@ -164,7 +174,7 @@ public class RepositoryImpl implements Repository{
 		return TreeCacheFactory.createTreeCache(dm, cacheName) ;
 	}
 
-	public void defineWorkspace(String wsName, CentralCacheStoreConfig config) {
+	public Repository defineWorkspace(String wsName, CentralCacheStoreConfig config) {
 		configs.put(wsName, config) ;
 		
 		defineConfig(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
@@ -173,6 +183,7 @@ public class RepositoryImpl implements Repository{
 				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new CentralCacheStore()).addProperty("location", config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		
 		
 		defineConfig(wsName + ".blobdata",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC)
 				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
@@ -186,9 +197,10 @@ public class RepositoryImpl implements Repository{
 			
 		
 		log.info(wsName + " created") ;
+		return this ;
 	}
 
-	public void defineWorkspaceForTest(String wsName, CentralCacheStoreConfig config) {
+	public Repository defineWorkspaceForTest(String wsName, CentralCacheStoreConfig config) {
 		configs.put(wsName, config) ;
 		
 		defineConfig(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
@@ -199,6 +211,7 @@ public class RepositoryImpl implements Repository{
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		
 		log.info(wsName + " created") ;
+		return this ;
 	}
 
 

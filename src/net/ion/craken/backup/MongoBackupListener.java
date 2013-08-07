@@ -19,7 +19,7 @@ import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
-import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.AtomicMap;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
@@ -66,7 +66,7 @@ public class MongoBackupListener implements WorkspaceListener, Restoreable {
 	}
 
 	@CacheEntryModified
-	public void entryModified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e) {
+	public void entryModified(CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> e) {
 		if (e.isPre())
 			return;
 
