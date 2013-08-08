@@ -191,7 +191,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	}
 
 	WriteDocument toWriteDocument(TreeNodeKey key, InternalCacheEntry entry) {
-		if (key.getType() == Type.STRUCTURE)
+		if (key.getType() != Type.DATA)
 			return null;
 
 		AtomicMap value = (AtomicMap) entry.getValue();
@@ -200,7 +200,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 		JsonObject jobj = new JsonObject();
 		jobj.addProperty(DocEntry.ID, key.idString());
-		jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
+//		jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
 		jobj.add(DocEntry.PROPS, fromMapToJson(doc, key, value));
 
 		doc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
@@ -220,6 +220,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 			AtomicMap<PropertyId, PropertyValue> propertyMap = (AtomicMap<PropertyId, PropertyValue>) valueMap;
 			String parentPath = key.getFqn().isRoot() ? "" : key.getFqn().getParent().toString();
 			doc.keyword(DocEntry.PARENT, parentPath);
+			doc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis()) ;
 
 			for (Entry<PropertyId, PropertyValue> entry : propertyMap.entrySet()) {
 				final PropertyId pid = entry.getKey();

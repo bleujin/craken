@@ -64,7 +64,6 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	// }
 
 	private static InternalCacheEntry createStruEntry(TreeNodeKey nodeKey, JsonObject raw) {
-		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
 		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
 
 		JsonObject props = raw.getAsJsonObject(PROPS);
@@ -81,7 +80,6 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	}
 
 	private static InternalCacheEntry createDataEntry(TreeNodeKey nodeKey, JsonObject raw) {
-		long lastmodified = Long.parseLong(raw.asString(LASTMODIFIED));
 		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
 
 		JsonObject props = raw.getAsJsonObject(PROPS);

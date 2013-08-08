@@ -3,6 +3,8 @@ package net.ion.craken.loaders.lucene;
 import java.io.File;
 import java.io.IOException;
 
+import net.ion.framework.util.FileUtil;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
@@ -49,6 +51,11 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 		this.location = location;
 	}
 
+	
+	public CentralCacheStoreConfig resetDir() throws IOException{
+		FileUtil.deleteDirectory(new File(location)) ;
+		return this ;
+	}
 	
 	public String location() {
 		return location;

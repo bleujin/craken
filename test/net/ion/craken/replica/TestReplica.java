@@ -2,6 +2,7 @@ package net.ion.craken.replica;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.RepositoryImpl;
@@ -32,6 +33,13 @@ public class TestReplica extends TestCase {
 //		session.root().children().debugPrint() ;
 		String s = "" ;
 		session.tran(TransactionJobs.dummy("/bleujin", 5)) ;
+		new InfinityThread().startNJoin() ;
+	}
+	
+	public void testLastModified() throws Exception {
+//		session.tranSync(TransactionJobs.dummy("/bleujin", 5)) ;
+
+//		session.queryRequest("").gt(DocEntry.LASTMODIFIED, System.currentTimeMillis() - 10000).find().debugPrint() ;
 		new InfinityThread().startNJoin() ;
 	}
 }

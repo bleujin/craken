@@ -1,7 +1,9 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
+import java.util.Set;
 
+import net.ion.craken.node.crud.RepositoryListener;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.nsearcher.config.Central;
 
@@ -27,4 +29,6 @@ public interface Repository {
 	public Repository putAttribute(String key, Object value) ;
 
 	public Central central(String wsName);
+
+	public RepositoryListener listener();
 }

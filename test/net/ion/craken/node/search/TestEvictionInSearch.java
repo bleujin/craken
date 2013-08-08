@@ -1,6 +1,7 @@
 package net.ion.craken.node.search;
 
 import junit.framework.TestCase;
+import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.loaders.lucene.OldCacheStore;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -16,11 +17,7 @@ public class TestEvictionInSearch extends TestCase{
 	
 	public void testEviction() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
-				.sync().replTimeout(20000)
-				.eviction().maxEntries(10)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new OldCacheStore()).addProperty("location","./resource/local")
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+		r.defineWorkspace("test", CentralCacheStoreConfig.create().maxNodeEntry(10).resetDir()) ;
 		r.start() ;
 
 		

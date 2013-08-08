@@ -2,6 +2,7 @@ package net.ion.craken.tree;
 
 import static net.ion.craken.tree.TreeNodeKey.Type.DATA;
 import static net.ion.craken.tree.TreeNodeKey.Type.STRUCTURE;
+import static net.ion.craken.tree.TreeNodeKey.Type.SYSTEM;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -20,7 +21,19 @@ public class TreeNodeKey implements Serializable {
 	private Action action = Action.MERGE ;
 
 	public static enum Type {
-		DATA, STRUCTURE ;
+		DATA {
+			public String prefix(){
+				return "" ;
+			}
+		}, STRUCTURE{
+			public String prefix(){
+				return "@" ;
+			}
+		}, SYSTEM {
+			public String prefix(){
+				return "#" ;
+			}
+		};
 		
 		public boolean isStructure(){
 			return this == STRUCTURE ;
@@ -29,6 +42,12 @@ public class TreeNodeKey implements Serializable {
 		public boolean isData(){
 			return this == DATA ;
 		}
+		
+		public boolean isSystem(){
+			return this == SYSTEM ;
+		}
+		
+		public abstract String prefix() ;
 	}
 	
 		public TreeNodeKey(Fqn fqn, Type contents) {
@@ -67,7 +86,7 @@ public class TreeNodeKey implements Serializable {
 
 
 	public String idString(){
-		return (contents == Type.STRUCTURE) ? "@" + fqn.toString() : fqn.toString() ;
+		return contents.prefix() + fqn.toString() ;
 	}
 	
 	public String fqnString(){
@@ -103,6 +122,7 @@ public class TreeNodeKey implements Serializable {
 		private static final long serialVersionUID = 8630641407515513659L;
 		private static final byte DATA_BYTE = 1;
 		private static final byte STRUCTURE_BYTE = 2;
+		private static final byte SYSTEM_BYTE = 3 ;
 
 		@Override
 		public void writeObject(ObjectOutput output, TreeNodeKey key) throws IOException {
@@ -115,6 +135,9 @@ public class TreeNodeKey implements Serializable {
 			case STRUCTURE:
 				type = STRUCTURE_BYTE;
 				break;
+			case SYSTEM:
+				type = SYSTEM_BYTE ;
+				break ;
 			}
 			output.write(type);
 		}
@@ -131,6 +154,8 @@ public class TreeNodeKey implements Serializable {
 			case STRUCTURE_BYTE:
 				type = STRUCTURE;
 				break;
+			case SYSTEM_BYTE :
+				type = SYSTEM ;
 			}
 			return new TreeNodeKey(fqn, type);
 		}
@@ -142,7 +167,13 @@ public class TreeNodeKey implements Serializable {
 	}
 
 	public static TreeNodeKey fromString(String idString) {
-		return idString.startsWith("@") ? new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) : new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ; 
+		if (idString.startsWith(STRUCTURE.prefix())) {
+			return new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) ;
+		} else if (idString.startsWith(SYSTEM.prefix())) {
+			return new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.SYSTEM) ;
+		} else {
+			return new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ;
+		}
 //		return new TreeNodeKey(Fqn.fromString(idString), idString.startsWith("@") ? Type.STRUCTURE : Type.DATA);
 	}
 }

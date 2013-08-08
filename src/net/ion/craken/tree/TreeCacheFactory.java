@@ -2,6 +2,7 @@ package net.ion.craken.tree;
 
 import net.ion.craken.io.GridFile;
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.crud.RepositoryListener;
 
 import org.infinispan.Cache;
@@ -14,7 +15,7 @@ import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 public class TreeCacheFactory {
 
-	public static TreeCache createTreeCache(DefaultCacheManager dftManager, String cacheName) {
+	public static TreeCache createTreeCache(Repository repository, DefaultCacheManager dftManager, String cacheName) {
 
 		// Validation to make sure that the cache is not null.
 		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dftManager.getCache(cacheName + ".node");
@@ -27,7 +28,7 @@ public class TreeCacheFactory {
 			throw new ConfigurationException("invocationBatching is not enabled for cache '" + cache.getName() + "'. Make sure this is enabled by" + " calling configurationBuilder.invocationBatching().enable()");
 		}
 		
-		cache.addListener(new RepositoryListener()) ;
+		cache.addListener(repository.listener()) ;
 		Cache<String, byte[]> blobdata = cache.getCacheManager().getCache(cacheName + ".blobdata") ;
 		Cache<String, GridFile.Metadata> blobmeta = cache.getCacheManager().getCache(cacheName + ".blobmeta") ;
 

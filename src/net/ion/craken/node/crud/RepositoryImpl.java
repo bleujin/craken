@@ -2,6 +2,7 @@ package net.ion.craken.node.crud ;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -41,16 +42,19 @@ import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 public class RepositoryImpl implements Repository{
 	
-	private IExecutor executor = new IExecutor(0, 3) ;
+	private IExecutor executor ;
 	private Map<String, AbstractWorkspace> wss = MapUtil.newCaseInsensitiveMap() ;
 	private Map<String, CentralCacheStoreConfig> configs = MapUtil.newCaseInsensitiveMap() ;
 	private DefaultCacheManager dm;
 	private Map<String, Object> attrs = MapUtil.newMap() ;
 	private Logger log = LogBroker.getLogger(Repository.class) ;
+	private RepositoryListener listener;
 	
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
-		this.dm.addListener(new RepositoryListener()) ;
+		this.executor = new IExecutor(0, 3) ;
+		this.listener = new RepositoryListener(executor);
+		this.dm.addListener(listener) ;
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser()) ;
 	}
 	
@@ -171,7 +175,7 @@ public class RepositoryImpl implements Repository{
 	}
 
 	private TreeCache treeCache(String cacheName) {
-		return TreeCacheFactory.createTreeCache(dm, cacheName) ;
+		return TreeCacheFactory.createTreeCache(this, dm, cacheName) ;
 	}
 
 	public Repository defineWorkspace(String wsName, CentralCacheStoreConfig config) {
@@ -215,6 +219,8 @@ public class RepositoryImpl implements Repository{
 	}
 
 
-	
+	public RepositoryListener listener(){
+		return listener ;
+	}
 	
 }
