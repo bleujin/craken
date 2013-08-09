@@ -74,6 +74,10 @@ public class ChildQueryResponse {
 		}
 		return list ;
 	}
+	
+	public List<Fqn> toFqns(){
+		return found() ;
+	}
 
 	public int size() {
 //		return response.totalCount() ;

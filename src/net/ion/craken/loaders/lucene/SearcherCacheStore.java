@@ -9,5 +9,6 @@ import net.ion.nsearcher.config.Central;
 public interface SearcherCacheStore {
 
 	public Central central() ;
-	public long lastModified() throws CorruptIndexException, IOException ;
+	public SearcherCacheStore lastSyncModified(long lastSyncModified) ;
+	public long lastSyncModified() throws CorruptIndexException, IOException ;
 }

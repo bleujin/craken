@@ -1,7 +1,11 @@
 package net.ion.craken.node;
 
+import java.io.IOException;
 import java.util.Set;
 
+import org.apache.lucene.queryParser.ParseException;
+
+import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
@@ -83,7 +87,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 		
 	}
 	
-	protected ReadSession readSession(){
+	public ReadSession readSession(){
 		return readSession ;
 	}
 
@@ -111,4 +115,8 @@ public abstract class AbstractWriteSession implements WriteSession{
 		return pid ;
 	}
 	
+	@Override
+	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {
+		return root().childQuery(query, true);
+	}
 }

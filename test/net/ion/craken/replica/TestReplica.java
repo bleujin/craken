@@ -1,12 +1,14 @@
 package net.ion.craken.replica;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.InfinityThread;
 
 public class TestReplica extends TestCase {
@@ -17,6 +19,9 @@ public class TestReplica extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		FileUtil.deleteDirectory(new File("./resource/c1")) ;
+		FileUtil.deleteDirectory(new File("./resource/c2")) ;
+		
 		this.r = RepositoryImpl.create() ;
 		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
 		r.defineWorkspace("test2", CentralCacheStoreConfig.create().location("./resource/c2"));
@@ -42,5 +47,13 @@ public class TestReplica extends TestCase {
 
 //		session.queryRequest("").gt(DocEntry.LASTMODIFIED, System.currentTimeMillis() - 10000).find().debugPrint() ;
 		new InfinityThread().startNJoin() ;
+	}
+	
+	public void testDebugPrint() throws Exception {
+		if (! session.exists("/bleujin")) return ;
+		while(true){
+			Debug.line(session.pathBy("/bleujin").childQuery("").offset(Integer.MAX_VALUE).find().totalCount()) ;
+			Thread.sleep(3000) ;
+		}
 	}
 }

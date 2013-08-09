@@ -94,7 +94,8 @@ public class RepositoryListener {
 
 			final MyStatus status = new MyStatus();
 
-			status.lastModified(repository.lastModified()).started(startedTime).memeberName(repository.memberName());
+			status.lastModified(repository.lastSyncModified()).started(startedTime).memeberName(repository.memberName());
+			repository.lastSyncModified(startedTime) ;
 
 			final Map<PropertyId, PropertyValue> value = new AtomicHashMap<PropertyId, PropertyValue>();
 			value.put(MyStatus.STATUS, PropertyValue.createPrimitive(status.toJsonString()));

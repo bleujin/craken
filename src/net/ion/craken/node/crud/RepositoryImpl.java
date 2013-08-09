@@ -94,16 +94,26 @@ public class RepositoryImpl implements Repository{
 		return wss.keySet() ;
 	}
 	
-	public long lastModified() throws IOException{
-		long lastModified = 0L ;
+	public long lastSyncModified() throws IOException{
+		long lastSycnModifiedInAllCache = 0L ;
 		for(AbstractWorkspace ws : wss.values()){
 			CacheStore store = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
 			if (store == null || (! (store instanceof SearcherCacheStore))) continue ;
 			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
-			lastModified = Math.max(cacheStore.lastModified(), lastModified) ;
+			lastSycnModifiedInAllCache = Math.max(cacheStore.lastSyncModified(), lastSycnModifiedInAllCache) ;
 		}
-		return lastModified ;
+		return lastSycnModifiedInAllCache ;
 	}
+
+	public void lastSyncModified(long lastSyncModified) throws IOException{
+		for(AbstractWorkspace ws : wss.values()){
+			CacheStore store = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
+			if (store == null || (! (store instanceof SearcherCacheStore))) continue ;
+			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
+			cacheStore.lastSyncModified(lastSyncModified) ;
+		}
+	}
+
 	
 	// only use for test
 	public DefaultCacheManager dm(){

@@ -1,11 +1,14 @@
 package net.ion.craken.node.crud;
 
+import java.util.List;
 import java.util.concurrent.Future;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.craken.tree.Fqn;
 
 public class TestWriteSession extends TestBaseCrud {
 
@@ -109,6 +112,23 @@ public class TestWriteSession extends TestBaseCrud {
 		
 		assertEquals("bleujin", session.pathBy("/index/2").property("name").stringValue()) ;
 
+	}
+	
+	public void testQuery() throws Exception {
+		session.tranSync(TransactionJobs.dummy("/bleujin", 10)) ;
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				List<Fqn> list = wsession.queryRequest("").find().toFqns();
+				int i = 0 ;
+				for(Fqn fqn : list){
+					wsession.pathBy(fqn).property("new", 3) ;
+				}
+				return null;
+			}
+		}) ;
+		
+ 		assertEquals(3, session.pathBy("/bleujin/1").property("new").intValue(0)) ;
 	}
 	
 }

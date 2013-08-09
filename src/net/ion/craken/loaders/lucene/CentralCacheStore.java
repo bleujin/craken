@@ -24,6 +24,7 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.common.IKeywordField;
@@ -143,9 +144,8 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	private ArrayBlockingQueue<Modification> queue = new ArrayBlockingQueue<Modification>(100000);
 	volatile boolean runningIndex = false ;
-	private Object la;
+	private long lastSyncModified = 0L;
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
-		
 		
 		try {
 			if (mods.size() <= 1) {
@@ -279,7 +279,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		try {
-			
+			this.lastSyncModified = IndexReader.lastModified(central.dir()) ;
 			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
@@ -303,10 +303,16 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		}
 	}
 
-	public long lastModified() throws CorruptIndexException, IOException{
-		if (central.newReader().maxDoc() == 0) return 0L ;
-		return IndexReader.lastModified(central.dir()) ;
+	
+	public long lastSyncModified() {
+		return lastSyncModified ;
 	}
+	
+	public CentralCacheStore lastSyncModified(long lastSyncModified){
+		this.lastSyncModified = lastSyncModified ;
+		return this ;
+	}
+	
 	
 	@Override
 	public Set<InternalCacheEntry> loadAll() throws CacheLoaderException {

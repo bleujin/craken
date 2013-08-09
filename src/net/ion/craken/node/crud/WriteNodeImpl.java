@@ -14,7 +14,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.ion.craken.io.BlobProxy;
+import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.exception.NodeIOException;
@@ -30,9 +32,17 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.nsearcher.search.filter.TermFilter;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.kr.utils.StringUtil;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 
 import com.google.common.base.Function;
 
@@ -413,5 +423,34 @@ public class WriteNodeImpl implements WriteNode{
 		session().notifyTouch(target, touch) ;
 	}
 
+	private ReadSession readSession(){
+		return wsession.readSession() ;
+	}
+	
+	public ChildQueryRequest childQuery(Query query) throws ParseException, IOException {
+		return ChildQueryRequest.create(readSession(), readSession().newSearcher(), query);
+	}
+	
+	public ChildQueryRequest childQuery(String query) throws IOException, ParseException {
+		if (StringUtil.isBlank(query)) return childQuery(new TermQuery(new Term(DocEntry.PARENT, this.fqn().toString()))) ;
+		
+		Analyzer analyzer = readSession().workspace().central().searchConfig().queryAnalyzer();
+		final ChildQueryRequest result = ChildQueryRequest.create(readSession(), readSession().newSearcher(), readSession().workspace().central().searchConfig().parseQuery(analyzer, query));
+		result.filter(new TermFilter(DocEntry.PARENT, this.fqn().toString())) ;
+		
+		return result;
+	} 
+	
+	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException {
+		if (! includeDecentTree) return childQuery(query) ;
+		
+		if (StringUtil.isBlank(query)) return childQuery(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith()))) ;
+		
+		Analyzer analyzer = readSession().queryAnalyzer() ;
+		final ChildQueryRequest result = ChildQueryRequest.create(readSession(), readSession().newSearcher(), session().workspace().central().searchConfig().parseQuery(analyzer, query));
+		result.filter(new QueryWrapperFilter(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith())))) ;
+		
+		return result;
+	}
 	
 }

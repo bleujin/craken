@@ -1,5 +1,10 @@
 package net.ion.craken.node;
 
+import java.io.IOException;
+
+import org.apache.lucene.queryParser.ParseException;
+
+import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -31,4 +36,7 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public PropertyId idInfoTo(PropertyId pid) ;
 
+	public ChildQueryRequest queryRequest(String string) throws IOException, ParseException;
+	
+	public ReadSession readSession() ;
 }

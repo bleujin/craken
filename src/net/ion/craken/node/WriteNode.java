@@ -1,8 +1,12 @@
 package net.ion.craken.node;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import org.apache.lucene.queryParser.ParseException;
+
+import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteChildren;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
@@ -48,6 +52,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteNode blob(String string, InputStream input);
 
-
+	public ChildQueryRequest childQuery(String query) throws IOException, ParseException  ;
+	
+	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;
 
 }
