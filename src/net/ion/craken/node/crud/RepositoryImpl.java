@@ -1,6 +1,8 @@
 package net.ion.craken.node.crud ;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +25,7 @@ import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeCacheFactory;
 import net.ion.framework.logging.LogBroker;
 import net.ion.framework.schedule.IExecutor;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.config.Central;
@@ -35,6 +38,7 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.loaders.CacheLoaderManager;
+import org.infinispan.loaders.CacheStore;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.manager.DefaultCacheManager;
 
@@ -52,9 +56,11 @@ public class RepositoryImpl implements Repository{
 	
 	public RepositoryImpl(DefaultCacheManager dm){
 		this.dm = dm ;
+		this.dm.defineConfiguration(SYSTEM_CACHE, new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_ASYNC).eviction().maxEntries(1000).build()) ;
 		this.executor = new IExecutor(0, 3) ;
-		this.listener = new RepositoryListener(executor);
+		this.listener = new RepositoryListener(this);
 		this.dm.addListener(listener) ;
+		this.dm.getCache(SYSTEM_CACHE).addListener(listener) ;
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser()) ;
 	}
 	
@@ -79,6 +85,25 @@ public class RepositoryImpl implements Repository{
 		return new RepositoryImpl(new DefaultCacheManager(config))  ;
 	}
 	
+	
+	public String memberName(){
+		return dm.getAddress().toString() ;
+	}
+	
+	public Set<String> workspaceNames(){
+		return wss.keySet() ;
+	}
+	
+	public long lastModified() throws IOException{
+		long lastModified = 0L ;
+		for(AbstractWorkspace ws : wss.values()){
+			CacheStore store = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
+			if (store == null || (! (store instanceof SearcherCacheStore))) continue ;
+			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
+			lastModified = Math.max(cacheStore.lastModified(), lastModified) ;
+		}
+		return lastModified ;
+	}
 	
 	// only use for test
 	public DefaultCacheManager dm(){

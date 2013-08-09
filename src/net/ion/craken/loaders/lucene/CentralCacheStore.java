@@ -38,6 +38,8 @@ import net.ion.nsearcher.search.SearchResponse;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.TermQuery;
@@ -141,6 +143,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	private ArrayBlockingQueue<Modification> queue = new ArrayBlockingQueue<Modification>(100000);
 	volatile boolean runningIndex = false ;
+	private Object la;
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
 		
 		
@@ -276,6 +279,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		try {
+			
 			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
@@ -299,6 +303,11 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		}
 	}
 
+	public long lastModified() throws CorruptIndexException, IOException{
+		if (central.newReader().maxDoc() == 0) return 0L ;
+		return IndexReader.lastModified(central.dir()) ;
+	}
+	
 	@Override
 	public Set<InternalCacheEntry> loadAll() throws CacheLoaderException {
 		return load(Integer.MAX_VALUE / 100);

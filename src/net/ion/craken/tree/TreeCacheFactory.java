@@ -28,7 +28,7 @@ public class TreeCacheFactory {
 			throw new ConfigurationException("invocationBatching is not enabled for cache '" + cache.getName() + "'. Make sure this is enabled by" + " calling configurationBuilder.invocationBatching().enable()");
 		}
 		
-		cache.addListener(repository.listener()) ;
+//		cache.addListener(repository.listener()) ;
 		Cache<String, byte[]> blobdata = cache.getCacheManager().getCache(cacheName + ".blobdata") ;
 		Cache<String, GridFile.Metadata> blobmeta = cache.getCacheManager().getCache(cacheName + ".blobmeta") ;
 

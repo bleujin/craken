@@ -18,7 +18,8 @@ public class TestReplica extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create());
+		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
+		r.defineWorkspace("test2", CentralCacheStoreConfig.create().location("./resource/c2"));
 		r.start() ;
 		this.session = r.login("test") ;
 	}

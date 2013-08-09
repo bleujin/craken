@@ -12,6 +12,8 @@ import org.apache.lucene.index.CorruptIndexException;
 
 public interface Repository {
 
+	public final static String SYSTEM_CACHE = "__system" ;
+	
 	public void start() ;
 	
 	public void shutdown()  ;
