@@ -17,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -207,6 +208,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		jobj.add(DocEntry.PROPS, fromMapToJson(doc, key, value));
 
 		doc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
+		
 		return doc;
 	}
 
@@ -231,17 +233,8 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				final PropertyValue pvalue = entry.getValue();
 				jso.add(pstring, pvalue.asJsonArray());
 
-				if (pid.isIgnoreIndex()){
-					continue ;
-				}
+				pid.indexTo(doc, pvalue) ;
 				
-				for (Object e : pvalue.asSet()) {
-					if (pstring.startsWith("@")) {
-						doc.keyword(pstring, ObjectUtil.toString(e));
-					} else {
-						doc.unknown(pstring, e);
-					}
-				}
 			}
 			return jso;
 		}
@@ -283,6 +276,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
+			if (docs.size() == 0) this.lastSyncModified = 0L ; // when blank dir, dir automatly created
 			for (ReadDocument readDocument : docs) {
 				InternalCacheEntry ice = readDocument.transformer(new Function<ReadDocument, InternalCacheEntry>() {
 					@Override

@@ -13,8 +13,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import net.ion.craken.loaders.lucene.DocEntry;
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteSession;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
@@ -56,14 +58,14 @@ public class RepositoryListener {
 	public void viewChanged(ViewChangedEvent event) {
 		final Cache<TreeNodeKey, Map<PropertyId, PropertyValue>> cache = event.getCacheManager().getCache(SYSTEM_CACHE);
 
-		if (event.getOldMembers() == null || event.getOldMembers().size() == 0) { // newMember is actor
+		if ( (event.getOldMembers() == null || event.getOldMembers().size() == 0) && event.getNewMembers().size() != 1) { // newMember is actor
 			executor.schedule(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					cache.put(TreeNodeKey.fromString("#/start/status/"), MapUtil.EMPTY);
 					return null;
 				}
-			}, 1, TimeUnit.SECONDS);
+			}, 2, TimeUnit.SECONDS);
 		}
 		this.members = event.getNewMembers();
 		this.startedTime = System.currentTimeMillis();
@@ -95,11 +97,10 @@ public class RepositoryListener {
 			final MyStatus status = new MyStatus();
 
 			status.lastModified(repository.lastSyncModified()).started(startedTime).memeberName(repository.memberName());
-			repository.lastSyncModified(startedTime) ;
 
 			final Map<PropertyId, PropertyValue> value = new AtomicHashMap<PropertyId, PropertyValue>();
 			value.put(MyStatus.STATUS, PropertyValue.createPrimitive(status.toJsonString()));
-
+			
 			executor.submitTask(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
@@ -112,6 +113,7 @@ public class RepositoryListener {
 			allStatus.add(status);
 
 			electMaster();
+			repository.lastSyncModified(startedTime) ; // set 
 		}
 
 	}
@@ -131,13 +133,27 @@ public class RepositoryListener {
 
 		if (masterNode.memberName().equals(repository.memberName())) {
 			final long oldTime = oldNode.lastModified();
-			Debug.line(masterNode.memberName(), oldNode.memberName(), repository.memberName());
 			executor.submitTask(new Callable<Void>() {
-				public Void call() throws IOException, ParseException{
-					for (String wsName : repository.workspaceNames()) {
+				public Void call() throws IOException, ParseException, Exception{
+					Debug.line("Master... apply modification") ;
+					for (final String wsName : repository.workspaceNames()) {
 						ReadSession session = repository.login(wsName);
-						List<ReadNode> modifiedNode = session.queryRequest("").gte(DocEntry.LASTMODIFIED, oldTime).find().toList();
-						Debug.line(session, wsName, oldNode.lastModified(), masterNode.lastModified(), modifiedNode);
+						session.tranSync(new TransactionJob<Void>() {
+							@Override
+							public Void handle(WriteSession wsession) throws Exception {
+								List<Fqn> fqns = wsession.queryRequest("").gte(DocEntry.LASTMODIFIED, oldTime).offset(Integer.MAX_VALUE).find().toFqns();
+								Debug.line(wsName + " updated start", fqns.size()) ;
+								int count = 0 ;
+								for (Fqn fqn : fqns) {
+									wsession.pathBy(fqn).touch() ;
+									if ((++count % 5000) == 0) wsession.continueUnit() ;
+								}
+								
+								Debug.line(wsName + " updated end", fqns.size()) ;
+								return null;
+							}
+						}) ;
+						Debug.line("updated") ;
 					}
 					// current is master
 					return null ;

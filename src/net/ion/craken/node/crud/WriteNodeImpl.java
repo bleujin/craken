@@ -80,11 +80,11 @@ public class WriteNodeImpl implements WriteNode{
 
 	
 	private PropertyId createNormalId(String key){
-		return wsession.idInfoTo(PropertyId.normal(key)) ; 
+		return wsession.fieldIndexConfig().fieldIndexTo(PropertyId.normal(key)) ; 
 	}
 	
 	private PropertyId createReferId(String key){
-		return wsession.idInfoTo(PropertyId.refer(key)) ;
+		return wsession.fieldIndexConfig().fieldIndexTo(PropertyId.refer(key)) ;
 	}
 	
 	
@@ -315,6 +315,17 @@ public class WriteNodeImpl implements WriteNode{
 		return this ;
 	}
 	
+	public WriteNode touch() {
+		Set<PropertyId> keys = tree().getKeys();
+		if (keys.isEmpty()) this.clear() ;
+		else {
+			PropertyId pid = keys.iterator().next();
+			tree().put(pid, tree().get(pid)) ;
+		}
+		
+		touch(Touch.MODIFY) ;
+		return this ;
+	}	
 
 	public WriteNode refTos(String refName, String fqn){
 		

@@ -2,6 +2,11 @@ package net.ion.craken.tree;
 
 import java.io.Serializable;
 
+import net.ion.craken.node.IndexWriteConfig.FieldIndex;
+import net.ion.framework.util.NumberUtil;
+import net.ion.framework.util.ObjectUtil;
+import net.ion.nsearcher.common.WriteDocument;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PropertyId implements Serializable {
@@ -13,7 +18,7 @@ public class PropertyId implements Serializable {
 
 	private final PType type;
 	private final String key;
-	private boolean ignoreIndex = false ;
+	private FieldIndex fieldIndex = FieldIndex.UNKNOWN ;
 	
 	private PropertyId(PType type, String key){
 		this.type = type ;
@@ -25,7 +30,7 @@ public class PropertyId implements Serializable {
 	}
 
 	public static final PropertyId refer(String key){
-		return new PropertyId(PType.REFER, key) ;
+		return new PropertyId(PType.REFER, key).fieldIndex(FieldIndex.KEYWORD) ;
 	}
 	
 	public boolean equals(Object o){
@@ -58,12 +63,34 @@ public class PropertyId implements Serializable {
 		return type;
 	}
 
-	public PropertyId ignoreIndex() {
-		ignoreIndex = true ;
+	public PropertyId fieldIndex(FieldIndex fieldIndex) {
+		this.fieldIndex = fieldIndex ;
 		return this ;
 	}
 	
-	public boolean isIgnoreIndex(){
-		return ignoreIndex ;
+	public FieldIndex fieldIndex(){
+		return fieldIndex ;
+	}
+
+	public void indexTo(WriteDocument doc, PropertyValue pvalue) {
+		for (Object e : pvalue.asSet()) {
+			if (e == null) continue ;
+			switch(fieldIndex){
+				case IGNORE :
+					break ;
+				case NUMBER :
+					doc.number(idString(), NumberUtil.toLong(e.toString(), 0L)) ;
+					break ;
+				case TEXT :
+					doc.text(idString(), e.toString()) ;
+					break ;
+				case KEYWORD :
+					doc.keyword(idString(), ObjectUtil.toString(e)) ;
+					break ;
+				case UNKNOWN :
+					doc.unknown(idString(), e) ;
+					break ;
+			}
+		}
 	}
 }

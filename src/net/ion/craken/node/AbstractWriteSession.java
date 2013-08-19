@@ -17,7 +17,9 @@ public abstract class AbstractWriteSession implements WriteSession{
 
 	private ReadSession readSession ;
 	private Workspace workspace ;
-	private Set<String> ignoreProperyIds = SetUtil.newSet() ;   
+	private Set<String> ignoreProperyIds = SetUtil.newSet();
+	private IndexWriteConfig iwconfig = new IndexWriteConfig() ;
+	
 	protected AbstractWriteSession(ReadSession readSession, Workspace workspace){
 		this.readSession = readSession ;
 		this.workspace = workspace ;
@@ -100,20 +102,24 @@ public abstract class AbstractWriteSession implements WriteSession{
 		workspace().continueUnit(this) ;
 	}
 	
-	public WriteSession ignoreIndex(String... fields){
-		for (String field : fields) {
-			ignoreProperyIds.add(field) ;
-		}
-		return this ;
+	public IndexWriteConfig fieldIndexConfig() {
+		return iwconfig ;
 	}
 	
-	public PropertyId idInfoTo(PropertyId pid){
-		if (ignoreProperyIds.contains(pid.idString())){
-			pid.ignoreIndex() ;
-		}
-		
-		return pid ;
-	}
+//	public WriteSession ignoreIndex(String... fields){
+//		for (String field : fields) {
+//			ignoreProperyIds.add(field) ;
+//		}
+//		return this ;
+//	}
+//	
+//	public PropertyId idInfoTo(PropertyId pid){
+//		if (ignoreProperyIds.contains(pid.idString())){
+//			pid.ignoreIndex() ;
+//		}
+//		
+//		return pid ;
+//	}
 	
 	@Override
 	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {

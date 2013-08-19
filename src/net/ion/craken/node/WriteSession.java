@@ -32,9 +32,11 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public void continueUnit();
 
-	public WriteSession ignoreIndex(String... fields);
-
-	public PropertyId idInfoTo(PropertyId pid) ;
+	public IndexWriteConfig fieldIndexConfig() ;
+	
+//	public WriteSession ignoreIndex(String... fields);
+//
+//	public PropertyId idInfoTo(PropertyId pid) ;
 
 	public ChildQueryRequest queryRequest(String string) throws IOException, ParseException;
 	

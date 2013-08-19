@@ -50,9 +50,10 @@ public class TestReplica extends TestCase {
 	}
 	
 	public void testDebugPrint() throws Exception {
-		if (! session.exists("/bleujin")) return ;
+//		Thread.sleep(1000) ;
+//		if (! session.exists("/bleujin")) return ;
 		while(true){
-			Debug.line(session.pathBy("/bleujin").childQuery("").offset(Integer.MAX_VALUE).find().totalCount()) ;
+			Debug.line(session.root().childQuery("", true).offset(Integer.MAX_VALUE).find().totalCount()) ;
 			Thread.sleep(3000) ;
 		}
 	}
