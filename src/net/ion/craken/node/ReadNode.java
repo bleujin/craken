@@ -7,7 +7,7 @@ import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.ReadChildren;
 import net.ion.framework.db.Rows;
 
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 
 

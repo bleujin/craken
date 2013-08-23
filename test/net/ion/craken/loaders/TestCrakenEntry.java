@@ -31,13 +31,6 @@ public class TestCrakenEntry extends TestCase {
 		craken.start() ;
 	}
 	
-	private Configuration createMongoCacheStore(){
-		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()
-		.clustering().hash().numOwners(2).unsafe()
-		.eviction().maxEntries(1000)
-		.loaders().preload(true).shared(true).addCacheLoader().cacheLoader(new NewMongoDBCacheStore()).addProperty("host", "61.250.201.78").addProperty("dbName", "craken").addProperty("dbCollection", "mycol")
-		.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build() ;
-	}
 	
 	private Configuration createLocalCacheStore(){
 		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).clustering().l1().enable().invocationBatching()

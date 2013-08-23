@@ -38,7 +38,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;

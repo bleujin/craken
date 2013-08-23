@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteChildren;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
+
+import org.apache.lucene.queryparser.classic.ParseException;
 
 public interface WriteNode extends NodeCommon<WriteNode> {
 

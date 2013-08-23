@@ -12,8 +12,9 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.reader.InfoReader.InfoHandler;
 import net.ion.nsearcher.search.Searcher;
 
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.util.ReaderUtil;
+import org.apache.lucene.index.ReaderUtil;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;
@@ -79,9 +80,10 @@ public class TestStoreInfinispanDir extends TestCase {
 	public void testIndexInfo() throws Exception {
 		Central central = session.central();
 		central.newReader().info(new InfoHandler<Void>() {
+
 			@Override
-			public Void view(IndexReader dreader) throws IOException {
-				Debug.line(dreader.maxDoc(), ReaderUtil.getMergedFieldInfos(dreader)) ;
+			public Void view(IndexReader arg0, DirectoryReader dreader) throws IOException {
+				Debug.line(dreader.maxDoc()) ;
 				return null;
 			}
 		}) ;

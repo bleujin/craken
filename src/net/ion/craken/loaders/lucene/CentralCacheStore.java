@@ -17,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -25,9 +24,8 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.common.MyField;
@@ -40,10 +38,11 @@ import net.ion.nsearcher.search.SearchResponse;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.SegmentInfos;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.TermQuery;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
@@ -272,7 +271,11 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		try {
-			this.lastSyncModified = IndexReader.lastModified(central.dir()) ;
+			DirectoryReader.listCommits(central.dir()) ;
+			
+			Map<String, String> commitData = central.newReader().commitUserData();
+			String lastCommitTime = commitData.get(IndexSession.LASTMODIFIED);
+			this.lastSyncModified =  Long.parseLong(StringUtil.defaultIfEmpty(lastCommitTime, "0")) ; // DirectoryReader.lastModified(central.dir()) ;
 			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();

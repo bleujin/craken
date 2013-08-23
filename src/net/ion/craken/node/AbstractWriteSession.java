@@ -3,15 +3,14 @@ package net.ion.craken.node;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.lucene.queryParser.ParseException;
-
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
+
+import org.apache.lucene.queryparser.classic.ParseException;
 
 public abstract class AbstractWriteSession implements WriteSession{
 

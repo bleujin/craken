@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.crud.ChildQueryRequest;
@@ -14,7 +13,7 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 
 import com.google.common.base.Function;
 

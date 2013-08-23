@@ -2,13 +2,9 @@ package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.framework.util.Debug;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.ReusableAnalyzerBase;
-import org.apache.lucene.analysis.cjk.CJKAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 
@@ -41,7 +37,7 @@ public class TestWorkspace extends TestCase {
 	
 	public void xtestIndexConfig() throws Exception {
 		CentralCacheStoreConfig newconfig = CentralCacheStoreConfig.create();
-		final ReusableAnalyzerBase analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
+		final StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 		newconfig.centralConfig().indexConfigBuilder().indexAnalyzer(analyzer);
 		r.defineWorkspace("newwork", newconfig) ;
 		

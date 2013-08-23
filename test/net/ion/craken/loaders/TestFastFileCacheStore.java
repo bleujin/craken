@@ -1,8 +1,11 @@
 package net.ion.craken.loaders;
 
+import java.io.Serializable;
+
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -50,4 +53,52 @@ public class TestFastFileCacheStore extends TestCase {
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build();
 	}
 
+}
+
+
+class Employee implements Serializable {
+
+	private int deptno;
+	private String ename;
+	private int empno;
+	
+	private static final long serialVersionUID = 9214867003608719747L;
+	private Employee() {
+	}
+
+	static Employee createEmp(int deptno, String name, int empno) {
+		Employee emp = new Employee();
+		emp.setDeptno(deptno);
+		emp.setEname(name);
+		emp.setEmpno(empno);
+		return emp;
+	}
+
+	public int getDeptno() {
+		return deptno;
+	}
+
+	public void setDeptno(int deptno) {
+		this.deptno = deptno;
+	}
+
+	public String getEname() {
+		return ename;
+	}
+
+	public void setEname(String ename) {
+		this.ename = ename;
+	}
+
+	public int getEmpno() {
+		return empno;
+	}
+
+	public void setEmpno(int empno) {
+		this.empno = empno;
+	}
+
+	public String toString(){
+		return ToStringBuilder.reflectionToString(this) ;
+	}
 }

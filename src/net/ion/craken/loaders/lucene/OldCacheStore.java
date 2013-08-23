@@ -31,7 +31,7 @@ import net.ion.nsearcher.search.SearchResponse;
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.TermQuery;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;

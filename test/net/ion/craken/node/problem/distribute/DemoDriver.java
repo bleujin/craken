@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.infinispan.Cache;
 import org.infinispan.lucene.InfinispanDirectory;

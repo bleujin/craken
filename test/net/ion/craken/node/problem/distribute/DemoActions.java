@@ -26,16 +26,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.ion.nsearcher.common.SearchConstant;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -63,12 +66,12 @@ public class DemoActions {
    /** The Analyzer used in all methods **/
    private static final Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_33);
 
-   private InfinispanDirectory index;
+   private InfinispanDirectory idir;
 
    private final Cache<?, ?> cache;
 
    public DemoActions(InfinispanDirectory index, Cache<?, ?> cache) {
-      this.index = index;
+      this.idir = index;
       this.cache = cache;
    }
 
@@ -78,7 +81,7 @@ public class DemoActions {
     */
    public List<String> listStoredValuesMatchingQuery(Query query) {
       try {
-         IndexSearcher searcher = new IndexSearcher(index, true);
+         IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(idir));
          TopDocs topDocs = searcher.search(query, null, 100);// demo limited to 100 documents!
          ScoreDoc[] scoreDocs = topDocs.scoreDocs;
          List<String> list = new ArrayList<String>();
@@ -110,7 +113,8 @@ public class DemoActions {
     * @throws IOException
     */
    public void addNewDocument(String line) throws IOException {
-      IndexWriter iw = new IndexWriter(index, analyzer, MaxFieldLength.UNLIMITED);
+	  IndexWriterConfig iwconfig = new IndexWriterConfig(SearchConstant.LuceneVersion, analyzer) ;
+      IndexWriter iw = new IndexWriter(idir, iwconfig);
       try {
          Document doc = new Document();
          Field field = new Field(MAIN_FIELD, line, Store.YES, Index.ANALYZED);

@@ -39,4 +39,10 @@ public class Employee {
 	public Employee pair() {
 		return pair;
 	}
+
+	public static Employee createEmp(int i, String string, int j) {
+		Employee emp = new Employee();
+		
+		return emp;
+	}
 }

@@ -1,12 +1,12 @@
 package net.ion.craken.node.crud;
 
-import java.nio.channels.UnsupportedAddressTypeException;
+import java.util.List;
 
 import net.ion.craken.expression.BinaryExpression;
 import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
-import net.ion.framework.util.Debug;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.config.SearchConfig;
 import net.ion.nsearcher.search.filter.BooleanFilter;
@@ -15,15 +15,16 @@ import net.ion.nsearcher.search.filter.TermFilter;
 import net.ion.rosetta.Parser;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queries.FilterClause;
+import org.apache.lucene.queries.TermsFilter;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.FilterClause;
 import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermRangeFilter;
-import org.apache.lucene.search.TermsFilter;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.util.BytesRef;
 
 public class Filters {
 
@@ -43,7 +44,7 @@ public class Filters {
 	}
 
 	public static Filter gte(String field, String lowerTerm) {
-		return new TermRangeFilter(field, lowerTerm, null, true, false) ;
+		return new TermRangeFilter(field, new BytesRef(lowerTerm), null, true, false) ;
 	}
 
 	public static Filter gt(String field, long min) {
@@ -63,20 +64,20 @@ public class Filters {
 	}
 
 	public static Filter gt(String field, String lowerTerm) {
-		return new TermRangeFilter(field, lowerTerm, null, false, false) ;
+		return new TermRangeFilter(field, new BytesRef(lowerTerm), null, false, false) ;
 	}
 
 	public static Filter lte(String field, String higherTerm) {
-		return new TermRangeFilter(field, null, higherTerm, false, true) ;
+		return new TermRangeFilter(field, null, new BytesRef(higherTerm), false, true) ;
 	}
 
 	public static Filter in(String field, String[] values) {
-		TermsFilter filter = new TermsFilter();
+		List<Term> terms = ListUtil.newList() ;
 		for (String value : values) {
-			filter.addTerm(new Term(field, value)) ;
+			terms.add(new Term(field, value)) ;
 		}
 		
-		return filter;
+		return new TermsFilter(terms);
 	}
 
 	public static Filter between(String field, long min, long max) {
@@ -88,11 +89,11 @@ public class Filters {
 	}
 
 	public static Filter lt(String field, String higherTerm) {
-		return new TermRangeFilter(field, null, higherTerm, false, false) ;
+		return new TermRangeFilter(field, null, new BytesRef(higherTerm), false, false) ;
 	}
 
 	public static Filter between(String field, String minTerm, String maxTerm) {
-		return FilterUtil.and(TermRangeFilter.Less(field, maxTerm), TermRangeFilter.More(field, minTerm)) ;
+		return FilterUtil.and(TermRangeFilter.Less(field, new BytesRef(maxTerm)), TermRangeFilter.More(field, new BytesRef(minTerm))) ;
 	}
 
 

@@ -1,15 +1,14 @@
 package net.ion.craken.node.search;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
-
 import junit.framework.TestCase;
 import net.ion.craken.node.crud.FunctionFilter;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.rosetta.query.Filter;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
 
 public class TestFunctionFilter extends TestCase{
 

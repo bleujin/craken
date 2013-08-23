@@ -26,7 +26,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
 import org.apache.lucene.analysis.kr.utils.StringUtil;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.notifications.Listener;

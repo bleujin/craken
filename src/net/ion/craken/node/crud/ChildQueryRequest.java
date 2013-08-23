@@ -14,7 +14,7 @@ import net.ion.nsearcher.search.filter.FilterUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
 
 import org.apache.ecs.xml.XML;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;

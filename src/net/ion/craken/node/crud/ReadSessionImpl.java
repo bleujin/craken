@@ -14,7 +14,7 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 
 
 public class ReadSessionImpl extends AbstractReadSession{
