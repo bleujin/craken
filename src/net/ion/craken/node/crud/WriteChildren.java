@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.AbstractChildren;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.WriteNode;
@@ -100,14 +101,18 @@ class ReloadWriteIterator implements Iterator<WriteNode>{
 		this.oriIter = iter ;
 	}
 	
+	private GridFilesystem gfs(){
+		return session.workspace().gfs() ;
+	}
+	
 	public ReloadWriteIterator reload(int skip, int offset, final List<Predicate<WriteNode>> filters, final List<SortElement> sorts) {
 		Comparator<TreeNode> mycomparator = new Comparator<TreeNode>(){
 			@Override
 			public int compare(TreeNode left, TreeNode right) {
 				
 				for (SortElement sele : sorts) {
-					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propid()));
-					PropertyValue rightProperty = right.get(PropertyId.normal(sele.propid())) ;
+					PropertyValue leftProperty = left.get(gfs(), PropertyId.normal(sele.propid()));
+					PropertyValue rightProperty = right.get(gfs(), PropertyId.normal(sele.propid())) ;
 					
 					if (leftProperty == null || rightProperty == null ) return 0 ;
 					

@@ -15,6 +15,8 @@ public class TestFieldIndexConfig extends TestBaseCrud {
 			}
 		}).get() ;
 		
+		session.workspace().central().newSearcher().search("num:2000").debugPrint() ;
+		
 		assertEquals(1, session.pathBy("/index").childQuery("num:2000").find().toList().size()) ;
 	}
 	

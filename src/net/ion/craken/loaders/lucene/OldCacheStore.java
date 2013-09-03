@@ -19,7 +19,6 @@ import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.common.WriteDocument;
@@ -139,7 +138,7 @@ public class OldCacheStore extends AbCacheStore {
 					switch (m.getType()) {
 					case STORE:
 						Store s = (Store) m;
-						isession.updateDocument(toWriteDocument(s.getStoredEntry()));
+						isession.updateDocument(toWriteDocument(isession, s.getStoredEntry()));
 						break;
 					case CLEAR:
 						isession.deleteAll();
@@ -169,12 +168,11 @@ public class OldCacheStore extends AbCacheStore {
 	}
 	
 	@Override
-	public void store(InternalCacheEntry entry) throws CacheLoaderException {
-		final WriteDocument doc = toWriteDocument(entry);
+	public void store(final InternalCacheEntry entry) throws CacheLoaderException {
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
-
+				final WriteDocument doc = toWriteDocument(isession, entry);
 				isession.updateDocument(doc);
 				return null;
 			}
@@ -182,10 +180,10 @@ public class OldCacheStore extends AbCacheStore {
 
 	}
 
-	private WriteDocument toWriteDocument(InternalCacheEntry entry) {
+	private WriteDocument toWriteDocument(IndexSession isession, InternalCacheEntry entry) {
 		TreeNodeKey key = (TreeNodeKey) entry.getKey();
 		AtomicMap value = (AtomicMap) entry.getValue();
-		final WriteDocument doc = MyDocument.newDocument(key.idString());
+		final WriteDocument doc = isession.newDocument(key.idString());
 
 		JsonObject jobj = new JsonObject();
 		jobj.addProperty(DocEntry.ID, key.idString());

@@ -8,6 +8,7 @@ import java.util.List;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.AbstractChildren;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -166,6 +167,10 @@ class ReloadIterator implements Iterator<ReadNode> {
 		this.oriIter = iter;
 	}
 
+	private GridFilesystem gfs(){
+		return session.workspace().gfs() ;
+	}
+	
 	public ReloadIterator reload(int skip, int offset, final List<Predicate<ReadNode>> filters, final List<SortElement> sorts) {
 
 		Comparator<TreeNode> mycomparator = new Comparator<TreeNode>() {
@@ -173,8 +178,8 @@ class ReloadIterator implements Iterator<ReadNode> {
 			public int compare(TreeNode left, TreeNode  right) {
 
 				for (SortElement sele : sorts) {
-					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propid()));
-					PropertyValue rightProperty = right.get(PropertyId.normal(sele.propid()));
+					PropertyValue leftProperty = left.get(gfs(), PropertyId.normal(sele.propid()));
+					PropertyValue rightProperty = right.get(gfs(), PropertyId.normal(sele.propid()));
 
 					if (leftProperty == null || rightProperty == null)
 						return 0;

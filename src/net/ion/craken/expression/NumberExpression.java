@@ -1,10 +1,10 @@
 package net.ion.craken.expression;
 
-import org.apache.lucene.search.Filter;
-
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.crud.Filters;
 import net.ion.framework.util.NumberUtil;
+
+import org.apache.lucene.search.Filter;
 
 public final class NumberExpression extends ValueObject implements Expression , ConstantExpression{
 	public final String number;

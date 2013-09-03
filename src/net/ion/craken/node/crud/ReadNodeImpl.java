@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
@@ -40,7 +41,6 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
 
 import com.google.common.base.Function;
 
@@ -137,19 +137,23 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(treeNode.get(pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(treeNode.get(gfs(), pid), PropertyValue.NotFound);
 	}
 
 //	public Optional<PropertyValue> optional(String key) {
 //		return Optional.fromNullable(treeNode.get(PropertyId.normal(key)));
 //	}
 	
+	private GridFilesystem gfs(){
+		return session.workspace().gfs() ;
+	}
+	
 	public Set<PropertyId> keys(){
-		return treeNode.getKeys() ;
+		return treeNode.getKeys(gfs()) ;
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(treeNode.getData());
+		return Collections.unmodifiableMap(treeNode.getData(gfs()));
 	}
 	
 	public <T> T transformer(Function<ReadNode, T> function){
@@ -276,11 +280,11 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException {
 		if (! includeDecentTree) return childQuery(query) ;
 		
-		if (StringUtil.isBlank(query)) return childQuery(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith()))) ;
+		if (StringUtil.isBlank(query)) return childQuery(this.fqn().childrenQuery()) ;
 		
 		Analyzer analyzer = session().queryAnalyzer() ;
 		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
-		result.filter(new QueryWrapperFilter(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith())))) ;
+		result.filter(new QueryWrapperFilter(this.fqn().childrenQuery())) ;
 		
 		return result;
 	}
@@ -314,7 +318,7 @@ class GhostTreeNode extends TreeNode {
 	private ReadSession session ;
 	private final Fqn fqn ;
 	GhostTreeNode(ReadSession session, Fqn fqn){
-		super(null, null, null, null) ;
+		super(null, null, null) ;
 		this.session = session ;
 		this.fqn = fqn ;
 	}
@@ -335,7 +339,7 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public PropertyValue get(PropertyId key) {
+	public PropertyValue get(GridFilesystem gfs, PropertyId key) {
 		return PropertyValue.NotFound;
 	}
 
@@ -358,7 +362,7 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public Map<PropertyId, PropertyValue> getData() {
+	public Map<PropertyId, PropertyValue> getData(GridFilesystem gfs) {
 		return MapUtil.EMPTY;
 	}
 
@@ -368,7 +372,7 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public Set<PropertyId> getKeys() {
+	public Set<PropertyId> getKeys(GridFilesystem gfs) {
 		return SetUtil.EMPTY;
 	}
 

@@ -5,11 +5,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.WritableByteChannel;
 
+
 import org.infinispan.Cache;
 
-/**
- * @author Marko Luksa
- */
+
 public class WritableGridFileChannel implements WritableByteChannel {
 
 	private int position;
@@ -19,11 +18,11 @@ public class WritableGridFileChannel implements WritableByteChannel {
 	private boolean closed;
 
 	private FileChunkMapper fileChunkMapper;
-	private GridFile file;
+	private GridBlob wblob;
 
-	WritableGridFileChannel(GridFile file, Cache<String, byte[]> cache, boolean append) {
-		fileChunkMapper = new FileChunkMapper(file, cache);
-		this.file = file;
+	WritableGridFileChannel(GridBlob wblob, Cache<String, byte[]> cache, boolean append) {
+		fileChunkMapper = new FileChunkMapper(wblob, cache);
+		this.wblob = wblob;
 
 		if (append)
 			initForAppending();
@@ -39,7 +38,7 @@ public class WritableGridFileChannel implements WritableByteChannel {
 
 	private void initForAppending() {
 		this.currentBuffer = lastChunkIsFull() ? createEmptyChunk() : fetchLastChunk();
-		this.position = (int) file.length();
+		this.position = (int) wblob.length();
 		this.localIndex = position % getChunkSize();
 	}
 
@@ -53,7 +52,7 @@ public class WritableGridFileChannel implements WritableByteChannel {
 	}
 
 	private int getLastChunkNumber() {
-		return getChunkNumber((int) file.length() - 1);
+		return getChunkNumber((int) wblob.length() - 1);
 	}
 
 	private byte[] createFullSizeCopy(byte[] val) {
@@ -65,7 +64,7 @@ public class WritableGridFileChannel implements WritableByteChannel {
 	}
 
 	private boolean lastChunkIsFull() {
-		return file.length() % getChunkSize() == 0;
+		return wblob.length() % getChunkSize() == 0;
 	}
 
 	@Override
@@ -105,7 +104,7 @@ public class WritableGridFileChannel implements WritableByteChannel {
 	}
 
 	private void updateFileLength() {
-		file.setLength(position);
+		wblob.setLength(position);
 	}
 
 	private void storeChunkInCache() {

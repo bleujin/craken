@@ -1,9 +1,9 @@
 package net.ion.craken.expression;
 
-import org.apache.lucene.search.Filter;
-
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.crud.Filters;
+
+import org.apache.lucene.search.Filter;
 
 public final class StringExpression extends ValueObject implements Expression, ConstantExpression {
 	public final String string;

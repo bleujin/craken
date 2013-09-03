@@ -6,6 +6,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.SearchResponse;
@@ -80,6 +81,13 @@ public class ChildQueryRequest {
 		return this;
 	}
 
+	public ChildQueryRequest lt(String field, Object max){
+		if (max instanceof Long){
+			return lt(field, (Long)max) ;
+		} else {
+			return lt(field, ObjectUtil.toString(max)) ;
+		}
+	}
 	
 	
 	
@@ -96,21 +104,33 @@ public class ChildQueryRequest {
 		filter(Filters.lte(field, max));
 		return this;
 	}
+	public ChildQueryRequest lte(String field, Object max){
+		if (max instanceof Long){
+			return lte(field, (Long)max) ;
+		} else {
+			return lte(field, ObjectUtil.toString(max)) ;
+		}
+	}
 
 	
 	
 	public ChildQueryRequest gt(String field, int min) {
 		return gt(field, 1L * min);
 	}
-
 	public ChildQueryRequest gt(String field, long min) {
 		filter(Filters.gt(field, min));
 		return this;
 	}
-
 	public ChildQueryRequest gt(String field, String lowerTerm) {
 		filter(Filters.gt(field, lowerTerm));
 		return this;
+	}
+	public ChildQueryRequest gt(String field, Object max){
+		if (max instanceof Long){
+			return gt(field, (Long)max) ;
+		} else {
+			return gt(field, ObjectUtil.toString(max)) ;
+		}
 	}
 	
 	
@@ -118,14 +138,19 @@ public class ChildQueryRequest {
 		filter(Filters.gte(field, lowerTerm));
 		return this;
 	}
-
 	public ChildQueryRequest gte(String field, int min) {
 		return gte(field, 1L * min);
 	}
-
 	public ChildQueryRequest gte(String field, long min) {
 		filter(Filters.gte(field, min));
 		return this;
+	}
+	public ChildQueryRequest gte(String field, Object max){
+		if (max instanceof Long){
+			return gte(field, (Long)max) ;
+		} else {
+			return gte(field, ObjectUtil.toString(max)) ;
+		}
 	}
 
 	
@@ -136,6 +161,10 @@ public class ChildQueryRequest {
 	
 	public ChildQueryRequest ne(String field, String value){
 		filter(Filters.ne(field, value)) ;
+		return this ;
+	}
+	public ChildQueryRequest ne(String field, Object value){
+		filter(Filters.ne(field, ObjectUtil.toString(value))) ;
 		return this ;
 	}
 	

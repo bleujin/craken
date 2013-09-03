@@ -70,7 +70,6 @@ public class RepositoryListener {
 		this.members = event.getNewMembers();
 		this.startedTime = System.currentTimeMillis();
 		this.allStatus.clear();
-		Debug.line(this.members, this.allStatus);
 	}
 
 	@CacheStarted

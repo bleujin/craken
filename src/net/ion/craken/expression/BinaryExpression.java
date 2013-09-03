@@ -1,10 +1,10 @@
 package net.ion.craken.expression;
 
-import org.apache.lucene.search.Filter;
-
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.crud.Filters;
 import net.ion.framework.util.Debug;
+
+import org.apache.lucene.search.Filter;
 
 public final class BinaryExpression extends ValueObject implements Expression {
 	public final Expression left;

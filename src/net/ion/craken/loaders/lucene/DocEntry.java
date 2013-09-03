@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map.Entry;
 
-import net.ion.craken.io.BlobProxy;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -38,7 +37,7 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	public static InternalCacheEntry create(TreeNodeKey parentKey, List<ReadDocument> docs) {
 		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
 		for (ReadDocument doc : docs) {
-			nodeValue.put(StringUtil.substringAfterLast(doc.docId(), "/"), Fqn.fromString(doc.docId())) ;
+			nodeValue.put(StringUtil.substringAfterLast(doc.idValue(), "/"), Fqn.fromString(doc.idValue())) ;
 		}
 		
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(parentKey);
@@ -91,7 +90,9 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 				for (JsonElement jele : (JsonArray) pvalue) {
 //					arrayValue.append(jele.getAsJsonPrimitive().getValue());
 					if (jele.isJsonObject()){
-						arrayValue.append(BlobProxy.create(jele.getAsJsonObject().asString("fqnPath"))) ;
+						arrayValue.append(jele.toString()) ;
+//						throw new IllegalArgumentException(" -t- ?") ;
+//						arrayValue.append(BlobProxy.create(jele.getAsJsonObject().asString("fqnPath"))) ;
 					} else if (jele.isJsonPrimitive() && jele.getAsJsonPrimitive().isNumber()){
 						final long aslong = jele.getAsJsonPrimitive().getAsLong();
 						arrayValue.append(aslong);

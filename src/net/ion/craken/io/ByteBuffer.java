@@ -3,12 +3,7 @@ package net.ion.craken.io;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-/**
- * A byte buffer that exposes the internal byte array with minimal copying
- * 
- * @author (various)
- * @since 4.0
- */
+
 public class ByteBuffer {
 	private final byte[] buf;
 	private final int offset;

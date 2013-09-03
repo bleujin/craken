@@ -28,12 +28,12 @@ public abstract class AbstractWriteSession implements WriteSession{
 	
 	public WriteNode createBy(String fqn){
 		final Fqn self = forCreateAncestor(fqn);
-		return WriteNodeImpl.loadTo(this, workspace.createNode(self)) ;
+		return WriteNodeImpl.loadTo(this, workspace.createNode(iwconfig, self)) ;
 	}
 	
 	public WriteNode resetBy(String fqn){
 		final Fqn self = forCreateAncestor(fqn);
-		return WriteNodeImpl.loadTo(this, workspace.resetNode(self)) ;
+		return WriteNodeImpl.loadTo(this, workspace.resetNode(iwconfig, self)) ;
 	}
 
 	private Fqn forCreateAncestor(String fqn) {
@@ -55,7 +55,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		return WriteNodeImpl.loadTo(this, workspace.pathNode(fqn)) ;
+		return WriteNodeImpl.loadTo(this, workspace.pathNode(this.iwconfig, fqn)) ;
 	}
 	
 	public WriteNode root() {
@@ -66,20 +66,11 @@ public abstract class AbstractWriteSession implements WriteSession{
 		return workspace.exists(Fqn.fromString(fqn)) ;
 	}
 
-	@Override
-	public Credential credential() {
-		return readSession.credential();
-	}
-
-	@Override
-	public Workspace workspace() {
-		return workspace;
-	}
 	
 	@Override
 	public void endCommit() {
 		for (Fqn parent : ancestors) {
-			workspace.pathNode(parent) ;
+			workspace.pathNode(this.iwconfig, parent) ;
 		}
 	}
 	
@@ -87,14 +78,23 @@ public abstract class AbstractWriteSession implements WriteSession{
 	public void failRollback() {
 		
 	}
-	
-	public ReadSession readSession(){
-		return readSession ;
-	}
 
 	@Override
 	public void notifyTouch(Fqn fqn, Touch touch) {
 		
+	}
+	@Override
+	public Credential credential() {
+		return readSession.credential();
+	}
+	
+	@Override
+	public Workspace workspace() {
+		return workspace;
+	}
+	
+	public ReadSession readSession(){
+		return readSession ;
 	}
 	
 	public void continueUnit(){

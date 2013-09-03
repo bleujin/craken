@@ -7,12 +7,21 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.ecs.xhtml.pre;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
+
+import sun.security.krb5.internal.crypto.Des;
 
 import com.google.common.base.Function;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
+import net.ion.craken.node.DumpJob;
+import net.ion.craken.node.DumpNode;
+import net.ion.craken.node.DumpSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -27,6 +36,8 @@ import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
+import net.ion.nsearcher.common.ManualIndexingStrategy;
+import net.ion.nsearcher.common.MyField;
 import net.ion.radon.impl.util.CsvReader;
 
 public class TestInsertSpeed extends TestCase {
@@ -37,7 +48,7 @@ public class TestInsertSpeed extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-//		FileUtil.deleteDirectory(new File("./resource/insert")) ;
+		FileUtil.deleteDirectory(new File("./resource/insert")) ;
 		
 		this.r = RepositoryImpl.create();
 		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/insert"));
@@ -78,14 +89,36 @@ public class TestInsertSpeed extends TestCase {
 		// 20k : resetBy 14, createBy 12, mergeBy 41
 		// 100k : resetBy 41, createBy 37, mergeBy 269
 		// 500k : createBy 197
-		int loopCount = 500000 ;
+		int loopCount = 100000 ;
 		long start = System.currentTimeMillis();
 		session.tranSync(new SampleInsertJob("/bleujin/", loopCount, Action.CREATE)); 
 		Debug.line(System.currentTimeMillis() - start);
 		
-		session.pathBy("/bleujin").children().offset(10).debugPrint();
-
+//		session.pathBy("/bleujin").children().offset(10).debugPrint();
 	}
+	
+	public void testDump() throws Exception {
+		int loopCount = 100000 ;
+		long start = System.currentTimeMillis();
+//		session.workspace().central().indexConfig().fieldIndexingStrategy(new ManualIndexingStrategy(){
+//			@Override
+//			public void unknown(Document doc, MyField field, String name, Object obj) {
+//				doc.add(new Field(name, obj.toString(), Store.YES, Index.ANALYZED)) ;
+//			}
+//			@Override
+//			public void unknown(Document doc, MyField field, String name, String value) {
+//				doc.add(new Field(name, value, Store.YES, Index.ANALYZED)) ;
+//			}
+//		}) ;
+		
+		session.dump(new SampleDumpJob("/bleujin/", loopCount, Action.CREATE)).get(); 
+		Debug.line(System.currentTimeMillis() - start);
+		
+//		session.pathBy("/bleujin").children().offset(10).debugPrint();
+	}
+	
+	
+	
 	
 	public void testChildCount() throws Exception {
 		long start = System.currentTimeMillis() ;
@@ -141,6 +174,8 @@ class SampleInsertJob implements TransactionJob<Void> {
 	
 	@Override
 	public Void handle(WriteSession wsession) throws Exception {
+//		wsession.fieldIndexConfig().ignoreBodyField() ;
+		
 		File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
 		
 		CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
@@ -162,9 +197,63 @@ class SampleInsertJob implements TransactionJob<Void> {
 				if (line.length > ii) wnode.property(headers[ii], line[ii]) ;
 			}
 			line = reader.readLine() ;
-			if ((max % 5000) == 0) {
+			if ((max % 30000) == 0) {
 				System.out.print('.') ;
 				wsession.continueUnit() ;
+			} 
+		}
+		reader.close() ;
+		Debug.line("endJob") ;
+		return null;
+	}
+}
+
+
+class SampleDumpJob implements DumpJob<Void> {
+
+	private String prefix;
+	private int max = 0 ;
+	private Action action = Action.RESET;
+	
+	public SampleDumpJob(String prefix, int max){
+		this(prefix, max, Action.RESET) ;
+	}
+
+	public SampleDumpJob(String prefix, int max, Action action){
+		this.prefix = prefix ;
+		this.max = max ;
+		this.action = action ;
+	}
+	
+
+	public SampleDumpJob(int max){
+		this("/", max) ;
+	}
+	
+	@Override
+	public Void handle(DumpSession dsession) throws Exception {
+		
+//		dsession.fieldIndexConfig().ignore("name", "id", "section_name", "section_uri", "prominent_warning", "section_text", "subject_drug", "section_loinc_code") ;
+
+//		dsession.indexConfig().ignoreBodyField() ;
+		
+		File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
+		
+		CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
+		reader.setFieldDelimiter('\t') ;
+		String[] headers = reader.readLine();
+		String[] line = reader.readLine() ;
+
+		while(line != null && line.length > 0 && max-- > 0 ){
+//			if (headers.length != line.length ) continue ;
+			DumpNode wnode = dsession.createBy(prefix + max);				
+			for (int ii = 0, last = headers.length; ii < last ; ii++) {
+				if (line.length > ii) wnode.property(headers[ii], line[ii]) ;
+			}
+			line = reader.readLine() ;
+			if ((max % 20000) == 0) {
+				System.out.print('.') ;
+				dsession.continueUnit() ;
 			} 
 		}
 		reader.close() ;

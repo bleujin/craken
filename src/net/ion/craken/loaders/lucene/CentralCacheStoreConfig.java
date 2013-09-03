@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import net.ion.framework.util.FileUtil;
-import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
@@ -48,7 +47,8 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 
 	public void setLocation(String location) {
 		testImmutability("location");
-		this.location = location;
+		this.location = location ;
+//		this.properties.put("location", location) ;
 	}
 
 	

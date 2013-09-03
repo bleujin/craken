@@ -17,7 +17,7 @@ import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
-import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
@@ -40,7 +40,7 @@ public class TestBasicSpeed extends TestCase {
 		final String prefix = "/bleujin/" ;
 		indexer.index(new IndexJob<Void>() {
 			@Override
-			public Void handle(IndexSession indexsession) throws Exception {
+			public Void handle(IndexSession isession) throws Exception {
 				int max = 20000 ;
 				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
 				
@@ -50,16 +50,16 @@ public class TestBasicSpeed extends TestCase {
 				String[] line = reader.readLine() ;
 				
 				while(line != null && line.length > 0 && max-- > 0 ){
-					WriteDocument doc = MyDocument.newDocument(prefix + max);
+					WriteDocument doc = isession.newDocument(prefix + max);
 					for (int ii = 0, last = headers.length; ii < last ; ii++) {
 						if (line.length > ii) doc.unknown(headers[ii], line[ii]) ;
 					}
 					line = reader.readLine() ;
 					if ((max % 5000) == 0) {
 						System.out.print('.') ;
-						indexsession.continueUnit() ;
+						isession.continueUnit() ;
 					}
-					indexsession.insertDocument(doc) ;
+					isession.insertDocument(doc) ;
 				}
 				reader.close() ;
 				return null;

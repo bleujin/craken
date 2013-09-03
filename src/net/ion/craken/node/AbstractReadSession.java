@@ -16,7 +16,6 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
-import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.StringUtil;
 
 import org.infinispan.Cache;
@@ -54,7 +53,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	protected ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
 		if (exists(fqn)) {
-			return ReadNodeImpl.load(this, workspace.pathNode(fqn));
+			return ReadNodeImpl.load(this, workspace.pathNode(IndexWriteConfig.Default, fqn));
 		} else if (emptyIfNotExist) {
 			return ReadNodeImpl.ghost(this, fqn) ;
 		}
@@ -90,9 +89,24 @@ public abstract class AbstractReadSession implements ReadSession {
 	@Override
 	public <T> T tranSync(TransactionJob<T> tjob) throws Exception {
 		WriteSession tsession = new WriteSessionImpl(this, workspace);
-		return workspace.tran(tsession, tjob, TranExceptionHandler.NULL).get() ;
+		return workspace.tran(tsession, tjob, TranExceptionHandler.PRINT).get() ;
 	}
 
+
+	public <T> T tranSync(TransactionJob<T> tjob, TranExceptionHandler handler) throws Exception {
+		WriteSession tsession = new WriteSessionImpl(this, workspace);
+		return workspace.tran(tsession, tjob, handler).get() ;
+	}
+
+
+	@Override
+	public <T> Future<T> dump(DumpJob<T> tjob) throws Exception {
+		DumpSession dsession = new DumpSession(this, workspace);
+		return workspace.dump(dsession, tjob, TranExceptionHandler.PRINT) ;
+	}
+
+	
+	
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {
 		WriteSession tsession = new WriteSessionImpl(this, workspace);
 

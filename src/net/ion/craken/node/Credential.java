@@ -7,6 +7,7 @@ import org.apache.lucene.analysis.Analyzer;
 
 public class Credential {
 
+	public static final Credential ADMIN = new Credential("admin", "nimda") ;
 	public static final Credential EMANON = new Credential("emanon", "emanon") ;
 	
 	private final String accessKey ;

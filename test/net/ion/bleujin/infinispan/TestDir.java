@@ -10,7 +10,7 @@ import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.WriteNode;
 import net.ion.framework.util.Debug;
-import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.common.WriteDocument;
@@ -91,7 +91,7 @@ public class TestDir extends TestCase {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
 				for (int i = 0; i < 10000; i++) {
-					isession.insertDocument(MyDocument.testDocument().add(MyField.keyword("name", "bleujin")).add(MyField.number("index", i))) ;
+					isession.insertDocument(isession.newDocument().add(MyField.keyword("name", "bleujin")).add(MyField.number("index", i))) ;
 				}
 				return null;
 			}
@@ -120,7 +120,7 @@ public class TestDir extends TestCase {
 		
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
-			public Void handle(IndexSession indexsession) throws Exception {
+			public Void handle(IndexSession isession) throws Exception {
 				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
 				
 				CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
@@ -130,16 +130,16 @@ public class TestDir extends TestCase {
 				int max = 100000 ;
 				while(line != null && line.length > 0 && max-- > 0 ){
 //					if (headers.length != line.length ) continue ;
-					WriteDocument wnode = MyDocument.newDocument("" + max) ;
+					WriteDocument wnode = isession.newDocument("" + max) ;
 					for (int ii = 0, last = headers.length; ii < last ; ii++) {
 						if (line.length > ii) wnode.unknown(headers[ii], line[ii]) ;
 					}
-					indexsession.updateDocument(wnode) ;
+					isession.updateDocument(wnode) ;
 					
 					line = reader.readLine() ;
 					if ((max % 2000) == 0) {
 						System.out.print('.') ;
-						indexsession.continueUnit() ;
+						isession.continueUnit() ;
 					} 
 				}
 				reader.close() ;
@@ -159,7 +159,7 @@ public class TestDir extends TestCase {
 		
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
-			public Void handle(IndexSession indexsession) throws Exception {
+			public Void handle(IndexSession isession) throws Exception {
 				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
 				
 				CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
@@ -169,18 +169,18 @@ public class TestDir extends TestCase {
 				int max = 60000 ;
 				while(line != null && line.length > 0 && max-- > 0 ){
 //					if (headers.length != line.length ) continue ;
-					WriteDocument wnode = MyDocument.newDocument("" + max) ;
+					WriteDocument wnode = isession.newDocument("" + max) ;
 					for (int ii = 0, last = headers.length; ii < last ; ii++) {
 						if (line.length > ii) wnode.unknown(headers[ii], line[ii]) ;
 					}
-					indexsession.updateDocument(wnode) ;
+					isession.updateDocument(wnode) ;
 					
 					line = reader.readLine() ;
 					if ((max % 1000) == 0) {
 						System.out.print('.') ;
 					}
 					if ((max % 2000) == 0) {
-						indexsession.continueUnit() ;
+						isession.continueUnit() ;
 					} 
 				}
 				reader.close() ;

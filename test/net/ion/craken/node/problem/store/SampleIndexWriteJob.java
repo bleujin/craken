@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
@@ -28,7 +28,7 @@ public class SampleIndexWriteJob implements IndexJob<Void> {
 		String[] line = reader.readLine();
 		while (line != null && line.length > 0 && max-- > 0) {
 			// if (headers.length != line.length ) continue ;
-			WriteDocument wdoc = MyDocument.newDocument("/try2/" + max);
+			WriteDocument wdoc = isession.newDocument("/try2/" + max);
 			for (int ii = 0, last = headers.length; ii < last; ii++) {
 				if (line.length > ii)
 					wdoc.keyword(headers[ii], line[ii]);

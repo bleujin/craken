@@ -6,7 +6,7 @@ import java.io.FileReader;
 
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
-import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.SearchConstant;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
@@ -66,7 +66,7 @@ public class TestLuceneLocal extends TestCase {
 			central.newIndexer().index(new IndexJob<Void>(){
 				@Override
 				public Void handle(IndexSession isession) throws Exception {
-					WriteDocument wdoc = MyDocument.newDocument("/try2/" + amax);
+					WriteDocument wdoc = isession.newDocument("/try2/" + amax);
 					for (int ii = 0, last = headers.length; ii < last; ii++) {
 						if (aline.length > ii)
 							wdoc.keyword(headers[ii], aline[ii]);

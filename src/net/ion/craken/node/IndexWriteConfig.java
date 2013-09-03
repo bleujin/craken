@@ -12,8 +12,12 @@ public class IndexWriteConfig {
 		UNKNOWN, IGNORE, KEYWORD, NUMBER, DATETIME, TEXT
 	}
 	
-	private Map<String, FieldIndex> fieldIndexes = MapUtil.newMap() ;  
+	private Map<String, FieldIndex> fieldIndexes = MapUtil.newMap() ;
+	private boolean ignoreBody;  
 
+	
+	public final static IndexWriteConfig Default = new IndexWriteConfig() ;
+	
 	
 	public IndexWriteConfig ignore(String... fields){
 		for (String field : fields) {
@@ -44,6 +48,13 @@ public class IndexWriteConfig {
 		return this ;
 	}
 
+	public IndexWriteConfig date(String... fields) {
+		for (String field : fields) {
+			fieldIndexes.put(field, FieldIndex.DATETIME) ;
+		}
+		return this ;
+	}
+
 
 	
 	public PropertyId fieldIndexTo(PropertyId pid){
@@ -52,6 +63,13 @@ public class IndexWriteConfig {
 		return pid ;
 	}
 
+	public IndexWriteConfig ignoreBodyField(){
+		this.ignoreBody = true ;
+		return this ;
+	}
 
+	public boolean isIgnoreBodyField(){
+		return ignoreBody ;
+	}
 
 }

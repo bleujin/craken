@@ -3,12 +3,11 @@ package net.ion.craken.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.ion.craken.io.GridBlob.Metadata;
+
 import org.infinispan.Cache;
 
-/**
- * @author Bela Ban
- * @author Marko Luksa
- */
+
 public class GridOutputStream extends OutputStream {
 
 	private int index; // index into the file for writing
@@ -17,14 +16,14 @@ public class GridOutputStream extends OutputStream {
 	private int numberOfChunksWhenOpened;
 
 	private FileChunkMapper fileChunkMapper;
-	private GridFile file;
+	private GridBlob gblob;
 	private boolean closed;
 
-	GridOutputStream(GridFile file, boolean append, Cache<String, byte[]> cache) {
-		fileChunkMapper = new FileChunkMapper(file, cache);
-		this.file = file;
+	GridOutputStream(GridBlob gblob, boolean append, Cache<String, byte[]> cache) {
+		fileChunkMapper = new FileChunkMapper(gblob, cache);
+		this.gblob = gblob;
 
-		index = append ? (int) file.length() : 0;
+		index = append ? (int) gblob.length() : 0; 
 		localIndex = index % getChunkSize();
 		currentBuffer = append && !isLastChunkFull() ? fetchLastChunk() : createEmptyChunk();
 
@@ -35,8 +34,12 @@ public class GridOutputStream extends OutputStream {
 		return new byte[getChunkSize()];
 	}
 
+	public Metadata metadata(){
+		return gblob.getMetadata() ;
+	}
+	
 	private boolean isLastChunkFull() {
-		long bytesRemainingInLastChunk = file.length() % getChunkSize();
+		long bytesRemainingInLastChunk = gblob.length() % getChunkSize();
 		return bytesRemainingInLastChunk == 0;
 	}
 
@@ -54,7 +57,7 @@ public class GridOutputStream extends OutputStream {
 	}
 
 	private int getLastChunkNumber() {
-		return getChunkNumber((int) file.length() - 1);
+		return getChunkNumber((int) gblob.length() - 1);
 	}
 
 	@Override
@@ -129,7 +132,7 @@ public class GridOutputStream extends OutputStream {
 	@Override
 	public void flush() throws IOException {
 		storeChunk();
-		file.setLength(index);
+		gblob.setLength(index);
 	}
 
 	private void storeChunk() {
@@ -150,6 +153,8 @@ public class GridOutputStream extends OutputStream {
 
 	private int getChunkSize() {
 		return fileChunkMapper.getChunkSize();
+//		final int result = fileChunkMapper.getChunkSize();
+//		return result == 0 ? GridFilesystem.DefaultChunkSize : result;
 	}
 
 }

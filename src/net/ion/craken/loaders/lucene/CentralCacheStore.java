@@ -27,7 +27,6 @@ import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.MyDocument;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.common.WriteDocument;
@@ -39,8 +38,6 @@ import net.ion.nsearcher.search.SearchResponse;
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.SegmentInfos;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.TermQuery;
@@ -142,12 +139,16 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		// return true ;
 	}
 
-	private ArrayBlockingQueue<Modification> queue = new ArrayBlockingQueue<Modification>(100000);
+	private ArrayBlockingQueue<Modification> queue = new ArrayBlockingQueue<Modification>(200000);
 	volatile boolean runningIndex = false ;
 	private long lastSyncModified = 0L;
+	
+	private long sum = 0L ;
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
 		
 		try {
+			long start = System.currentTimeMillis() ;
+			
 			if (mods.size() <= 1) {
 				for (Modification modification : mods) {
 					queue.put(modification);
@@ -158,9 +159,12 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				
 			} else {
 				LinkedBlockingQueue<Modification> groupQueue = new LinkedBlockingQueue<Modification>();
-				groupQueue.addAll(extractModiEvent(mods)) ;
+				final List<? extends Modification> extractList = extractModiEvent(mods);
+				groupQueue.addAll(extractList) ;
 				sche.submit(new IndexCallable(this, groupQueue)).get() ;
+//				Debug.line(sum, extractList.size()) ;
 			}
+			sum += System.currentTimeMillis() - start ;
 		} catch (ExecutionException e) {
 			throw new CacheLoaderException(e.getCause()) ;
 		} catch (InterruptedException e) {
@@ -179,36 +183,40 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	}
 
 	@Override
-	public void store(InternalCacheEntry entry) throws CacheLoaderException {
-		TreeNodeKey key = (TreeNodeKey) entry.getKey();
-		final WriteDocument doc = toWriteDocument(key, entry);
-		if (doc == null)
-			return;
+	public void store(final InternalCacheEntry entry) throws CacheLoaderException {
+		final TreeNodeKey key = (TreeNodeKey) entry.getKey();
 		central.newIndexer().index(new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
+				isession.setIgnoreBody(key.isIgnoreBodyField()) ;
+				final WriteDocument doc = toWriteDocument(isession, key, entry);
+				if (doc == null)
+					return null;
 				isession.updateDocument(doc);
 				return null;
 			}
 		});
 	}
 
-	WriteDocument toWriteDocument(TreeNodeKey key, InternalCacheEntry entry) {
+	WriteDocument toWriteDocument(IndexSession isession, TreeNodeKey key, InternalCacheEntry entry) {
 		if (key.getType() != Type.DATA)
 			return null;
 
 		AtomicMap value = (AtomicMap) entry.getValue();
 
-		final WriteDocument doc = MyDocument.newDocument(key.idString());
+		final WriteDocument doc = isession.newDocument(key.idString());
 
+		return toWriteDoc(key, value, doc);
+	}
+
+	public static WriteDocument toWriteDoc(TreeNodeKey key, AtomicMap value, final WriteDocument doc) {
 		JsonObject jobj = new JsonObject();
 		jobj.addProperty(DocEntry.ID, key.idString());
 //		jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
 		jobj.add(DocEntry.PROPS, fromMapToJson(doc, key, value));
 
 		doc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
-		
-		return doc;
+		return doc ;
 	}
 
 	private final static JsonObject fromMapToJson(WriteDocument doc, TreeNodeKey key, Map valueMap) {
@@ -222,15 +230,14 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		} else {
 			JsonObject jso = new JsonObject();
 			AtomicMap<PropertyId, PropertyValue> propertyMap = (AtomicMap<PropertyId, PropertyValue>) valueMap;
-			String parentPath = key.getFqn().isRoot() ? "" : key.getFqn().getParent().toString();
+			String parentPath = key.getFqn().isRoot() ? "" : (key.getFqn().getParent().toString());
 			doc.keyword(DocEntry.PARENT, parentPath);
 			doc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis()) ;
 
 			for (Entry<PropertyId, PropertyValue> entry : propertyMap.entrySet()) {
 				final PropertyId pid = entry.getKey();
-				final String pstring = pid.idString(); // if type == refer, @
 				final PropertyValue pvalue = entry.getValue();
-				jso.add(pstring, pvalue.asJsonArray());
+				jso.add(pid.idString(), pvalue.asJsonArray());  // if type == refer, @
 
 				pid.indexTo(doc, pvalue) ;
 				
@@ -367,6 +374,7 @@ class IndexCallable implements Callable<Integer>{
 		Integer indexedCount = parent.central().newIndexer().index(new IndexJob<Integer>() {
 			@Override
 			public Integer handle(IndexSession isession) throws Exception {
+				
 				int count = 0;
 				while(queue.size() > 0) {
 					count++;
@@ -375,7 +383,9 @@ class IndexCallable implements Callable<Integer>{
 					case STORE:
 						Store s = (Store) m;
 						TreeNodeKey forStoreKey = (TreeNodeKey) s.getStoredEntry().getKey() ;
-						final WriteDocument doc = parent.toWriteDocument(forStoreKey, s.getStoredEntry());
+						isession.setIgnoreBody(forStoreKey.isIgnoreBodyField()) ;
+						
+						final WriteDocument doc = parent.toWriteDocument(isession, forStoreKey, s.getStoredEntry());
 						if (doc == null)
 							break;
 						if (forStoreKey.action() == Action.CREATE) 

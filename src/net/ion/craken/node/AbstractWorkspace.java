@@ -2,15 +2,15 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import net.ion.craken.io.BlobProxy;
+import net.ion.craken.io.GridBlob;
+import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.WritableGridBlob;
+import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
 import net.ion.framework.schedule.IExecutor;
@@ -22,13 +22,15 @@ import org.infinispan.loaders.AbstractCacheStoreConfig;
 public abstract class AbstractWorkspace implements Workspace {
 
 	private Repository repository;
+	private GridFilesystem gfs;
+	private TreeCache treeCache;
 	private Central central;
 	private String wsName;
-	private TreeCache treeCache;
 	private AbstractCacheStoreConfig config;
 
-	protected AbstractWorkspace(Repository repository, TreeCache treeCache, String wsName, AbstractCacheStoreConfig config) {
+	protected AbstractWorkspace(Repository repository, GridFilesystem gfs, TreeCache treeCache, String wsName, AbstractCacheStoreConfig config) {
 		this.repository = repository;
+		this.gfs = gfs ;
 		this.wsName = wsName;
 		this.treeCache = treeCache;
 		this.config = config ;
@@ -58,28 +60,30 @@ public abstract class AbstractWorkspace implements Workspace {
 		treeCache.stop();
 	}
 	
-	public TreeNode createNode(Fqn fqn){
-		try {
-			beginTran() ;
-			return treeCache.createWith(fqn) ;
-		} finally {
-			endTran() ;
-		}
+	public TreeNode createNode(IndexWriteConfig iwconfig, Fqn fqn){
+		return treeCache.createWith(iwconfig, fqn) ; 
+//		try {
+//			beginTran() ;
+//			return treeCache.createWith(fqn) ;
+//		} finally {
+//			endTran() ;
+//		}
 	}
 	
-	public TreeNode resetNode(Fqn fqn){
-		try {
-			beginTran() ;
-			return treeCache.resetWith(fqn) ;
-		} finally {
-			endTran() ;
-		}
+	public TreeNode resetNode(IndexWriteConfig iwconfig, Fqn fqn){
+		return treeCache.resetWith(iwconfig, fqn) ;
+//		try {
+//			beginTran() ;
+//			return treeCache.resetWith(fqn) ;
+//		} finally {
+//			endTran() ;
+//		}
 	}
 
-	public TreeNode pathNode(Fqn fqn) {
+	public TreeNode pathNode(IndexWriteConfig iwconfig, Fqn fqn) {
 		try {
 			beginTran();
-			return treeCache.mergeWith(fqn) ;
+			return treeCache.mergeWith(iwconfig, fqn) ;
 		} finally {
 			endTran();
 		}
@@ -119,9 +123,36 @@ public abstract class AbstractWorkspace implements Workspace {
 				}
 
 			}
-
 		});
 	}
+
+	public <T> Future<T> dump(final DumpSession dsession, final DumpJob<T> tjob, final TranExceptionHandler ehandler) {
+		final AbstractWorkspace workspace = this;
+		return repository.executor().submitTask(new Callable<T>() {
+
+			@Override
+			public T call() throws Exception {
+				try {
+					dsession.beginTran();
+					T result = tjob.handle(dsession);
+					
+					return result;
+				} catch (Throwable ex) {
+					// ex.printStackTrace() ;
+					dsession.failRollback();
+					if (ehandler == null)
+						if (ex instanceof Exception) throw (Exception)ex ; else throw new Exception(ex);
+
+					ehandler.handle(dsession, ex);
+					return null;
+				} finally {
+					dsession.endCommit();
+				}
+
+			}
+		});
+	}
+
 
 	private void failEndTran() {
 		treeCache.failEnd();
@@ -162,11 +193,10 @@ public abstract class AbstractWorkspace implements Workspace {
 		treeCache.cache().removeListener(listener);
 	}
 
-	public BlobProxy blob(String fqnPath, InputStream input) throws IOException {
-		OutputStream output = treeCache.gfs().getOutput(fqnPath);
-		IOUtil.copyNClose(input, output);
-
-		return BlobProxy.create(fqnPath);
+	public Metadata writeBlob(String fqnPath, Metadata meta, InputStream input) throws IOException {
+		WritableGridBlob gblob = gfs.getWritableGridBlob(fqnPath, meta);
+		IOUtil.copyNClose(input, gblob.outputStream());
+		return gblob.getMetadata() ;
 	}
 
 	@Override
@@ -174,6 +204,11 @@ public abstract class AbstractWorkspace implements Workspace {
 		return repository.central(wsName) ;
 	}
 
+	@Override
+	public GridFilesystem gfs(){
+		return gfs ;
+	}
+	
 	public IExecutor executor() {
 		return repository.executor();
 	}

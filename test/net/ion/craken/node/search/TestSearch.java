@@ -1,16 +1,11 @@
 package net.ion.craken.node.search;
 
 
-import java.util.List;
-
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.convert.Predicates;
 import net.ion.craken.node.crud.ChildQueryResponse;
-import net.ion.craken.node.crud.util.ResponsePredicate;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 public class TestSearch extends TestBaseSearch {

@@ -127,7 +127,7 @@ public class TestStoreSearch extends TestCase {
 
 	
 	public void testSort() throws Exception {
-		ChildQueryResponse response = session.pathBy("/bleujin").childQuery("").skip(5).offset(5).descending("dummy").find();
+		ChildQueryResponse response = session.pathBy("/bleujin").childQuery("").skip(5).offset(5).descending("dummy _number").find();
 		List<ReadNode> list = response.toList();
 		assertEquals(5, list.size()) ;
 		assertEquals("/bleujin/14", list.get(0).fqn().toString()) ;

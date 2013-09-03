@@ -1,5 +1,7 @@
 package net.ion.craken.tree;
 
+import net.ion.craken.node.IndexWriteConfig;
+
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.AtomicMapLookup;
@@ -29,14 +31,18 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	 * @return true if created, false if this was not necessary
 	 */
 	protected boolean mergeAncestor(Fqn fqn) {
-		TreeNodeKey dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA);
+		return mergeAncestor(IndexWriteConfig.Default, fqn);
+	}
+
+	protected boolean mergeAncestor(IndexWriteConfig iwconfig, Fqn fqn) {
+		TreeNodeKey dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).setIgnoreBodyField(iwconfig.isIgnoreBodyField());
 		if (cache.containsKey(dataKey))
 			return false;
 
 		if (!fqn.isRoot()) {
 			Fqn parent = fqn.getParent();
 			if (!exists(parent))
-				mergeAncestor(parent);
+				mergeAncestor(iwconfig, parent);
 			AtomicMap<Object, Fqn> parentStructure = getStructure(parent);
 			parentStructure.put(fqn.getLastElement(), fqn);
 		}

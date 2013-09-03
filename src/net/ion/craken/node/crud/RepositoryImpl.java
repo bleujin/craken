@@ -1,38 +1,36 @@
 package net.ion.craken.node.crud ;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import net.ion.craken.loaders.FastFileCacheStore;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.lucene.CentralCacheStore;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.loaders.lucene.SearcherCacheStore;
 import net.ion.craken.node.AbstractWorkspace;
 import net.ion.craken.node.Credential;
+import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeCacheFactory;
 import net.ion.framework.logging.LogBroker;
 import net.ion.framework.schedule.IExecutor;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.nsearcher.common.SearchConstant;
 import net.ion.nsearcher.config.Central;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
+import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -42,8 +40,6 @@ import org.infinispan.loaders.CacheLoaderManager;
 import org.infinispan.loaders.CacheStore;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.manager.DefaultCacheManager;
-
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 public class RepositoryImpl implements Repository{
 	
@@ -98,8 +94,9 @@ public class RepositoryImpl implements Repository{
 	public long lastSyncModified() throws IOException{
 		long lastSycnModifiedInAllCache = 0L ;
 		for(AbstractWorkspace ws : wss.values()){
-			CacheStore store = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
-			if (store == null || (! (store instanceof SearcherCacheStore))) continue ;
+			final CacheLoaderManager component = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class);
+			if (component == null) return 0L ;
+			CacheStore store = component.getCacheStore();
 			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
 			lastSycnModifiedInAllCache = Math.max(cacheStore.lastSyncModified(), lastSycnModifiedInAllCache) ;
 		}
@@ -108,7 +105,9 @@ public class RepositoryImpl implements Repository{
 
 	public void lastSyncModified(long lastSyncModified) throws IOException{
 		for(AbstractWorkspace ws : wss.values()){
-			CacheStore store = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
+			final CacheLoaderManager component = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class);
+			if (component == null) return ;
+			CacheStore store = component.getCacheStore();
 			if (store == null || (! (store instanceof SearcherCacheStore))) continue ;
 			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
 			cacheStore.lastSyncModified(lastSyncModified) ;
@@ -192,10 +191,12 @@ public class RepositoryImpl implements Repository{
 		if (wss.containsKey(wsName)){
 			return wss.get(wsName) ;
 		} else {
-			CentralCacheStoreConfig config = configs.get(wsName);
+			final TreeCache treeCache = TreeCacheFactory.createTreeCache(this, dm, wsName);
+			GridFilesystem gfs = new GridFilesystem(dm.<String, byte[]>getCache(wsName + ".blobdata")) ;
+			
+			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, gfs, treeCache, wsName, configs.get(wsName));
 
-			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, treeCache(wsName), wsName, ObjectUtil.coalesce(configs.get(wsName), config));
-			newWorkspace.pathNode(Fqn.ROOT) ;
+			newWorkspace.pathNode(IndexWriteConfig.Default, Fqn.ROOT) ;
 			wss.put(wsName, newWorkspace) ;
 			
 			return wss.get(wsName) ;
@@ -210,9 +211,6 @@ public class RepositoryImpl implements Repository{
 		return cacheStore.central() ;
 	}
 
-	private TreeCache treeCache(String cacheName) {
-		return TreeCacheFactory.createTreeCache(this, dm, cacheName) ;
-	}
 
 	public Repository defineWorkspace(String wsName, CentralCacheStoreConfig config) {
 		configs.put(wsName, config) ;
@@ -230,11 +228,11 @@ public class RepositoryImpl implements Repository{
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 
-		defineConfig(wsName + ".blobmeta",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
-				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location())
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-			
+//		defineConfig(wsName + ".blobmeta",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
+//				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
+//				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location())
+//				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
+//			
 		
 		log.info(wsName + " created") ;
 		return this ;

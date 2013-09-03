@@ -1,22 +1,19 @@
 package net.ion.craken.io;
 
+
 import org.infinispan.Cache;
 import org.jgroups.logging.Log;
 import org.jgroups.logging.LogFactory;
 
-/**
- * Takes care of properly storing and retrieving file chunks from/to cache. Each chunk's key is composed of the file path and the chunk's number. The value is a byte array, which is either chunkSize bytes long or less than that in the case of the last chunk.
- * 
- * @author Marko Luksa
- */
+
 class FileChunkMapper {
 
 	private static final Log log = LogFactory.getLog(FileChunkMapper.class);
 
-	private final GridFile file;
+	private final GridBlob file;
 	private final Cache<String, byte[]> cache;
 
-	public FileChunkMapper(GridFile file, Cache<String, byte[]> cache) {
+	public FileChunkMapper(GridBlob file, Cache<String, byte[]> cache) {
 		this.file = file;
 		this.cache = cache;
 	}

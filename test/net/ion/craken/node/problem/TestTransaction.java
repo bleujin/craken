@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.DefaultTranExceptionHandler;
 import net.ion.craken.node.crud.TestBaseCrud;
 
 public class TestTransaction  extends TestBaseCrud {
@@ -50,7 +51,7 @@ public class TestTransaction  extends TestBaseCrud {
 				wsession.pathBy("/bleujin").clear() ;
 				throw new IllegalArgumentException("fail") ;
 			}
-		}, new TranExceptionHandler() {
+		}, new DefaultTranExceptionHandler() {
 			@Override
 			public void handle(WriteSession tsession, Throwable ex) {
 				latch.countDown();
@@ -68,7 +69,7 @@ public class TestTransaction  extends TestBaseCrud {
 				wsession.pathBy("/jin").property("name", "beujin");
 				throw new IllegalArgumentException("fail") ;
 			}
-		}, new TranExceptionHandler() {
+		}, new DefaultTranExceptionHandler() {
 			@Override
 			public void handle(WriteSession tsession, Throwable ex) {
 				// 
@@ -86,7 +87,7 @@ public class TestTransaction  extends TestBaseCrud {
 				wsession.pathBy("/jin").property("name", "beujin");
 				throw new IllegalArgumentException("fail") ;
 			}
-		}, new TranExceptionHandler() {
+		}, new DefaultTranExceptionHandler() {
 			@Override
 			public void handle(WriteSession tsession, Throwable ex) {
 				// 

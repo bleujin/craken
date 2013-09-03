@@ -9,7 +9,7 @@ import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
-import net.ion.nsearcher.common.MyDocument;
+import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
@@ -135,7 +135,7 @@ class CentralIndexJob implements Callable<Void> {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
 				for (int i = 0; i < 3; i++) {
-					WriteDocument doc = MyDocument.testDocument();
+					WriteDocument doc = isession.newDocument();
 					doc.add(MyField.keyword("name", "bleujin")) ;
 					isession.insertDocument(doc) ;
 				}

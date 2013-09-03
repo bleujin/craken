@@ -4,6 +4,7 @@ package net.ion.craken.tree;
 import java.util.Map;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.exception.NodeNotExistsException;
 
 import org.infinispan.AdvancedCache;
@@ -20,7 +21,7 @@ public class TreeCache extends TreeStructureSupport {
 	private static final Log log = LogFactory.getLog(TreeCache.class);
 	private static final boolean trace = log.isTraceEnabled();
 
-	private GridFilesystem gfs ;
+//	private GridFilesystem gfs ;
 	public TreeCache(Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, GridFilesystem gfs) {
 		this(cache.getAdvancedCache(), gfs);
 	}
@@ -29,37 +30,40 @@ public class TreeCache extends TreeStructureSupport {
 		super(cache, cache.getBatchContainer());
 		if (cache.getCacheConfiguration().indexing().enabled())
 			throw new ConfigurationException("TreeCache cannot be used with a Cache instance configured to use indexing!");
-		this.gfs = gfs ;
 		assertBatchingSupported(cache.getCacheConfiguration());
 		createRoot();
 	}
 
 	public TreeNode getRoot() {
-		return createTreeNode(Fqn.ROOT, gfs, batchContainer);
+		return createTreeNode(Fqn.ROOT, batchContainer);
 	}
-
-	public TreeNode createWith(Fqn fqn){
-		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).createAction(), new AtomicHashMap<PropertyId, PropertyValue>()) ;
+	
+	public TreeNode createWith(IndexWriteConfig iwconfig, Fqn fqn){
+		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).createAction().setIgnoreBodyField(iwconfig.isIgnoreBodyField()), new AtomicHashMap<PropertyId, PropertyValue>()) ;
 		
 		if (log.isTraceEnabled()) log.tracef("Created node %s", fqn);
-		return new TreeNode(fqn, gfs, cache, batchContainer) ;
+		return new TreeNode(fqn, cache, batchContainer) ;
 	}
-	
-	public TreeNode resetWith(Fqn fqn){
-		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).resetAction(), new AtomicHashMap<PropertyId, PropertyValue>()) ;
+
+	public TreeNode resetWith(IndexWriteConfig iwconfig, Fqn fqn){
+		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).resetAction().setIgnoreBodyField(iwconfig.isIgnoreBodyField()), new AtomicHashMap<PropertyId, PropertyValue>()) ;
 		
 		if (log.isTraceEnabled()) log.tracef("Reset node %s", fqn);
-		return new TreeNode(fqn, gfs, cache, batchContainer) ;
+		return new TreeNode(fqn, cache, batchContainer) ;
 	}
-	
-	public TreeNode mergeWith(Fqn fqn) {
-		mergeAncestor(fqn) ;
+
+	public TreeNode mergeWith(IndexWriteConfig iwconfig, Fqn fqn) {
+		mergeAncestor(iwconfig, fqn) ;
 		
 		if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
-		return new TreeNode(fqn, gfs, cache, batchContainer);
+		return new TreeNode(fqn, cache, batchContainer);
 	}
 
 
+	
+	
+	
+	
 	public AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache(){
 		return cache.getAdvancedCache() ;
 	}
@@ -93,16 +97,16 @@ public class TreeCache extends TreeStructureSupport {
 
 	private TreeNode getNode(Fqn fqn) {
 		if (exists(fqn))
-			return createTreeNode(fqn, gfs, batchContainer);
+			return createTreeNode(fqn, batchContainer);
 		else
 			return null;
 	}
 
-	private TreeNode createTreeNode(Fqn fqn, GridFilesystem gfs, BatchContainer batchContainer) {
-		return new TreeNode(fqn, gfs, cache, batchContainer);
+	private TreeNode createTreeNode(Fqn fqn, BatchContainer batchContainer) {
+		return new TreeNode(fqn, cache, batchContainer);
 	}
 
-	public void move(Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
+	public void move(GridFilesystem gfs, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
 		if (trace) log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
 		if (nodeToMoveFqn == null || newParentFqn == null)
 			throw new NullPointerException("Cannot accept null parameters!");
@@ -138,14 +142,14 @@ public class TreeCache extends TreeStructureSupport {
 			Fqn newFqn = Fqn.fromRelativeElements(newParentFqn, nodeToMoveFqn.getLastElement());
 			mergeAncestor(newFqn);
 			TreeNode newNode = getNode(newFqn);
-			Map<PropertyId, PropertyValue> oldData = nodeToMove.getData();
+			Map<PropertyId, PropertyValue> oldData = nodeToMove.getData(gfs);
 			if (oldData != null && !oldData.isEmpty())
 				newNode.putAll(oldData);
 			for (Object child : nodeToMove.getChildrenNames()) {
 				// move kids
 				if (trace) log.tracef("Moving child %s", child);
 				Fqn oldChildFqn = Fqn.fromRelativeElements(nodeToMoveFqn, child);
-				move(oldChildFqn, newFqn);
+				move(gfs, oldChildFqn, newFqn);
 			}
 			removeNode(nodeToMoveFqn);
 			success = true;
@@ -176,7 +180,4 @@ public class TreeCache extends TreeStructureSupport {
 		return cache.toString();
 	}
 
-	public GridFilesystem gfs() {
-		return gfs;
-	}
 }

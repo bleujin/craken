@@ -19,13 +19,12 @@ import org.infinispan.util.Util;
 
 public class TreeNode extends TreeStructureSupport {
 
-	private GridFilesystem gfs ;
 	private Fqn fqn;
 	private TreeNodeKey dataKey, structureKey;
+	private Map<PropertyId, PropertyValue> values = null ;
 
-	public TreeNode(Fqn fqn, GridFilesystem gfs, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, BatchContainer batchContainer) {
+	public TreeNode(Fqn fqn, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, BatchContainer batchContainer) {
 		super(cache, batchContainer) ;
-		this.gfs = gfs ;
 		this.fqn = fqn;
 		this.dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA);
 		this.structureKey = new TreeNodeKey(fqn, TreeNodeKey.Type.STRUCTURE);
@@ -35,13 +34,13 @@ public class TreeNode extends TreeStructureSupport {
 	public TreeNode getParent() {
 		if (fqn.isRoot())
 			return this;
-		return new TreeNode(fqn.getParent(), gfs, cache, batchContainer);
+		return new TreeNode(fqn.getParent(), cache, batchContainer);
 	}
 
 	public Set<TreeNode> getChildren() {
 		Set<TreeNode> result = new HashSet<TreeNode>();
 		for (Fqn f : getStructure(structureKey).values()) {
-			result.add(new TreeNode(f, gfs, cache, batchContainer));
+			result.add(new TreeNode(f, cache, batchContainer));
 		}
 		return Immutables.immutableSetWrap(result);
 	}
@@ -50,12 +49,15 @@ public class TreeNode extends TreeStructureSupport {
 		return Immutables.immutableSetCopy(getStructure(structureKey).keySet());
 	}
 
-	public Map<PropertyId, PropertyValue> getData() {
-		return Collections.unmodifiableMap(new ReadMap(gfs, getDataInternal()));
+	public Map<PropertyId, PropertyValue> getData(GridFilesystem gfs) {
+		if (values == null){
+			values = Collections.unmodifiableMap(new ReadMap(gfs, getDataInternal()));
+		}
+		return values ;
 	}
 
-	public Set<PropertyId> getKeys() {
-		return getData().keySet();
+	public Set<PropertyId> getKeys(GridFilesystem gfs) {
+		return getData(gfs).keySet();
 	}
 
 	public Fqn getFqn() {
@@ -75,7 +77,7 @@ public class TreeNode extends TreeStructureSupport {
 		// 2) then create the structure and data maps
 		mergeAncestor(absoluteChildFqn);
 
-		return new TreeNode(absoluteChildFqn, gfs, cache, batchContainer);
+		return new TreeNode(absoluteChildFqn, cache, batchContainer);
 	}
 
 	public boolean removeChild(Fqn f) {
@@ -86,7 +88,7 @@ public class TreeNode extends TreeStructureSupport {
 		AtomicMap<Object, Fqn> s = getStructure(structureKey);
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
-			TreeNode child = new TreeNode(childFqn, gfs, cache, batchContainer);
+			TreeNode child = new TreeNode(childFqn, cache, batchContainer);
 			child.removeChildren();
 			child.clearData(); // this is necessary in case we have a remove and then an add on the same node, in the same tx.
 			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.DATA));
@@ -99,7 +101,7 @@ public class TreeNode extends TreeStructureSupport {
 	
 	public TreeNode getChild(Fqn f) {
 		if (hasChild(f))
-			return new TreeNode(Fqn.fromRelativeFqn(fqn, f), gfs, cache, batchContainer);
+			return new TreeNode(Fqn.fromRelativeFqn(fqn, f), cache, batchContainer);
 		else
 			return null;
 	}
@@ -146,8 +148,8 @@ public class TreeNode extends TreeStructureSupport {
 		data.putAll(map);
 	}
 
-	public PropertyValue get(PropertyId key) {
-		return getData().get(key);
+	public PropertyValue get(GridFilesystem gfs, PropertyId key) {
+		return getData(gfs).get(key);
 	}
 
 	public PropertyValue remove(PropertyId key) {
@@ -158,7 +160,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public int dataSize() {
-		return getData().size();
+		return getDataInternal().size();
 	}
 
 	public boolean hasChild(Fqn f) {
@@ -211,6 +213,11 @@ public class TreeNode extends TreeStructureSupport {
 	public String toString() {
 		return "TreeNode{" + "fqn=" + fqn + '}';
 	}
+
+	public TreeNode setIgnoreBodyField(boolean ignoreBodyField) {
+		dataKey.setIgnoreBodyField(ignoreBodyField) ;
+		return this ;
+	}
 	
 }
 
@@ -219,7 +226,7 @@ public class TreeNode extends TreeStructureSupport {
 
 class ReadMap implements Map<PropertyId, PropertyValue>{
 
-	private final GridFilesystem gfs ;
+	private GridFilesystem gfs ;
 	private final Map<PropertyId, PropertyValue> internal ; 
 	public ReadMap(GridFilesystem gfs, AtomicMap<PropertyId, PropertyValue> internal) {
 		this.gfs = gfs ;

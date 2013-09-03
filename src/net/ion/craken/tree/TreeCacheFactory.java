@@ -1,16 +1,12 @@
 package net.ion.craken.tree;
 
-import net.ion.craken.io.GridFile;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.Repository;
-import net.ion.craken.node.crud.RepositoryListener;
 
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.config.ConfigurationException;
 import org.infinispan.manager.DefaultCacheManager;
-
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 
 public class TreeCacheFactory {
@@ -30,9 +26,7 @@ public class TreeCacheFactory {
 		
 //		cache.addListener(repository.listener()) ;
 		Cache<String, byte[]> blobdata = cache.getCacheManager().getCache(cacheName + ".blobdata") ;
-		Cache<String, GridFile.Metadata> blobmeta = cache.getCacheManager().getCache(cacheName + ".blobmeta") ;
 
-
-		return new TreeCache(cache, new GridFilesystem(blobdata, blobmeta));
+		return new TreeCache(cache, new GridFilesystem(blobdata));
 	}
 }

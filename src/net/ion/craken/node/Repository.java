@@ -1,14 +1,12 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
-import java.util.Set;
 
 import net.ion.craken.node.crud.RepositoryListener;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.nsearcher.config.Central;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.CorruptIndexException;
 
 public interface Repository {
 

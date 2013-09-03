@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 
+
 import org.infinispan.Cache;
 
 /**
@@ -21,7 +22,7 @@ public class ReadableGridFileChannel implements ReadableByteChannel {
 	private FileChunkMapper fileChunkMapper;
 	private long fileLength;
 
-	ReadableGridFileChannel(GridFile file, Cache<String, byte[]> cache) {
+	ReadableGridFileChannel(GridBlob file, Cache<String, byte[]> cache) {
 		fileChunkMapper = new FileChunkMapper(file, cache);
 		fileLength = (int) file.length();
 	}

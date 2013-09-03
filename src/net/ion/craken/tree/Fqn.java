@@ -8,9 +8,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ObjectUtil;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.infinispan.marshall.AbstractExternalizer;
 import org.infinispan.util.ReflectionUtil;
 import org.infinispan.util.Util;
@@ -328,7 +335,19 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return ObjectUtil.toString(getLastElement()) ;
 	}
 
-	public String startWith() {
+	private String startWith() {
 		return isRoot() ? "/*" : toString() + "/*";
 	}
+
+	public Query childrenQuery() {
+		BooleanQuery result = new BooleanQuery();
+		result.add(new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())), Occur.SHOULD) ;
+		result.add(new TermQuery(new Term(DocEntry.PARENT, this.toString())), Occur.SHOULD) ;
+		return result ;
+//		return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
+	}
+	
 }
+
+
+

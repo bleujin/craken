@@ -3,12 +3,10 @@ package net.ion.craken.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+
 import org.infinispan.Cache;
 
-/**
- * @author Bela Ban
- * @author Marko Luksa
- */
+
 public class GridInputStream extends InputStream {
 
 	private int index = 0; // index into the file for writing
@@ -18,7 +16,7 @@ public class GridInputStream extends InputStream {
 	private boolean closed = false;
 	private FileChunkMapper fileChunkMapper;
 
-	GridInputStream(GridFile file, Cache<String, byte[]> cache) {
+	GridInputStream(GridBlob file, Cache<String, byte[]> cache) {
 		fileChunkMapper = new FileChunkMapper(file, cache);
 	}
 
@@ -129,5 +127,6 @@ public class GridInputStream extends InputStream {
 
 	private int getChunkSize() {
 		return fileChunkMapper.getChunkSize();
+//		return result == 0 ? GridFilesystem.DefaultChunkSize : result;
 	}
 }

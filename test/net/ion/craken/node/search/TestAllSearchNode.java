@@ -13,6 +13,7 @@ public class TestAllSearchNode extends TestSuite {
 		suite.addTestSuite(TestResponsePredicate.class) ;
 //		suite.addTestSuite(TestReIndex.class) ;
 		suite.addTestSuite(TestSearch.class) ;
+		suite.addTestSuite(TestSearchChild.class) ;
 		suite.addTestSuite(TestStoreSearch.class) ;
 		
 		

@@ -13,7 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import net.ion.craken.io.BlobProxy;
+import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadSession;
@@ -42,7 +43,6 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
 
 import com.google.common.base.Function;
 
@@ -94,7 +94,9 @@ public class WriteNodeImpl implements WriteNode{
 	
 
 	public WriteNode property(String key, Object value) {
-		if (value != null && value.getClass().isArray()) {
+		if (value instanceof PropertyValue) {
+			return property(createNormalId(key), (PropertyValue)value) ;
+		} else if (value != null && value.getClass().isArray()) {
 			int length = Array.getLength(value);
 			List list = ListUtil.newList() ;
 			for (int i = 0; i < length; i++) {
@@ -167,7 +169,12 @@ public class WriteNodeImpl implements WriteNode{
 	
 	public WriteNode unset(String key){
 		touch(Touch.MODIFY) ;
-		tree().remove(createNormalId(key)) ;
+		final PropertyId propId = createNormalId(key);
+		
+		PropertyValue pvalue = tree().remove(propId) ;
+//		if (pvalue.isBlob()) {
+//		// @Todo
+//	}
 		return this ;
 	}
 
@@ -189,8 +196,15 @@ public class WriteNodeImpl implements WriteNode{
 
 	public WriteNode blob(String key, InputStream input) {
 		try {
-			BlobProxy blobValue = wsession.workspace().blob(wsession.workspace().wsName() + fqn().toString() + "." + key, input);
-			property(key, blobValue) ;
+			final String path = fqn().toString() + "/" + key;
+			PropertyValue pvalue = property(key) ;
+			Metadata meta = (pvalue == PropertyValue.NotFound) ? Metadata.create(path) : Metadata.loadFromJsonString(pvalue.stringValue()) ;
+
+			wsession.workspace().writeBlob(path, meta, input);
+			
+			property(PropertyId.normal(key), PropertyValue.createPrimitive(meta.asJsonObject().toString())) ;
+			
+//			property(key, path) ;
 		} catch (IOException e) {
 			throw new NodeIOException(e) ;
 		} finally {
@@ -316,17 +330,21 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public WriteNode touch() {
-		Set<PropertyId> keys = tree().getKeys();
+		Set<PropertyId> keys = tree().getKeys(gfs());
 		if (keys.isEmpty()) this.clear() ;
 		else {
 			PropertyId pid = keys.iterator().next();
-			tree().put(pid, tree().get(pid)) ;
+			tree().put(pid, tree().get(gfs(), pid)) ;
 		}
 		
 		touch(Touch.MODIFY) ;
 		return this ;
 	}	
 
+	private GridFilesystem gfs(){
+		return wsession.workspace().gfs() ;
+	}
+	
 	public WriteNode refTos(String refName, String fqn){
 		
 		PropertyId referId = createReferId(refName);
@@ -385,12 +403,9 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public Set<PropertyId> keys(){
-		return tree().getKeys() ;
+		return tree().getKeys(gfs()) ;
 	}
 	
-	public PropertyValue property(String key) {
-		return property(createNormalId(key));
-	}
 	
 	public boolean hasRef(String refName){
 		return keys().contains(createReferId(refName)) ;
@@ -399,17 +414,21 @@ public class WriteNodeImpl implements WriteNode{
 	public boolean hasRef(String refName, Fqn fqn){
 		return property(createReferId(refName)).asSet().contains(fqn.toString()) ;
 	}
-	
+
+	public PropertyValue property(String key) {
+		return property(createNormalId(key));
+	}
+
 	public PropertyValue extendProperty(String propPath) {
 		return ExtendPropertyId.create(propPath).propValue(this) ;
 	}
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(tree().get(gfs(), pid), PropertyValue.NotFound);
 	}
 	
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(tree().getData());
+		return Collections.unmodifiableMap(tree().getData(gfs()));
 	}
 	
 	public Object id(){
@@ -455,11 +474,11 @@ public class WriteNodeImpl implements WriteNode{
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException {
 		if (! includeDecentTree) return childQuery(query) ;
 		
-		if (StringUtil.isBlank(query)) return childQuery(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith()))) ;
+		if (StringUtil.isBlank(query)) return childQuery(this.fqn().childrenQuery()) ;
 		
 		Analyzer analyzer = readSession().queryAnalyzer() ;
 		final ChildQueryRequest result = ChildQueryRequest.create(readSession(), readSession().newSearcher(), session().workspace().central().searchConfig().parseQuery(analyzer, query));
-		result.filter(new QueryWrapperFilter(new WildcardQuery(new Term(DocEntry.PARENT, this.fqn().startWith())))) ;
+		result.filter(new QueryWrapperFilter(this.fqn().childrenQuery())) ;
 		
 		return result;
 	}

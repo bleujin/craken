@@ -39,6 +39,8 @@ public interface NodeCommon<T extends NodeCommon<T>> {
 
 	public PropertyValue property(String key);
 	
+	public PropertyValue property(PropertyId pid) ;
+	
 	public Object id() ;
 
 	Map<PropertyId, PropertyValue> toMap();

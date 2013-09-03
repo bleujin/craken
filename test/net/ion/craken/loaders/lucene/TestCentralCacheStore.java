@@ -1,6 +1,7 @@
 package net.ion.craken.loaders.lucene;
 
 import java.io.File;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
@@ -16,6 +17,7 @@ import net.ion.framework.util.RandomUtil;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;
+import org.infinispan.loaders.modifications.Modification;
 
 
 public class TestCentralCacheStore extends TestCase {
@@ -81,4 +83,6 @@ public class TestCentralCacheStore extends TestCase {
 		
 	}
 
+	
+	
 }

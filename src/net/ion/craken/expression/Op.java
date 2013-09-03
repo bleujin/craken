@@ -2,8 +2,6 @@ package net.ion.craken.expression;
 
 import java.math.BigDecimal;
 
-import org.apache.lucene.search.Filter;
-
 import net.ion.framework.util.ObjectUtil;
 
 

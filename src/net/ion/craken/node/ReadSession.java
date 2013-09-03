@@ -34,6 +34,8 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public <T> T tranSync(TransactionJob<T> tjob) throws Exception;
 
+	public <T> T tranSync(TransactionJob<T> tjob, TranExceptionHandler handler) throws Exception;
+
 	public Workspace workspace();
 
 	public <Ri, Rv, V> Future<V> mapReduce(NodeMapReduce<Ri, Rv> mapper, Function<Map<Ri, Rv>, V> function);
@@ -54,4 +56,6 @@ public interface ReadSession extends ISession<ReadNode> {
 	public Analyzer queryAnalyzer();
 	
 	public ReadSession queryAnayzler(Analyzer analyzer) ;
+
+	public <T> Future<T> dump(DumpJob<T> dumpJob) throws Exception;
 }

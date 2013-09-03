@@ -2,12 +2,9 @@ package net.ion.craken.node.crud;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.node.AbstractReadSession;
 import net.ion.craken.node.Credential;
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
 import net.ion.nsearcher.config.Central;
@@ -41,40 +38,6 @@ public class ReadSessionImpl extends AbstractReadSession{
 	@Override
 	public <T> T indexInfo(IndexInfoHandler<T> indexInfo) {
 		return indexInfo.handle(this, central().newReader());
-	}
-
-	
-	public Future<AtomicInteger> reIndex(final ReadNode top) {
-		throw new UnsupportedOperationException() ;
-		
-//		return central().newIndexer().asyncIndex(new IndexJob<AtomicInteger>() {
-//			private AtomicInteger aint = new AtomicInteger() ;
-//			@Override
-//			public AtomicInteger handle(IndexSession is) throws Exception {
-//				index(is, top) ;
-//				return aint ;
-//			}
-//			
-//			private void index(IndexSession is, ReadNode node) throws IOException{
-//				IteratorList<ReadNode> iter = node.children();
-//				while(iter.hasNext()){
-//					index(is, iter.next()) ;
-//				}
-//				is.updateDocument(makeDocument(node));
-//				aint.incrementAndGet() ;
-//			}
-//			
-//			private WriteDocument makeDocument(ReadNode node){
-//				Fqn fqn = node.fqn() ;
-//				WriteDocument doc = MyDocument.newDocument(fqn.toString());
-//				doc.keyword(NodeCommon.NameProp, fqn.getLastElementAsString());
-//				for (PropertyId nodeKey : node.keys()) {
-//					doc.unknown(nodeKey.getString(), node.property(nodeKey.getString()).value());
-//				}
-//				
-//				return doc ;
-//			}
-//		});
 	}
 
 	public Central central() {
