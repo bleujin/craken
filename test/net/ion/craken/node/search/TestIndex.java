@@ -54,7 +54,6 @@ public class TestIndex extends TestBaseSearch {
 							wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", RandomUtil.nextInt(50));
 							wsession.root().addChild("/hero").property("name", "hero").property("age", 25);
 							wsession.root().addChild("/jin").property("name", "jin").property("age", 30);
-
 							return null;
 						}
 					});
@@ -68,15 +67,15 @@ public class TestIndex extends TestBaseSearch {
 		for (int i : ListUtil.rangeNum(100)) {
 			indexexec.submit(task);
 		}
+		Thread.sleep(500) ;
 
 		for (int i = 0; i < 100; i++) {
 			ReadSession other = r.login("test");
 			ChildQueryResponse response = other.queryRequest("bleujin").find();
 			Debug.line(i, response.size(), response.first());
-			Thread.sleep(10);
 		}
 
-		indexexec.awaitTermination(3, TimeUnit.SECONDS);
+		indexexec.awaitTermination(5, TimeUnit.SECONDS);
 		assertEquals("test", session.workspace().wsName());
 
 	}

@@ -26,7 +26,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 // @Immutable
-public class Fqn implements Comparable<Fqn>, Serializable {
+public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.ReplaceValue<String> {
 
 	private static final long serialVersionUID = 7459897811324670392L;
 	public static final String SEPARATOR = "/";
@@ -37,6 +37,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 	 * Immutable root Fqn.
 	 */
 	public static final Fqn ROOT = new Fqn();
+	public static final Fqn TRANSACTIONS = Fqn.fromString("/__transactions");
 
 	/**
 	 * A cached string representation of this Fqn, used by toString to it isn't calculated again every time.
@@ -69,34 +70,28 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 	// ----------------- END: Private constructors for use by factory methods only. ----------------------
 
-
 	@SuppressWarnings("unchecked")
 	public static Fqn fromList(List<?> names) {
 		return new Fqn(names);
 	}
 
-	
 	public static Fqn fromElements(Object... elements) {
 		Object[] copy = new Object[elements.length];
 		System.arraycopy(elements, 0, copy, 0, elements.length);
 		return new Fqn(copy);
 	}
 
-
 	public static Fqn fromRelativeFqn(Fqn base, Fqn relative) {
 		return new Fqn(base, relative.elements);
 	}
-
 
 	public static Fqn fromRelativeList(Fqn base, List<?> relativeElements) {
 		return new Fqn(base, relativeElements.toArray());
 	}
 
-
 	public static Fqn fromRelativeElements(Fqn base, Object... relativeElements) {
 		return new Fqn(base, relativeElements);
 	}
-
 
 	public static Fqn fromString(String stringRepresentation) {
 		if (stringRepresentation == null || stringRepresentation.equals(SEPARATOR) || stringRepresentation.length() == 0)
@@ -104,17 +99,15 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1) : stringRepresentation;
 		String[] el = toMatch.split(SEPARATOR);
-//		return new Fqn(el) ;
+		// return new Fqn(el) ;
 		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch), String.class));
 	}
-
 
 	public Fqn getAncestor(int generation) {
 		if (generation == 0)
 			return root();
 		return getSubFqn(0, generation);
 	}
-
 
 	public Fqn getSubFqn(int startIndex, int endIndex) {
 		if (endIndex < startIndex)
@@ -125,28 +118,23 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return new Fqn(el);
 	}
 
-
 	public int size() {
 		return elements.length;
 	}
-
 
 	public Object get(int n) {
 		return elements[n];
 	}
 
-
-	public JsonPrimitive toJson(){
-		return new JsonPrimitive(toString()) ;
+	public JsonPrimitive toJson() {
+		return new JsonPrimitive(toString());
 	}
-	
-	
+
 	public Object getLastElement() {
 		if (isRoot())
 			return null;
 		return elements[elements.length - 1];
 	}
-
 
 	public boolean hasElement(Object element) {
 		return indexOf(element) != -1;
@@ -167,7 +155,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return -1;
 	}
 
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -186,7 +173,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return true;
 	}
 
-
 	@Override
 	public int hashCode() {
 		if (hash_code == 0) {
@@ -195,7 +181,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return hash_code;
 	}
 
-
 	@Override
 	public String toString() {
 		if (stringRepresentation == null) {
@@ -203,7 +188,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		}
 		return stringRepresentation;
 	}
-
 
 	public boolean isChildOf(Fqn parentFqn) {
 		return parentFqn.elements.length != elements.length && isChildOrEquals(parentFqn);
@@ -220,7 +204,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return elements.length == parentFqn.elements.length + 1 && isChildOf(parentFqn);
 	}
 
-
 	public boolean isChildOrEquals(Fqn parentFqn) {
 		Object[] parentEl = parentFqn.elements;
 		if (parentEl.length > elements.length) {
@@ -232,7 +215,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		}
 		return true;
 	}
-
 
 	protected int calculateHashCode() {
 		int hashCode = 19;
@@ -255,7 +237,6 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		return builder.length() == 0 ? SEPARATOR : builder.toString();
 	}
 
-
 	public Fqn getParent() {
 		switch (elements.length) {
 		case 0:
@@ -266,16 +247,13 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		}
 	}
 
-	public static Fqn root() // declared final so compilers can optimise and in-line.
-	{
+	public static Fqn root() { // declared final so compilers can optimise and in-line.
 		return ROOT;
 	}
-
 
 	public boolean isRoot() {
 		return elements.length == 0;
 	}
-
 
 	public String getLastElementAsString() {
 		if (isRoot()) {
@@ -289,17 +267,19 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 		}
 	}
 
-
 	public List<Object> peekElements() {
 		return Arrays.asList(elements);
 	}
 
+	public boolean isSystem() {
+		return toString().startsWith("/__");
+	}
 
+	
 	@Override
 	public int compareTo(Fqn fqn) {
 		return FqnComparator.INSTANCE.compare(this, fqn);
 	}
-
 
 	public Fqn replaceAncestor(Fqn oldAncestor, Fqn newAncestor) {
 		if (!isChildOf(oldAncestor))
@@ -332,7 +312,7 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 	}
 
 	public String name() {
-		return ObjectUtil.toString(getLastElement()) ;
+		return ObjectUtil.toString(getLastElement());
 	}
 
 	private String startWith() {
@@ -341,13 +321,16 @@ public class Fqn implements Comparable<Fqn>, Serializable {
 
 	public Query childrenQuery() {
 		BooleanQuery result = new BooleanQuery();
-		result.add(new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())), Occur.SHOULD) ;
-		result.add(new TermQuery(new Term(DocEntry.PARENT, this.toString())), Occur.SHOULD) ;
-		return result ;
-//		return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
+		result.add(new TermQuery(new Term(DocEntry.PARENT, "/__transactions")), Occur.MUST_NOT);
+		result.add(new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())), Occur.SHOULD);
+		result.add(new TermQuery(new Term(DocEntry.PARENT, this.toString())), Occur.SHOULD);
+		return result;
+		// return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
 	}
-	
+
+	@Override
+	public String replaceValue() {
+		return toString();
+	}
+
 }
-
-
-

@@ -27,11 +27,11 @@ public class TestToAdRow extends TestBaseCrud {
 	public void testOld() throws Exception {
 		session.tranSync(TransactionJobs.dummy("/bleujin", 120)) ;
 		
-		Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toRows(Page.create(10, 11, 10), "this.name b", "dummy", "this.age");
+		Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 11, 10), "this.name b, dummy, this.age");
 		assertEquals(20, rows.firstRow().getInt("cnt")) ;
 		assertEquals(100, rows.firstRow().getInt("dummy")) ;
 
-		rows = session.pathBy("/bleujin").children().ascending("dummy").toRows(Page.create(10, 5, 10), "this.name b", "dummy", "this.age");
+		rows = session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 5, 10), "this.name b, dummy, this.age");
 		assertEquals(101, rows.firstRow().getInt("cnt")) ;
 		assertEquals(40, rows.firstRow().getInt("dummy")) ;
 

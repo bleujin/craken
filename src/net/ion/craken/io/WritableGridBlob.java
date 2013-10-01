@@ -17,4 +17,9 @@ public class WritableGridBlob extends GridBlob {
 	}
 
 
+	public void delete() {
+		super.delete(getMetadata()) ;
+	}
+
+
 }

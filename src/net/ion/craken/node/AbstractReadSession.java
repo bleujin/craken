@@ -1,5 +1,6 @@
 package net.ion.craken.node;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -17,7 +18,11 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.search.SearchRequest;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.TermQuery;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Collector;
@@ -30,9 +35,11 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	private Credential credential ;
 	private Workspace workspace ;
+	private TranLogManager logManger ;
 	protected AbstractReadSession(Credential credential, Workspace workspace) {
 		this.credential = credential.clearSecretKey() ;
 		this.workspace = workspace ;
+		this.logManger = TranLogManager.create(this, workspace) ;
 	}
 
 	public ReadNode pathBy(String fqn0, String... fqns) {
@@ -79,7 +86,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 
 	public ReadNode root() {
-		return pathBy("/");
+		return pathBy(Fqn.ROOT);
 	}
 
 	public <T> Future<T> tran(TransactionJob<T> tjob) {
@@ -88,14 +95,12 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	@Override
 	public <T> T tranSync(TransactionJob<T> tjob) throws Exception {
-		WriteSession tsession = new WriteSessionImpl(this, workspace);
-		return workspace.tran(tsession, tjob, TranExceptionHandler.PRINT).get() ;
+		return tranSync(tjob, TranExceptionHandler.PRINT) ;
 	}
 
 
 	public <T> T tranSync(TransactionJob<T> tjob, TranExceptionHandler handler) throws Exception {
-		WriteSession tsession = new WriteSessionImpl(this, workspace);
-		return workspace.tran(tsession, tjob, handler).get() ;
+		return tran(tjob, handler).get() ;
 	}
 
 
@@ -184,4 +189,9 @@ public abstract class AbstractReadSession implements ReadSession {
 		}
 	}
 
+	@Override
+	public TranLogManager logManager() throws IOException{
+		return this.logManger ;
+	}
+	
 }

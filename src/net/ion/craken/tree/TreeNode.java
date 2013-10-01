@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 
 import org.infinispan.AdvancedCache;
@@ -85,7 +86,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public boolean removeChild(Object childName) {
-		AtomicMap<Object, Fqn> s = getStructure(structureKey);
+		Map<Object, Fqn> s = getStructure(structureKey);
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
 			TreeNode child = new TreeNode(childFqn, cache, batchContainer);
@@ -93,6 +94,7 @@ public class TreeNode extends TreeStructureSupport {
 			child.clearData(); // this is necessary in case we have a remove and then an add on the same node, in the same tx.
 			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.DATA));
 			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.STRUCTURE));
+			
 			return true;
 		}
 
@@ -108,12 +110,12 @@ public class TreeNode extends TreeStructureSupport {
 
 	public PropertyValue put(PropertyId key, PropertyValue value) {
 
-		AtomicHashMapProxy<PropertyId, PropertyValue> map = (AtomicHashMapProxy<PropertyId, PropertyValue>) getDataInternal();
+		Map<PropertyId, PropertyValue> map = (Map<PropertyId, PropertyValue>) getDataInternal();
 		return map.put(key, value);
 	}
 
 	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value) {
-		AtomicMap<PropertyId, PropertyValue> data = getDataInternal();
+		Map<PropertyId, PropertyValue> data = getDataInternal();
 		if (!data.containsKey(key)) {
 			return data.put(key, value);
 		}
@@ -121,7 +123,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public PropertyValue replace(PropertyId key, PropertyValue value) {
-		AtomicMap<PropertyId, PropertyValue> map = getAtomicMap(dataKey);
+		Map<PropertyId, PropertyValue> map = getAtomicMap(dataKey);
 		if (map.containsKey(key))
 			return map.put(key, value);
 		else
@@ -129,7 +131,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue) {
-		AtomicMap<PropertyId, PropertyValue> data = getDataInternal();
+		Map<PropertyId, PropertyValue> data = getDataInternal();
 		PropertyValue old = data.get(key);
 		if (Util.safeEquals(oldValue, old)) {
 			data.put(key, newValue);
@@ -143,7 +145,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
-		AtomicMap<PropertyId, PropertyValue> data = getDataInternal();
+		Map<PropertyId, PropertyValue> data = getDataInternal();
 		data.clear();
 		data.putAll(map);
 	}
@@ -187,7 +189,7 @@ public class TreeNode extends TreeStructureSupport {
 			removeChild(o);
 	}
 	
-	AtomicMap<PropertyId, PropertyValue> getDataInternal() {
+	Map<PropertyId, PropertyValue> getDataInternal() {
 		return getAtomicMap(dataKey);
 	}
 
@@ -214,11 +216,6 @@ public class TreeNode extends TreeStructureSupport {
 		return "TreeNode{" + "fqn=" + fqn + '}';
 	}
 
-	public TreeNode setIgnoreBodyField(boolean ignoreBodyField) {
-		dataKey.setIgnoreBodyField(ignoreBodyField) ;
-		return this ;
-	}
-	
 }
 
 
@@ -228,7 +225,7 @@ class ReadMap implements Map<PropertyId, PropertyValue>{
 
 	private GridFilesystem gfs ;
 	private final Map<PropertyId, PropertyValue> internal ; 
-	public ReadMap(GridFilesystem gfs, AtomicMap<PropertyId, PropertyValue> internal) {
+	public ReadMap(GridFilesystem gfs, Map<PropertyId, PropertyValue> internal) {
 		this.gfs = gfs ;
 		this.internal = internal ;
 	}

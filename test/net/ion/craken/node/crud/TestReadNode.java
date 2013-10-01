@@ -44,13 +44,9 @@ public class TestReadNode extends TestBaseCrud {
 	
 	
 	public void testNodeKeys() throws Exception {
-		assertEquals(2, session.pathBy("/bleujin").keys().size()) ;
+		assertEquals(2, session.pathBy("/bleujin").normalKeys().size()) ;
 	}
 	
-	public void testNodeDataSize() throws Exception {
-		assertEquals(2, session.pathBy("/bleujin").dataSize()) ;
-	}
-
 	
 	public void testPropertyReplaceValue() throws Exception {
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").value("replaceValue")) ;

@@ -8,6 +8,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
 
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 
@@ -58,7 +59,6 @@ public class GridBlob implements Comparable<GridBlob> {
 	}
 
 	public Metadata getMetadata() {
-		Debug.line(metadata) ;
 		return metadata ;
 	}
 
@@ -209,6 +209,13 @@ public class GridBlob implements Comparable<GridBlob> {
 			return JsonObject.fromString(jsonString).getAsObject(Metadata.class);
 		}
 
+		public static boolean isValid(Object value) {
+			if (value == null || (!(value instanceof String))) return false ;
+			
+			// TODO Auto-generated method stub
+			return true;
+		}
+
 		public int getLength() {
 			return length;
 		}
@@ -254,20 +261,18 @@ public class GridBlob implements Comparable<GridBlob> {
 			return "n/a";
 		}
 
-		public JsonObject asJsonObject() {
+		public PropertyValue asPropertyValue() {
 			JsonObject result = new JsonObject();
 			result.addProperty("path", path);
 			result.addProperty("length", length);
 			result.addProperty("modificationTime", modificationTime);
 			result.addProperty("chunkSize", chunkSize);
 			result.addProperty("flags", flags);
+			result.addProperty("type", "blob");
 
-			return result;
+			return PropertyValue.createPrimitive(result.toString()) ;
 		}
 
-		public static Metadata fromJsonObject(JsonObject json) {
-			return json.getAsObject(Metadata.class);
-		}
 
 		@Override
 		public void writeExternal(ObjectOutput out) throws IOException {

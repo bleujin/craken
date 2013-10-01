@@ -9,6 +9,11 @@ import net.ion.framework.db.Row;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.config.CentralConfig;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
+import net.ion.nsearcher.search.filter.TermFilter;
 
 public class TestToRows extends TestBaseSearch {
 	
@@ -40,7 +45,7 @@ public class TestToRows extends TestBaseSearch {
 	}
 	
 	public void testFrom() throws Exception{
-		Rows rows = session.pathBy("/board1").children().toRows("name", "writer");
+		Rows rows = session.pathBy("/board1").children().toAdRows("name, writer");
 
 		rows.debugPrint() ;
 	}
@@ -85,7 +90,11 @@ public class TestToRows extends TestBaseSearch {
 	}
 	
 	
+
+	
 	public void testRefTo() throws Exception {
+//		session.queryRequest("").ascending("index").skip(10).offset(2).refTo("register", Fqn.fromString("/users/bleujin")).find().debugPrint() ;
+		
 		Rows rows = session.queryRequest("").descending("index").skip(10).offset(2)
 			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name, substring(this.writer, 2) writer, index, address.city acity, address.city, register.age age") ;
 		

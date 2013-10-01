@@ -8,8 +8,10 @@ import java.util.concurrent.Future;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.IndexInfoHandler;
+import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.tree.Fqn;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -58,4 +60,6 @@ public interface ReadSession extends ISession<ReadNode> {
 	public ReadSession queryAnayzler(Analyzer analyzer) ;
 
 	public <T> Future<T> dump(DumpJob<T> dumpJob) throws Exception;
+
+	public TranLogManager logManager() throws IOException;
 }

@@ -21,16 +21,15 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeCacheFactory;
 import net.ion.framework.logging.LogBroker;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.MapUtil;
-import net.ion.framework.util.ObjectUtil;
-import net.ion.nsearcher.common.SearchConstant;
-import net.ion.nsearcher.config.Central;
+import net.ion.framework.util.SetUtil;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
-import org.infinispan.Cache;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -91,16 +90,14 @@ public class RepositoryImpl implements Repository{
 		return wss.keySet() ;
 	}
 	
-	public long lastSyncModified() throws IOException{
-		long lastSycnModifiedInAllCache = 0L ;
+	public Map<String, Long> lastSyncModified() throws IOException, ParseException{
+		Map<String, Long> result = MapUtil.newMap() ;
+		
 		for(AbstractWorkspace ws : wss.values()){
-			final CacheLoaderManager component = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class);
-			if (component == null) return 0L ;
-			CacheStore store = component.getCacheStore();
-			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
-			lastSycnModifiedInAllCache = Math.max(cacheStore.lastSyncModified(), lastSycnModifiedInAllCache) ;
+			Long lastCommitTime = login(ws.wsName()).logManager().lastTranInfoBy() ;
+			result.put(ws.wsName(), lastCommitTime) ;
 		}
-		return lastSycnModifiedInAllCache ;
+		return result ;
 	}
 
 	public void lastSyncModified(long lastSyncModified) throws IOException{
@@ -193,23 +190,25 @@ public class RepositoryImpl implements Repository{
 		} else {
 			final TreeCache treeCache = TreeCacheFactory.createTreeCache(this, dm, wsName);
 			GridFilesystem gfs = new GridFilesystem(dm.<String, byte[]>getCache(wsName + ".blobdata")) ;
+			SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
 			
-			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, gfs, treeCache, wsName, configs.get(wsName));
+			cacheStore.gfs(gfs) ;
+			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, cacheStore, gfs, treeCache, wsName, configs.get(wsName));
 
-			newWorkspace.pathNode(IndexWriteConfig.Default, Fqn.ROOT) ;
+			newWorkspace.createNode(IndexWriteConfig.Default, Fqn.ROOT) ;
+			newWorkspace.createNode(IndexWriteConfig.Default, Fqn.TRANSACTIONS) ;
 			wss.put(wsName, newWorkspace) ;
-			
 			return wss.get(wsName) ;
 		}
 	}
 
 	
-	public Central central(String wsName){
-		SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
-		if (cacheStore == null) throw new IllegalArgumentException("not defined workspace") ;
-
-		return cacheStore.central() ;
-	}
+//	public Central central(String wsName){
+//		SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
+//		if (cacheStore == null) throw new IllegalArgumentException("not defined workspace") ;
+//
+//		return cacheStore.central() ;
+//	}
 
 
 	public Repository defineWorkspace(String wsName, CentralCacheStoreConfig config) {
@@ -247,7 +246,12 @@ public class RepositoryImpl implements Repository{
 				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new CentralCacheStore()).addProperty("location", "")
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
-		
+
+		defineConfig(wsName + ".blobdata",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC)
+				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
+				.loaders().preload(true).shared(false).passivation(false)
+				.build()) ;
+
 		log.info(wsName + " created") ;
 		return this ;
 	}
@@ -257,4 +261,45 @@ public class RepositoryImpl implements Repository{
 		return listener ;
 	}
 	
+}
+
+class TransactionBean {
+
+	public static TransactionBean BLANK = createBlank() ;
+	private long time ;
+	private String config ;
+	private Set<String> tlogs ;
+
+	public long time(){
+		return time ;
+	}
+	
+	private static TransactionBean createBlank() {
+		TransactionBean result = new TransactionBean();
+		result.time = 0L ;
+		result.config = IndexWriteConfig.Default.toJson().toString() ;
+		result.tlogs = SetUtil.EMPTY ;
+		return result;
+	}
+
+	public IndexWriteConfig iwconfig(){
+		return JsonObject.fromString(config).getAsObject(IndexWriteConfig.class) ;
+	}
+	
+	public Set<String> tlogs(){
+		return tlogs ;
+	}
+	
+	public String toString(){
+		return ToStringBuilder.reflectionToString(this) ;
+	}
+
+	public static TransactionBean test(long time, Set<String> tlogs) {
+		TransactionBean result = new TransactionBean();
+		result.time = time ;
+		result.tlogs = tlogs ;
+		result.config = IndexWriteConfig.Default.toJson().toString() ;
+		
+		return result ;
+	}
 }

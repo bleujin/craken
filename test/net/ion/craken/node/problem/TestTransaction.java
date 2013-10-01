@@ -59,7 +59,7 @@ public class TestTransaction  extends TestBaseCrud {
 		}).get() ;
 
 		latch.await() ;
-		assertEquals(2, session.pathBy("/bleujin").keys().size()) ; // not cleard
+		assertEquals(2, session.pathBy("/bleujin").normalKeys().size()) ; // not cleard
 	}
 	
 	public void testFailWriteNode() throws Exception {

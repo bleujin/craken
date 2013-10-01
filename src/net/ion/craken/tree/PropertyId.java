@@ -2,6 +2,7 @@ package net.ion.craken.tree;
 
 import java.io.Serializable;
 
+import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -19,7 +20,6 @@ public class PropertyId implements Serializable {
 
 	private final PType type;
 	private final String key;
-	private FieldIndex fieldIndex = FieldIndex.UNKNOWN ;
 	
 	private PropertyId(PType type, String key){
 		this.type = type ;
@@ -31,7 +31,7 @@ public class PropertyId implements Serializable {
 	}
 
 	public static final PropertyId refer(String key){
-		return new PropertyId(PType.REFER, key).fieldIndex(FieldIndex.KEYWORD) ;
+		return new PropertyId(PType.REFER, key) ;
 	}
 	
 	public boolean equals(Object o){
@@ -63,19 +63,14 @@ public class PropertyId implements Serializable {
 	public PType type() {
 		return type;
 	}
-
-	public PropertyId fieldIndex(FieldIndex fieldIndex) {
-		this.fieldIndex = fieldIndex ;
-		return this ;
-	}
 	
-	public FieldIndex fieldIndex(){
-		return fieldIndex ;
-	}
-
-	public void indexTo(WriteDocument doc, PropertyValue pvalue) {
+	public void indexTo(WriteDocument doc, IndexWriteConfig iwconfig, TreeNodeKey nodeKey, PropertyValue pvalue) {
+		if (nodeKey.fqnString().startsWith("/__") && this.key.equals("tlogs")) return ;
+		
 		for (Object e : pvalue.asSet()) {
 			if (e == null) continue ;
+			FieldIndex fieldIndex = (type == PType.REFER) ?  FieldIndex.KEYWORD : iwconfig.fieldIndex(key) ; 
+			
 			switch(fieldIndex){
 				case IGNORE :
 					break ;
@@ -99,4 +94,9 @@ public class PropertyId implements Serializable {
 			}
 		}
 	}
+
+	public boolean isSystemProperty() {
+		return key.startsWith("__");
+	}
+
 }

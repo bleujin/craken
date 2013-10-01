@@ -1,0 +1,1 @@
+{"config":{"fieldIndexes":{},"ignoreBody":false},"time":1380275453441,"logs":[{"id":"524554fdbd492b58381b9f80","path":"/bleujin","touch":"MODIFY","val":{"properties":{"name":["hero"],"age":[20]},"references":{"__transaction":["/__transactions/12345"]}}}]}

@@ -50,6 +50,19 @@ public class TestFromJson extends TestBaseCrud {
 		assertEquals("bleujin", session.pathBy("/dept/dev").child("manager").property("name").value()) ;
 	}
 	
+	
+	public void testBasic() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/users/bleujin").property("name", "jin") ;
+				return null ;
+			}
+		}) ;
+		
+		assertEquals("jin", session.pathBy("/users/bleujin").property("name").stringValue()) ;
+	}
+	
 
 	public void testAddRelation() throws Exception {
 		Dept dept = new Dept().deptno(20).name("dev").manager(new Employee().name("bleujin").age(20).created(new Date())) ;

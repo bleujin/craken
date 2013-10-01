@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
+import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.convert.rows.AdNodeRows;
 import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.tree.PropertyId;
@@ -100,6 +102,31 @@ public class Functions {
 		} ;
 	}
 	
+	public static <T extends NodeCommon<? extends NodeCommon>> Function<T, JsonObject> toJsonExpression() {
+		return new Function<T, JsonObject>(){
+			@Override
+			public JsonObject apply(T node) {
+				JsonObject result = new JsonObject() ;
+				
+				Map<String, Object> properties = MapUtil.newMap() ;
+				Map<String, Set> refs = MapUtil.newMap() ;
+				for(Entry<PropertyId, PropertyValue> entry : node.toMap().entrySet()){
+					if (entry.getKey().type() == PropertyId.PType.NORMAL){
+						properties.put(entry.getKey().getString(), entry.getValue().asSet());
+					} else {
+						refs.put(entry.getKey().getString(), entry.getValue().asSet()) ;
+					}
+				}
+				
+				result.add("properties", JsonObject.fromObject(properties)) ;
+				result.add("references", JsonObject.fromObject(refs)) ;
+				
+				return result ;
+			}
+		} ;
+	}
+	
+
 
 
 }

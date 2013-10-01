@@ -1,30 +1,48 @@
 package net.ion.craken.node;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Set;
 
+import net.ion.craken.io.GridOutputStream;
+import net.ion.craken.io.WritableGridBlob;
+import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.parse.gson.stream.JsonWriter;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringBuilderWriter;
 import net.ion.framework.util.StringUtil;
 
+import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.queryparser.classic.ParseException;
 
 public abstract class AbstractWriteSession implements WriteSession{
 
 	private ReadSession readSession ;
 	private Workspace workspace ;
-	private Set<String> ignoreProperyIds = SetUtil.newSet();
 	private IndexWriteConfig iwconfig = new IndexWriteConfig() ;
+	
+	private Set<LogRow> logRows = ListOrderedSet.decorate(ListUtil.newList()) ;
+	private Set<Fqn> ancestorsFqn = SetUtil.newSet() ;
+	private LogWriter logWriter = new LogWriter() ;
 	
 	protected AbstractWriteSession(ReadSession readSession, Workspace workspace){
 		this.readSession = readSession ;
 		this.workspace = workspace ;
 	}
 	
-	private Set<Fqn> ancestors = SetUtil.newSet() ;
 	
 	public WriteNode createBy(String fqn){
 		final Fqn self = forCreateAncestor(fqn);
@@ -39,8 +57,8 @@ public abstract class AbstractWriteSession implements WriteSession{
 	private Fqn forCreateAncestor(String fqn) {
 		final Fqn self = Fqn.fromString(fqn);
 		Fqn parent = self.getParent() ;
-		while(! parent.isRoot()) {
-			ancestors.add(parent) ;
+		while((!parent.isRoot()) && (!parent.isSystem())) {
+			ancestorsFqn.add(parent) ;
 			parent = parent.getParent() ;
 		}
 		return self;
@@ -55,7 +73,14 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		return WriteNodeImpl.loadTo(this, workspace.pathNode(this.iwconfig, fqn)) ;
+		Fqn parent = fqn ;
+		while(true) {
+			if (parent.isRoot() || parent.isSystem()) break ;
+			ancestorsFqn.add(parent) ;
+			parent = parent.getParent() ;
+		}
+		
+		return WriteNodeImpl.loadTo(this, workspace.pathNode(this.iwconfig, fqn));
 	}
 	
 	public WriteNode root() {
@@ -66,12 +91,30 @@ public abstract class AbstractWriteSession implements WriteSession{
 		return workspace.exists(Fqn.fromString(fqn)) ;
 	}
 
+	private String tranFqn() {
+		return this.tranId();
+	}
 	
 	@Override
-	public void endCommit() {
-		for (Fqn parent : ancestors) {
-			workspace.pathNode(this.iwconfig, parent) ;
+	public void prepare() throws IOException{
+	}
+	
+
+	@Override
+	public void endCommit() throws IOException {
+		logWriter.beginLog(this) ; // user will define tranId & config after..
+		
+		
+		for (Fqn parentFqn : ancestorsFqn) { // create parent node
+			workspace.pathNode(this.iwconfig, parentFqn) ;
+			logRows.add(LogRow.create(Touch.MODIFY, parentFqn, pathBy(parentFqn))) ;
 		}
+
+		for (LogRow row : logRows) {
+			row.saveLog(this) ;
+		}
+
+		logWriter.endLog() ;
 	}
 	
 	@Override
@@ -79,10 +122,15 @@ public abstract class AbstractWriteSession implements WriteSession{
 		
 	}
 
+	
 	@Override
-	public void notifyTouch(Fqn fqn, Touch touch) {
+	public void notifyTouch(WriteNode source, Fqn targetFqn, Touch touch) {
+		if (targetFqn.isSystem()) return ; 
 		
+		source.refTo("__transaction", tranFqn()) ;
+		logRows.add(LogRow.create(touch, targetFqn, source)) ;
 	}
+	
 	@Override
 	public Credential credential() {
 		return readSession.credential();
@@ -97,12 +145,17 @@ public abstract class AbstractWriteSession implements WriteSession{
 		return readSession ;
 	}
 	
-	public void continueUnit(){
+	public void continueUnit() throws IOException{
 		workspace().continueUnit(this) ;
 	}
 	
 	public IndexWriteConfig fieldIndexConfig() {
 		return iwconfig ;
+	}
+	
+	public WriteSession fieldIndexConfig(IndexWriteConfig iwconfig){
+		this.iwconfig = iwconfig ;
+		return this ;
 	}
 	
 //	public WriteSession ignoreIndex(String... fields){
@@ -124,4 +177,88 @@ public abstract class AbstractWriteSession implements WriteSession{
 	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {
 		return root().childQuery(query, true);
 	}
+	
+	
+	static class LogRow {
+		
+		private Touch touch;
+		private Fqn target;
+		private JsonObject nodeValue ;
+		LogRow(Touch touch, Fqn target, JsonObject nodeValue){
+			this.touch = touch ;
+			this.target = target ;
+			this.nodeValue = nodeValue ;
+		}
+		
+		void saveLog(AbstractWriteSession wsession) throws IOException {
+			
+			String oid = new ObjectId().toString();
+			if (nodeValue == null) this.nodeValue = wsession.pathBy(target).transformer(Functions.<WriteNode>toJsonExpression());
+			
+			wsession.logWriter.writeLog(oid, target, touch, nodeValue) ;
+		}
+
+		final static LogRow create(Touch touch, Fqn target, WriteNode source){
+			return new LogRow(touch, target, (touch == Touch.MODIFY) ? null : source.transformer(Functions.<WriteNode>toJsonExpression())) ;
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			LogRow that = (LogRow) obj ;
+			return this.touch == that.touch && this.target.equals(that.target) ;
+		}
+		
+		@Override
+		public int hashCode(){
+			return target.hashCode() + touch.ordinal() ;
+		}
+		
+		public String toString(){
+			return target + "[" + touch + "]"; 
+		}
+		
+	}
+	
+	static class LogWriter {
+
+		private JsonWriter jwriter ;
+		private WriteNode logNode;
+		private WritableGridBlob wlobs ;
+		
+		public LogWriter beginLog(AbstractWriteSession wsession) throws IOException {
+			
+			final long thisTime = System.currentTimeMillis();
+			this.logNode = wsession.pathBy(wsession.tranId());
+			this.wlobs = logNode.property("config", wsession.iwconfig.toJson().toString()).property("time", thisTime).blob("tran");
+			Writer swriter = new BufferedWriter(new OutputStreamWriter(wlobs.outputStream(), Charset.forName("UTF-8")));
+			
+			jwriter = new JsonWriter(swriter) ;
+			jwriter.beginObject() ;
+			jwriter.jsonElement("config", wsession.iwconfig.toJson()) ;
+			jwriter.name("time").value(thisTime) ;
+			
+			jwriter.name("logs") ;
+			jwriter.beginArray() ;
+			
+			return this ;
+		}
+		
+		public void writeLog(String oid, Fqn target, Touch touch, JsonObject nodeValue) throws IOException {
+			jwriter.beginObject() ;
+			jwriter.name("id").value(oid).name("path").value(target.toString()).name("touch").value(touch.name()).jsonElement("val", nodeValue) ;
+			
+			jwriter.endObject() ;
+		}
+
+		public LogWriter endLog() throws IOException{
+			jwriter.endArray() ;
+			jwriter.endObject() ;
+			jwriter.close() ;
+			logNode.property(PropertyId.normal("tran"), wlobs.getMetadata().asPropertyValue()) ;
+			return this ;
+		}
+	}
+
 }
+
+

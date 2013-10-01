@@ -24,7 +24,7 @@ public class TestException extends TestBaseCrud {
 			session.tranSync(new TransactionJob<Void>() {
 				@Override
 				public Void handle(WriteSession wsession) throws Exception {
-					throw new IOException("test");
+					throw new IOException("expect");
 				}
 			}, null);
 			fail() ;

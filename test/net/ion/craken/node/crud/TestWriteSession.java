@@ -131,4 +131,7 @@ public class TestWriteSession extends TestBaseCrud {
  		assertEquals(3, session.pathBy("/bleujin/1").property("new").intValue(0)) ;
 	}
 	
+	
+
+	
 }

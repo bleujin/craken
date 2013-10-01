@@ -15,7 +15,11 @@ public class TestBasicType extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("type").property("boolean", true).property("int", 1).property("long", 2L).property("float", 2.3f).property("double", 2.3d).property("string", "string").property("date", new Date()) ;
+				wsession.root().addChild("type")
+					.property("boolean", true)
+					.property("int", 1)
+					.property("long", 2L)
+					.property("string", "string").property("date", new Date()) ;
 				return null;
 			}
 		}).get() ;
@@ -23,11 +27,29 @@ public class TestBasicType extends TestBaseCrud {
 		ReadNode found = session.pathBy("/type");
 		assertEquals(1, found.property("int").value()) ;
 		assertEquals(2L, found.property("long").value()) ;
-		assertEquals(2.3f, found.property("float").value()) ;
-		assertEquals(2.3d, found.property("double").value()) ;
 		assertEquals("string", found.property("string").value()) ;
 		assertEquals(new Date().getDate(), ((Date)found.property("date").value()).getDate()) ;
 	}
+	
+	
+	public void testOtherNumber() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().addChild("type")
+					.property("float", 2.3f)
+					.property("double", 2.3d)
+					.property("date", new Date()) ;
+				return null;
+			}
+		}).get() ;
+		
+		ReadNode found = session.pathBy("/type");
+		assertEquals(2.3f, found.property("float").value()) ;
+		assertEquals(2.3d, found.property("double").value()) ;
+		assertEquals(new Date().getDate(), ((Date)found.property("date").value()).getDate()) ;
+	}
+	
 	
 	public void testPropertyValueAlwaysNotNull() throws Exception {
 		session.tran(new TransactionJob<Void>() {
@@ -43,6 +65,23 @@ public class TestBasicType extends TestBaseCrud {
 		assertEquals(true, session.pathBy("/nullchcek").property("null").value() == null) ;
 	}
 	
+	
+	public void testReplaceValue() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("replace").property("rep", new PropertyValue.ReplaceValue() {
+					@Override
+					public String replaceValue() {
+						return "hello";
+					}
+				});
+				return null;
+			}
+		}).get() ;
+		
+		assertEquals("hello", session.pathBy("/replace").property("rep").stringValue()) ;
+	}
 
 	
 	

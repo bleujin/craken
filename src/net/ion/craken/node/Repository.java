@@ -28,7 +28,7 @@ public interface Repository {
 	
 	public Repository putAttribute(String key, Object value) ;
 
-	public Central central(String wsName);
+//	public Central central(String wsName);
 
 	public RepositoryListener listener();
 }

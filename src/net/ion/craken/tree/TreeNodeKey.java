@@ -19,7 +19,6 @@ public class TreeNodeKey implements Serializable {
 	private final Fqn fqn;
 	private final Type contents;
 	private Action action = Action.MERGE ;
-	private boolean ignoreBodyField = false;
 
 	public static enum Type {
 		DATA {
@@ -179,12 +178,4 @@ public class TreeNodeKey implements Serializable {
 //		return new TreeNodeKey(Fqn.fromString(idString), idString.startsWith("@") ? Type.STRUCTURE : Type.DATA);
 	}
 
-	public TreeNodeKey setIgnoreBodyField(boolean ignoreBodyField) {
-		this.ignoreBodyField = ignoreBodyField ;
-		return this ;
-	}
-
-	public boolean isIgnoreBodyField() {
-		return ignoreBodyField;
-	}
 }

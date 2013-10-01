@@ -40,7 +40,6 @@ public class SampleWriteJob implements TransactionJob<Void> {
 			} 
 		}
 		reader.close() ;
-		Debug.line("endJob") ;
 		return null;
 	}
 }

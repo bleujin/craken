@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -26,6 +29,7 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
+import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.IOUtil;
@@ -45,6 +49,8 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
 
 public class WriteNodeImpl implements WriteNode{
 
@@ -52,8 +58,13 @@ public class WriteNodeImpl implements WriteNode{
 	private WriteSession wsession ;
 	private TreeNode inner ;
 	
-	public enum Touch {
-		MODIFY, REMOVE, REMOVECHILDREN
+	public enum Touch implements PropertyValue.ReplaceValue<String>{
+		MODIFY, REMOVE, REMOVECHILDREN, TOUCH;
+
+		@Override
+		public String replaceValue() {
+			return this.toString();
+		}
 	}
 	
 	private WriteNodeImpl(WriteSession wsession, TreeNode inner) {
@@ -61,12 +72,14 @@ public class WriteNodeImpl implements WriteNode{
 		this.inner = inner ;
 	}
 	
-	public static WriteNode loadTo(WriteSession wsession, TreeNode inner) {
+	public static WriteNode loadTo(WriteSession wsession, TreeNode inner) { // by pathBy
 		return new WriteNodeImpl(wsession, inner);
 	}
 
 	public WriteNode load(WriteSession wsession, TreeNode inner) {
-		return new WriteNodeImpl(wsession, inner);
+		final WriteNodeImpl result = new WriteNodeImpl(wsession, inner);
+		wsession.notifyTouch(result, result.fqn(), Touch.TOUCH) ;
+		return result;
 	}
 	
 	protected TreeNode tree(){
@@ -80,11 +93,11 @@ public class WriteNodeImpl implements WriteNode{
 
 	
 	private PropertyId createNormalId(String key){
-		return wsession.fieldIndexConfig().fieldIndexTo(PropertyId.normal(key)) ; 
+		return PropertyId.normal(key) ; 
 	}
 	
 	private PropertyId createReferId(String key){
-		return wsession.fieldIndexConfig().fieldIndexTo(PropertyId.refer(key)) ;
+		return PropertyId.refer(key) ;
 	}
 	
 	
@@ -107,10 +120,14 @@ public class WriteNodeImpl implements WriteNode{
 		return property(createNormalId(key), PropertyValue.createPrimitive(value)) ;
 	}
 	
+	public WriteNode property(JsonObject jsonObject){
+		return propertyAll(jsonObject.toMap()) ;
+	}
 	
 	
-	private WriteNode property(PropertyId pid, PropertyValue pvalue){
-		touch(Touch.MODIFY) ;
+	public WriteNode property(PropertyId pid, PropertyValue pvalue){
+		touch(Touch.MODIFY) ; 
+		
 		
 		tree().put(pid, pvalue) ;
 		return this ;
@@ -198,13 +215,21 @@ public class WriteNodeImpl implements WriteNode{
 		try {
 			final String path = fqn().toString() + "/" + key;
 			PropertyValue pvalue = property(key) ;
-			Metadata meta = (pvalue == PropertyValue.NotFound) ? Metadata.create(path) : Metadata.loadFromJsonString(pvalue.stringValue()) ;
+			Metadata meta = null ;
+			if (pvalue == PropertyValue.NotFound) {
+				meta = Metadata.create(path) ;
+			} else {
+				// @Todo
+				meta = Metadata.loadFromJsonString(pvalue.stringValue()) ;
+				gfs().getWritableGridBlob(path, meta).delete() ;
+			}
 
-			wsession.workspace().writeBlob(path, meta, input);
+			WritableGridBlob gblob = wsession.workspace().gridBlob(path, meta);
+			IOUtil.copyNClose(input, gblob.outputStream());
+			meta = gblob.getMetadata() ;
 			
-			property(PropertyId.normal(key), PropertyValue.createPrimitive(meta.asJsonObject().toString())) ;
+			property(PropertyId.normal(key), meta.asPropertyValue()) ;
 			
-//			property(key, path) ;
 		} catch (IOException e) {
 			throw new NodeIOException(e) ;
 		} finally {
@@ -213,6 +238,26 @@ public class WriteNodeImpl implements WriteNode{
 		
 		return this ;
 	}
+
+	@Deprecated
+	public WritableGridBlob blob(String key) throws IOException {
+		final String path = fqn().toString() + "/" + key;
+		PropertyValue pvalue = property(key) ;
+		Metadata meta = null ;
+		if (pvalue == PropertyValue.NotFound) {
+			meta = Metadata.create(path) ;
+		} else {
+			// @Todo
+			meta = Metadata.loadFromJsonString(pvalue.stringValue()) ;
+		}
+
+		return wsession.workspace().gridBlob(path, meta);
+	}
+	
+	
+	
+	
+	
 
 	
 	public WriteNode addChild(String relativeFqn){
@@ -225,13 +270,14 @@ public class WriteNodeImpl implements WriteNode{
 		TreeNode last = tree() ;
 		while(iter.hasNext()){
 			last = last.addChild(Fqn.fromElements(iter.next()));
+			load(session(), last) ;
 		}
 		return load(session(), last) ;
 	}
 	
 	
-	public boolean removeChild(String fqn){
-		final Fqn target = Fqn.fromRelativeFqn(fqn(), Fqn.fromString(fqn));
+	public boolean removeChild(String childPath){
+		final Fqn target = Fqn.fromRelativeFqn(fqn(), Fqn.fromString(childPath));
 		touch(Touch.REMOVE, target) ;
 		return tree().removeChild(target) ;
 	}
@@ -325,7 +371,7 @@ public class WriteNodeImpl implements WriteNode{
 		if (StringUtil.isBlank(fqn)) tree().remove(referId) ;
 		else tree().put(referId, PropertyValue.createPrimitive(fqn)) ;
 
-		touch(Touch.MODIFY) ;
+		if (! refName.startsWith("__")) touch(Touch.MODIFY) ;
 		return this ;
 	}
 	
@@ -337,7 +383,7 @@ public class WriteNodeImpl implements WriteNode{
 			tree().put(pid, tree().get(gfs(), pid)) ;
 		}
 		
-		touch(Touch.MODIFY) ;
+		touch(Touch.TOUCH) ;
 		return this ;
 	}	
 
@@ -406,6 +452,14 @@ public class WriteNodeImpl implements WriteNode{
 		return tree().getKeys(gfs()) ;
 	}
 	
+	public Set<PropertyId> normalKeys(){
+		return Sets.filter(keys(), new Predicate<PropertyId>(){
+			@Override
+			public boolean apply(PropertyId pid) {
+				return pid.type() == PType.NORMAL ;
+			}
+		}) ;
+	}
 	
 	public boolean hasRef(String refName){
 		return keys().contains(createReferId(refName)) ;
@@ -446,11 +500,11 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	private void touch(Touch touch) {
-		session().notifyTouch(this.fqn(), touch) ;
+		touch(touch, this.fqn()) ;
 	}
 	
 	private void touch(Touch touch, Fqn target) {
-		session().notifyTouch(target, touch) ;
+		session().notifyTouch(this, target, touch) ;
 	}
 
 	private ReadSession readSession(){

@@ -36,6 +36,8 @@ public interface NodeCommon<T extends NodeCommon<T>> {
 	public IteratorList<T> children();
 
 	public Set<PropertyId> keys();
+	
+	public Set<PropertyId> normalKeys();
 
 	public PropertyValue property(String key);
 	

@@ -63,7 +63,7 @@ public class TestReadChildren extends TestBaseCrud {
 	
 	
 	public void testToPageRows() throws Exception {
-		final Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toRows(Page.create(10, 2), "dummy");
+		final Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 2), "dummy");
 		rows.debugPrint() ;
 		
 		ResultSetMetaData meta = rows.getMetaData();
@@ -74,7 +74,7 @@ public class TestReadChildren extends TestBaseCrud {
 	
 	
 	public void testIgnoredWhenNotFoundProperty() throws Exception {
-		final Rows rows = session.pathBy("/bleujin").children().ascending("Dummy").toRows(Page.create(10, 2), "dummy", "name");
+		final Rows rows = session.pathBy("/bleujin").children().ascending("Dummy").toAdRows(Page.create(10, 2), "dummy, name");
 		rows.debugPrint() ;
 	}
 	

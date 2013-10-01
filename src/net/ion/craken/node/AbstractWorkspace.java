@@ -2,6 +2,7 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -10,6 +11,7 @@ import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.listener.WorkspaceListener;
+import net.ion.craken.loaders.lucene.SearcherCacheStore;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
@@ -22,14 +24,15 @@ import org.infinispan.loaders.AbstractCacheStoreConfig;
 public abstract class AbstractWorkspace implements Workspace {
 
 	private Repository repository;
+	private SearcherCacheStore cacheStore;
 	private GridFilesystem gfs;
 	private TreeCache treeCache;
-	private Central central;
 	private String wsName;
 	private AbstractCacheStoreConfig config;
 
-	protected AbstractWorkspace(Repository repository, GridFilesystem gfs, TreeCache treeCache, String wsName, AbstractCacheStoreConfig config) {
+	protected AbstractWorkspace(Repository repository, SearcherCacheStore cacheStore, GridFilesystem gfs, TreeCache treeCache, String wsName, AbstractCacheStoreConfig config) {
 		this.repository = repository;
+		this.cacheStore = cacheStore ;
 		this.gfs = gfs ;
 		this.wsName = wsName;
 		this.treeCache = treeCache;
@@ -106,6 +109,7 @@ public abstract class AbstractWorkspace implements Workspace {
 			public T call() throws Exception {
 				try {
 					workspace.beginTran();
+					wsession.prepare() ;
 					T result = tjob.handle(wsession);
 					wsession.endCommit();
 					return result;
@@ -166,11 +170,12 @@ public abstract class AbstractWorkspace implements Workspace {
 		treeCache.begin();
 	}
 
-	public Workspace continueUnit(WriteSession wsession) {
+	public Workspace continueUnit(WriteSession wsession) throws IOException {
 		wsession.endCommit();
 		endTran();
 
 		beginTran();
+		wsession.prepare() ;
 		return this;
 	}
 
@@ -193,15 +198,16 @@ public abstract class AbstractWorkspace implements Workspace {
 		treeCache.cache().removeListener(listener);
 	}
 
-	public Metadata writeBlob(String fqnPath, Metadata meta, InputStream input) throws IOException {
+	public WritableGridBlob gridBlob(String fqnPath, Metadata meta) throws IOException{
 		WritableGridBlob gblob = gfs.getWritableGridBlob(fqnPath, meta);
-		IOUtil.copyNClose(input, gblob.outputStream());
-		return gblob.getMetadata() ;
+		return gblob ;
 	}
+	
 
 	@Override
 	public Central central() {
-		return repository.central(wsName) ;
+		return cacheStore.central() ;
+//		return repository.central(wsName) ;
 	}
 
 	@Override

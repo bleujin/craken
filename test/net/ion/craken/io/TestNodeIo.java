@@ -165,4 +165,28 @@ public class TestNodeIo extends TestCase {
 			
 		}
 	}
+	
+	public void testEmpty() throws Exception {
+		Debug.line() ;
+	}
+	
+	public void testOverwrite() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				WriteNode bleujin = wsession.pathBy("/bleujin/my").blob("config", new FileInputStream("./lib/aradon_0.9.jar"));
+				return null;
+			}
+		}) ;
+		
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				WriteNode bleujin = wsession.pathBy("/bleujin/my").blob("config", new FileInputStream("./resource/config/server-simple.xml"));
+				return null;
+			}
+		}) ;
+		
+	}
+	
 }

@@ -57,8 +57,7 @@ public class DumpNode {
 	}
 
 	private WriteDocument toDoc(IndexSession isession) {
-		WriteDocument doc = isession.newDocument(fqn.toString());
-		return CentralCacheStore.toWriteDoc(TreeNodeKey.fromString(fqn.toString()), props, doc) ;
+		return CentralCacheStore.toWriteDocument(isession, dsession.indexConfig(), fqn, props) ;
 	}
 
 	public DumpNode property(String key, Object value) {
@@ -84,7 +83,7 @@ public class DumpNode {
 	}
 	
 	private PropertyId createNormalId(String key){
-		return dsession.indexConfig().fieldIndexTo(PropertyId.normal(key)) ; 
+		return PropertyId.normal(key) ; 
 	}
 	
 	public DumpNode property(PropertyId key, PropertyValue value) {

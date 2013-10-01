@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.AbstractChildren;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -18,7 +19,7 @@ import net.ion.framework.util.ListUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 
-public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren>{
+public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> implements Iterable<WriteNode> {
 
 	private ReloadWriteIterator iter ;
 

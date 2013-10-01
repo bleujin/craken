@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.concurrent.Future;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeCache;
@@ -42,11 +43,11 @@ public interface Workspace {
 
 	public TreeCache getCache();
 
-	public Metadata writeBlob(String fqnPath, Metadata meta, InputStream input) throws IOException;
+	public WritableGridBlob gridBlob(String fqnPath, Metadata meta) throws IOException;
 
 	public IExecutor executor();
 
-	public Workspace continueUnit(WriteSession wsession) ;
+	public Workspace continueUnit(WriteSession wsession) throws IOException ;
 
 	public Central central();
 

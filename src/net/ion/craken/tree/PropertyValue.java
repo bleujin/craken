@@ -1,7 +1,10 @@
 package net.ion.craken.tree;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,11 +15,14 @@ import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.JsonSyntaxException;
+import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
+import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PropertyValue implements Serializable, Comparable<PropertyValue> {
@@ -31,9 +37,19 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		this.values = SetUtil.orderedSet(set);
 	}
 
+	public interface ReplaceValue<T>{
+		public <T> T replaceValue() ;
+	}
+	
 	public static PropertyValue createPrimitive(Object value) {
 		if (value == null) {
 			return new PropertyValue(SetUtil.newSet());
+		} else if (Collection.class.isInstance(value)) {
+			return new PropertyValue(ListOrderedSet.decorate(new ArrayList((Collection)value))) ;
+		} else if (value.getClass().isArray()) {
+			throw new IllegalArgumentException("value is array : " + value) ;
+		} else if (ReplaceValue.class.isInstance(value)) {
+			return createPrimitive(((ReplaceValue)value).replaceValue()) ;
 		} else {
 			return new PropertyValue(SetUtil.create(value));
 		}
@@ -45,7 +61,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	}
 
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return "propertyValue:" + this.values.toString() + "";
 	}
 
 	public JsonArray asJsonArray() {
@@ -121,13 +137,9 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	}
 	
 	// @Todo
+	@Deprecated
 	public boolean isBlob() {
-		try {
-			asBlob();
-			return true ;
-		} catch(NodeIOException ex){
-			return false ;
-		}
+		return Metadata.isValid(value()) ;
 	}	
 
 	public int size() {

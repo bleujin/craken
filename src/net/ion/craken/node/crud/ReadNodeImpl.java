@@ -15,6 +15,7 @@ import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
@@ -25,6 +26,7 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
+import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
@@ -43,6 +45,8 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
 
 public class ReadNodeImpl implements ReadNode, Serializable {
 
@@ -151,6 +155,17 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public Set<PropertyId> keys(){
 		return treeNode.getKeys(gfs()) ;
 	}
+	
+	public Set<PropertyId> normalKeys(){
+		return Sets.filter(keys(), new Predicate<PropertyId>(){
+			@Override
+			public boolean apply(PropertyId pid) {
+				return pid.type() == PType.NORMAL ;
+			}
+		}) ;
+	}
+
+
 
 	public Map<PropertyId, PropertyValue> toMap() {
 		return Collections.unmodifiableMap(treeNode.getData(gfs()));

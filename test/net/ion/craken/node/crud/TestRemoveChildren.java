@@ -36,12 +36,24 @@ public class TestRemoveChildren extends  TestCase {
 		super.tearDown();
 	}
 
+
+	
 	
 	public void testRemoveAfter() throws Exception {
 		assertEquals(true, session.exists("/")) ;
-		session.tranSync(new SampleWriteJob(20));
-//		session.root().children().debugPrint() ;
+		assertEquals(true, session.exists("/")) ;
 
+//		session.tranSync(new SampleWriteJob(20));
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				for (int i = 0; i < 20; i++) {
+					wsession.createBy("/" + i).property("idx", i) ;
+				}
+				return null;
+			}
+		}) ;
+		
 	 	assertEquals(20, session.root().children().toList().size()) ;
 	 	assertEquals(true, session.exists("/")) ;
 		session.tranSync(new TransactionJob<Void>() {
@@ -53,22 +65,20 @@ public class TestRemoveChildren extends  TestCase {
 		
 	 	assertEquals(0, session.root().children().toList().size()) ;
 	 	assertEquals(true, session.exists("/")) ;
-//		session.tranSync(new SampleWriteJob(20));
-		
-		
+
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				for (int i : ListUtil.rangeNum(20)) {
 					final WriteNode wnode = wsession.pathBy("/bleujin/" + i);
 					wnode.property("key", "val") ;
-					Debug.line(wnode) ;
 				}
 				return null;
 			}
 		}) ;
 
 		assertEquals(true, session.exists("/")) ;
+		
 	 	assertEquals(20, session.pathBy("/bleujin").children().toList().size()) ;
 		session.tranSync(new TransactionJob<Void>() {
 			public Void handle(WriteSession wsession) throws Exception {
@@ -78,4 +88,6 @@ public class TestRemoveChildren extends  TestCase {
 		}) ;
 	 	assertEquals(0, session.root().children().toList().size()) ;
 	}
+	
+	
 }

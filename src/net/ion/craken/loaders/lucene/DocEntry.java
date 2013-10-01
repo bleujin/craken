@@ -11,7 +11,9 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
 
 import org.infinispan.atomic.AtomicHashMap;
@@ -50,7 +52,10 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	
 	public static InternalCacheEntry create(ReadDocument findDoc) {
 		final String jsonString = findDoc.get(DocEntry.VALUE);
-		if (StringUtil.isBlank(jsonString)) return null ;
+		if (StringUtil.isBlank(jsonString)) {
+			
+			return null ;
+		}
 		
 		JsonObject raw = JsonObject.fromString(jsonString) ;
 		TreeNodeKey nodeKey = TreeNodeKey.fromString(raw.asString(ID));

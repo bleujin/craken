@@ -39,14 +39,14 @@ public class TreeCache extends TreeStructureSupport {
 	}
 	
 	public TreeNode createWith(IndexWriteConfig iwconfig, Fqn fqn){
-		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).createAction().setIgnoreBodyField(iwconfig.isIgnoreBodyField()), new AtomicHashMap<PropertyId, PropertyValue>()) ;
+		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).createAction(), new AtomicHashMap<PropertyId, PropertyValue>()) ;
 		
 		if (log.isTraceEnabled()) log.tracef("Created node %s", fqn);
 		return new TreeNode(fqn, cache, batchContainer) ;
 	}
 
 	public TreeNode resetWith(IndexWriteConfig iwconfig, Fqn fqn){
-		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).resetAction().setIgnoreBodyField(iwconfig.isIgnoreBodyField()), new AtomicHashMap<PropertyId, PropertyValue>()) ;
+		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA).resetAction(), new AtomicHashMap<PropertyId, PropertyValue>()) ;
 		
 		if (log.isTraceEnabled()) log.tracef("Reset node %s", fqn);
 		return new TreeNode(fqn, cache, batchContainer) ;
@@ -172,8 +172,9 @@ public class TreeCache extends TreeStructureSupport {
 	}
 
 	private void createRoot() {
-		if (!exists(Fqn.ROOT))
+		if (!exists(Fqn.ROOT)) {
 			mergeAncestor(Fqn.ROOT);
+		}
 	}
 
 	public String toString() {

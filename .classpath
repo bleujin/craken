@@ -5,6 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk6_27"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/ref/aradon_0.9.jar"/>
+	<classpathentry kind="lib" path="lib/ref/isearcher_4.4.jar"/>
 	<classpathentry kind="lib" path="lib/ref/mongonode_0.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/commons-configuration-1.6.jar"/>
@@ -15,13 +16,12 @@
 	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
 	<classpathentry kind="lib" path="lib/ref/neonode_0.1.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
-	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/infinispan521_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/testng-5.8-jdk15.jar"/>
 	<classpathentry kind="lib" path="lib/ref/aclient_0.2.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/mongo-java-driver-2.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search440_fat.jar"/>
-	<classpathentry kind="lib" path="lib/ref/isearcher_4.4.jar"/>
+	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

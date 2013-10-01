@@ -81,7 +81,7 @@ public class TestWriteNode extends TestBaseCrud {
 		}).get() ;
 		
 		assertEquals(true, session.pathBy("/bleujin").property("name").value() == null) ;
-		assertEquals(1, session.pathBy("/bleujin").keys().size()) ;
+		assertEquals(1, session.pathBy("/bleujin").normalKeys().size()) ;
 		assertEquals(true, session.pathBy("/bleujin").property("age").value() != null) ;
 	}
 	
@@ -95,7 +95,7 @@ public class TestWriteNode extends TestBaseCrud {
 			}
 		}).get() ;
 		assertEquals(0, session.pathBy("/bleujin").keys().size()) ;
-		assertEquals(2, session.pathBy("/hero").keys().size()) ;
+		assertEquals(2, session.pathBy("/hero").normalKeys().size()) ;
 	}
 	
 	public void testReplace() throws Exception {
@@ -151,10 +151,7 @@ public class TestWriteNode extends TestBaseCrud {
 
 	}
 	
-	
-	
-	
-	
+
 	
 	
 }

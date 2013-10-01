@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 		
-		<title>Aradon - Service Platform for (web) developers</title>
+		<title>Craken - Service Platform for (web) developers</title>
 
 		<meta name="description" content="Craken - Distributed Repository">
 		<meta name="author" content="bleujin">
@@ -74,56 +74,47 @@
 
 				<section>
 					<section>
-						<h2>RDB Pros/Cons</h2>
+						<h2>at First</h2>
 						
-						<img src="img/cap.jpg" />
+						<img src="img/slide1.jpg" width="75%" height="75%"/>
 					</section>
 					
 					<section>
-						<h2>CAP </h2>
-					 <ul>
-					   <li>일관성(Consistency)</li>
-					   <li>가용성(Availability)</li>
-					   <li>분단 가용성(Partition Tolerance)</li>
-					   <br/>
-					   
-					   <li>CA : 시스템이 죽을지언정 메시지 손실은 방지(Tr RDB)</li>
-					   <li>CP : 분산을 통한 퍼포먼스 향상(MongoDB, HBase)</li>
-					   <li>AP : 24*365 서비스, Async(Dynamo, CouchDB)</li>
-					 </ul>
+						<h2></h2>
+						
+						<img src="img/slide2.jpg" width="75%" height="75%"/>
 					</section>
-
+					
 					<section>
-						<h2>RDB의 대안 </h2>
-					 <ul>
-					   <li>RDB Cluster</li>
-					   <br/>
-					   
-					   <li>Pros :</li> 
-					   		기존의 방법을 바꿀필요가 없다.<br>
-					   		상용화된 지원이 가능하다<br><br/>
-					   
-					   <li>Cons :</li>
-					   		확장 비용이 비싸고 고급 관리 비용이 필요<br>
-					   		읽기 성능만 향상된다.<br>
-					 </ul>
+						<h2></h2>
+						
+						<img src="img/slide3.jpg" width="75%" height="75%"/>
 					</section>
-
+					
 					<section>
-						<h2>NoSQL </h2>
-					 <ul>
-					   <li>디스크 기반의 수평확장이 뛰어난 데이타 저장소</li>
-					   <br/>
-					   
-					   <li>Pros :</li> 
-					   		읽기/쓰기 확장성이 뛰어나다.<br>
-					   		OpenSource와 저장 장비 사용 가능<br><br/>
-					   
-					   <li>Cons :</li>
-					   		상용화된 지원이 어려울 수 있다.<br>
-					   		개발자가 Persistence Layer를 직접 만들어야 함<br>
-					 </ul>
+						<h2></h2>
+						
+						<img src="img/slide4.jpg" width="75%" height="75%"/>
 					</section>
+					
+					<section>
+						<h2></h2>
+						
+						<img src="img/slide5.jpg" width="75%" height="75%"/>
+					</section>
+					
+					<section>
+						<h2></h2>
+						
+						<img src="img/slide6.jpg" width="75%" height="75%"/>
+					</section>
+					
+					<section>
+						<h2></h2>
+						
+						<img src="img/slide7.jpg" width="75%" height="75%"/>
+					</section>
+					
 
 
 				</section>
@@ -154,30 +145,26 @@
 						<h2>Distribute</h2>
 						
 						<pre>
-Global Config....(jgroups-udp.xml)
-&lt;config xmlns="urn:org:jgroups"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-2.8.xsd"&gt;
-    &lt;TCP bind_port="7800" port_range="10"
-         recv_buf_size="20000000"
-         send_buf_size="640000"
-         loopback="false"
-		 ......
-
-   &lt;MPING timeout="2000"
-    mcast_addr="228.100.2.3"
-    .....		
-    
 
 Create Repository
 	repository = RepositoryImpl.create(GlobalConfigurationBuilder
 	    .defaultClusteredBuilder().transport().clusterName("mysearch")
 		.addProperty("configurationFile", PathMaker.getFilePath(getIXSSDocBase(), "WEB-INF/jgroups-udp.xml")).build());
 		
-		repository.defineWorkspace("ixss", CentralCacheStoreConfig.create().location("./resource/store")) ;
+		repository.defineWorkspace("wname", CentralCacheStoreConfig.create().location("./resource/store")) ;
 		
 		repository.start() ;
-   				
+		
+		ReadSession session = repository.login("wname") ;
+		session.tran(new TransactionJob&lt;Void&gt;(){
+			public Void handle(WriteSession wsession){
+				wsession.pathBy("/peoples/bleujin").property("name", "bleujin") ;
+				return null ;
+			}
+		}).get() ;
+		
+		assertEquals("bleujin", session.pathBy("/peoples/bleujin").property("name").stringValue()) ;
+
 						</pre>
 					</section>
 					
@@ -338,7 +325,7 @@ Create Repository
 		
 		     <div  style="padding-top: 1em">
 		     Slides available at<br />
-		     <b><a href="http://www.github.com/bleujin/aradon" style="font-size: bigger">http://www.github.com/bleujin/craken</a></b>
+		     <b><a href="http://www.github.com/bleujin/craken" style="font-size: bigger">http://www.github.com/bleujin/craken</a></b>
 		     </div>
 		     
 		     <h5 style="padding-top: 2em">bleujin@gmail.com</h5>

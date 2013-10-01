@@ -35,6 +35,8 @@ public class TestFirst extends TestBaseSearch {
 		assertEquals("bleujin", readNode.property("name").value()) ;
 		assertEquals(15, readNode.property("age").value()) ;
 		
+		session.workspace().central().newSearcher().createRequest("").find().debugPrint() ;
+		
 		assertEquals(7, session.queryRequest("").find().toList().size()) ;
 		
 //		new InfinityThread().startNJoin() ;
@@ -60,6 +62,9 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 
+		session.queryRequest("").find().debugPrint() ;
+		
+		assertEquals(0, session.root().childQuery("").find().toList().size()) ;
 	 	assertEquals(0, session.queryRequest("").find().toList().size()) ;
 	}
 	
@@ -98,7 +103,7 @@ public class TestFirst extends TestBaseSearch {
 				return null;
 			}
 		}).get() ;
-		
+		session.queryRequest("").find().debugPrint() ;
 		assertEquals(3, session.queryRequest("").find().toList().size()) ;
 		
 		session.tran(new TransactionJob<Void>() {

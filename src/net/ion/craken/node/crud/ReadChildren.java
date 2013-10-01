@@ -29,7 +29,7 @@ import net.ion.rosetta.Parser;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 
-public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
+public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> implements Iterable<ReadNode>{
 
 	private ReloadIterator iter;
 
@@ -95,32 +95,32 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> {
 		return this;
 	}
 
-
-	@Deprecated
-	public Rows toRows(String... cols) throws SQLException {
-		ColumnParser cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
-		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
-	}
-
-	@Deprecated
-	public Rows toRows(Page _page, String... cols) throws SQLException {
-		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
-
-		checkReload() ;
-		Iterators.skip(this.iter, page.getSkipOnScreen()) ;
-		Iterator<ReadNode> limitIter = Iterators.limit(this.iter, page.getOffsetOnScreen());
-		
-		List<ReadNode> screenList = ListUtil.newList() ;
-		while(limitIter.hasNext()){
-			screenList.add(limitIter.next()) ;
-		}
-
-		int count = screenList.size();
-		Page pageOnScreen = Page.create(page.getListNum(), page.getPageNo() % page.getScreenCount(), page.getScreenCount()) ;
-		
-		ColumnParser cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
-		return CrakenNodeRows.create(session, pageOnScreen.subList(screenList).iterator(), cparser.parse(cols).append(new ConstantColumn(count, "cnt")));
-	}
+//
+//	@Deprecated
+//	public Rows toRows(String... cols) throws SQLException {
+//		ColumnParser cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
+//		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
+//	}
+//
+//	@Deprecated
+//	public Rows toRows(Page _page, String... cols) throws SQLException {
+//		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
+//
+//		checkReload() ;
+//		Iterators.skip(this.iter, page.getSkipOnScreen()) ;
+//		Iterator<ReadNode> limitIter = Iterators.limit(this.iter, page.getOffsetOnScreen());
+//		
+//		List<ReadNode> screenList = ListUtil.newList() ;
+//		while(limitIter.hasNext()){
+//			screenList.add(limitIter.next()) ;
+//		}
+//
+//		int count = screenList.size();
+//		Page pageOnScreen = Page.create(page.getListNum(), page.getPageNo() % page.getScreenCount(), page.getScreenCount()) ;
+//		
+//		ColumnParser cparser = session.workspace().getAttribute(ColumnParser.class.getCanonicalName(), ColumnParser.class);
+//		return CrakenNodeRows.create(session, pageOnScreen.subList(screenList).iterator(), cparser.parse(cols).append(new ConstantColumn(count, "cnt")));
+//	}
 
 	
 	public Rows toAdRows(String expr) {
