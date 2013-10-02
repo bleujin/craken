@@ -144,6 +144,8 @@ public class RepositoryListener {
 						final List<ReadNode> recentTrans = readSession.logManager().recentTran(minTranTime) ;
 						Debug.line(minTranTime, recentTrans) ;
 
+						
+						
 //						for (final ReadNode tran : recentTrans ) { // per transaction
 //							readSession.tranSync(new TransactionJob<Void>() {
 //								@Override

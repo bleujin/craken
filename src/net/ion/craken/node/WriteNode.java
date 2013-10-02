@@ -62,7 +62,5 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;
 
-	public WriteNode touch() ;
-
 
 }

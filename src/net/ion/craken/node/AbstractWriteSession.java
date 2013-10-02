@@ -7,7 +7,6 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Set;
 
-import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.ChildQueryRequest;
@@ -15,14 +14,12 @@ import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
-import net.ion.framework.util.StringBuilderWriter;
 import net.ion.framework.util.StringUtil;
 
 import org.apache.commons.collections.set.ListOrderedSet;
@@ -37,6 +34,11 @@ public abstract class AbstractWriteSession implements WriteSession{
 	private Set<LogRow> logRows = ListOrderedSet.decorate(ListUtil.newList()) ;
 	private Set<Fqn> ancestorsFqn = SetUtil.newSet() ;
 	private LogWriter logWriter = new LogWriter() ;
+	
+	private Mode mode = Mode.NORMAL ;
+	private enum Mode {
+		NORMAL, RESTORE, OVERWRITE
+	}
 	
 	protected AbstractWriteSession(ReadSession readSession, Workspace workspace){
 		this.readSession = readSession ;
@@ -55,9 +57,11 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 
 	private Fqn forCreateAncestor(String fqn) {
+		
 		final Fqn self = Fqn.fromString(fqn);
 		Fqn parent = self.getParent() ;
-		while((!parent.isRoot()) && (!parent.isSystem())) {
+		while(true) {
+			if (parent.isRoot() || parent.isSystem()) break ;
 			ancestorsFqn.add(parent) ;
 			parent = parent.getParent() ;
 		}
@@ -73,7 +77,8 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		Fqn parent = fqn ;
+
+		Fqn parent = fqn.getParent() ;
 		while(true) {
 			if (parent.isRoot() || parent.isSystem()) break ;
 			ancestorsFqn.add(parent) ;
@@ -82,6 +87,12 @@ public abstract class AbstractWriteSession implements WriteSession{
 		
 		return WriteNodeImpl.loadTo(this, workspace.pathNode(this.iwconfig, fqn));
 	}
+	
+	
+//	public WriteNode logBy(String tranId){
+//		return WriteNodeImpl.loadTo(this, workspace.logNode(this.iwconfig, Fqn.fromString(tranId))) ;
+//	}
+	
 	
 	public WriteNode root() {
 		return pathBy("/");
@@ -100,8 +111,25 @@ public abstract class AbstractWriteSession implements WriteSession{
 	}
 	
 
+
+	public void restore() {
+		this.mode = Mode.RESTORE ;
+	}
+
+	public void restoreOverwrite() {
+		this.mode = Mode.OVERWRITE ;
+	}
+	
+
+	
 	@Override
 	public void endCommit() throws IOException {
+		
+		if (this.mode != Mode.NORMAL) { // restore mode
+			workspace().getCache().cache().clear() ;
+			return ;
+		}
+		
 		logWriter.beginLog(this) ; // user will define tranId & config after..
 		
 		
@@ -158,21 +186,6 @@ public abstract class AbstractWriteSession implements WriteSession{
 		return this ;
 	}
 	
-//	public WriteSession ignoreIndex(String... fields){
-//		for (String field : fields) {
-//			ignoreProperyIds.add(field) ;
-//		}
-//		return this ;
-//	}
-//	
-//	public PropertyId idInfoTo(PropertyId pid){
-//		if (ignoreProperyIds.contains(pid.idString())){
-//			pid.ignoreIndex() ;
-//		}
-//		
-//		return pid ;
-//	}
-	
 	@Override
 	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {
 		return root().childQuery(query, true);
@@ -193,12 +206,15 @@ public abstract class AbstractWriteSession implements WriteSession{
 		void saveLog(AbstractWriteSession wsession) throws IOException {
 			
 			String oid = new ObjectId().toString();
-			if (nodeValue == null) this.nodeValue = wsession.pathBy(target).transformer(Functions.<WriteNode>toJsonExpression());
+			if (nodeValue == null) {
+				this.nodeValue = wsession.pathBy(target).transformer(Functions.<WriteNode>toJsonExpression());
+			}
 			
 			wsession.logWriter.writeLog(oid, target, touch, nodeValue) ;
 		}
 
 		final static LogRow create(Touch touch, Fqn target, WriteNode source){
+			
 			return new LogRow(touch, target, (touch == Touch.MODIFY) ? null : source.transformer(Functions.<WriteNode>toJsonExpression())) ;
 		}
 		
@@ -214,7 +230,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 		}
 		
 		public String toString(){
-			return target + "[" + touch + "]"; 
+			return target + ", " + touch ; 
 		}
 		
 	}
@@ -228,7 +244,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 		public LogWriter beginLog(AbstractWriteSession wsession) throws IOException {
 			
 			final long thisTime = System.currentTimeMillis();
-			this.logNode = wsession.pathBy(wsession.tranId());
+			this.logNode = wsession.createBy(wsession.tranId());
 			this.wlobs = logNode.property("config", wsession.iwconfig.toJson().toString()).property("time", thisTime).blob("tran");
 			Writer swriter = new BufferedWriter(new OutputStreamWriter(wlobs.outputStream(), Charset.forName("UTF-8")));
 			
@@ -258,6 +274,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 			return this ;
 		}
 	}
+
 
 }
 

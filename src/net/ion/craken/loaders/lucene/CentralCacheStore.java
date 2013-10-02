@@ -23,6 +23,7 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonReader;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
@@ -38,6 +39,7 @@ import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.container.entries.InternalCacheEntry;
@@ -166,31 +168,33 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 			long start = System.currentTimeMillis();
 
-			if (mods.size() <= 1) {
+			if (mods.size() == 1) {
+				Modification mod = mods.get(0) ;
+				if (mod.getType() == org.infinispan.loaders.modifications.Modification.Type.STORE) {
+					Store s = (Store) mod;
+					TreeNodeKey key = (TreeNodeKey) s.getStoredEntry().getKey();
+					if (key.getFqn().isSystem()){
+						
+						
+						AtomicMap<PropertyId, PropertyValue> mapValue = (AtomicMap<PropertyId, PropertyValue>) s.getStoredEntry().getValue();
+						central.newIndexer().index(CommitUnit.create(key, mapValue, this.gfs).index());
+					}
+				}
 				return; // trans cache
 			} else {
 				List<? extends Modification> extMods = extractModiEvent(mods);
-
+				
 				for (Modification mod : extMods) {
 
 					if (mod.getType() == org.infinispan.loaders.modifications.Modification.Type.STORE) {
 
 						Store s = (Store) mod;
 						TreeNodeKey key = (TreeNodeKey) s.getStoredEntry().getKey();
-						AtomicMap<PropertyId, PropertyValue> value = (AtomicMap<PropertyId, PropertyValue>) s.getStoredEntry().getValue();
+						AtomicMap<PropertyId, PropertyValue> mapValue = (AtomicMap<PropertyId, PropertyValue>) s.getStoredEntry().getValue();
 
-						// Debug.line(mod.hashCode(), key, value.get(TransactionLog.PropId.PATH)) ;
-						if (TransactionLog.isLogKey(key) && value.containsKey(TransactionLog.PropId.CONFIG)) {
-							long time = value.get(PropertyId.normal("time")).longValue(0);
-							IndexWriteConfig wconfig = JsonObject.fromString(value.get(PropertyId.normal("config")).stringValue()).getAsObject(IndexWriteConfig.class) ; 
-							GridBlob gblob = value.get(PropertyId.normal("tran")).gfs(this.gfs).asBlob();
-							CommitUnit cunit = CommitUnit.create(key, wconfig, time, gblob);
-							
-//							Debug.line(IOUtil.toStringWithClose(gblob.toInputStream())) ;
-							
-							central.newIndexer().index(cunit.index());
+						if (TransactionLog.isLogKey(key) && mapValue.containsKey(TransactionLog.PropId.CONFIG)) {
+							central.newIndexer().index(CommitUnit.create(key, mapValue, this.gfs).index());
 						} else { // value
-						// Debug.line('x', key, mod.getType()) ;
 							; // ignore
 						}
 						// s.getStoredEntry().setLifespan(1000L) ;
@@ -242,7 +246,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 			if (key.getType().isStructure()) {
 				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.fqnString()))).selections(IKeywordField.ISKey).offset(1000000).find().getDocument();
-
 				return DocEntry.create(key, docs);
 			}
 			ReadDocument findDoc = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).selections(DocEntry.VALUE).findOne();
@@ -372,8 +375,15 @@ class CommitUnit {
 		this.input = input;
 	}
 	
-	public static CommitUnit create(TreeNodeKey key, IndexWriteConfig iwconfig, long time, GridBlob gblob) throws FileNotFoundException {
-		return new CommitUnit(key, iwconfig, time, gblob.toInputStream()) ;
+	public static CommitUnit create(TreeNodeKey key, AtomicMap<PropertyId, PropertyValue> value, GridFilesystem gfs) throws FileNotFoundException {
+		long time = value.get(PropertyId.normal("time")).longValue(0);
+		IndexWriteConfig wconfig = JsonObject.fromString(value.get(PropertyId.normal("config")).stringValue()).getAsObject(IndexWriteConfig.class) ; 
+		GridBlob gblob = value.get(PropertyId.normal("tran")).gfs(gfs).asBlob();
+		return create(key, wconfig, time, gblob);
+	}
+
+	public static CommitUnit create(TreeNodeKey key, IndexWriteConfig wconfig, long time, GridBlob gblob) throws FileNotFoundException {
+		return new CommitUnit(key, wconfig, time, gblob.toInputStream()) ;
 	}
 	public static CommitUnit test(TreeNodeKey key, IndexWriteConfig iwconfig, long time, InputStream input) throws FileNotFoundException {
 		return new CommitUnit(key, iwconfig, time, input) ;
@@ -448,9 +458,10 @@ class CommitUnit {
 									break;
 								case REMOVE:
 									isession.deleteTerm(new Term(IKeywordField.ISKey, log.path()));
+									Debug.line(touch, log.path()) ;
 									break;
 								case REMOVECHILDREN:
-									isession.deleteTerm(new Term(DocEntry.PARENT, log.path()));
+									isession.deleteQuery(new WildcardQuery(new Term(DocEntry.PARENT, Fqn.fromString(log.path()).startWith() )));
 									break;
 								default:
 									throw new IllegalArgumentException("Unknown modification type " + log.touchType());

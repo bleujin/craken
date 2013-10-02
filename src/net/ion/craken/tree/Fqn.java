@@ -315,7 +315,7 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 		return ObjectUtil.toString(getLastElement());
 	}
 
-	private String startWith() {
+	public String startWith() {
 		return isRoot() ? "/*" : toString() + "/*";
 	}
 

@@ -52,7 +52,17 @@ public class TreeCache extends TreeStructureSupport {
 		return new TreeNode(fqn, cache, batchContainer) ;
 	}
 
+	
+//	public TreeNode logWith(IndexWriteConfig iwconfig, Fqn fqn){
+//		cache.put(new TreeNodeKey(fqn, TreeNodeKey.Type.SYSTEM).resetAction(), new AtomicHashMap<PropertyId, PropertyValue>()) ;
+//		
+//		if (log.isTraceEnabled()) log.tracef("Reset node %s", fqn);
+//		return new TreeNode(fqn, cache, batchContainer) ;
+//	}
+
+
 	public TreeNode mergeWith(IndexWriteConfig iwconfig, Fqn fqn) {
+		
 		mergeAncestor(iwconfig, fqn) ;
 		
 		if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);

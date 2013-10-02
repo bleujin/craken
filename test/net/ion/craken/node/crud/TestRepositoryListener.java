@@ -2,45 +2,36 @@ package net.ion.craken.node.crud;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
-import org.apache.commons.fileupload.FileUpload;
-import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
-
-import com.sun.xml.internal.bind.v2.runtime.reflect.ListTransducedAccessorImpl;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
-import net.ion.craken.loaders.lucene.DocEntry;
+import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.ServerStatus.ElectRecent;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.TreeNodeKey;
+import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.ChainMap;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
-import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.ReadDocument;
-import net.ion.nsearcher.search.SearchRequest;
 
 public class TestRepositoryListener extends TestCase{
-
 	
 	public void testQuery() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
@@ -171,7 +162,15 @@ public class TestRepositoryListener extends TestCase{
 		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create().maxNodeEntry(5)) ;
 		ReadSession session = r.login("test");
 		
-		session.tranSync(TransactionJobs.dummy("/", 10)) ;
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				for (int i = 0; i < 5 ; i++) {
+					wsession.pathBy("/mod/" + i).property("index", i) ;
+				}
+				return null;
+			}
+		}); 
 		
 		new InfinityThread().startNJoin() ;
 	}
@@ -184,7 +183,7 @@ public class TestRepositoryListener extends TestCase{
 
 		while(true){
 			if (session.exists("/")){
-				Debug.line(session.root().children().toList().size()) ;
+//				Debug.line(session.root().children().toList().size()) ;
 			}
 			Thread.sleep(1000) ;
 		}
@@ -198,5 +197,81 @@ public class TestRepositoryListener extends TestCase{
 		
 		ServerStatus read = ServerStatus.fromJson(status.toJsonString());
 		assertEquals(true, read.equals(status)) ;
+	}
+	
+	
+	public void testOnEvent() throws Exception {
+		RepositoryImpl r = RepositoryImpl.create();
+		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create()) ;
+		ReadSession session = r.login("test");
+
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.tranId("savedtranid") ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(true, session.exists("/bleujin")) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").stringValue()) ;
+
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").removeSelf() ;
+				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(false, session.exists("/bleujin")) ;
+		
+		
+		
+		
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				((AbstractWriteSession)wsession).restoreOverwrite() ;
+				wsession.pathBy("/__transactions/savedtranid").property("action", "restore");
+				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				return null;
+			}
+		}) ;
+
+		assertEquals(1, session.workspace().central().newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, "/bleujin"))).find().getDocument().size()) ;
+		assertEquals(true, session.exists("/bleujin")) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").stringValue()) ;
+		
+		assertEquals(1, session.root().children().toList().size()) ;
+		
+
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").removeSelf() ;
+				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(0, session.workspace().central().newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, "/bleujin"))).find().getDocument().size()) ;
+		assertEquals(false, session.exists("/bleujin")) ;
+		
+		
+		
+
+//		session.pathBy("/bleujin").toRows("name, age").debugPrint() ;
+//		session.root().children().debugPrint() ;
+	
+		
+		
+//		assertEquals(false, session.exists("/bleujin")) ;
+		
+		
+		
+		r.shutdown() ;
 	}
 }

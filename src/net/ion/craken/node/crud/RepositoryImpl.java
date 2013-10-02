@@ -195,8 +195,9 @@ public class RepositoryImpl implements Repository{
 			cacheStore.gfs(gfs) ;
 			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, cacheStore, gfs, treeCache, wsName, configs.get(wsName));
 
-			newWorkspace.createNode(IndexWriteConfig.Default, Fqn.ROOT) ;
-			newWorkspace.createNode(IndexWriteConfig.Default, Fqn.TRANSACTIONS) ;
+			
+			newWorkspace.init() ;
+			
 			wss.put(wsName, newWorkspace) ;
 			return wss.get(wsName) ;
 		}

@@ -26,6 +26,8 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public WriteNode createBy(String fqn);
 
+//	public WriteNode logBy(String tranId);
+	
 	public void failRollback();
 
 	public void endCommit() throws IOException;
@@ -51,4 +53,6 @@ public interface WriteSession extends ISession<WriteNode> {
 	public void prepare() throws IOException;
 
 	public WriteSession fieldIndexConfig(IndexWriteConfig wconfig);
+
+	
 }

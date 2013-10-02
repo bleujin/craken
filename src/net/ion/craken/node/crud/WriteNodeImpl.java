@@ -375,17 +375,6 @@ public class WriteNodeImpl implements WriteNode{
 		return this ;
 	}
 	
-	public WriteNode touch() {
-		Set<PropertyId> keys = tree().getKeys(gfs());
-		if (keys.isEmpty()) this.clear() ;
-		else {
-			PropertyId pid = keys.iterator().next();
-			tree().put(pid, tree().get(gfs(), pid)) ;
-		}
-		
-		touch(Touch.TOUCH) ;
-		return this ;
-	}	
 
 	private GridFilesystem gfs(){
 		return wsession.workspace().gfs() ;

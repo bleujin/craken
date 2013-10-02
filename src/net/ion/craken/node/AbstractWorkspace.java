@@ -63,24 +63,24 @@ public abstract class AbstractWorkspace implements Workspace {
 		treeCache.stop();
 	}
 	
+	public void init() {
+		try {
+			beginTran() ;
+			createNode(IndexWriteConfig.Default, Fqn.ROOT) ;
+			createNode(IndexWriteConfig.Default, Fqn.TRANSACTIONS) ;
+		} finally {
+			endTran() ;
+		}
+	}
+
+	
+	
 	public TreeNode createNode(IndexWriteConfig iwconfig, Fqn fqn){
 		return treeCache.createWith(iwconfig, fqn) ; 
-//		try {
-//			beginTran() ;
-//			return treeCache.createWith(fqn) ;
-//		} finally {
-//			endTran() ;
-//		}
 	}
 	
 	public TreeNode resetNode(IndexWriteConfig iwconfig, Fqn fqn){
 		return treeCache.resetWith(iwconfig, fqn) ;
-//		try {
-//			beginTran() ;
-//			return treeCache.resetWith(fqn) ;
-//		} finally {
-//			endTran() ;
-//		}
 	}
 
 	public TreeNode pathNode(IndexWriteConfig iwconfig, Fqn fqn) {
@@ -91,6 +91,10 @@ public abstract class AbstractWorkspace implements Workspace {
 			endTran();
 		}
 	}
+	
+//	public TreeNode logNode(IndexWriteConfig iwconfig, Fqn fqn) {
+//		return treeCache.logWith(iwconfig, fqn) ;
+//	}
 	
 
 	public boolean exists(Fqn fqn) {
@@ -223,6 +227,7 @@ public abstract class AbstractWorkspace implements Workspace {
 	public AbstractCacheStoreConfig config() {
 		return config;
 	}
+
 
 
 }

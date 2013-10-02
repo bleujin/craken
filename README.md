@@ -24,9 +24,30 @@ public class TestHelloWord extends TestCase {
 		assertEquals("Hello World", session.pathBy("/hello").property("greeting").value()) ;
 		r.shutdown() ;
 	}
+	
+	
+	public void testBlobIO() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				WriteNode bleujin = wsession.pathBy("/bleujin/my").blob("config", new FileInputStream("./resource/config/server-simple.xml"));
+				return null;
+			}
+		}) ;
+		
+		final PropertyValue property = session.pathBy("/bleujin/my").property("config");
+
+		final GridBlob blob = property.asBlob();
+		InputStream input = blob.toInputStream() ;
+		String str = IOUtil.toStringWithClose(input) ;
+		
+	}
 }
+
+
+
 
 ```
 
 
-Html Pt : http://htmlpreview.github.com/?https://github.com/bleujin/craken/master/resource/docs/html/index.htm
+Html Pt : http://ec2-46-51-233-197.ap-northeast-1.compute.amazonaws.com:9000/craken/index.htm
