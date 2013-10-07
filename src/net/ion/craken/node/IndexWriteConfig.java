@@ -11,6 +11,7 @@ import org.jboss.marshalling.SerializabilityChecker;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
@@ -121,21 +122,21 @@ public class IndexWriteConfig implements Serializable{
 		return JsonParser.fromObject(this).getAsJsonObject() ;
 	}
 	
-	public void indexSession(IndexSession isession, TreeNodeKey tranKey) throws IOException{
+	public void indexSession(IndexSession isession, TreeNodeKey tranKey, PropertyValue tranPropertyValue) throws IOException{
 		isession.setIgnoreBody(ignoreBody) ;
 		
 		WriteDocument commitDoc = isession.newDocument(tranKey.fqnString()) ;
 		commitDoc.number("time", System.currentTimeMillis()); // searcher use for lastTranInfo
 		commitDoc.add(MyField.manual(DocEntry.PARENT, Fqn.TRANSACTIONS.toString(), Store.YES, Index.NOT_ANALYZED)) ;
-		commitDoc.add(MyField.manual(DocEntry.VALUE, createJsonValue(tranKey).toString(), Store.YES, Index.NOT_ANALYZED)) ;
+		commitDoc.add(MyField.manual(DocEntry.VALUE, createJsonValue(tranKey, tranPropertyValue).toString(), Store.YES, Index.NOT_ANALYZED)) ;
 
 		isession.insertDocument(commitDoc) ;
 	}
 
-	private JsonObject createJsonValue(TreeNodeKey tranKey) {
+	private JsonObject createJsonValue(TreeNodeKey tranKey, PropertyValue tranPropertyValue) {
 		JsonObject jobj = new JsonObject();
 		jobj.addProperty(DocEntry.ID, tranKey.fqnString());
-		jobj.add(DocEntry.PROPS, new JsonObject().put("time", System.currentTimeMillis()).put("config",  toJson().toString()));
+		jobj.add(DocEntry.PROPS, new JsonObject().put("time", System.currentTimeMillis()).put("config",  toJson().toString()).put("tran", tranPropertyValue.stringValue()) );
 		
 		return jobj;
 	}

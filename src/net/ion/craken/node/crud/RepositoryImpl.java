@@ -99,18 +99,6 @@ public class RepositoryImpl implements Repository{
 		}
 		return result ;
 	}
-
-	public void lastSyncModified(long lastSyncModified) throws IOException{
-		for(AbstractWorkspace ws : wss.values()){
-			final CacheLoaderManager component = ws.getCache().cache().getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class);
-			if (component == null) return ;
-			CacheStore store = component.getCacheStore();
-			if (store == null || (! (store instanceof SearcherCacheStore))) continue ;
-			SearcherCacheStore cacheStore = (SearcherCacheStore) store ;
-			cacheStore.lastSyncModified(lastSyncModified) ;
-		}
-	}
-
 	
 	// only use for test
 	public DefaultCacheManager dm(){
@@ -192,7 +180,7 @@ public class RepositoryImpl implements Repository{
 			GridFilesystem gfs = new GridFilesystem(dm.<String, byte[]>getCache(wsName + ".blobdata")) ;
 			SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
 			
-			cacheStore.gfs(gfs) ;
+//			cacheStore.gfs(this.dm, gfs) ;
 			final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, cacheStore, gfs, treeCache, wsName, configs.get(wsName));
 
 			

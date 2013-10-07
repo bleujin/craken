@@ -4,22 +4,19 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
-
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.ServerStatus;
+import net.ion.craken.node.crud.TransactionBean;
 import net.ion.craken.node.crud.ServerStatus.ElectRecent;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.ChainMap;
@@ -30,6 +27,9 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.common.IKeywordField;
+
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermQuery;
 
 public class TestRepositoryListener extends TestCase{
 	
@@ -165,7 +165,7 @@ public class TestRepositoryListener extends TestCase{
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				for (int i = 0; i < 5 ; i++) {
+				for (int i = 0; i < 20 ; i++) {
 					wsession.pathBy("/mod/" + i).property("index", i) ;
 				}
 				return null;
@@ -182,11 +182,12 @@ public class TestRepositoryListener extends TestCase{
 		ReadSession session = r.login("test");
 
 		while(true){
-			if (session.exists("/")){
-//				Debug.line(session.root().children().toList().size()) ;
+			Thread.sleep(2000) ;
+			if (session.exists("/mod")){
+				Debug.line(session.pathBy("/mod").children().toList().size()) ;
 			}
-			Thread.sleep(1000) ;
 		}
+//		new InfinityThread().startNJoin() ;
 	}
 	
 	
@@ -230,17 +231,25 @@ public class TestRepositoryListener extends TestCase{
 		
 		
 		
+		final String addresss = r.dm().getAddress().toString() ;
 		
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
+				
 				((AbstractWriteSession)wsession).restoreOverwrite() ;
-				wsession.pathBy("/__transactions/savedtranid").property("action", "restore");
+				wsession.pathBy("/__transactions/savedtranid").property("address", addresss);
 				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				
 				return null;
 			}
 		}) ;
-
+		// ... -_-
+		session.workspace().getCache().cache().clear() ;
+		
+		
+		
+		
 		assertEquals(1, session.workspace().central().newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, "/bleujin"))).find().getDocument().size()) ;
 		assertEquals(true, session.exists("/bleujin")) ;
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").stringValue()) ;

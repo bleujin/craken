@@ -58,7 +58,7 @@ public class TestNodeIo extends TestCase {
 				WriteNode bleujin = wsession.pathBy("/bleujin/my").blob("config", new FileInputStream("./resource/config/server-simple.xml")).property("date", new Date());
 				
 				PropertyValue value = bleujin.property("config");
-				
+				Debug.line(value.stringValue()) ;
 				assertEquals(true, value.isBlob()) ;
 				
 				GridBlob blob = value.asBlob() ;

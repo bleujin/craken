@@ -14,6 +14,7 @@ import java.util.Set;
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.IndexWriteConfig;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionLog;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
@@ -46,11 +47,15 @@ import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.loaders.AbstractCacheStore;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
+import org.infinispan.loaders.CacheLoaderManager;
 import org.infinispan.loaders.CacheLoaderMetadata;
 import org.infinispan.loaders.modifications.Modification;
 import org.infinispan.loaders.modifications.Remove;
 import org.infinispan.loaders.modifications.Store;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.marshall.StreamingMarshaller;
+import org.infinispan.remoting.transport.Address;
 import org.infinispan.transaction.xa.GlobalTransaction;
 
 import com.google.common.base.Function;
@@ -62,6 +67,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	private CentralCacheStoreConfig config;
 	private Central central;
 	private GridFilesystem gfs;
+	private Address address;
 
 	@Override
 	public Class<? extends CacheLoaderConfig> getConfigurationClass() {
@@ -72,6 +78,10 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	public void init(CacheLoaderConfig config, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
 		super.init(config, cache, m);
 		this.config = (CentralCacheStoreConfig) config;
+		EmbeddedCacheManager dm = cache.getCacheManager();
+		final String wsName = StringUtil.substringBefore(cache.getName(), ".");
+		this.gfs = new GridFilesystem(dm.<String, byte[]>getCache( wsName + ".blobdata")) ;
+		this.address = dm.getAddress() ;
 	}
 
 	@Override
@@ -85,10 +95,12 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		}
 	}
 
-	public SearcherCacheStore gfs(GridFilesystem gfs) {
-		this.gfs = gfs;
-		return this;
-	}
+//	@Override
+//	public SearcherCacheStore gfs(DefaultCacheManager dm, GridFilesystem gfs) {
+//		this.address = dm.getAddress() ;
+//		this.gfs = gfs;
+//		return this;
+//	}
 
 	@Override
 	public void stop() throws CacheLoaderException {
@@ -158,25 +170,23 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		super.commit(tx);
 	}
 
-	volatile boolean runningIndex = false;
-	private long lastSyncModified = 0L;
-
-	private long sum = 0L;
-
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
 		try {
 
-			long start = System.currentTimeMillis();
+//			Debug.line(mods) ;
 
 			if (mods.size() == 1) {
 				Modification mod = mods.get(0) ;
-				if (mod.getType() == org.infinispan.loaders.modifications.Modification.Type.STORE) {
+				if (mod.getType() == org.infinispan.loaders.modifications.Modification.Type.STORE) {  // restore
 					Store s = (Store) mod;
 					TreeNodeKey key = (TreeNodeKey) s.getStoredEntry().getKey();
-					if (key.getFqn().isSystem()){
-						
-						
+					if (TransactionLog.isLogKey(key)){
 						AtomicMap<PropertyId, PropertyValue> mapValue = (AtomicMap<PropertyId, PropertyValue>) s.getStoredEntry().getValue();
+						if (mapValue.containsKey(TransactionLog.PropId.ADDRESS) && (this.address.toString().equals(mapValue.get(TransactionLog.PropId.ADDRESS).stringValue()))) {
+//						if (this.address.toString().equals(mapValue.get(TransactionLog.PropId.ADDRESS).stringValue())) {
+							return ;
+						}
+						
 						central.newIndexer().index(CommitUnit.create(key, mapValue, this.gfs).index());
 					}
 				}
@@ -185,18 +195,14 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				List<? extends Modification> extMods = extractModiEvent(mods);
 				
 				for (Modification mod : extMods) {
-
 					if (mod.getType() == org.infinispan.loaders.modifications.Modification.Type.STORE) {
-
 						Store s = (Store) mod;
 						TreeNodeKey key = (TreeNodeKey) s.getStoredEntry().getKey();
 						AtomicMap<PropertyId, PropertyValue> mapValue = (AtomicMap<PropertyId, PropertyValue>) s.getStoredEntry().getValue();
 
 						if (TransactionLog.isLogKey(key) && mapValue.containsKey(TransactionLog.PropId.CONFIG)) {
 							central.newIndexer().index(CommitUnit.create(key, mapValue, this.gfs).index());
-						} else { // value
-							; // ignore
-						}
+						} 
 						// s.getStoredEntry().setLifespan(1000L) ;
 					} else if (mod.getType() == org.infinispan.loaders.modifications.Modification.Type.REMOVE) {
 						Remove r = (Remove) mod;
@@ -208,7 +214,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				}
 
 			}
-			sum += System.currentTimeMillis() - start;
 		} catch(IOException ex) {
 			throw new CacheLoaderException(ex) ;
 		} finally {
@@ -269,14 +274,11 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	public Set<InternalCacheEntry> load(int numEntries) throws CacheLoaderException {
 		try {
 
-			Map<String, String> commitData = central.newReader().commitUserData();
-			String lastCommitTime = commitData.get(IndexSession.LASTMODIFIED);
-			this.lastSyncModified = Long.parseLong(StringUtil.defaultIfEmpty(lastCommitTime, "0")); // DirectoryReader.lastModified(central.dir()) ;
+//			Map<String, String> commitData = central.newReader().commitUserData();
+//			String lastCommitTime = commitData.get(IndexSession.LASTMODIFIED);
 			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
-			if (docs.size() == 0)
-				this.lastSyncModified = 0L; // when blank dir, dir automatly created
 			for (ReadDocument readDocument : docs) {
 				InternalCacheEntry ice = readDocument.transformer(new Function<ReadDocument, InternalCacheEntry>() {
 					@Override
@@ -297,14 +299,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		}
 	}
 
-	public long lastSyncModified() {
-		return lastSyncModified;
-	}
-
-	public CentralCacheStore lastSyncModified(long lastSyncModified) {
-		this.lastSyncModified = lastSyncModified;
-		return this;
-	}
 
 	@Override
 	public Set<InternalCacheEntry> loadAll() throws CacheLoaderException {
@@ -349,7 +343,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	public static WriteDocument toWriteDocument(IndexSession isession, IndexWriteConfig indexConfig, Fqn fqn, AtomicMap<PropertyId, PropertyValue> props) {
 		throw new UnsupportedOperationException("working...--");
-		// return CommitUnit.toWriteDocument(isession, indexConfig, log);
 	}
 
 }
@@ -360,6 +353,7 @@ class CommitUnit {
 	private IndexWriteConfig iwconfig;
 	private long time;
 	private InputStream input;
+	private PropertyValue tranPropertyValue;
 
 	private static IndexJob<Integer> BLANKJOB = new IndexJob<Integer>() {
 		@Override
@@ -368,25 +362,28 @@ class CommitUnit {
 		}
 	};
 
-	CommitUnit(TreeNodeKey key, IndexWriteConfig iwconfig, long time, InputStream input) {
+	CommitUnit(TreeNodeKey key, IndexWriteConfig iwconfig, long time, PropertyValue tranPropertyValue, InputStream input) {
 		this.tranKey = key;
 		this.iwconfig = iwconfig;
 		this.time = time;
+		this.tranPropertyValue = tranPropertyValue ;
 		this.input = input;
 	}
 	
 	public static CommitUnit create(TreeNodeKey key, AtomicMap<PropertyId, PropertyValue> value, GridFilesystem gfs) throws FileNotFoundException {
 		long time = value.get(PropertyId.normal("time")).longValue(0);
-		IndexWriteConfig wconfig = JsonObject.fromString(value.get(PropertyId.normal("config")).stringValue()).getAsObject(IndexWriteConfig.class) ; 
+		IndexWriteConfig wconfig = JsonObject.fromString(value.get(PropertyId.normal("config")).stringValue()).getAsObject(IndexWriteConfig.class) ;
+		
+		
 		GridBlob gblob = value.get(PropertyId.normal("tran")).gfs(gfs).asBlob();
 		return create(key, wconfig, time, gblob);
 	}
 
 	public static CommitUnit create(TreeNodeKey key, IndexWriteConfig wconfig, long time, GridBlob gblob) throws FileNotFoundException {
-		return new CommitUnit(key, wconfig, time, gblob.toInputStream()) ;
+		return new CommitUnit(key, wconfig, time,  gblob.getMetadata().asPropertyValue(), gblob.toInputStream()) ;
 	}
-	public static CommitUnit test(TreeNodeKey key, IndexWriteConfig iwconfig, long time, InputStream input) throws FileNotFoundException {
-		return new CommitUnit(key, iwconfig, time, input) ;
+	public static CommitUnit test(TreeNodeKey key, IndexWriteConfig iwconfig, long time, PropertyValue tranValue, InputStream input) throws FileNotFoundException {
+		return new CommitUnit(key, iwconfig, time, tranValue, input) ;
 	}
 	
 
@@ -413,7 +410,7 @@ class CommitUnit {
 		return new IndexJob<Integer>() {
 			@Override
 			public Integer handle(IndexSession isession) throws Exception {
-				indexWriteConfig().indexSession(isession, tranKey);
+				indexWriteConfig().indexSession(isession, tranKey, tranPropertyValue);
 
 				int count = 0;
 				try {
@@ -431,10 +428,12 @@ class CommitUnit {
 							jreader.beginArray();
 							while (jreader.hasNext()) {
 								jreader.beginObject();
+								
 								String id = null ;
-								Touch touch = null;
+								Touch touch = null ;
 								String path = null ;
 								JsonObject val = null ;
+								
 								while (jreader.hasNext()) {
 									String iname = jreader.nextName();
 									if ("id".equals(iname)) {
@@ -450,7 +449,7 @@ class CommitUnit {
 								jreader.endObject();
 								
 								TransactionLog log = TransactionLog.create(id, path, touch, val);
-								
+//								Debug.line(touch, log) ;
 								switch (touch) {
 								case TOUCH :
 								case MODIFY:
@@ -458,7 +457,6 @@ class CommitUnit {
 									break;
 								case REMOVE:
 									isession.deleteTerm(new Term(IKeywordField.ISKey, log.path()));
-									Debug.line(touch, log.path()) ;
 									break;
 								case REMOVECHILDREN:
 									isession.deleteQuery(new WildcardQuery(new Term(DocEntry.PARENT, Fqn.fromString(log.path()).startWith() )));
@@ -477,6 +475,11 @@ class CommitUnit {
 				} finally {
 					IOUtil.closeQuietly(input);
 				}
+				
+//				WriteDocument tranDoc = isession.newDocument("/__transactions/abcd").keyword("dd", "ddddd");
+//				isession.updateDocument(tranDoc) ;
+				
+				
 
 				return count;
 			}

@@ -107,7 +107,7 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 				}
 				nodeValue.put(PropertyId.fromIdString(pkey), arrayValue);
 			} else {
-				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.getAsJsonPrimitive().getValue()));
+				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.isJsonObject() ?  pvalue.getAsJsonObject().toString() : pvalue.getAsJsonPrimitive().getValue()));
 			}
 		}
 

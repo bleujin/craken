@@ -4,12 +4,14 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
+import net.ion.craken.io.GridBlob;
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.stream.JsonWriter;
@@ -25,7 +27,7 @@ public class TestCommitUnit extends TestCase {
 		InputStream input = getClass().getResourceAsStream("/" + StringUtil.replace(getClass().getPackage().getName(), ".", "/") + "/test.dat");
 		// String readString = IOUtil.toStringWithClose(input) ;
 
-		CommitUnit cunit = CommitUnit.test(new TreeNodeKey(Fqn.fromString("/__transactions/12345"), Type.DATA), IndexWriteConfig.Default, 1, input);
+		CommitUnit cunit = CommitUnit.test(new TreeNodeKey(Fqn.fromString("/__transactions/12345"), Type.DATA), IndexWriteConfig.Default, 1, (PropertyValue)null,  input);
 		
 		IndexJob<Integer> index = cunit.index();
 		

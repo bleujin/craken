@@ -10,7 +10,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -19,14 +22,18 @@ import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.ServerStatus.ElectRecent;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
+import net.ion.craken.tree.TreeNodeKey.Type;
+import net.ion.framework.logging.LogBroker;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
+import org.apache.ecs.xhtml.select;
 import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.infinispan.Cache;
@@ -51,6 +58,7 @@ public class RepositoryListener {
 	private long startedTime;
 	private List<Address> members;
 	private RepositoryImpl repository;
+	private Logger logger = LogBroker.getLogger(RepositoryListener.class) ;
 
 	public RepositoryListener(RepositoryImpl repository) {
 		this.repository = repository;
@@ -115,7 +123,6 @@ public class RepositoryListener {
 			allStatus.add(receivedStatus);
 
 			electMaster();
-			repository.lastSyncModified(startedTime) ; // set 
 		}
 
 	}
@@ -134,33 +141,30 @@ public class RepositoryListener {
 				
 				try {
 				
-					Debug.line(recentWsNames) ;
-					
 					for (Entry<String, Long> entry : recentWsNames.entrySet()) {  // per worksapce
 						String wsName = entry.getKey() ;
 						final long minTranTime = entry.getValue() ;
 						final ReadSession readSession = repository.login(wsName);
 						
 						final List<ReadNode> recentTrans = readSession.logManager().recentTran(minTranTime) ;
-						Debug.line(minTranTime, recentTrans) ;
 
+						for (final ReadNode tran : recentTrans ) { // per transaction
+							readSession.tranSync(new TransactionJob<Void>() {
+								@Override
+								public Void handle(WriteSession wsession) throws Exception {
+									((AbstractWriteSession)wsession).restoreOverwrite() ;
+									WriteNode findNode = wsession.pathBy(tran.fqn()) ;
+									logger.log(Level.INFO, findNode.fqn() + " apply") ;
+									findNode.property("address", repository.dm().getAddress().toString()) ;
+									return null;
+								}
+							}) ;
+						}
 						
-						
-//						for (final ReadNode tran : recentTrans ) { // per transaction
-//							readSession.tranSync(new TransactionJob<Void>() {
-//								@Override
-//								public Void handle(WriteSession wsession) throws Exception {
-//									WriteNode tranNode = wsession.pathBy(tran.fqn()) ;
-////									tranNode.touch();
-//									for (WriteNode log : tranNode.children()) {
-//										log.touch() ;
-//									}
-//									
-//									return null;
-//								}
-//							}) ;
-//						}
+//						readSession.workspace().getCache().cache().clear() ;
 					}
+					
+					
 				
 				
 				} catch(Throwable ex){
@@ -242,9 +246,6 @@ class ServerStatus  {
 
 	static class ElectRecent{
 		public static Map<String, Long> elect(Set<ServerStatus> statusSet, String selfName, Set<String> wsNames){
-			
-			
-			Debug.line(statusSet, selfName, wsNames) ;
 			
 			Map<String, Long> result = MapUtil.newMap() ;
 			for (String wsName : wsNames) {

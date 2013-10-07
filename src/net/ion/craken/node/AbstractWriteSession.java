@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.ChildQueryRequest;
@@ -14,6 +15,7 @@ import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.util.Debug;
@@ -126,7 +128,7 @@ public abstract class AbstractWriteSession implements WriteSession{
 	public void endCommit() throws IOException {
 		
 		if (this.mode != Mode.NORMAL) { // restore mode
-			workspace().getCache().cache().clear() ;
+//			workspace().getCache().cache().clear() ;
 			return ;
 		}
 		
@@ -240,13 +242,15 @@ public abstract class AbstractWriteSession implements WriteSession{
 		private JsonWriter jwriter ;
 		private WriteNode logNode;
 		private WritableGridBlob wlobs ;
+		private GridOutputStream output;
 		
 		public LogWriter beginLog(AbstractWriteSession wsession) throws IOException {
 			
 			final long thisTime = System.currentTimeMillis();
 			this.logNode = wsession.createBy(wsession.tranId());
 			this.wlobs = logNode.property("config", wsession.iwconfig.toJson().toString()).property("time", thisTime).blob("tran");
-			Writer swriter = new BufferedWriter(new OutputStreamWriter(wlobs.outputStream(), Charset.forName("UTF-8")));
+			this.output = wlobs.outputStream();
+			Writer swriter = new BufferedWriter(new OutputStreamWriter(output, Charset.forName("UTF-8")));
 			
 			jwriter = new JsonWriter(swriter) ;
 			jwriter.beginObject() ;
@@ -269,8 +273,12 @@ public abstract class AbstractWriteSession implements WriteSession{
 		public LogWriter endLog() throws IOException{
 			jwriter.endArray() ;
 			jwriter.endObject() ;
+			jwriter.flush() ;
 			jwriter.close() ;
-			logNode.property(PropertyId.normal("tran"), wlobs.getMetadata().asPropertyValue()) ;
+			output.close() ;
+			
+			final PropertyValue pvalue = wlobs.getMetadata().asPropertyValue();
+			logNode.property(PropertyId.normal("tran"), pvalue) ;
 			return this ;
 		}
 	}

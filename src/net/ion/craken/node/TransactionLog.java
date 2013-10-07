@@ -39,12 +39,14 @@ public class TransactionLog{
 	private String parentPath ;
 
 	public static class PropId {
+		public final static PropertyId ADDRESS = PropertyId.normal("address") ;
+		public final static PropertyId CONFIG = PropertyId.normal("config") ;
+		public final static PropertyId TIME = PropertyId.normal("time") ;
+
 		public final static PropertyId ID = PropertyId.normal("id") ;
 		public final static PropertyId PATH = PropertyId.normal("path") ;
 		public final static PropertyId TOUCH = PropertyId.normal("touch") ;
 		public final static PropertyId VAL = PropertyId.normal("val") ;
-		public final static PropertyId CONFIG = PropertyId.normal("config") ;
-		public final static PropertyId TIME = PropertyId.normal("time") ;
 	}
 	
 	private TransactionLog(String id, String path, Touch touch, JsonObject val){
@@ -136,7 +138,6 @@ public class TransactionLog{
 		String parentPath = log.parentPath();
 		doc.keyword(DocEntry.PARENT, parentPath);
 		doc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis());
-
 		
 		for (Entry<String, JsonElement> entry : log.props().entrySet()) {
 			final String propId = entry.getKey();

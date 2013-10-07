@@ -23,7 +23,7 @@ public class TestNodeBlob extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
+		r.defineWorkspace("test", CentralCacheStoreConfig.create().maxNodeEntry(10)) ;
 		this.session = r.login("test") ;
 	}
 	
@@ -33,6 +33,11 @@ public class TestNodeBlob extends TestCase {
 		super.tearDown();
 	}
 	
+	public void testRead() throws Exception {
+		ReadNode readNode = session.pathBy("/bleujin");
+		assertEquals("bleujin", readNode.property("name").stringValue()) ;
+		Debug.line(IOUtil.toStringWithClose(readNode.property("blob").asBlob().toInputStream())) ;
+	}
 	
 	public void testBlobOutputStream() throws Exception {
 		session.tranSync(new TransactionJob<Void>() {
