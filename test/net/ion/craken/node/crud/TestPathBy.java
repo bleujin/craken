@@ -249,5 +249,17 @@ public class TestPathBy extends TestBaseCrud {
 	}
 	
 	
+	public void testHangul() throws Exception {
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/한글/냐옹").property("name", "블루진") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals("블루진", session.pathBy("/한글/냐옹").property("name").stringValue()) ;
+	}
+	
 	
 }

@@ -2,6 +2,7 @@ package net.ion.craken.node.crud;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +16,6 @@ import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
-import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
@@ -28,6 +28,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.db.Rows;
+import net.ion.framework.mte.Engine;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -303,6 +304,14 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		
 		return result;
 	}
+
+	@Override
+	public void template(String template, Writer writer) throws IOException{
+		Engine engine = session.workspace().parseEngine();
+		String result = engine.transform(template, MapUtil.<String, Object>create("self", this)) ;
+		
+		writer.write(result) ;
+	}
 	
 }
 
@@ -463,7 +472,6 @@ class GhostTreeNode extends TreeNode {
 	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
-
 
 	
 //	@Override

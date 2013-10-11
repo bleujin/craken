@@ -10,6 +10,7 @@ import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.mte.Engine;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.nsearcher.config.Central;
 
@@ -54,6 +55,8 @@ public interface Workspace {
 	public AbstractCacheStoreConfig config();
 
 	public GridFilesystem gfs();
+
+	public Engine parseEngine();
 
 
 

@@ -15,6 +15,7 @@ import net.ion.craken.loaders.lucene.SearcherCacheStore;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNode;
+import net.ion.framework.mte.Engine;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.IOUtil;
 import net.ion.nsearcher.config.Central;
@@ -29,6 +30,7 @@ public abstract class AbstractWorkspace implements Workspace {
 	private TreeCache treeCache;
 	private String wsName;
 	private AbstractCacheStoreConfig config;
+	private Engine parseEngine = Engine.createDefaultEngine() ;
 
 	protected AbstractWorkspace(Repository repository, SearcherCacheStore cacheStore, GridFilesystem gfs, TreeCache treeCache, String wsName, AbstractCacheStoreConfig config) {
 		this.repository = repository;
@@ -228,6 +230,9 @@ public abstract class AbstractWorkspace implements Workspace {
 		return config;
 	}
 
-
+	@Override
+	public Engine parseEngine(){
+		return parseEngine ;
+	}
 
 }

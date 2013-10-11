@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="lib/reflib/mongo-java-driver-2.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search440_fat.jar"/>
 	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/asm-3.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

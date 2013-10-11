@@ -1,6 +1,8 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,8 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	ChildQueryRequest childQuery(Query query) throws ParseException, IOException;
 
 	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException;
+
+	void template(String template, Writer writer) throws IOException;
 
 
 }

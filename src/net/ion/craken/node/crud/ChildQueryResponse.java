@@ -86,7 +86,7 @@ public class ChildQueryResponse {
 
 	public void debugPrint() throws IOException {
 		for (Fqn fqn : found()) {
-			Debug.line(session.pathBy(fqn)) ;
+			session.credential().tracer().println(session.pathBy(fqn)) ;
 		}
 	}
 

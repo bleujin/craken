@@ -127,7 +127,8 @@ public abstract class AbstractChildren<T extends NodeCommon, C extends AbstractC
 
 	public void debugPrint() {
 		while(hasNext()){
-			Debug.debug(next()) ;
+			T node = next();
+			node.session().credential().tracer().println(node) ;
 		}
 	}
 	
