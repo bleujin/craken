@@ -207,7 +207,7 @@ public class RepositoryImpl implements Repository{
 				.eviction().maxEntries(config.maxNodeEntry())
 				.transaction().syncCommitPhase(true).syncRollbackPhase(true)
 				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new CentralCacheStore()).addProperty("location", config.location())
+				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new CentralCacheStore()).addProperty(config.Location, config.location())
 				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build()) ;
 		
 		

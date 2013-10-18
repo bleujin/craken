@@ -104,7 +104,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public int intValue(int dftValue) {
 		try {
-			return Integer.parseInt(stringValue());
+			return (int)Double.parseDouble(stringValue());
 		} catch (NumberFormatException e) {
 			return dftValue;
 		}
@@ -112,7 +112,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public long longValue(long dftValue) {
 		try {
-			return Long.parseLong(stringValue());
+			return (long)Double.parseDouble(stringValue());
 		} catch (NumberFormatException e) {
 			return dftValue;
 		}
@@ -176,17 +176,3 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 
 }
-
-// class SerializedPropertyValue implements Serializable {
-// private static final long serialVersionUID = -6058220419345126634L;
-//
-// private String jsonString ;
-// public SerializedPropertyValue(String jsonString) {
-// this.jsonString = jsonString ;
-// }
-//	
-// private Object readResolve() throws ObjectStreamException{
-// return new PropertyValue(JsonParser.fromString(jsonString)) ;
-// }
-//	
-// }
