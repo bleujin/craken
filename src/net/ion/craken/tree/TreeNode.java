@@ -260,9 +260,6 @@ class ReadMap implements Map<PropertyId, PropertyValue>{
 		return internal.size();
 	}
 
-	
-	
-
 	@Override
 	public Set<java.util.Map.Entry<PropertyId, PropertyValue>> entrySet() {
 		for (PropertyValue pvalue : internal.values()) {

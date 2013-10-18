@@ -5,8 +5,9 @@ import java.io.Writer;
 import java.util.Locale;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.Functions;
-import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.mte.Engine;
@@ -22,23 +23,10 @@ public class TestTemplate extends TestBaseCrud{
 		session.tranSync(TransactionJobs.dummy("/bleujin", 10)) ;
 	}
 	
-	public void testTemplate() throws Exception {
-
-		
-		ReadNode found = session.pathBy("/bleujin");
-		// found.children().ascending("dummy") ;
-		Writer writer = new StringWriter();
-		found.template("${foreach self.children child ,}${child}${end}", writer) ;
-		
-		Debug.line(writer) ;
-	}
-	
 	public void testDirect() throws Exception {
 		ReadNode found = session.pathBy("/bleujin");
-		ReadChildren children = found.children().ascending("dummy");
-		
 		Engine engine = session.workspace().parseEngine();
-		String result = engine.transform("${foreach children child ,}${child}${end}", MapUtil.<String, Object>create("children", children)) ;
+		String result = engine.transform("${foreach self.children().gte(dummy,3).lte(dummy,5).descending(dummy) child ,}${child}${end}", MapUtil.<String, Object>create("self", found)) ;
 		Debug.line(result) ;
 	}
 	
@@ -50,12 +38,38 @@ public class TestTemplate extends TestBaseCrud{
 				return node.transformer(Functions.toJson()).toString() ;
 			}
 		}) ;
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("template", "${foreach self.children child ,}\n${child}${end}") ;
+				return null;
+			}
+		}) ;
+		
 		
 
 		ReadNode found = session.pathBy("/bleujin");
 		// found.children().ascending("dummy") ;
 		Writer writer = new StringWriter();
-		found.template("${self}", writer) ;
+		found.template("template", writer) ;
+		
+		Debug.line(writer) ;
+	}
+	
+	public void testAsTemplate() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception { // "${foreach self.children child ,}${child}${end}"
+				wsession.pathBy("/bleujin").property("template", "${foreach self.children().gte(dummy,3).lte(dummy,5).descending(dummy) child ,}${child}${end}") ;
+				return null;
+			}
+		}) ;
+		
+		
+		ReadNode found = session.pathBy("/bleujin");
+		found.children() ;
+		Writer writer = new StringWriter();
+		found.template("template", writer) ;
 		
 		Debug.line(writer) ;
 	}

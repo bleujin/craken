@@ -306,11 +306,14 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	@Override
-	public void template(String template, Writer writer) throws IOException{
+	public void template(String propId, Writer writer) throws IOException{
 		Engine engine = session.workspace().parseEngine();
-		String result = engine.transform(template, MapUtil.<String, Object>create("self", this)) ;
+		String template = property(propId).stringValue();
+		if (StringUtil.isBlank(template)) return ;
 		
+		String result = engine.transform(template, MapUtil.<String, Object>create("self", this)) ;
 		writer.write(result) ;
+		
 	}
 	
 }

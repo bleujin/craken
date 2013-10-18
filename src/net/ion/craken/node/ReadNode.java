@@ -32,7 +32,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException;
 
-	void template(String template, Writer writer) throws IOException;
+	void template(String propId, Writer writer) throws IOException;
 
 
 }
