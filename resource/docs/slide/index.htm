@@ -575,6 +575,9 @@ static public class DebugListener {
           </section>
         </div>
 
+
+
+
         <div class="slide transitionSlide" id="demo-markup-title">
           <section class="middle">
             <h2>Demo</h2>
@@ -583,7 +586,110 @@ static public class DebugListener {
           </section>
         </div>
 
+		<div class="slide realtime-communication" id="web-sockets">
+          <style>
+            #websockets-message {
+              text-align: center;
+              padding: 0px;
+            }
+            #ws-left {
+              float: left;
+              width: 490px;
+              padding-right: 10px
+            }
+            #ws-left h4 {
+              margin: 10px 0 0 0;
+            }
+            #ws-right {
+              float: left;
+              width: 300px;
+              border-left: solid 1px #9a9ab3;
+              padding-left: 20px;
+            }
+            #wsConsoleLog {
+              background-color: white;
+              border: solid 1px #999;
+              border-top-color: #ccc;
+              border-left-color: #ccc;
+              padding: 5px;
+              width: 290px;
+              height: 430px;
+              overflow-y: auto;
+            }
+            #wsConsoleLog p:first-of-type {
+              margin: 0 0;
+            }
+            #wsConsoleLog p {
+              margin: 0.5em 0;
+              font-size: 12px;
+            }
+            #ws-left input[type='text'] {
+              width: 370px;
+            }
+            #ws-left textarea {
+              width: 470px;
+              height: 325px;
+              font-size: 13px;
+            }
+            #ws-left button,
+            #ws-right button {
+              margin-top: 5px;
+              font-size: 14px;
+            }
+            #ws-config-config, #ws-config-message {
+              margin-top: 15px;
+            }
+            #ws-right button {
+              font-size: 14px;
+              margin-top: 3px;
+            }
+            #ws-powered {
+              text-align: center;
+              padding-top: 15px;
+              clear: both;
+            }
+            #ws-powered a {
+              border: 0
+            }
+          </style>
+          <header><span class="js">Demo</span> <h1>with websocket, script</h1></header>
+          <section>
+          	
 
+            <div id="ws-left">
+
+              <div id="ws-config-location">
+                <h4>Location:</h4>
+                <input type="text" id="wsUri" disabled />
+                <br>
+                <button id="wsConnectBut" disabled>Connect</button>
+                <button id="wsDisconnectBut" disabled>Disconnect</button>
+              </div>
+              <div id="ws-config-message">
+                <h4>Message:</h4>
+                <textarea id="wsMessage" disabled >session.tranSync(function(wsession){
+    wsession.pathBy("/bleujin").property("name", "bleujin") ;
+    wsession.pathBy("/hero").property("name", "hero") ;
+}) ;
+
+session.root().children().eq("name", "hero").debugPrint() ;</textarea> 
+                
+                <button id="wsSendBut" disabled>Send</button>
+              </div>
+            </div>
+            
+            <div id="ws-right">
+              <div id="ws-log">
+                <strong>Output:</strong>
+                <div id="wsConsoleLog"></div>
+                <button id="wsClearLogBut">Clear log</button>
+              </div>
+            </div>
+          </section>
+          <script src="src/websocket/websocket.js" defer></script>
+
+          </section>
+        </div>
 
 
 
