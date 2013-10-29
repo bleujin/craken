@@ -40,6 +40,7 @@ public class TestNodeIo extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		FileUtil.deleteDirectory(new File(CentralCacheStoreConfig.create().location())) ;
 		this.r = RepositoryImpl.create() ;
 		r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
 		this.session = r.login("test") ;
@@ -186,7 +187,21 @@ public class TestNodeIo extends TestCase {
 				return null;
 			}
 		}) ;
-		
+	}
+	
+	public void testReadMap() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				WriteNode bleujin = wsession.pathBy("/bleujin/my") ;
+				assertEquals(0, bleujin.toMap().size()) ;
+				
+				bleujin.property("name", "bleujin") ;
+				Debug.line(bleujin.toMap().keySet()) ;
+				assertEquals(2, bleujin.toMap().size()) ;
+				return null;
+			}
+		}) ;
 	}
 	
 }

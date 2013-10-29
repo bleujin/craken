@@ -7,6 +7,7 @@ import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
+import net.ion.nsearcher.search.analyzer.MyKoreanAnalyzer;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.store.Directory;
@@ -98,7 +99,7 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 			if (! file.exists()) file.mkdirs() ;
 			dir = FSDirectory.open(file) ;
 		}
-		final Central result = lazyConfig.dir(dir).build();
+		final Central result = lazyConfig.dir(dir).indexConfigBuilder().indexAnalyzer(new MyKoreanAnalyzer()).parent().searchConfigBuilder().queryAnalyzer(new MyKoreanAnalyzer()).build();
 		
 //		Debug.line('i', this.hashCode(), this) ;
 		

@@ -265,7 +265,7 @@ public class WriteNodeImpl implements WriteNode{
 //		return load(find) ;
 		
 		
-		Iterator<Object> iter = Fqn.fromString(relativeFqn).peekElements().iterator();
+		Iterator<String> iter = Fqn.fromString(relativeFqn).peekElements().iterator();
 		
 		TreeNode last = tree() ;
 		while(iter.hasNext()){
@@ -438,7 +438,7 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public Set<PropertyId> keys(){
-		return tree().getKeys(gfs()) ;
+		return tree().getKeys() ;
 	}
 	
 	public Set<PropertyId> normalKeys(){
@@ -467,11 +467,11 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(tree().get(gfs(), pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
 	}
 	
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(tree().getData(gfs()));
+		return Collections.unmodifiableMap(tree().getData());
 	}
 	
 	public Object id(){

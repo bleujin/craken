@@ -147,18 +147,16 @@ public class TreeNodeKey implements Serializable {
 		public TreeNodeKey readObject(ObjectInput input) throws IOException, ClassNotFoundException {
 			Fqn fqn = (Fqn) input.readObject();
 			int typeb = input.readUnsignedByte();
-			TreeNodeKey.Type type = null;
 			switch (typeb) {
 			case DATA_BYTE:
-				type = DATA;
-				break;
+				return fqn.contentKey();
 			case STRUCTURE_BYTE:
-				type = STRUCTURE;
-				break;
+				return fqn.structureKey() ;
 			case SYSTEM_BYTE :
-				type = SYSTEM ;
+				return fqn.systemKey() ;
+			default :
+				return fqn.systemKey() ;
 			}
-			return new TreeNodeKey(fqn, type);
 		}
 
 		@Override
@@ -169,11 +167,11 @@ public class TreeNodeKey implements Serializable {
 
 	public static TreeNodeKey fromString(String idString) {
 		if (idString.startsWith(STRUCTURE.prefix())) {
-			return new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) ;
+			return Fqn.fromString(idString.substring(1)).structureKey() ; // new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) ;
 		} else if (idString.startsWith(SYSTEM.prefix())) {
-			return new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.SYSTEM) ;
+			return Fqn.fromString(idString.substring(1)).systemKey() ;
 		} else {
-			return new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ;
+			return Fqn.fromString(idString).contentKey() ; //  new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ;
 		}
 //		return new TreeNodeKey(Fqn.fromString(idString), idString.startsWith("@") ? Type.STRUCTURE : Type.DATA);
 	}

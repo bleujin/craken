@@ -178,8 +178,8 @@ class ReloadIterator implements Iterator<ReadNode> {
 			public int compare(TreeNode left, TreeNode  right) {
 
 				for (SortElement sele : sorts) {
-					PropertyValue leftProperty = left.get(gfs(), PropertyId.normal(sele.propid()));
-					PropertyValue rightProperty = right.get(gfs(), PropertyId.normal(sele.propid()));
+					PropertyValue leftProperty = left.get(PropertyId.normal(sele.propid()));
+					PropertyValue rightProperty = right.get(PropertyId.normal(sele.propid()));
 
 					if (leftProperty == null || rightProperty == null)
 						return 0;

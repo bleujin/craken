@@ -77,8 +77,7 @@ public class RepositoryImpl implements Repository{
 
 
 	public static RepositoryImpl testSingle(){
-		Configuration config = new ConfigurationBuilder().invocationBatching().enable().build() ; // not indexable : indexing().enable().
-		return new RepositoryImpl(new DefaultCacheManager(config))  ;
+		return create().defineWorkspace("test", CentralCacheStoreConfig.create().location("")) ;
 	}
 	
 	
@@ -200,7 +199,7 @@ public class RepositoryImpl implements Repository{
 //	}
 
 
-	public Repository defineWorkspace(String wsName, CentralCacheStoreConfig config) {
+	public RepositoryImpl defineWorkspace(String wsName, CentralCacheStoreConfig config) {
 		configs.put(wsName, config) ;
 		
 		defineConfig(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()

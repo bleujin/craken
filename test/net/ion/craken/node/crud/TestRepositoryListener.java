@@ -222,7 +222,7 @@ public class TestRepositoryListener extends TestCase{
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/bleujin").removeSelf() ;
-				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
 				return null;
 			}
 		}) ;
@@ -239,7 +239,7 @@ public class TestRepositoryListener extends TestCase{
 				
 				((AbstractWriteSession)wsession).restoreOverwrite() ;
 				wsession.pathBy("/__transactions/savedtranid").property("address", addresss);
-				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
 				
 				return null;
 			}
@@ -261,7 +261,7 @@ public class TestRepositoryListener extends TestCase{
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/bleujin").removeSelf() ;
-				assertEquals(false, wsession.workspace().getCache().cache().containsKey(new TreeNodeKey(Fqn.fromString("/bleujin"), Type.DATA))) ;
+				assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
 				return null;
 			}
 		}) ;

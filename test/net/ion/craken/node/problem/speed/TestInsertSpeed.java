@@ -51,7 +51,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/insert")) ;
 		
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/insert"));
+		r.defineWorkspace("test", CentralCacheStoreConfig.create().location(""));
 		r.start();
 		this.session = r.login("test");
 	}
@@ -89,7 +89,7 @@ public class TestInsertSpeed extends TestCase {
 		// 20k : resetBy 14, createBy 12, mergeBy 41
 		// 100k : resetBy 41, createBy 37, mergeBy 269
 		// 500k : createBy 197
-		int loopCount = 100000 ;
+		int loopCount = 20000 ;
 		long start = System.currentTimeMillis();
 		session.tranSync(new SampleInsertJob("/bleujin/", loopCount, Action.CREATE)); 
 		Debug.line(System.currentTimeMillis() - start);
@@ -98,7 +98,7 @@ public class TestInsertSpeed extends TestCase {
 	}
 	
 	public void testDump() throws Exception {
-		int loopCount = 100000 ;
+		int loopCount = 20000 ;
 		long start = System.currentTimeMillis();
 //		session.workspace().central().indexConfig().fieldIndexingStrategy(new ManualIndexingStrategy(){
 //			@Override
@@ -197,7 +197,7 @@ class SampleInsertJob implements TransactionJob<Void> {
 				if (line.length > ii) wnode.property(headers[ii], line[ii]) ;
 			}
 			line = reader.readLine() ;
-			if ((max % 30000) == 0) {
+			if ((max % 5000) == 0) {
 				System.out.print('.') ;
 				wsession.continueUnit() ;
 			} 

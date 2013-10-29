@@ -11,7 +11,7 @@ import net.ion.framework.util.ListUtil;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
-public abstract class AbstractChildren<T extends NodeCommon, C extends AbstractChildren> extends IteratorList<T>{
+public abstract class AbstractChildren<T extends NodeCommon<T>, C extends AbstractChildren> extends IteratorList<T>{
 
 
 	public abstract C filter(Predicate<T> equalValue)  ;

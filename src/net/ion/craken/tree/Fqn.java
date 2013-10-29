@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.ion.craken.loaders.lucene.DocEntry;
+import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ObjectUtil;
 
@@ -31,7 +32,7 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	private static final long serialVersionUID = 7459897811324670392L;
 	public static final String SEPARATOR = "/";
 
-	private final Object[] elements;
+	private final String[] elements;
 	private transient int hash_code = 0;
 	/**
 	 * Immutable root Fqn.
@@ -43,40 +44,57 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	 * A cached string representation of this Fqn, used by toString to it isn't calculated again every time.
 	 */
 	protected String stringRepresentation;
-	private static final Object[] EMPTY_ARRAY = ReflectionUtil.EMPTY_CLASS_ARRAY;
+	private static final String[] EMPTY_ARRAY = new String[0];
 
-	private Fqn(Object... elements) {
+	private TreeNodeKey contNodeKey;
+	private TreeNodeKey struNodeKey;
+	
+	private Fqn(String... elements) {
 		this.elements = elements;
+		initKey();
 	}
 
-	/**
-	 * If safe is false, Collections.unmodifiableList() is used to wrap the list passed in. This is an optimisation so Fqn.fromString(), probably the most frequently used factory method, doesn't end up needing to use the unmodifiableList() since it creates the list internally.
-	 * 
-	 * @param names
-	 *            List of names
-	 */
-	private Fqn(List<?> names) {
-		if (names != null)
-			elements = names.toArray();
-		else
-			elements = EMPTY_ARRAY;
+	private Fqn(List<String> names) {
+		elements = (names != null) ? names.toArray(new String[0]) : EMPTY_ARRAY;
+		initKey() ;
 	}
 
 	private Fqn(Fqn base, Object... relative) {
-		elements = new Object[base.elements.length + relative.length];
+		elements = new String[base.elements.length + relative.length];
 		System.arraycopy(base.elements, 0, elements, 0, base.elements.length);
 		System.arraycopy(relative, 0, elements, base.elements.length, relative.length);
+		initKey() ;
 	}
 
+	private void initKey() {
+		this.contNodeKey = new TreeNodeKey(this, Type.DATA) ;
+		this.struNodeKey = new TreeNodeKey(this, Type.STRUCTURE) ;
+	}
+	
 	// ----------------- END: Private constructors for use by factory methods only. ----------------------
 
+	public TreeNodeKey contentKey(){
+		return contNodeKey ;
+	}
+	
+	public TreeNodeKey structureKey(){
+		return struNodeKey ;
+	}
+
+	public TreeNodeKey systemKey(){
+		return new TreeNodeKey(this, Type.SYSTEM) ;
+	}
+	
+	
+	
+	
 	@SuppressWarnings("unchecked")
-	public static Fqn fromList(List<?> names) {
+	public static Fqn fromList(List<String> names) {
 		return new Fqn(names);
 	}
 
-	public static Fqn fromElements(Object... elements) {
-		Object[] copy = new Object[elements.length];
+	public static Fqn fromElements(String... elements) {
+		String[] copy = new String[elements.length];
 		System.arraycopy(elements, 0, copy, 0, elements.length);
 		return new Fqn(copy);
 	}
@@ -113,7 +131,7 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 		if (endIndex < startIndex)
 			throw new IllegalArgumentException("End index cannot be less than the start index!");
 		int len = endIndex - startIndex;
-		Object[] el = new Object[len];
+		String[] el = new String[len];
 		System.arraycopy(elements, startIndex, el, 0, len);
 		return new Fqn(el);
 	}
@@ -267,7 +285,7 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 		}
 	}
 
-	public List<Object> peekElements() {
+	public List<String> peekElements() {
 		return Arrays.asList(elements);
 	}
 
@@ -292,16 +310,16 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 		@Override
 		public void writeObject(ObjectOutput output, Fqn fqn) throws IOException {
 			output.writeInt(fqn.elements.length);
-			for (Object element : fqn.elements)
-				output.writeObject(element);
+			for (String element : fqn.elements)
+				output.writeUTF(element);
 		}
 
 		@Override
 		public Fqn readObject(ObjectInput input) throws IOException, ClassNotFoundException {
 			int size = input.readInt();
-			Object[] elements = new Object[size];
+			String[] elements = new String[size];
 			for (int i = 0; i < size; i++)
-				elements[i] = input.readObject();
+				elements[i] = input.readUTF();
 			return new Fqn(elements);
 		}
 

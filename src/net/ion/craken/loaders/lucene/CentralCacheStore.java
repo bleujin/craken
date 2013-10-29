@@ -341,8 +341,9 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	}
 
-	public static WriteDocument toWriteDocument(IndexSession isession, IndexWriteConfig indexConfig, Fqn fqn, AtomicMap<PropertyId, PropertyValue> props) {
-		throw new UnsupportedOperationException("working...--");
+	public static WriteDocument toWriteDocument(IndexSession isession, IndexWriteConfig iwconfig, Fqn fqn, AtomicMap<PropertyId, PropertyValue> props) {
+		return TransactionLog.toWriteDocument(isession, iwconfig, fqn, props) ;
+//		throw new UnsupportedOperationException("working...--");
 	}
 
 }

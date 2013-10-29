@@ -23,25 +23,28 @@ public class TreeNode extends TreeStructureSupport {
 	private Fqn fqn;
 	private TreeNodeKey dataKey, structureKey;
 	private Map<PropertyId, PropertyValue> values = null ;
+	private GridFilesystem gfs;
 
-	public TreeNode(Fqn fqn, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, BatchContainer batchContainer) {
+	public TreeNode(Fqn fqn, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, GridFilesystem gfs, BatchContainer batchContainer) {
 		super(cache, batchContainer) ;
 		this.fqn = fqn;
-		this.dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA);
-		this.structureKey = new TreeNodeKey(fqn, TreeNodeKey.Type.STRUCTURE);
+		this.gfs = gfs ;
+		
+		this.dataKey = fqn.contentKey();
+		this.structureKey = fqn.structureKey() ;
 		this.batchContainer = batchContainer ;
 	}
 
 	public TreeNode getParent() {
 		if (fqn.isRoot())
 			return this;
-		return new TreeNode(fqn.getParent(), cache, batchContainer);
+		return new TreeNode(fqn.getParent(), cache, gfs, batchContainer);
 	}
 
 	public Set<TreeNode> getChildren() {
 		Set<TreeNode> result = new HashSet<TreeNode>();
 		for (Fqn f : getStructure(structureKey).values()) {
-			result.add(new TreeNode(f, cache, batchContainer));
+			result.add(new TreeNode(f, cache, gfs, batchContainer));
 		}
 		return Immutables.immutableSetWrap(result);
 	}
@@ -50,15 +53,15 @@ public class TreeNode extends TreeStructureSupport {
 		return Immutables.immutableSetCopy(getStructure(structureKey).keySet());
 	}
 
-	public Map<PropertyId, PropertyValue> getData(GridFilesystem gfs) {
+	public Map<PropertyId, PropertyValue> getData() {
 		if (values == null){
 			values = Collections.unmodifiableMap(new ReadMap(gfs, getDataInternal()));
 		}
 		return values ;
 	}
 
-	public Set<PropertyId> getKeys(GridFilesystem gfs) {
-		return getData(gfs).keySet();
+	public Set<PropertyId> getKeys() {
+		return getData().keySet();
 	}
 
 	public Fqn getFqn() {
@@ -78,7 +81,7 @@ public class TreeNode extends TreeStructureSupport {
 		// 2) then create the structure and data maps
 		mergeAncestor(absoluteChildFqn);
 
-		return new TreeNode(absoluteChildFqn, cache, batchContainer);
+		return new TreeNode(absoluteChildFqn, cache, gfs, batchContainer);
 	}
 
 	public boolean removeChild(Fqn f) {
@@ -89,11 +92,11 @@ public class TreeNode extends TreeStructureSupport {
 		Map<Object, Fqn> s = getStructure(structureKey);
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
-			TreeNode child = new TreeNode(childFqn, cache, batchContainer);
+			TreeNode child = new TreeNode(childFqn, cache, gfs, batchContainer);
 			child.removeChildren();
 			child.clearData(); // this is necessary in case we have a remove and then an add on the same node, in the same tx.
-			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.DATA));
-			cache.remove(new TreeNodeKey(childFqn, TreeNodeKey.Type.STRUCTURE));
+			cache.remove(childFqn.contentKey());
+			cache.remove(childFqn.structureKey());
 			
 			return true;
 		}
@@ -103,7 +106,7 @@ public class TreeNode extends TreeStructureSupport {
 	
 	public TreeNode getChild(Fqn f) {
 		if (hasChild(f))
-			return new TreeNode(Fqn.fromRelativeFqn(fqn, f), cache, batchContainer);
+			return new TreeNode(Fqn.fromRelativeFqn(fqn, f), cache, gfs, batchContainer);
 		else
 			return null;
 	}
@@ -150,8 +153,8 @@ public class TreeNode extends TreeStructureSupport {
 		data.putAll(map);
 	}
 
-	public PropertyValue get(GridFilesystem gfs, PropertyId key) {
-		return getData(gfs).get(key);
+	public PropertyValue get(PropertyId key) {
+		return getData().get(key);
 	}
 
 	public PropertyValue remove(PropertyId key) {
@@ -228,6 +231,9 @@ class ReadMap implements Map<PropertyId, PropertyValue>{
 	public ReadMap(GridFilesystem gfs, Map<PropertyId, PropertyValue> internal) {
 		this.gfs = gfs ;
 		this.internal = internal ;
+		for (PropertyValue pvalue : internal.values()) {
+			pvalue.gfs(gfs) ;
+		}		
 	}
 
 	@Override
@@ -262,9 +268,9 @@ class ReadMap implements Map<PropertyId, PropertyValue>{
 
 	@Override
 	public Set<java.util.Map.Entry<PropertyId, PropertyValue>> entrySet() {
-		for (PropertyValue pvalue : internal.values()) {
-			pvalue.gfs(gfs) ;
-		}
+//		for (PropertyValue pvalue : internal.values()) {
+//			pvalue.gfs(gfs) ;
+//		}
 		return internal.entrySet() ;
 	}
 
@@ -276,9 +282,9 @@ class ReadMap implements Map<PropertyId, PropertyValue>{
 
 	@Override
 	public Collection<PropertyValue> values() {
-		for (PropertyValue pv : internal.values()) {
-			pv.gfs(gfs) ;
-		}
+//		for (PropertyValue pv : internal.values()) {
+//			pv.gfs(gfs) ;
+//		}
 		return internal.values();
 	}
 	

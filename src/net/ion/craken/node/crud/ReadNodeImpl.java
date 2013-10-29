@@ -142,7 +142,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(treeNode.get(gfs(), pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(treeNode.get(pid), PropertyValue.NotFound);
 	}
 
 //	public Optional<PropertyValue> optional(String key) {
@@ -154,7 +154,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 	
 	public Set<PropertyId> keys(){
-		return treeNode.getKeys(gfs()) ;
+		return treeNode.getKeys() ;
 	}
 	
 	public Set<PropertyId> normalKeys(){
@@ -169,7 +169,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(treeNode.getData(gfs()));
+		return Collections.unmodifiableMap(treeNode.getData());
 	}
 	
 	public <T> T transformer(Function<ReadNode, T> function){
@@ -343,11 +343,9 @@ class GhostReadNode extends ReadNodeImpl {
 class GhostTreeNode extends TreeNode {
 
 	private ReadSession session ;
-	private final Fqn fqn ;
 	GhostTreeNode(ReadSession session, Fqn fqn){
-		super(null, null, null) ;
+		super(fqn, null, null, null) ;
 		this.session = session ;
-		this.fqn = fqn ;
 	}
 	
 	@Override
@@ -366,7 +364,7 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public PropertyValue get(GridFilesystem gfs, PropertyId key) {
+	public PropertyValue get(PropertyId key) {
 		return PropertyValue.NotFound;
 	}
 
@@ -389,23 +387,23 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public Map<PropertyId, PropertyValue> getData(GridFilesystem gfs) {
+	public Map<PropertyId, PropertyValue> getData() {
 		return MapUtil.EMPTY;
 	}
 
 	@Override
 	public Fqn getFqn() {
-		return fqn;
+		return super.getFqn();
 	}
 
 	@Override
-	public Set<PropertyId> getKeys(GridFilesystem gfs) {
+	public Set<PropertyId> getKeys() {
 		return SetUtil.EMPTY;
 	}
 
 	@Override
 	public TreeNode getParent() {
-		return ((ReadNodeImpl)session.ghostBy(fqn.getParent())).treeNode();
+		return ((ReadNodeImpl)session.ghostBy(super.getFqn().getParent())).treeNode();
 	}
 
 	@Override

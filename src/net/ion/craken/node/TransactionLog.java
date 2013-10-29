@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
@@ -35,7 +36,7 @@ public class TransactionLog{
 	private String path;
 	private Touch touch;
 	private JsonObject val;
-	private Action action = Action.MERGE ;
+	private Action action = Action.CREATE ;
 	private String parentPath ;
 
 	public static class PropId {
@@ -117,12 +118,23 @@ public class TransactionLog{
 		return result.toString();
 	}
 	
+	public static WriteDocument toWriteDocument(IndexSession isession, IndexWriteConfig iwconfig, Fqn fqn, AtomicMap<PropertyId, PropertyValue> props) {
+		final String path = fqn.toString() ;
+		WriteDocument propDoc = isession.newDocument(path).keyword("name", "bleujin").number("age", 20).text("text", "thinking is high");
+		
+		
+//		return propDoc;
+		throw new UnsupportedOperationException("working...--");
+	}
+
+	
+	
 	public void writeDocument(IndexSession isession, IndexWriteConfig config) throws IOException{
 		final WriteDocument propDoc = isession.newDocument(path());
 		JsonObject jobj = new JsonObject();
 		jobj.addProperty(DocEntry.ID, path());
 		// jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
-		jobj.add(DocEntry.PROPS, fromMapToJson(propDoc, config, this));
+		jobj.add(DocEntry.PROPS, fromMapToJson(propDoc, config));
 
 		propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
 		
@@ -133,13 +145,13 @@ public class TransactionLog{
 	}
 
 	
-	private JsonObject fromMapToJson(WriteDocument doc, IndexWriteConfig iwconfig, TransactionLog log) {
+	private JsonObject fromMapToJson(WriteDocument doc, IndexWriteConfig iwconfig) {
 		JsonObject jso = new JsonObject();
-		String parentPath = log.parentPath();
+		String parentPath = parentPath();
 		doc.keyword(DocEntry.PARENT, parentPath);
 		doc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis());
 		
-		for (Entry<String, JsonElement> entry : log.props().entrySet()) {
+		for (Entry<String, JsonElement> entry : props().entrySet()) {
 			final String propId = entry.getKey();
 			JsonArray pvalue = entry.getValue().getAsJsonArray();
 			jso.add(propId, entry.getValue().getAsJsonArray()); 
@@ -149,7 +161,7 @@ public class TransactionLog{
 				fieldIndex.index(doc, propId, e.isJsonObject() ? e.toString() : e.getAsString()) ;
 			}
 		}
-		for (Entry<String, JsonElement> entry : log.rels().entrySet()) {
+		for (Entry<String, JsonElement> entry : rels().entrySet()) {
 			final String propId = entry.getKey();
 			JsonArray pvalue = entry.getValue().getAsJsonArray();
 			jso.add(propId, entry.getValue().getAsJsonArray()); // if type == refer, @
@@ -161,6 +173,7 @@ public class TransactionLog{
 		
 		return jso;
 	}
+
 
 	
 }

@@ -37,7 +37,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 		if (Fqn.ROOT.equals(f)) {
 			return true ;
 		}
-		final boolean result = cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.DATA)) && cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.STRUCTURE));
+		final boolean result = cache.containsKey(f.contentKey()) && cache.containsKey(f.structureKey());
 		return result;
 //			return cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.DATA)) && cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.STRUCTURE));
 	}
@@ -51,8 +51,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean mergeAncestor(IndexWriteConfig iwconfig, Fqn fqn) {
-		TreeNodeKey dataKey = new TreeNodeKey(fqn, TreeNodeKey.Type.DATA);
-		if (cache.containsKey(dataKey))
+		if (cache.containsKey(fqn.contentKey()))
 			return false;
 
 		if (!fqn.isRoot()) {
@@ -65,7 +64,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 			if (! fqn.getLastElement().toString().startsWith("__")) 
 				parentStructure.put(fqn.getLastElement(), fqn); // /__... 은 /의 children이 아닌걸로 .. 
 		}
-		getAtomicMap(dataKey);
+		getAtomicMap(fqn.contentKey());
 		
 		return true;
 	}
@@ -77,11 +76,11 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected Map<Object, Fqn> getStructure(Fqn fqn) {
-		return getAtomicMap(new TreeNodeKey(fqn, TreeNodeKey.Type.STRUCTURE));
+		return getAtomicMap(fqn.structureKey());
 	}
 
 	public static boolean isLocked(LockManager lockManager, Fqn fqn) {
-		return ((lockManager.isLocked(new TreeNodeKey(fqn, TreeNodeKey.Type.STRUCTURE)) && lockManager.isLocked(new TreeNodeKey(fqn, TreeNodeKey.Type.DATA))));
+		return ((lockManager.isLocked(fqn.structureKey()) && lockManager.isLocked(fqn.contentKey())));
 	}
 
 	protected final <K, V> Map<K, V> getAtomicMap(final TreeNodeKey key) {

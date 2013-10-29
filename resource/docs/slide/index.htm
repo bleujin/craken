@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html manifest="cache.appcache">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+    <title>HTML5 Presentation</title>
+    <link href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono" rel="stylesheet" type="text/css" />
+    <link id="prettify-link" href="src/prettify/prettify.css" rel="stylesheet" disabled />
+    <link href="css/moon.css" class="theme" rel="stylesheet" />
+    <link href="css/sand.css" class="theme" rel="stylesheet" />
+    <link href="css/sea_wave.css" class="theme" rel="stylesheet" />
+    <link href="css/default.css" class="theme" rel="stylesheet" media="screen"  />
+    <link href="css/common.css" rel="stylesheet" media="screen" />
+  </head>
+  <body>
+    <nav id="helpers">
+      <button title="Previous slide" id="nav-prev" class="nav-prev">⇽</button> 
+      <button title="Jump to a random slide" id="slide-no">5</button> 
+      <button title="Next slide" id="nav-next" class="nav-next">⇾</button>
+      <menu>
+        <button type="checkbox" data-command="toc" title="Table of Contents" class="toc">TOC</button>
+        <!-- <button type="checkbox" data-command="resources" title="View Related Resources">☆</button> -->
+        <button type="checkbox" data-command="notes" title="View Slide Notes">✏</button>
+        <button type="checkbox" data-command="source" title="View slide source">↻</button>
+        <button type="checkbox" data-command="help" title="View Help">?</button>
+      </menu>
+    </nav>
+    <div class="presentation">
+      <div id="presentation-counter">Loading...</div>
+      <div class="slides">
+        <div class="slide" id="landing-slide">
+          <style>
+            #landing-slide p {
+              font-size: 35px;
+            }
+            p#disclaimer-message {
+              font-size: 20px;
+            }
+          </style>
+          <section class="middle">
+            <p>This presentation is an HTML5 website</p>
+            <p>Press <span id="left-init-key" class="key">&rarr;</span> key to advance.</p>
+            <p id="disclaimer-message">Having issues seeing the presentation? Read the <a href="disclaimer.html">disclaimer</a></p>
+          </section>
+          <aside class="note">
+            <section>
+              Welcome! (This field is for presenter notes and commentary.)
+            </section>
+          </aside> 
+        </div>
+
+        <div class="slide" id="controls-slide">
+          <header>Slides controls</header>
+          <style>
+            #controls-slide li, #controls-slide p {
+              font-size: 32px;
+            }
+            #controls-slide .key {
+              bottom: 2px;
+            }
+          </style>
+          <section>
+            <ul>
+              <li><span class="key">&larr;</span> and <span class="key">&rarr;</span> to move around.</li>
+              <li><span class="key">Ctrl/Command</span> and <span class="key">+</span> or <span class="key">-</span> to zoom in and out if slides don’t fit.</li>
+              <li><span class="key">S</span> to view page source.</li>
+              <li><span class="key">T</span> to change the theme.</li>
+              <li><span class="key">H</span> to toggle syntax highlight.</li>
+              <li><span class="key">N</span> to toggle speaker notes.</li>
+              <li><span class="key">3</span> to toggle 3D effect.</li>
+              <li><span class="key">0</span> to toggle help.</li>
+            </ul>
+          </section>
+        </div>
+
+		<div class="slide" id="whoami">
+			<header>Whoami</header>
+          <style>
+            #whoami pre {
+              font-size: 22px;
+              top : 20px
+            }
+          </style>
+			<section>
+				<h2>I am..</h2>
+				<pre>blog : http://bleujin.tistory.com/
+company : i-on communications, cxm team
+role : 표준프레임워크 커미터(since 2011)</pre>
+				
+				<h2>Working</h2>
+				<pre> - https://github.com/bleujin/aradon(분산 미들웨어)
+ - https://github.com/bleujin/craken(분산 레파지토리)
+ - etc) aradonClient, isearcher, ionframework
+</pre>				
+			</section>
+		</div>
+
+        <div class="slide" id="title-slide">
+          <style>
+            #title-slide h1, #title-slide h2 {
+              color: black;
+            }
+            #title-slide h1 {
+              letter-spacing: -2px;
+              font-size: 96px;
+            }
+            #title-slide h2 {
+              margin-top: -5px;
+              font-size: 40px;
+              letter-spacing: -1px;
+            }
+          </style>
+          <section class="middle">
+            <hgroup>
+              <h1>
+                CRAKEN*
+              </h1>
+              <h2>
+                Easy Repository For Dev
+              </h2>
+            </hgroup>
+            <img src="img/craken.jpg" />
+          </section>
+        </div>
+
+
+        <div class="slide" id="timeline-slide">
+          <header>Rough Explain</header>
+          <section>
+            
+              <h2>HOME : </h2><pre>http://github.com/bleujin/craken</pre>
+              <h2>DO / SIMILARY : </h2><pre>Embed Repository / RDB, hadoop, nutch, memcache</pre>
+              <h2>SUPER : </h2><pre>infinispan, netty, isearcher</pre>
+              <h2>SIZE / SINCE: </h2><pre>about 300 class - 1.0M / since 2012 (current 0.4)</pre>
+          </section>
+        </div>
+
+
+        <div class="slide" id="formula-intro-slide">
+          <section class="middle formula" data-build>
+            <style>
+             #char {
+                margin-top: 25px;
+                font-size: 35px;
+             }
+            </style>
+            CRAKEN ~=
+            <span class="html">Data</span>
+            +
+            <span class="css">Index</span>
+            +
+            <span class="js">BLOB</span>
+            
+          </section>
+        </div>
+        
+
+        <div class="slide" id="table-of-contents">
+          <header><h1>Today, Agenda...</h1></header>
+          <style>
+            #toc-list > li {
+              font-size: 26px;
+              line-height: 33px;
+              opacity: 0.85;
+            }
+            #toc-list > li:hover {
+              opacity: 1;
+            }
+            #toc-list a {
+              border-bottom: 0;
+            }
+            #toc-list a:hover{
+              border-bottom: 2px solid #3f3f3f;
+            }
+            #toc-list img {
+              vertical-align: middle;
+              margin-left: 15px;
+            }
+          </style>
+          <section>
+            <ul id="toc-list">
+            </ul>
+          </section>
+        </div>
+
+
+        <div class="slide transitionSlide" id="semantics-markup-title">
+          <section class="middle">
+            <h2>Imaging</h2>
+            <p>만약 이런 서비스를 만든다면..</p>
+            <img src="src/HTML5_Semantics_64.png" title="Imaging" alt="Imaging">
+          </section>
+        </div>
+
+        <div class="slide semantics" id="imaging-example-1">
+          <header><span class="html">IMAGING</span> <h1>Case 1</h1></header>
+          <section>
+            <pre>Mobile Game</pre>
+		    <div class="case-example example">
+		    	<img src="img/case2.jpg">
+		    </div>
+          </section>
+        </div>
+
+        <div class="slide semantics" id="imaging-example-2">
+          <header><span class="html">IMAGING</span> <h1>Case 2</h1></header>
+          <section>
+            <pre>Weather Service</pre>
+		    <div class="case-example example">
+		    	<img src="img/case3.jpg">
+		    </div>
+          </section>
+        </div>
+
+        <div class="slide semantics" id="imaging-example-3">
+          <header><span class="html">IMAGING</span> <h1>Case 3</h1></header>
+          <section>
+            <pre>Global CRM Service</pre>
+		    <div class="case-example example">
+		    	<img src="img/case4.jpg">
+		    </div>
+          </section>
+        </div>
+
+
+
+
+
+        <div class="slide transitionSlide" id="css3-title">
+          <section class="middle">
+            <h2>WHY</h2>
+            <p>Good! 이제 만들어 봅시다.</p>
+            <img src="src/HTML5_Styling_32.png" title="ElephantThinking" alt="ElephantThinking">
+          </section>
+        </div>
+
+       
+
+        <div class="slide styling" id="why-case1">
+
+          <header><span class="css">WHY</span> <h1>처음에는...</h1></header>
+          <section>
+          	<pre><em>흠. 좋아요 심플한 아키텍쳐군요.</em></pre>          	
+        	<div class="why-customer"><img src="img/cat-com.jpg" width="250" height="200" /></div>
+        	<div class="why-architecture"><img src="img/why1.png"  width="400" height="400" /></div>
+          </section>
+        </div>
+        
+        <div class="slide styling" id="why-case2">
+          <header><span class="css">WHY</span> <h1>+Blob</h1></header>
+          <section>
+          	<pre><em>상품 이미지같은 BLOB도 관리했으면 해요.</em>
+.... 그런 것 쯤이야 금방이죠</pre>          	
+        	<div class="why-customer"><img src="img/cat-com.jpg" width="250" height="200" /></div>
+        	<div class="why-architecture"><img src="img/why2.png"  width="400" height="400" /></div>
+          </section>
+        </div>
+
+        <div class="slide styling" id="why-case3">
+          <header><span class="css">WHY</span> <h1>+Index</h1></header>
+          <section>
+          	<pre><em>전문 검색이 필요해요.</em>
+.... Lucene을 사용할 기회가 되겠군요(선이 조금 복잡해졌군요)</pre>          	
+        	<div class="why-customer"><img src="img/cat-com.jpg" width="250" height="200" /></div>
+        	<div class="why-architecture"><img src="img/why3.png"  width="400" height="400" /></div>
+          </section>
+        </div>
+
+        <div class="slide styling" id="why-case4">
+          <header><span class="css">WHY</span> <h1>+분산</h1></header>
+          <section>
+          	<pre><em>사용자가 너무 많아서 분산이 필요해요</em>
+.... 톰캣에는 클러스터링이란게 .. 어?</pre>          	
+        	<div class="why-customer"><img src="img/cat-com.jpg" width="250" height="200" /></div>
+        	<div class="why-architecture"><img src="img/why4.png"  width="500" height="400" /></div>
+          </section>
+        </div>
+
+        <div class="slide styling" id="why-case5">
+          <header><span class="css">WHY</span> <h1>+분산</h1></header>
+          <section>
+          	<pre>좋아요. 최근 유행하는 OpenSource 기술을 사용하죠.
+일단 컴퓨터가 톰캣 3대에 Hadoop은 MasterNode와 DataNode를 포함해서 기본 5대에
+Sharding하는 MongoDB를 설치해야 하는데 Mongos와 ConfigSrv와 Sharding을 고려하면...
+.... 여기에 Nutch는... 
+<em>자.. 잠깐만요. 구현은 그렇다 치더라도 이거 누가 관리하죠?</em>
+</pre>          	
+        	<div class="why-customer"><img src="img/cat-com.jpg" width="250" height="200" /></div>
+        	<div class="why-architecture"><img src="img/why5.png"  width="500" height="380" /></div>
+          </section>
+        </div>
+
+        <div class="slide styling" id="why-case6">
+          <header><span class="css">WHY</span> <h1>그들이 진정 원했던 것은</h1></header>
+          <section>
+        	<div class="why-customer">
+        		<img src="img/want_1.jpg" style="padding: 5px"/>
+        		<img src="img/want_2.jpg" style="padding: 5px"/>
+        		<img src="img/want_3.jpg" style="padding: 5px"/>
+        	</div>
+        	<div style="list-style: none;  float: right; padding: 10px">
+        		<img src="img/want_4.jpg" style="padding: 5px"/>
+        		<img src="img/want_5.jpg" style="padding: 5px"/>
+        		<img src="img/want_6.jpg" style="padding: 5px"/>
+        	</div>
+          </section>
+        </div>
+
+		<div class="slide styling" id="why-case7">
+          <header><span class="css">WHY</span> <h1>Think, Think, Think</h1></header>
+          <section class="middle">
+			<img src="img/elephant.jpg" /><br clear="all" />
+            	우리는 구글이나 애플이 아니에요.
+		  </section>
+        </div>
+        
+        <div class="slide styling" id="why-case8">
+          <header><span class="css">WHY</span> <h1>그럴싸한데?</h1></header>
+          <section>
+          	<pre><em>저희 입장에서는 RDB에 저장된 것만이 아니라 Blob이나 Index도 관리 해야 할 데이타에요</em>
+그렇지만 수십대의 분산이 필요하지도 않고 관리할 인력도 없죠. 	</pre>          	
+        	<div class="why-customer"><img src="img/cat.jpg" width="250" height="200" /></div>
+        	<div class="why-architecture"><img src="img/why7.png"  width="500" height="380" /></div>
+          </section>
+        </div>
+
+
+
+
+
+
+
+
+
+        <div class="slide transitionSlide" id="craken-feature-title">
+          <section class="middle">
+            <h2>Craken Feature</h2>
+            <p>Deeper integration with the Operating System</p>
+            <img src="src/HTML5_Device_Access_64.png" title="Craken Feature" alt="Craken Feature">
+          </section>
+        </div>
+
+
+
+        <div class="slide styling" id="craken-feature">
+          <style>
+          </style>
+          <header><span class="js">Craken Feature</span> <h1>특징</h1></header>
+          <section>
+             <ul class="bullets">
+            	<li>TreeDocument Data + Blob + Index</li>
+            	<li>Embeding</li>
+            	<li>Distribute(DIST + REPL)</li>
+            	<li>Cache(Memory Grid)</li>
+            	<li>Event Notification</li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="slide styling" id="craken-architecture">
+          <style>
+          	.arch {
+          		top-margin : 30px ;
+          		padding : 30px ;
+          	}
+          </style>
+          <header><span class="js">Craken Feature</span> <h1>Architecture</h1></header>
+          <section>
+             <div class="center arch"><img src="img/arch.png" class="arch" width="600" height="400"></div>
+          </section>
+        </div>
+
+        <div class="slide styling" id="craken-cando">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><span class="js">Craken Feature</span> <h1>Can do it</h1></header>
+          <section>
+          	 
+             <h2 class="sheader">자쿠와는 다르다! 자쿠와는!</h2>
+             <pre><em>RDB</em> Schema-Free(TreeDocument Model)
+<em>Hadoop</em> Share Data
+<em>InMemory DB(H2,HSQL)</em> Distribute
+<em>MongoDB</em> Embedable
+</pre>
+
+             <h2 class="sheader">할 수 있는 것</h2>
+<pre>Share Distributed Data(ex:HttpSession)
+Composite Data Repository
+Data Analytics Based MapReduce(expect)
+</pre>
+
+			<h2 class="sheader">극복해야할 과제</h2>
+<pre>낯설다.
+느리다.(300 ups, expect : 3000 ups)</pre>			
+          </section>
+        </div>
+
+
+
+
+
+
+        <div class="slide transitionSlide" id="getting-started-title">
+          <section class="middle">
+            <h2>Getting Started</h2>
+            <p>Example HelloWorld Source</p>
+            <img src="src/HTML5_3D_Effects_64.png" title="Getting Started" alt="Getting Started">
+          </section>
+        </div>
+
+		<div class="slide styling" id="gs-example1">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><span class="js">Getting Started</span> <h1>Hello World</h1></header>
+          <section>
+          	 
+             <h2 class="sheader">Hello World</h2>
+             <pre>public void testHello() throws Exception {
+    <em>RepositoryImpl r = RepositoryImpl.testSingle() ;</em>
+    r.start() ;
+    <em>ReadSession session = r.login("test") ;</em>
+        
+    session.tranSync(<em>new TransactionJob&lt;Void&gt;</em>() {
+        public <em>Void</em> handle(WriteSession wsession) {
+            wsession.pathBy("/hello").property("greeting", "Hello World");
+            return null;
+        }
+    }) ;
+        
+    assertEquals("Hello World", session.pathBy("/hello").property("greeting").value()) ;
+    <em>r.shutdown() ;</em>
+}</pre>			
+          </section>
+        </div>
+
+
+		<div class="slide styling" id="gs-example2">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><span class="js">Getting Started</span> <h1>Tree Doc Model</h1></header>
+          <section>
+          	 
+             <h2 class="sheader">Create Emp</h2>
+             <pre>session.tranSync(new TransactionJob&lt;Void&gt;(){
+    @Override
+    public Void handle(WriteSession wsession) throws Exception {
+        <em>wsession.pathBy("/emps/bleujin")</em>.property("name", "bleujin")
+        	.property("age", 20) ;
+        <em>wsession.pathBy("/emps/hero")</em>.property("name", "hero")
+        	.property("age", 21)
+        	.addChild("address").property("city", "seoul") ;
+        return null;
+    }
+}) ;
+
+<em>ResultSet rs</em> = session.pathBy("/emps")
+    .children().gte("age", 10).<em>toAdRows("name, age, address.city cname")</em> ;
+((Rows)rs).debugPrint() ;
+}</pre>		
+
+			<h2 class="sheader">Output</h2>
+			<pre>{"age":21,"name":"hero","cname":"seoul"}
+{"age":20,"name":"bleujin","cname":null}
+</pre>
+          </section>
+        </div>
+        
+        
+
+		<div class="slide styling" id="gs-example3">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><span class="js">Getting Started</span> <h1>Blob</h1></header>
+          <section>
+          	 
+             <h2 class="sheader">Blob IO</h2>
+             <pre>public void testIO() throws Exception {
+    final InputStream src = new StringInputStream("LongLongString");
+    
+    session.tranSync(new TransactionJob&lt;Void&gt;() {
+        public Void handle(WriteSession wsession) throws UnsupportedEncodingException {
+            wsession.pathBy("/greet").property("greeting", "Hello World")
+                <em>.blob("file", src)</em>;
+            return null;
+        }
+    }) ;
+    
+    final InputStream readed = session.pathBy("/greet").property("file")
+        <em>.asBlob().toInputStream()</em>;
+    assertEquals("LongLongString", IOUtil.toStringWithClose(readed)) ;
+}</pre>		
+
+          </section>
+        </div>
+
+		<div class="slide styling" id="gs-example4">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><span class="js">Getting Started</span> <h1>Index</h1></header>
+          <section>
+          	 
+             <h2 class="sheader">Auto Indexing</h2>
+             <pre>public void testQuery() throws Exception {
+    session.tranSync(new TransactionJob&lt;Void&gt;() {
+        public Void handle(WriteSession wsession) throws UnsupportedEncodingException {
+            wsession.pathBy("/query/1").property("greeting", "태극기가 바람에 펄럭입니다.")
+                .property("since", 20);
+            wsession.pathBy("/query/2").property("greeting", "태극기가 바람에 펄럭입니다.") ;
+            return null;
+        }
+    }) ;
+    
+    session.pathBy("/query").<em>childQuery("greeting:바람")
+    	.between("since", 10, 30)
+        .ascending("since")</em>.find().debugPrint() ;
+}</pre>		
+
+			<h2 class="sheader">Output</h2>
+			<pre>ReadNodeImpl[fqn=/query/1]</pre>
+          </section>
+        </div>
+
+
+		<div class="slide styling" id="gs-example5">
+          <style>
+          	.example_source {
+          		font-size : 14px ;
+          	}
+          </style>
+          <header><span class="js">Getting Started</span> <h1>Event Notification</h1></header>
+          <section>
+             <pre class="example_source">public void testListener() throws Exception {
+    final DebugListener listener = new DebugListener();
+    <em>session.workspace().addListener(listener)</em> ;
+    session.tran(new TransactionJob&lt;Void&gt;() {
+        @Override
+        public Void handle(WriteSession wsession) {
+            wsession.root().addChild("bleujin").property("name", "bleujin");
+            return null ;
+        }
+    }).get() ;
+    <em>assertEquals(1, listener.getCount())</em> ;
+}
+
+@Listener
+static public class DebugListener {
+    private AtomicInteger counter = new AtomicInteger() ;
+    @CacheEntryModified
+    public void modified(CacheEntryModifiedEvent&lt;TreeNodeKey, AtomicHashMap&lt;PropertyId, PropertyValue&gt;&gt; e){
+        if (e.isPre()) return ;
+        if (e.getKey().getType() == Type.DATA && (!e.getKey().getFqn().isSystem()))  {
+            <em>counter.incrementAndGet()</em> ;
+        }
+    }
+    public int getCount(){
+        return counter.get() ;
+    }
+}</pre>		
+
+          </section>
+        </div>
+
+        <div class="slide transitionSlide" id="demo-markup-title">
+          <section class="middle">
+            <h2>Demo</h2>
+            <p>&nbsp;</p>
+            <img src="src/HTML5_Offline_Storage_32.png" title="Demo" alt="Demo">
+          </section>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="slide" id="browser-support">
+          <header><h1>See it today?</h1></header>
+          <section>
+            <ul class="bullets">
+              <li>Modern Browsers</li>
+              <li>Mobile Browsers</li>
+              <li>Chrome extensions/Firefox Jetpack/Safari extensions</li>
+            </ul>
+          </section>
+        </div>
+
+
+
+        <div class="slide" id="formula-outro-slide">
+          <style>
+            p.resource-link {
+              font-size: 25px;
+            }
+            p.resource-link a {
+              color: blue;
+              text-decoration: underline;
+              border: none;
+            }
+          </style>
+          <section class="middle formula">
+            Craken ~=
+            <span class="html">DATA</span>
+            +
+            <span class="css">INDEX</span>
+            +
+            <span class="js">BLOB</span>
+            <p class="resource-link">
+              Thanks For Listening ! Questions ? <br/><br/>
+              Slides available at 
+              <a href="http://github.com/bleujin/craken">http://github.com/bleujin/craken</a>
+            </p>
+          </section>
+        </div>
+
+      </div> <!-- slides -->
+      <div id="speaker-note" class="invisible" style="display: none;">
+      </div> <!-- speaker note -->
+      <aside id="help" class="sidebar invisible" style="display: hidden;">
+        <table>
+          <caption>Help</caption>
+          <tbody>
+            <tr>
+              <th>Move Around</th>
+              <td>&larr;&nbsp;&rarr;</td>
+            </tr>
+            <tr>
+              <th>Source File</th>
+              <td>s</td>
+            </tr>
+            <tr>
+              <th>Change Theme</th>
+              <td>t</td>
+            </tr>
+            <tr>
+              <th>Syntax Highlight</th>
+              <td>h</td>
+            </tr>
+            <tr>
+              <th>Speaker Notes</th>
+              <td>n</td>
+            </tr>
+            <tr>
+              <th>Toggle 3D</th>
+              <td>3</td>
+            </tr>
+            <tr>
+              <th>Help</th>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </aside>
+    </div> <!-- presentation -->
+
+    <!--[if lt IE 9]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">
+    </script>
+    <script>CFInstall.check({ mode: "overlay" });</script>
+    <![endif]-->
+
+    <script src="src/prettify/prettify.js" onload="prettyPrint();" defer></script>
+    <script src="js/utils.js"></script>
+    <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script>
+      // Check if new appcache is available, load it, and reload page.
+      if (window.applicationCache) {
+        window.applicationCache.addEventListener('updateready', function(e) {
+          if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+            window.applicationCache.swapCache();
+            if (confirm('A new version of this site is available. Load it?')) {
+              window.location.reload();
+            }
+          }
+        }, false);
+      }
+    </script>
+  </body>
+</html>

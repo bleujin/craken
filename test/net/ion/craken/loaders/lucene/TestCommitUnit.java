@@ -27,7 +27,7 @@ public class TestCommitUnit extends TestCase {
 		InputStream input = getClass().getResourceAsStream("/" + StringUtil.replace(getClass().getPackage().getName(), ".", "/") + "/test.dat");
 		// String readString = IOUtil.toStringWithClose(input) ;
 
-		CommitUnit cunit = CommitUnit.test(new TreeNodeKey(Fqn.fromString("/__transactions/12345"), Type.DATA), IndexWriteConfig.Default, 1, (PropertyValue)null,  input);
+		CommitUnit cunit = CommitUnit.test(Fqn.fromString("/__transactions/12345").contentKey(), IndexWriteConfig.Default, 1, (PropertyValue)null,  input);
 		
 		IndexJob<Integer> index = cunit.index();
 		

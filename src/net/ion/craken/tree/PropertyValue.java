@@ -123,7 +123,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		if (value == null)
 			throw new NodeIOException("this value not accessable");
 		if (gfs == null)
-			throw new NodeIOException("this value not accessable");
+			throw new NodeIOException("this value not accessable[gfs is null]");
 		if (value instanceof String) {
 			try {
 				final JsonObject json = JsonObject.fromString((String) value);
