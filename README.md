@@ -51,3 +51,4 @@ public class TestHelloWord extends TestCase {
 
 
 Html Pt : http://ec2-46-51-233-197.ap-northeast-1.compute.amazonaws.com:9000/slide/index.htm
+doc : http://54.238.200.40:9000/craken/
