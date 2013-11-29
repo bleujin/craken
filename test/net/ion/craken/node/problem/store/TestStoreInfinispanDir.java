@@ -14,7 +14,6 @@ import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.ReaderUtil;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;

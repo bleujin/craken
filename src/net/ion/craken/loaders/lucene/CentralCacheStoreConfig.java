@@ -23,10 +23,10 @@ public class CentralCacheStoreConfig extends AbstractCacheStoreConfig {
 	public final static String ChunkSize = "chunkSize" ;
 	
 	
-	private String location = "./resource/index";
+	private String location = "./resource/local";
 	private int lockTimeoutMs = 60 * 1000 ;
 
-	private int maxNodeEntry = 30000 ;
+	private int maxNodeEntry = 15000 ;
 	private LazyCentralConfig lazyConfig = new LazyCentralConfig() ;
 
 	public CentralCacheStoreConfig() {

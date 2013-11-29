@@ -1,8 +1,6 @@
 package net.ion.craken.io;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class WritableGridBlob extends GridBlob {
 

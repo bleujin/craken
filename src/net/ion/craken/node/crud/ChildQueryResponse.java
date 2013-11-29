@@ -17,7 +17,6 @@ import net.ion.craken.node.convert.rows.AdNodeRows;
 import net.ion.craken.node.crud.util.ResponsePredicate;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Rows;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;

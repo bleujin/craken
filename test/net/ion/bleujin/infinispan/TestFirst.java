@@ -1,19 +1,14 @@
 package net.ion.bleujin.infinispan;
 
 import junit.framework.TestCase;
-
-import org.testng.annotations.Test;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.framework.db.Rows;
-import net.ion.framework.util.InfinityThread;
 
-import org.infinispan.Cache;
-import org.infinispan.manager.DefaultCacheManager;
+import org.testng.annotations.Test;
 
 public class TestFirst extends TestCase {
 

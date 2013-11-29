@@ -27,7 +27,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.Version;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
@@ -35,8 +34,6 @@ import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.lucene.InfinispanDirectory;
 import org.infinispan.manager.DefaultCacheManager;
-
-import com.amazonaws.services.cloudsearch.model.SearchInstanceType;
 
 public class TestLuceneDistribute extends TestCase  {
 	

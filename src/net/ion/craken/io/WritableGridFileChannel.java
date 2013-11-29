@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.WritableByteChannel;
 
-
 import org.infinispan.Cache;
 
 

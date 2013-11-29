@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -15,11 +14,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
-import net.ion.craken.io.GridBlob.Metadata;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
-import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -56,7 +54,7 @@ public class WriteNodeImpl implements WriteNode{
 
 
 	private WriteSession wsession ;
-	private TreeNode inner ;
+	private TreeNode tnode ;
 	
 	public enum Touch implements PropertyValue.ReplaceValue<String>{
 		MODIFY, REMOVE, REMOVECHILDREN, TOUCH;
@@ -67,23 +65,30 @@ public class WriteNodeImpl implements WriteNode{
 		}
 	}
 	
-	private WriteNodeImpl(WriteSession wsession, TreeNode inner) {
+	private WriteNodeImpl(WriteSession wsession, TreeNode tnode) {
 		this.wsession = wsession ;
-		this.inner = inner ;
+		this.tnode = tnode ;
 	}
 	
-	public static WriteNode loadTo(WriteSession wsession, TreeNode inner) { // by pathBy
-		return new WriteNodeImpl(wsession, inner);
+	public static WriteNode loadTo(WriteSession wsession, TreeNode tnode) { // by pathBy
+		return loadTo(wsession, tnode, Touch.TOUCH) ;
 	}
 
-	public WriteNode load(WriteSession wsession, TreeNode inner) {
-		final WriteNodeImpl result = new WriteNodeImpl(wsession, inner);
+	public static WriteNode loadTo(WriteSession wsession, TreeNode tnode, Touch touch) { // by pathBy
+		final WriteNodeImpl result = new WriteNodeImpl(wsession, tnode);
+		wsession.notifyTouch(result, result.fqn(), touch) ;
+		return result;
+	}
+	
+	
+	public WriteNode load(WriteSession wsession, TreeNode tnode) {
+		final WriteNodeImpl result = new WriteNodeImpl(wsession, tnode);
 		wsession.notifyTouch(result, result.fqn(), Touch.TOUCH) ;
 		return result;
 	}
 	
 	protected TreeNode tree(){
-		return inner ;
+		return tnode ;
 	}
 
 
@@ -270,7 +275,7 @@ public class WriteNodeImpl implements WriteNode{
 		TreeNode last = tree() ;
 		while(iter.hasNext()){
 			last = last.addChild(Fqn.fromElements(iter.next()));
-			load(session(), last) ;
+			loadTo(session(), last, Touch.MODIFY) ;
 		}
 		return load(session(), last) ;
 	}
@@ -400,7 +405,7 @@ public class WriteNodeImpl implements WriteNode{
 	
 	// common
 	public Fqn fqn(){
-		return tree().getFqn() ;
+		return tree().fqn() ;
 	}
 	
 	public int dataSize(){
@@ -408,7 +413,7 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public WriteNode parent(){
-		return load(session(), tree().getParent()) ;
+		return load(session(), tree().parent()) ;
 	}
 	
 	public <T> T transformer(Function<WriteNode, T> function){
@@ -438,7 +443,7 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public Set<PropertyId> keys(){
-		return tree().getKeys() ;
+		return tree().keys() ;
 	}
 	
 	public Set<PropertyId> normalKeys(){
@@ -471,7 +476,7 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(tree().getData());
+		return Collections.unmodifiableMap(tree().readMap());
 	}
 	
 	public Object id(){
@@ -480,7 +485,7 @@ public class WriteNodeImpl implements WriteNode{
 	
 	
 	public String toString(){
-		return this.getClass().getSimpleName() + "[fqn=" + tree().getFqn().toString() + "]";
+		return this.getClass().getSimpleName() + "[fqn=" + tree().fqn().toString() + ", " + this.fqn().dataKey().action()  + "]";
 	}
 
 	public WriteChildren children(){

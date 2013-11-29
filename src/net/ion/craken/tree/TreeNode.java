@@ -1,72 +1,101 @@
 package net.ion.craken.tree;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.node.Workspace;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 
-import org.infinispan.AdvancedCache;
-import org.infinispan.atomic.AtomicHashMapProxy;
+import org.apache.commons.collections.map.HashedMap;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.batch.BatchContainer;
 import org.infinispan.util.Immutables;
 import org.infinispan.util.Util;
 
 
-public class TreeNode extends TreeStructureSupport {
+public class TreeNode {
 
+	private Workspace workspace ;
 	private Fqn fqn;
-	private TreeNodeKey dataKey, structureKey;
-	private Map<PropertyId, PropertyValue> values = null ;
-	private GridFilesystem gfs;
+	private AtomicMap<PropertyId, PropertyValue> lazyProp = null ;
+	private AtomicMap<Object, Fqn> lazyStru = null ;
 
-	public TreeNode(Fqn fqn, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, GridFilesystem gfs, BatchContainer batchContainer) {
-		super(cache, batchContainer) ;
+	public TreeNode(Workspace workspace, Fqn fqn) {
+		if (workspace == null){
+			Debug.line(); 
+		}
+		this.workspace = workspace ;
 		this.fqn = fqn;
-		this.gfs = gfs ;
-		
-		this.dataKey = fqn.contentKey();
-		this.structureKey = fqn.structureKey() ;
-		this.batchContainer = batchContainer ;
 	}
 
-	public TreeNode getParent() {
+	private synchronized AtomicMap<PropertyId, PropertyValue> props() {
+		if (lazyProp == null){
+			this.lazyProp = workspace.props(fqn);
+		}
+		return this.lazyProp ;
+	}
+	
+	private synchronized Map<Object, Fqn> strus() {
+		if (lazyStru == null){
+			this.lazyStru = workspace.strus(fqn) ;
+		}
+		
+		return lazyStru;
+	}
+	
+	
+	public TreeNode parent() {
 		if (fqn.isRoot())
 			return this;
-		return new TreeNode(fqn.getParent(), cache, gfs, batchContainer);
+		return new TreeNode(workspace, fqn.getParent());
 	}
 
+	public Fqn fqn() {
+		return fqn;
+	}
+	
+
+	public Set<PropertyId> keys() {
+		return props().keySet();
+	}
+
+	public Map<PropertyId, PropertyValue> readMap() {
+		return new HashedMap(props());
+	}
+	
+	public JsonObject toValueJson(){
+		JsonObject result = new JsonObject();
+		for (Entry<PropertyId, PropertyValue> prop : props().entrySet()) {
+			result.add(prop.getKey().idString(), prop.getValue().asJsonArray()); 
+		}
+		
+		return result ;
+	}
+	
+
+	
+	
+	
+	
+	
+	
 	public Set<TreeNode> getChildren() {
 		Set<TreeNode> result = new HashSet<TreeNode>();
-		for (Fqn f : getStructure(structureKey).values()) {
-			result.add(new TreeNode(f, cache, gfs, batchContainer));
+		for (Fqn f : strus().values()) {
+			result.add(new TreeNode(workspace, f));
 		}
 		return Immutables.immutableSetWrap(result);
 	}
 
 	public Set<Object> getChildrenNames() {
-		return Immutables.immutableSetCopy(getStructure(structureKey).keySet());
+		return Immutables.immutableSetCopy(strus().keySet());
 	}
 
-	public Map<PropertyId, PropertyValue> getData() {
-		if (values == null){
-			values = Collections.unmodifiableMap(new ReadMap(gfs, getDataInternal()));
-		}
-		return values ;
-	}
-
-	public Set<PropertyId> getKeys() {
-		return getData().keySet();
-	}
-
-	public Fqn getFqn() {
-		return fqn;
-	}
 
 	public TreeNode addChild(Fqn f) {
 		Fqn absoluteChildFqn = Fqn.fromRelativeFqn(fqn, f);
@@ -79,9 +108,9 @@ public class TreeNode extends TreeStructureSupport {
 		// cache.remove(new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE));
 
 		// 2) then create the structure and data maps
-		mergeAncestor(absoluteChildFqn);
+		workspace.mergeAncestor(absoluteChildFqn);
 
-		return new TreeNode(absoluteChildFqn, cache, gfs, batchContainer);
+		return new TreeNode(workspace, absoluteChildFqn);
 	}
 
 	public boolean removeChild(Fqn f) {
@@ -89,14 +118,13 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public boolean removeChild(Object childName) {
-		Map<Object, Fqn> s = getStructure(structureKey);
+		Map<Object, Fqn> s = strus();
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
-			TreeNode child = new TreeNode(childFqn, cache, gfs, batchContainer);
+			TreeNode child = new TreeNode(workspace, childFqn);
 			child.removeChildren();
 			child.clearData(); // this is necessary in case we have a remove and then an add on the same node, in the same tx.
-			cache.remove(childFqn.contentKey());
-			cache.remove(childFqn.structureKey());
+			workspace.remove(childFqn);
 			
 			return true;
 		}
@@ -106,19 +134,18 @@ public class TreeNode extends TreeStructureSupport {
 	
 	public TreeNode getChild(Fqn f) {
 		if (hasChild(f))
-			return new TreeNode(Fqn.fromRelativeFqn(fqn, f), cache, gfs, batchContainer);
+			return new TreeNode(workspace, Fqn.fromRelativeFqn(fqn, f));
 		else
 			return null;
 	}
 
 	public PropertyValue put(PropertyId key, PropertyValue value) {
-
-		Map<PropertyId, PropertyValue> map = (Map<PropertyId, PropertyValue>) getDataInternal();
+		Map<PropertyId, PropertyValue> map = props();
 		return map.put(key, value);
 	}
 
 	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value) {
-		Map<PropertyId, PropertyValue> data = getDataInternal();
+		Map<PropertyId, PropertyValue> data = props() ;
 		if (!data.containsKey(key)) {
 			return data.put(key, value);
 		}
@@ -126,7 +153,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public PropertyValue replace(PropertyId key, PropertyValue value) {
-		Map<PropertyId, PropertyValue> map = getAtomicMap(dataKey);
+		Map<PropertyId, PropertyValue> map = props() ;
 		if (map.containsKey(key))
 			return map.put(key, value);
 		else
@@ -134,7 +161,7 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue) {
-		Map<PropertyId, PropertyValue> data = getDataInternal();
+		Map<PropertyId, PropertyValue> data = props();
 		PropertyValue old = data.get(key);
 		if (Util.safeEquals(oldValue, old)) {
 			data.put(key, newValue);
@@ -144,58 +171,67 @@ public class TreeNode extends TreeStructureSupport {
 	}
 
 	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
-		getDataInternal().putAll(map);
+		props().putAll(map);
 	}
 
 	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
-		Map<PropertyId, PropertyValue> data = getDataInternal();
+		Map<PropertyId, PropertyValue> data = props();
 		data.clear();
 		data.putAll(map);
 	}
 
 	public PropertyValue get(PropertyId key) {
-		return getData().get(key);
+		return props().get(key);
 	}
 
 	public PropertyValue remove(PropertyId key) {
-		return getDataInternal().remove(key);
+		return props().remove(key);
 	}
 	public void clearData() {
-		getDataInternal().clear();
+		props().clear();
 	}
 
 	public int dataSize() {
-		return getDataInternal().size();
+		return props().size();
 	}
 
 	public boolean hasChild(Fqn f) {
 		if (f.size() > 1) {
 			// indirect child.
 			Fqn absoluteFqn = Fqn.fromRelativeFqn(fqn, f);
-			return exists(absoluteFqn);
+			return workspace.exists(absoluteFqn) ;
 		} else {
 			return hasChild(f.getLastElement());
 		}
 	}
 
 	public boolean hasChild(Object o) {
-		return getStructure(structureKey).containsKey(o);
-	}
-
-	public boolean isValid() {
-		return cache.containsKey(dataKey);
+		return strus().containsKey(o);
 	}
 
 	public void removeChildren() {
-		Map<Object, Fqn> s = getStructure(structureKey);
+		Map<Object, Fqn> s = strus();
 		for (Object o : Immutables.immutableSetCopy(s.keySet()))
 			removeChild(o);
 	}
-	
-	Map<PropertyId, PropertyValue> getDataInternal() {
-		return getAtomicMap(dataKey);
-	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -209,7 +245,7 @@ public class TreeNode extends TreeStructureSupport {
 
 		return true;
 	}
-
+	
 	public int hashCode() {
 		return (fqn != null ? fqn.hashCode() : 0);
 	}
@@ -219,6 +255,8 @@ public class TreeNode extends TreeStructureSupport {
 		return "TreeNode{" + "fqn=" + fqn + '}';
 	}
 
+	
+	
 }
 
 

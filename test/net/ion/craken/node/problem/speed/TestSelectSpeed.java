@@ -3,11 +3,6 @@ package net.ion.craken.node.problem.speed;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
-import org.infinispan.container.entries.InternalCacheEntry;
-import org.infinispan.lucene.IndexScopedKey;
-
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.loaders.lucene.DocEntry;
@@ -21,6 +16,10 @@ import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
+
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermQuery;
+import org.infinispan.container.entries.InternalCacheEntry;
 
 public class TestSelectSpeed extends TestCase {
 

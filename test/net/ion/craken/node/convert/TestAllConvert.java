@@ -1,5 +1,7 @@
 package net.ion.craken.node.convert;
 
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import net.ion.craken.node.convert.from.TestFromJson;
 import net.ion.craken.node.convert.map.TestToPropertyMap;
 import net.ion.craken.node.convert.rows.TestToRows;
@@ -10,9 +12,6 @@ import net.ion.craken.node.convert.to.TestToRefBean;
 import net.ion.craken.node.convert.to.type.TestPrimitiveProperty;
 import net.ion.craken.node.convert.to.type.TestReference;
 import net.ion.craken.node.convert.to.type.TestValueObjectProperty;
-import net.ion.framework.db.servant.TestChannelServant;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class TestAllConvert extends TestCase{
 

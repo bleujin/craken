@@ -6,8 +6,4 @@ public class DefaultTranExceptionHandler implements TranExceptionHandler {
 	public void handle(WriteSession tsession, Throwable ex) {
 	}
 
-	@Override
-	public void handle(DumpSession dsession, Throwable ex) {
-	}
-
 }

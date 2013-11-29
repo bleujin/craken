@@ -20,6 +20,10 @@ public class TestException extends TestBaseCrud {
 		
 		// will stdout print
 		
+	}
+	
+	
+	public void testHandleException() throws Exception {
 		try {
 			session.tranSync(new TransactionJob<Void>() {
 				@Override
@@ -31,6 +35,5 @@ public class TestException extends TestBaseCrud {
 		} catch (ExecutionException expect) {
 			assertEquals(IOException.class, expect.getCause().getClass()) ;
 		}
-
 	}
 }

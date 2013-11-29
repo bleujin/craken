@@ -1,24 +1,21 @@
 package net.ion.scriptexecutor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.mozilla.javascript.EvaluatorException;
-
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
-import net.ion.scriptexecutor.handler.RhinoCompileHandler;
+import net.ion.framework.util.MapUtil;
 import net.ion.scriptexecutor.manager.ManagerBuilder;
 import net.ion.scriptexecutor.manager.ScriptManager;
 import net.ion.scriptexecutor.script.ScriptResponse;
-import junit.framework.TestCase;
 
 public class TestFirst extends TestCase {
 	public ScriptManager manager;
@@ -57,9 +54,28 @@ public class TestFirst extends TestCase {
 		ScriptResponse response = manager.createRhinoScript("File Test Script").defineScript(new FileReader("./resource/testScript.js")).execute();
 		assertTrue(response.printed().startsWith("Hello World!"));
 	}
+	
+	public void testEngine() throws Exception {
+		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
+		ReadSession session = r.login("test");
+		
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+				return null;
+			}
+		}) ;
+		Engine engine = Engine.createDefaultEngine();
+		String result = engine.transform("${node.property(name).stringValue()}", MapUtil.<String, Object>create("node", session.pathBy("/bleujin")));
+		Debug.line(result) ;
+		
+		r.shutdown() ;
+	}
+	
 
 	public void testSession() throws Exception {
-		RepositoryImpl r = RepositoryImpl.testSingle();
+		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
 		ReadSession session = r.login("test");
 		
 		session.tranSync(new TransactionJob<Void>() {
@@ -77,6 +93,7 @@ public class TestFirst extends TestCase {
 		
 		
 		Debug.line(output.readOut()) ;
+		
 		r.shutdown() ;
 	}
 }

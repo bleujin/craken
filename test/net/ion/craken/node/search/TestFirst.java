@@ -31,7 +31,6 @@ public class TestFirst extends TestBaseSearch {
 		}).get() ;
 		
 		ReadNode readNode = session.queryRequest("name:bleujin").find().first();
-		
 		assertEquals("bleujin", readNode.property("name").value()) ;
 		assertEquals(15, readNode.property("age").value()) ;
 		
@@ -104,6 +103,7 @@ public class TestFirst extends TestBaseSearch {
 			}
 		}).get() ;
 		session.queryRequest("").find().debugPrint() ;
+		
 		assertEquals(3, session.queryRequest("").find().toList().size()) ;
 		
 		session.tran(new TransactionJob<Void>() {

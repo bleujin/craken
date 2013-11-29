@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;

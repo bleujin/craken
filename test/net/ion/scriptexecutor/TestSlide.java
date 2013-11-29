@@ -16,18 +16,12 @@ import net.ion.framework.util.InfinityThread;
 import net.ion.nradon.EventSourceConnection;
 import net.ion.nradon.EventSourceHandler;
 import net.ion.nradon.EventSourceMessage;
-import net.ion.nradon.HttpControl;
-import net.ion.nradon.HttpHandler;
-import net.ion.nradon.HttpRequest;
-import net.ion.nradon.HttpResponse;
 import net.ion.nradon.Radon;
 import net.ion.nradon.WebSocketConnection;
 import net.ion.nradon.WebSocketHandler;
 import net.ion.nradon.ajax.BroadEchoWebSocket;
 import net.ion.nradon.config.RadonConfiguration;
-import net.ion.nradon.eventsource.Main.Pusher;
 import net.ion.nradon.handler.SimpleStaticFileHandler;
-import net.ion.nradon.handler.event.ServerEvent.EventType;
 import net.ion.scriptexecutor.manager.ManagerBuilder;
 import net.ion.scriptexecutor.manager.ScriptManager;
 
@@ -42,7 +36,7 @@ public class TestSlide extends TestCase {
 		manager.createRhinoScript("jquery").defineScript(new FileReader("./resource/jquery-1.10.2.min.js")).setPreScript();
 		manager.start() ;
 		
-		RepositoryImpl r = RepositoryImpl.testSingle();
+		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
 		r.start() ;
 		
 		

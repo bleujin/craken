@@ -92,6 +92,7 @@ public class TestToPropertyMap extends TestBaseCrud {
 		assertEquals("bleujin.jpg", picMap.get("name")) ;
 	}
 	
+	
 	public void testReference() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override

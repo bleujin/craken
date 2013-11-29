@@ -21,8 +21,7 @@ public class TestTreeModel extends TestBaseCrud {
 		}) ;
 		
 		
-		TreeCache tcache = session.workspace().getCache();
-		Cache cache = tcache.cache();
+		Cache cache = session.workspace().cache();
 		
 		for (Object key : cache.keySet()){
 			AtomicHashMap value = (AtomicHashMap) cache.get(key);

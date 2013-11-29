@@ -3,7 +3,6 @@ package net.ion.craken.node.crud.property;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import net.ion.craken.node.DumpSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
@@ -100,10 +99,6 @@ public class TestAppend extends TestBaseCrud {
 			@Override
 			public void handle(WriteSession tsession, Throwable ex) {
 				latch.countDown() ;
-			}
-
-			@Override
-			public void handle(DumpSession dsession, Throwable ex) {
 			}
 		});
 		

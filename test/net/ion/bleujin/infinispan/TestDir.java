@@ -5,12 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
-import net.ion.craken.node.ReadNode;
-import net.ion.craken.node.WriteNode;
 import net.ion.framework.util.Debug;
-import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.common.WriteDocument;
@@ -29,8 +27,6 @@ import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.lucene.InfinispanDirectory;
 import org.infinispan.manager.DefaultCacheManager;
-
-import junit.framework.TestCase;
 
 public class TestDir extends TestCase {
 

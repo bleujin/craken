@@ -1,44 +1,12 @@
 package net.ion.craken.node.crud;
 
-import java.io.File;
-
-import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
-import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.problem.store.SampleWriteJob;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.ListUtil;
 
-public class TestRemoveChildren extends  TestCase {
-
-	
-	private RepositoryImpl r;
-	private ReadSession session;
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		this.r = RepositoryImpl.create();
-		FileUtil.deleteDirectory(new File("./resource/local")) ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/local").maxNodeEntry(10));
-		r.start();
-		this.session = r.login("test");
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		r.shutdown();
-		super.tearDown();
-	}
-
+public class TestRemoveChildren extends TestBaseCrud {
 
 	public void testRemove() throws Exception {
 		session.tranSync(new TransactionJob<Void>(){
@@ -78,7 +46,7 @@ public class TestRemoveChildren extends  TestCase {
 				@Override
 				public Void handle(WriteSession wsession) throws Exception {
 					wsession.pathBy("/bleujin").removeSelf() ;
-					assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
+					assertEquals(false, wsession.workspace().cache().containsKey(Fqn.fromString("/bleujin").dataKey())) ;
 
 					return null;
 				}

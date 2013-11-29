@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,23 +18,17 @@ import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.TransactionLog;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.ServerStatus.ElectRecent;
-import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.logging.LogBroker;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.schedule.IExecutor;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
-import org.apache.ecs.xhtml.select;
 import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.infinispan.Cache;
@@ -92,7 +87,7 @@ public class RepositoryListener {
 	}
 
 	@CacheEntryModified
-	public void entryModified(final CacheEntryModifiedEvent<TreeNodeKey, Map<PropertyId, PropertyValue>> event) throws IOException, ParseException {
+	public void entryModified(final CacheEntryModifiedEvent<TreeNodeKey, Map<PropertyId, PropertyValue>> event) throws IOException, ParseException, ExecutionException {
 		final TreeNodeKey key = event.getKey();
 		if (!key.getType().isSystem())
 			return;

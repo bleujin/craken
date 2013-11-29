@@ -3,8 +3,6 @@ package net.ion.craken.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.ion.craken.io.GridBlob.Metadata;
-
 import org.infinispan.Cache;
 
 

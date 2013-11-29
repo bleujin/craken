@@ -1,6 +1,5 @@
 package net.ion.craken.tree;
 
-import static net.ion.craken.tree.TreeNodeKey.Type.DATA;
 import static net.ion.craken.tree.TreeNodeKey.Type.STRUCTURE;
 import static net.ion.craken.tree.TreeNodeKey.Type.SYSTEM;
 
@@ -149,9 +148,9 @@ public class TreeNodeKey implements Serializable {
 			int typeb = input.readUnsignedByte();
 			switch (typeb) {
 			case DATA_BYTE:
-				return fqn.contentKey();
+				return fqn.dataKey();
 			case STRUCTURE_BYTE:
-				return fqn.structureKey() ;
+				return fqn.struKey() ;
 			case SYSTEM_BYTE :
 				return fqn.systemKey() ;
 			default :
@@ -167,11 +166,11 @@ public class TreeNodeKey implements Serializable {
 
 	public static TreeNodeKey fromString(String idString) {
 		if (idString.startsWith(STRUCTURE.prefix())) {
-			return Fqn.fromString(idString.substring(1)).structureKey() ; // new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) ;
+			return Fqn.fromString(idString.substring(1)).struKey() ; // new TreeNodeKey(Fqn.fromString(idString.substring(1)), Type.STRUCTURE) ;
 		} else if (idString.startsWith(SYSTEM.prefix())) {
 			return Fqn.fromString(idString.substring(1)).systemKey() ;
 		} else {
-			return Fqn.fromString(idString).contentKey() ; //  new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ;
+			return Fqn.fromString(idString).dataKey() ; //  new TreeNodeKey(Fqn.fromString(idString), Type.DATA) ;
 		}
 //		return new TreeNodeKey(Fqn.fromString(idString), idString.startsWith("@") ? Type.STRUCTURE : Type.DATA);
 	}

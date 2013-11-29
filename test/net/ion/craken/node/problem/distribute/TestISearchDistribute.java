@@ -4,12 +4,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
-import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
@@ -26,8 +26,6 @@ import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.lucene.InfinispanDirectory;
 import org.infinispan.manager.DefaultCacheManager;
-
-import junit.framework.TestCase;
 
 public class TestISearchDistribute extends TestCase {
 

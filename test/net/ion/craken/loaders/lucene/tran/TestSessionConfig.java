@@ -9,7 +9,6 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 
 public class TestSessionConfig extends TestBaseCrud{
 

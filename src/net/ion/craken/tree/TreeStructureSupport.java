@@ -2,12 +2,6 @@ package net.ion.craken.tree;
 
 import java.util.Map;
 
-import net.ion.craken.node.IndexWriteConfig;
-import net.ion.craken.tree.TreeNodeKey.Type;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.MapUtil;
-
-import org.apache.ecs.xhtml.map;
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.AtomicMapLookup;
@@ -16,12 +10,6 @@ import org.infinispan.batch.BatchContainer;
 import org.infinispan.util.concurrent.locks.LockManager;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
-
-import scala.collection.mutable.HashMap;
-
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Maps;
 
 public class TreeStructureSupport extends AutoBatchSupport {
     private static final Log log = LogFactory.getLog(TreeStructureSupport.class);
@@ -37,58 +25,49 @@ public class TreeStructureSupport extends AutoBatchSupport {
 		if (Fqn.ROOT.equals(f)) {
 			return true ;
 		}
-		final boolean result = cache.containsKey(f.contentKey()) && cache.containsKey(f.structureKey());
+		final boolean result = cache.containsKey(f.dataKey()) && cache.containsKey(f.struKey());
 		return result;
 //			return cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.DATA)) && cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.STRUCTURE));
 	}
 
-	/**
-	 * @param fqn
-	 * @return true if created, false if this was not necessary
-	 */
 	protected boolean mergeAncestor(Fqn fqn) {
-		return mergeAncestor(IndexWriteConfig.Default, fqn);
-	}
-
-	protected boolean mergeAncestor(IndexWriteConfig iwconfig, Fqn fqn) {
-		if (cache.containsKey(fqn.contentKey()))
+		if (cache.containsKey(fqn.dataKey()))
 			return false;
 
 		if (!fqn.isRoot()) {
 			Fqn parent = fqn.getParent();
 			if (!exists(parent))
-				mergeAncestor(iwconfig, parent);
-			Map<Object, Fqn> parentStructure = getStructure(parent);
-//			Debug.debug(parent, fqn.getLastElement(), fqn) ;
+				mergeAncestor(parent);
 			
-			if (! fqn.getLastElement().toString().startsWith("__")) 
-				parentStructure.put(fqn.getLastElement(), fqn); // /__... 은 /의 children이 아닌걸로 .. 
+			Map<Object, Fqn> parentStructure = strus(parent);
+			parentStructure.put(fqn.getLastElement(), fqn);
 		}
-		getAtomicMap(fqn.contentKey());
+		
+		
+		getAtomicMap(fqn.dataKey());
+		getAtomicMap(fqn.struKey());
 		
 		return true;
 	}
 
-	Map<Object, Fqn> getStructure(TreeNodeKey nodeKey) {
-		final Map<Object, Fqn> result = getAtomicMap(nodeKey);
-		
-		return result;
-	}
-
-	protected Map<Object, Fqn> getStructure(Fqn fqn) {
-		return getAtomicMap(fqn.structureKey());
-	}
-
 	public static boolean isLocked(LockManager lockManager, Fqn fqn) {
-		return ((lockManager.isLocked(fqn.structureKey()) && lockManager.isLocked(fqn.contentKey())));
+		return ((lockManager.isLocked(fqn.struKey()) && lockManager.isLocked(fqn.dataKey())));
 	}
 
 	protected final <K, V> Map<K, V> getAtomicMap(final TreeNodeKey key) {
-		final AtomicMap<K, V> cached = AtomicMapLookup.getAtomicMap(cache, key, true);
-
-		
-		return cached ;
-
+		return AtomicMapLookup.getAtomicMap(cache, key, true);
 	}
 
+	
+	public AtomicMap<PropertyId, PropertyValue> props(Fqn fqn){
+		AtomicMap<PropertyId, PropertyValue> props = AtomicMapLookup.getAtomicMap(cache, fqn.dataKey(), true);
+		return props ;
+	}
+	
+
+	public AtomicMap<Object, Fqn> strus(Fqn fqn){
+		AtomicMap<Object, Fqn> props =  AtomicMapLookup.getAtomicMap(cache, fqn.struKey(), true);
+		return props ;
+	} 
+	
 }

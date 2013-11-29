@@ -11,9 +11,7 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
 
 import org.infinispan.atomic.AtomicHashMap;

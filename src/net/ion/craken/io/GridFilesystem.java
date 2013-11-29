@@ -7,16 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.ion.craken.io.GridBlob.Metadata;
-import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.ReadSessionImpl;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
-import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.StringUtil;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
@@ -47,16 +40,24 @@ public class GridFilesystem {
 		return metaCache.getCacheConfiguration().clustering().cacheMode().isClustered() && !metaCache.getCacheConfiguration().clustering().cacheMode().isSynchronous();
 	}
 
+	public GridBlob getGridBlob(Metadata metadata) {
+		return new GridBlob(metadata.path(), metadata, this);
+	}
 
 	public GridBlob getGridBlob(String pathname, Metadata metadata) {
 		return new GridBlob(pathname, metadata, this);
 	}
 
+	public GridBlob gridBlob(String pathname) {
+		return getGridBlob(pathname, Metadata.create(pathname)) ;
+	}
+
+	
 	public WritableGridBlob getWritableGridBlob(String pathname, Metadata meta) {
 		return new WritableGridBlob(pathname, meta, this);
 	}
 
-	GridOutputStream getOutput(GridBlob gblob, boolean append) throws IOException {
+	public GridOutputStream getOutput(GridBlob gblob, boolean append) throws IOException {
 		return new GridOutputStream(gblob, append, data);
 	}
 
@@ -98,5 +99,6 @@ public class GridFilesystem {
 
 		// removeMeta
 	}
+
 
 }

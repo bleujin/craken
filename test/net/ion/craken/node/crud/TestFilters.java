@@ -1,18 +1,15 @@
 package net.ion.craken.node.crud;
 
+import junit.framework.TestCase;
 import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.express.ExpressUtils;
-import net.ion.framework.util.express.InfixExpress;
 import net.ion.nsearcher.search.filter.BooleanFilter;
 import net.ion.nsearcher.search.filter.TermFilter;
 import net.ion.rosetta.Parser;
 
 import org.apache.lucene.search.Filter;
-
-import junit.framework.TestCase;
 
 public class TestFilters extends TestCase {
 

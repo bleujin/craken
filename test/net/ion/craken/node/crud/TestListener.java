@@ -18,6 +18,14 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 public class TestListener extends TestBaseCrud {
 
 	public void testAddListener() throws Exception {
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.root() ;
+				return null;
+			}
+		}) ;
+
 		final DebugListener listener = new DebugListener();
 		session.workspace().addListener(listener) ;
 		
@@ -39,7 +47,7 @@ public class TestListener extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin");
+				wsession.pathBy("/bleujin").property("name", "bleujin");
 				return null ;
 			}
 		}).get() ;
@@ -48,7 +56,7 @@ public class TestListener extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin");
+				wsession.pathBy("/bleujin").property("name", "bleujin");
 				return null ;
 			}
 		}).get() ;

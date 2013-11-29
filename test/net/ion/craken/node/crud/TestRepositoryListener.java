@@ -11,14 +11,9 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.ServerStatus;
-import net.ion.craken.node.crud.TransactionBean;
 import net.ion.craken.node.crud.ServerStatus.ElectRecent;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.ChainMap;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
@@ -222,7 +217,7 @@ public class TestRepositoryListener extends TestCase{
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/bleujin").removeSelf() ;
-				assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
+				assertEquals(false, wsession.workspace().cache().containsKey(Fqn.fromString("/bleujin").dataKey())) ;
 				return null;
 			}
 		}) ;
@@ -239,13 +234,13 @@ public class TestRepositoryListener extends TestCase{
 				
 				((AbstractWriteSession)wsession).restoreOverwrite() ;
 				wsession.pathBy("/__transactions/savedtranid").property("address", addresss);
-				assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
+				assertEquals(false, wsession.workspace().cache().containsKey(Fqn.fromString("/bleujin").dataKey())) ;
 				
 				return null;
 			}
 		}) ;
 		// ... -_-
-		session.workspace().getCache().cache().clear() ;
+		session.workspace().cache().clear() ;
 		
 		
 		
@@ -261,7 +256,7 @@ public class TestRepositoryListener extends TestCase{
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/bleujin").removeSelf() ;
-				assertEquals(false, wsession.workspace().getCache().cache().containsKey(Fqn.fromString("/bleujin").contentKey())) ;
+				assertEquals(false, wsession.workspace().cache().containsKey(Fqn.fromString("/bleujin").dataKey())) ;
 				return null;
 			}
 		}) ;

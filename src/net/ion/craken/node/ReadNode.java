@@ -1,14 +1,13 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
 import java.util.Map;
 
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.ReadChildren;
 import net.ion.framework.db.Rows;
+import net.ion.framework.parse.gson.JsonObject;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
@@ -33,6 +32,8 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException;
 
 	void template(String propId, Writer writer) throws IOException;
+
+	JsonObject toValueJson();
 
 
 }

@@ -2,12 +2,12 @@ package net.ion.craken.loaders.lucene;
 
 import java.io.File;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.FileUtil;
-import junit.framework.TestCase;
 
 public class TestLogWorking extends TestCase {
 

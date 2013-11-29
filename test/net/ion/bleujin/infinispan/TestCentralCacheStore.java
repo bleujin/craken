@@ -4,25 +4,16 @@ import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.CentralCacheStore;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.RandomUtil;
 
-import org.infinispan.Cache;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.remoting.transport.jgroups.SuspectException;
 
 public class TestCentralCacheStore extends TestCase {

@@ -2,10 +2,9 @@ package net.ion.craken.node.problem;
 
 import java.util.concurrent.CountDownLatch;
 
-import net.ion.craken.node.TranExceptionHandler;
+import net.ion.craken.node.DefaultTranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.DefaultTranExceptionHandler;
 import net.ion.craken.node.crud.TestBaseCrud;
 
 public class TestTransaction  extends TestBaseCrud {

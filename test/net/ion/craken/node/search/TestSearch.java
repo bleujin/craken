@@ -26,6 +26,27 @@ public class TestSearch extends TestBaseSearch {
 	}
 	
 	
+	public void testDopple() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/emps/bleujin").property("age", 20).property("name", "bleujin") ;
+				wsession.pathBy("/emps/hero").property("age", 20).property("name", "hero") ;
+				return null;
+			}
+		}) ;
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/emps/bleujin").property("age", 20).property("name", "bleujin") ;
+				wsession.pathBy("/emps/hero").property("age", 20).property("name", "hero") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(1, session.pathBy("/emps").childQuery("bleujin").find().size()) ;
+	}
+	
 	public void testPaging() throws Exception {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override

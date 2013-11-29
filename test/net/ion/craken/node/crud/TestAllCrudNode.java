@@ -13,6 +13,7 @@ public class TestAllCrudNode extends TestSuite {
 		TestSuite suite = new TestSuite("Test All Node CRUD") ;
 		suite.addTestSuite(TestFirst.class) ;
 		suite.addTestSuite(TestListener.class) ;
+		suite.addTestSuite(TestDefineWorkspace.class) ;
 		suite.addTestSuite(TestPathBy.class) ;
 		suite.addTestSuite(TestReadNode.class) ;
 		suite.addTestSuite(TestReadNodeChild.class) ;
@@ -21,6 +22,8 @@ public class TestAllCrudNode extends TestSuite {
 		suite.addTestSuite(TestWriteNode.class) ;
 		suite.addTestSuite(TestWriteSession.class) ;
 		suite.addTestSuite(TestFieldIndexConfig.class) ;
+		suite.addTestSuite(TestCreateBy.class) ;
+		suite.addTestSuite(TestRelation.class) ;
 		suite.addTestSuite(TestWorkspace.class) ;
 		
 		suite.addTestSuite(TestBasicType.class) ;

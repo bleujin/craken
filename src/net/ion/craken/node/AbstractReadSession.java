@@ -1,33 +1,17 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.ion.craken.mr.NodeMapReduce;
-import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.crud.ReadNodeImpl;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.node.exception.NotFoundPath;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeCache;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.search.SearchRequest;
-
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.TermQuery;
-import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
-import org.infinispan.distexec.mapreduce.Collector;
-import org.infinispan.distexec.mapreduce.Mapper;
-import org.infinispan.distexec.mapreduce.Reducer;
 
 import com.google.common.base.Function;
 
@@ -60,7 +44,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	protected ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
 		if (exists(fqn)) {
-			return ReadNodeImpl.load(this, workspace.pathNode(IndexWriteConfig.Default, fqn));
+			return ReadNodeImpl.load(this, workspace.pathNode(fqn, emptyIfNotExist));
 		} else if (emptyIfNotExist) {
 			return ReadNodeImpl.ghost(this, fqn) ;
 		}
@@ -102,14 +86,6 @@ public abstract class AbstractReadSession implements ReadSession {
 	public <T> T tranSync(TransactionJob<T> tjob, TranExceptionHandler handler) throws Exception {
 		return tran(tjob, handler).get() ;
 	}
-
-
-	@Override
-	public <T> Future<T> dump(DumpJob<T> tjob) throws Exception {
-		DumpSession dsession = new DumpSession(this, workspace);
-		return workspace.dump(dsession, tjob, TranExceptionHandler.PRINT) ;
-	}
-
 	
 	
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {
@@ -147,47 +123,9 @@ public abstract class AbstractReadSession implements ReadSession {
 	}
 
 	private <Ri, Rv> Future<Map<Ri, Rv>> asyncMapReduce(NodeMapReduce<Ri, Rv> mapper) {
-		TreeCache  tcache = workspace().getCache();
-		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = tcache.cache();
-
-//		CacheMode cmode = cache.getCacheConfiguration().clustering().cacheMode();
-//		if (CacheMode.DIST_ASYNC != cmode || CacheMode.DIST_SYNC != cmode){
-//		}
-		
-		NodeMapReduceTask<Ri, Rv> t = new NodeMapReduceTask<Ri, Rv>(cache);
-		final Future<Map<Ri, Rv>> future = t.mappedWith(new OuterMapper(mapper)).reducedWith(new OuterReducer(mapper)).executeAsynchronously();
-		return future;
-	}
-	
-
-	
-	private static class OuterMapper<Ri, Rv> implements Mapper<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, Ri, Rv> {
-		private static final long serialVersionUID = -790742017663413150L;
-		private NodeMapReduce<Ri, Rv> inner;
-		OuterMapper(NodeMapReduce<Ri, Rv> inner){
-			this.inner = inner ;
-		}
-		
-		@Override
-		public void map(TreeNodeKey key, AtomicMap<PropertyId, PropertyValue> map, Collector<Ri, Rv> iter) {
-			if (key.getType() == TreeNodeKey.Type.STRUCTURE) return ;
-
-			inner.map(key, map, iter) ;
-		}
+		return workspace.mapReduce(mapper) ;
 	}
 
-	private static class OuterReducer<Ri, Rv> implements Reducer<Ri, Rv>{
-		private static final long serialVersionUID = 6113634132823514149L;
-		private NodeMapReduce<Ri, Rv> inner;
-		OuterReducer(NodeMapReduce<Ri, Rv> inner){
-			this.inner = inner ;
-		}
-		
-		@Override
-		public Rv reduce(Ri key, Iterator<Rv> iter) {
-			return inner.reduce(key, iter);
-		}
-	}
 
 	@Override
 	public TranLogManager logManager() throws IOException{

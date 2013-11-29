@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -19,13 +18,7 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
 
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.Configuration;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.distexec.mapreduce.Collector;
-import org.infinispan.eviction.EvictionStrategy;
 
 import com.google.common.base.Function;
 

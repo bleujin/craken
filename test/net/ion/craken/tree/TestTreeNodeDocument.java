@@ -1,16 +1,12 @@
 package net.ion.craken.tree;
 
-import java.io.File;
-
+import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.framework.util.FileUtil;
-import junit.framework.TestCase;
 
 public class TestTreeNodeDocument extends TestCase {
 	

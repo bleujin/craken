@@ -2,14 +2,11 @@ package net.ion.craken.node.crud.property;
 
 import java.util.Date;
 
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestPropertyValue extends TestBaseCrud{
 

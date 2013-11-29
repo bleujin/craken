@@ -29,6 +29,7 @@ import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.db.Rows;
 import net.ion.framework.mte.Engine;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -53,10 +54,10 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	private static final long serialVersionUID = 1785904048897031227L;
 	private transient ReadSession session ;
-	private TreeNode treeNode;
-	protected ReadNodeImpl(ReadSession session, TreeNode  inner) {
+	private TreeNode tnode;
+	protected ReadNodeImpl(ReadSession session, TreeNode tnode) {
 		this.session = session ;
-		this.treeNode = inner ;
+		this.tnode = tnode ;
 	}
 
 	public static ReadNode load(ReadSession session, TreeNode inner) {
@@ -67,22 +68,22 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public boolean equals(Object obj) {
 		if (! (obj instanceof ReadNodeImpl)) return false ;
 		ReadNodeImpl that = (ReadNodeImpl) obj ;
-		return treeNode.equals(that.treeNode) ;
+		return tnode.equals(that.tnode) ;
 	}
 	
 	@Override
 	public int hashCode(){
-		return treeNode.hashCode() ;
+		return tnode.hashCode() ;
 	}
 	
 	public String toString(){
-		return this.getClass().getSimpleName() + "[fqn=" + treeNode.getFqn().toString() + "]";
+		return this.getClass().getSimpleName() + "[fqn=" + tnode.fqn().toString() + "]";
 	}
 
 	
 	// only use for test
 	public TreeNode treeNode(){
-		return treeNode ;
+		return tnode ;
 	}
 	
 	// .. common 
@@ -92,24 +93,24 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 	
 	public Fqn fqn(){
-		return treeNode.getFqn() ;
+		return tnode.fqn() ;
 	}
 	
 	public int dataSize(){
-		return treeNode.dataSize() ;
+		return tnode.keys().size() ;
 	}
 
 	public ReadNode parent(){
-		return load(session, treeNode.getParent()) ;
+		return load(session, tnode.parent()) ;
 	}
 	
 	public boolean hasChild(String relativeFqn){
-		return treeNode.hasChild(Fqn.fromString(relativeFqn)) ;
+		return tnode.hasChild(Fqn.fromString(relativeFqn)) ;
 	}
 	
 	public ReadNode child(String fqn){
 //		return session.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
-		final TreeNode child = treeNode.getChild(Fqn.fromString(fqn));
+		final TreeNode child = tnode.getChild(Fqn.fromString(fqn));
 		if (child == null) throw new IllegalArgumentException("not found child : " + fqn) ; 
 		return load(session, child) ;
 	}
@@ -121,14 +122,14 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 	public Set<String> childrenNames(){
 		Set<String> set = SetUtil.orderedSet(SetUtil.newSet());
-		for (Object object : treeNode.getChildrenNames()) {
+		for (Object object : tnode.getChildrenNames()) {
 			set.add(ObjectUtil.toString(object)) ;
 		}
 		return set ;
 	}
 	
 	public ReadChildren children(){
-		return new ReadChildren(session, treeNode.getChildren().iterator()) ;
+		return new ReadChildren(session, tnode.getChildren().iterator()) ;
 	}
 
 	public PropertyValue property(String key) {
@@ -142,7 +143,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(treeNode.get(pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(tnode.get(pid), PropertyValue.NotFound);
 	}
 
 //	public Optional<PropertyValue> optional(String key) {
@@ -154,7 +155,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 	
 	public Set<PropertyId> keys(){
-		return treeNode.getKeys() ;
+		return tnode.keys() ;
 	}
 	
 	public Set<PropertyId> normalKeys(){
@@ -169,7 +170,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(treeNode.getData());
+		return Collections.unmodifiableMap(tnode.readMap());
 	}
 	
 	public <T> T transformer(Function<ReadNode, T> function){
@@ -206,7 +207,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 	
 	public Object id(){
-		return treeNode.getFqn() ;
+		return tnode.fqn() ;
 	}
 	
 	public boolean hasProperty(PropertyId pid){
@@ -313,7 +314,10 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		
 		String result = engine.transform(template, MapUtil.<String, Object>create("self", this)) ;
 		writer.write(result) ;
-		
+	}
+	
+	public JsonObject toValueJson() {
+		return tnode.toValueJson() ;
 	}
 	
 }
@@ -344,7 +348,7 @@ class GhostTreeNode extends TreeNode {
 
 	private ReadSession session ;
 	GhostTreeNode(ReadSession session, Fqn fqn){
-		super(fqn, null, null, null) ;
+		super(session.workspace(), fqn) ;
 		this.session = session ;
 	}
 	
@@ -386,24 +390,20 @@ class GhostTreeNode extends TreeNode {
 		return SetUtil.EMPTY;
 	}
 
+
 	@Override
-	public Map<PropertyId, PropertyValue> getData() {
-		return MapUtil.EMPTY;
+	public Fqn fqn() {
+		return super.fqn();
 	}
 
 	@Override
-	public Fqn getFqn() {
-		return super.getFqn();
-	}
-
-	@Override
-	public Set<PropertyId> getKeys() {
+	public Set<PropertyId> keys() {
 		return SetUtil.EMPTY;
 	}
 
 	@Override
-	public TreeNode getParent() {
-		return ((ReadNodeImpl)session.ghostBy(super.getFqn().getParent())).treeNode();
+	public TreeNode parent() {
+		return ((ReadNodeImpl)session.ghostBy(super.fqn().getParent())).treeNode();
 	}
 
 	@Override
@@ -416,10 +416,6 @@ class GhostTreeNode extends TreeNode {
 		return false;
 	}
 
-	@Override
-	public boolean isValid() {
-		return false;
-	}
 
 	@Override
 	public PropertyValue put(PropertyId key, PropertyValue value) {

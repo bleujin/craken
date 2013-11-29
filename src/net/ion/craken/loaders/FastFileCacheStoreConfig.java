@@ -15,7 +15,7 @@ import org.infinispan.loaders.AbstractCacheStoreConfig;
 public class FastFileCacheStoreConfig extends AbstractCacheStoreConfig {
 	private static final long serialVersionUID = 1L;
 
-	private String location = "Infinispan-FileCacheStore";
+	private String location = "./resource/ffcachestore";
 
 	private int maxEntries = -1;
 

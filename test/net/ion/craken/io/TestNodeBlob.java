@@ -2,8 +2,6 @@ package net.ion.craken.io;
 
 import java.io.File;
 
-import com.amazonaws.util.StringInputStream;
-
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.ReadNode;
@@ -12,10 +10,11 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.tree.PropertyId;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
+
+import com.amazonaws.util.StringInputStream;
 
 public class TestNodeBlob extends TestCase {
 

@@ -3,18 +3,16 @@ package net.ion.craken.node;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
-
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.jboss.marshalling.SerializabilityChecker;
+import java.util.Map.Entry;
 
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
+import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -22,6 +20,9 @@ import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.index.IndexSession;
+
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
 
 public class IndexWriteConfig implements Serializable{
 
@@ -64,7 +65,6 @@ public class IndexWriteConfig implements Serializable{
 	
 	private Map<String, FieldIndex> fieldIndexes = MapUtil.newMap() ;
 	private boolean ignoreBody;  
-
 	
 	public final static IndexWriteConfig Default = new IndexWriteConfig() ;
 	
@@ -121,7 +121,19 @@ public class IndexWriteConfig implements Serializable{
 	public JsonObject toJson() {
 		return JsonParser.fromObject(this).getAsJsonObject() ;
 	}
-	
+
+	public void writeJson(JsonWriter jwriter, long thisTime, int count) throws IOException {
+		jwriter.name("fields") ;
+		jwriter.beginObject() ;
+		for (Entry<String, FieldIndex> entry : fieldIndexes.entrySet()) {
+			jwriter.name(entry.getKey()).value(entry.getValue().toString()) ;
+		}
+		jwriter.endObject() ;
+		
+		jwriter.name("ignoreBody").value(ignoreBody) ;
+		jwriter.name("time").value(thisTime).name("count").value(count) ;
+	}
+
 	public void indexSession(IndexSession isession, TreeNodeKey tranKey, PropertyValue tranPropertyValue) throws IOException{
 		isession.setIgnoreBody(ignoreBody) ;
 		
@@ -140,5 +152,17 @@ public class IndexWriteConfig implements Serializable{
 		
 		return jobj;
 	}
+	
+	public static IndexWriteConfig read(JsonObject json){
+		IndexWriteConfig result = new IndexWriteConfig();
+		JsonObject fields = json.asJsonObject("fields");
+		for(Entry<String, JsonElement> entry : fields.entrySet()){
+			result.fieldIndexes.put(entry.getKey(), FieldIndex.valueOf(entry.getValue().getAsString()) ) ;
+		}
+		result.ignoreBody = json.asBoolean("ignoreBody") ;
+		return result ;
+	}
+	
+	
 
 }

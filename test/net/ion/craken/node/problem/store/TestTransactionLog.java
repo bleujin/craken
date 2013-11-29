@@ -3,7 +3,6 @@ package net.ion.craken.node.problem.store;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import junit.framework.TestCase;
 
 public class TestTransactionLog extends TestBaseCrud {
 

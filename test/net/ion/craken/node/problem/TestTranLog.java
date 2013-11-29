@@ -56,7 +56,7 @@ public class TestTranLog extends TestBaseCrud{
 	public void testRoot() throws Exception {
 		tearDown() ;
 		this.r = RepositoryImpl.create() ;
-		this.config = CentralCacheStoreConfig.createDefault() ;
+		CentralCacheStoreConfig config = CentralCacheStoreConfig.createDefault();
 		r.defineWorkspaceForTest("test", config.maxNodeEntry(10)) ;
 		
 		r.start() ;
@@ -64,7 +64,7 @@ public class TestTranLog extends TestBaseCrud{
 
 		assertEquals(true, session.exists("/")) ;
 		session.tranSync(new SampleWriteJob(20));
-		session.root().children().debugPrint() ;
+		assertEquals(20, session.root().children().toList().size()) ;
 	}
 
 	

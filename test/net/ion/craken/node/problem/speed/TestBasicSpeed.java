@@ -5,19 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
 
-import org.apache.lucene.store.MMapDirectory;
-import org.infinispan.Cache;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.manager.DefaultCacheManager;
-
+import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
-import net.ion.nsearcher.common.AbDocument;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
@@ -25,7 +19,13 @@ import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.index.Indexer;
 import net.ion.radon.impl.util.CsvReader;
-import junit.framework.TestCase;
+
+import org.apache.lucene.store.MMapDirectory;
+import org.infinispan.Cache;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.global.GlobalConfiguration;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
 
 public class TestBasicSpeed extends TestCase {
 
@@ -74,7 +74,7 @@ public class TestBasicSpeed extends TestCase {
 			.transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml")
 			.build();
 		DefaultCacheManager dm = new DefaultCacheManager(gconfig);
-		dm.defineConfiguration("infinispan", FastFileCacheStore.testCacheStore("./resource/infinispan", 1000)) ;
+		dm.defineConfiguration("infinispan", FastFileCacheStore.fastStoreConfig(CacheMode.LOCAL, "./resource/infinispan", 1000)) ;
 		
 		dm.start() ;
 		Cache<String, Map> cache = dm.getCache("infinispan");

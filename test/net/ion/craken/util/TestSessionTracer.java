@@ -2,10 +2,8 @@ package net.ion.craken.util;
 
 import java.io.PrintStream;
 
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import junit.framework.TestCase;
 
 public class TestSessionTracer extends TestBaseCrud{
 

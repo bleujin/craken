@@ -9,13 +9,8 @@ public interface TranExceptionHandler {
 			ex.printStackTrace() ;
 		}
 
-		@Override
-		public void handle(DumpSession dsession, Throwable ex) {
-			ex.printStackTrace() ;
-		}} ;
+	} ;
 		
 	public void handle(WriteSession tsession, Throwable ex) ;
-
-	public void handle(DumpSession dsession, Throwable ex);
 
 }

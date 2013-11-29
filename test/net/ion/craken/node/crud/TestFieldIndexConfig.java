@@ -24,7 +24,7 @@ public class TestFieldIndexConfig extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.fieldIndexConfig().ignore("num") ;
+				wsession.fieldIndexConfig().ignore("num", "string") ;
 				wsession.pathBy("/index/2").property("num", 2000).property("string", "2000") ;
 				return null;
 			}

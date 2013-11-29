@@ -1,14 +1,11 @@
 package net.ion.craken.node.problem.esearch;
 
-import java.nio.charset.Charset;
-
+import junit.framework.TestCase;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.radon.aclient.ListenableFuture;
 import net.ion.radon.aclient.NewClient;
 import net.ion.radon.aclient.Response;
-import net.ion.radon.aclient.multipart.StringPart;
-import junit.framework.TestCase;
 
 public class TestElastic extends TestCase {
 

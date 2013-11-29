@@ -78,6 +78,7 @@ public class TestWriteSession extends TestBaseCrud {
 	}
 
 	
+	
 	public void testIgnoreIndex() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
@@ -86,7 +87,7 @@ public class TestWriteSession extends TestBaseCrud {
 				return null;
 			}
 		}).get() ;
-		
+
 		assertEquals(1, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
 
 		session.tran(new TransactionJob<Void>() {
@@ -103,14 +104,14 @@ public class TestWriteSession extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.fieldIndexConfig().ignore("name") ;
-				wsession.pathBy("/index/2").property("index", 2).property("name", "bleujin") ;
+				wsession.pathBy("/index/2").property("index", 2).property("name", "hero") ;
 				return null;
 			}
 		}).get() ;
 		
 		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
 		
-		assertEquals("bleujin", session.pathBy("/index/2").property("name").stringValue()) ;
+		assertEquals("hero", session.pathBy("/index/2").property("name").stringValue()) ;
 
 	}
 	

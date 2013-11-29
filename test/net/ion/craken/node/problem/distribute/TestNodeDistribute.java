@@ -1,6 +1,5 @@
 package net.ion.craken.node.problem.distribute;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -8,15 +7,12 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.FileUtil;
-import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.RandomUtil;
 

@@ -11,7 +11,6 @@ import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
-import net.ion.nsearcher.search.filter.TermFilter;
 
 public class TestIndex extends TestBaseSearch {
 

@@ -50,9 +50,11 @@ public interface WriteSession extends ISession<WriteNode> {
 	
 	public ReadSession readSession() ;
 
-	public void prepare() throws IOException;
+	public void prepareCommit() throws IOException;
 
 	public WriteSession fieldIndexConfig(IndexWriteConfig wconfig);
+
+	public IndexWriteConfig iwconfig();
 
 	
 }

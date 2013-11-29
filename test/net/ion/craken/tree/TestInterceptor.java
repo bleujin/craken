@@ -1,6 +1,5 @@
 package net.ion.craken.tree;
 
-import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.Repository;
 import net.ion.framework.util.Debug;
 
@@ -12,12 +11,11 @@ import org.infinispan.commands.tx.PrepareCommand;
 import org.infinispan.config.ConfigurationException;
 import org.infinispan.context.InvocationContext;
 import org.infinispan.interceptors.base.BaseCustomInterceptor;
-import org.infinispan.interceptors.base.CommandInterceptor;
 import org.infinispan.manager.DefaultCacheManager;
 
-public class TreeCacheFactory {
+public class TestInterceptor {
 
-	public static TreeCache createTreeCache(Repository repository, DefaultCacheManager dftManager, String cacheName) {
+	public static void createTreeCache(Repository repository, DefaultCacheManager dftManager, String cacheName) {
 
 		// Validation to make sure that the cache is not null.
 		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dftManager.getCache(cacheName + ".node");
@@ -29,12 +27,11 @@ public class TreeCacheFactory {
 		if (!cache.getCacheConfiguration().invocationBatching().enabled()) {
 			throw new ConfigurationException("invocationBatching is not enabled for cache '" + cache.getName() + "'. Make sure this is enabled by" + " calling configurationBuilder.invocationBatching().enable()");
 		}
-//		cache.getAdvancedCache().addInterceptor(new CustomCommandInvoker(), 0);
+		cache.getAdvancedCache().addInterceptor(new CustomCommandInvoker(), 0);
 
 		// cache.addListener(repository.listener()) ;
 		Cache<String, byte[]> blobdata = cache.getCacheManager().getCache(cacheName + ".blobdata");
-
-		return new TreeCache(cache, new GridFilesystem(blobdata));
+		
 	}
 }
 
@@ -42,6 +39,7 @@ class CustomCommandInvoker extends BaseCustomInterceptor {
 
 	protected Object handleDefault(InvocationContext ctx, VisitableCommand command) throws Throwable {
 		switch(command.getCommandId()){
+		
 			case CommitCommand.COMMAND_ID :
 				Debug.line("commit", command.getParameters()) ;
 				break ;

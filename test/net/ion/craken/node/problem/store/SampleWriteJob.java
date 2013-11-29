@@ -7,7 +7,6 @@ import java.io.FileReader;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.framework.util.Debug;
 import net.ion.radon.impl.util.CsvReader;
 
 public class SampleWriteJob implements TransactionJob<Void> {

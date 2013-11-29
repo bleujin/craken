@@ -1,8 +1,8 @@
 package net.ion.craken.node;
 
+import junit.framework.TestCase;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestIndexWriteConfig extends TestCase {
 

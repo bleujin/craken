@@ -12,12 +12,9 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeCache;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
-import net.ion.nsearcher.config.CentralConfig;
 
-import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.MapReduceTask;
@@ -33,6 +30,7 @@ public class TestMapReduce extends TestCase {
 	public void setUp() throws Exception {
 		this.r = RepositoryImpl.create() ;
 		this.r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
+		
 		this.session = r.login("test") ;
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
@@ -52,15 +50,14 @@ public class TestMapReduce extends TestCase {
 	public void testInterface() throws Exception {
 		Workspace workspace = session.workspace();
 
-		TreeCache tcache = workspace.getCache();
-		for (Object key : tcache.cache().keySet()) {
-			Debug.line(key, key.getClass(), tcache.cache().get(key));
+		for (Object key : workspace.cache().keySet()) {
+			Debug.line(key, key.getClass(), workspace.cache().get(key));
 		}
 	}
 
 	public void testMapReduce() throws Exception {
 		MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer> task = 
-				new MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer>(session.workspace().getCache().cache());
+				new MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer>(session.workspace().cache());
 		task.mappedWith(new WordCountMapper()).reducedWith(new WordCountReducer()) ;
 		
 		Map<String, Integer> map = task.execute();

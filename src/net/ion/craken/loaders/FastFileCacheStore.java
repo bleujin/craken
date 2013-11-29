@@ -25,10 +25,12 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.container.entries.InternalCacheValue;
+import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.loaders.AbstractCacheStore;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
+import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.marshall.StreamingMarshaller;
 
 @CacheLoaderMetadata(configurationClass = FastFileCacheStoreConfig.class)
@@ -502,13 +504,22 @@ public class FastFileCacheStore extends AbstractCacheStore {
 	}
 	
 	
-
-	public static Configuration testCacheStore(String location, int maxEntry) {
-		return new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().hash().numOwners(2).unsafe()
-				.eviction().maxEntries(maxEntry)
-				.invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location", location)
-				// ./resource/temp
-				.purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build();
+	public static Configuration fastStoreConfig(CacheMode mode, String location, int maxEntry) {
+		return new ConfigurationBuilder().clustering().cacheMode(mode).clustering().invocationBatching().enable()
+			.clustering().hash().numOwners(1).unsafe()
+			.eviction().maxEntries(maxEntry)
+			.loaders().preload(true).shared(false).passivation(false)
+			.addCacheLoader().cacheLoader(new FastFileCacheStore()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).addProperty("location", location)
+			.build();
+	}
+	 
+	public static Configuration fileStoreConfig(CacheMode mode, String location, int maxEntry){
+		return new ConfigurationBuilder().clustering().cacheMode(mode).clustering().invocationBatching().enable()
+			.clustering().hash().numOwners(1).unsafe()
+			.eviction().maxEntries(maxEntry).strategy(EvictionStrategy.LIRS)
+			.loaders().preload(true).shared(false).passivation(false)
+			.addCacheLoader().cacheLoader(new FileCacheStore()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).addProperty("location", location)
+			.build() ;
 	}
 	 
 }

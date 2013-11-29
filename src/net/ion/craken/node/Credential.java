@@ -4,7 +4,6 @@ import java.io.PrintStream;
 
 import net.ion.nsearcher.search.analyzer.MyKoreanAnalyzer;
 
-import org.apache.ecs.xhtml.p;
 import org.apache.lucene.analysis.Analyzer;
 
 

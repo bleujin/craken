@@ -7,7 +7,6 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
@@ -194,7 +193,7 @@ public class TestPathBy extends TestBaseCrud {
 //		Debug.line(session.workspace().getCache().cache().get(new TreeNodeKey(Fqn.fromString("/a/b/c/d"), Type.DATA))) ;
 //		Debug.line(session.workspace().getCache().cache().get(new TreeNodeKey(Fqn.fromString("/a/b/c/d"), Type.STRUCTURE))) ;
 //		
-		for (TreeNodeKey key : session.workspace().getCache().cache().keySet()) {
+		for (TreeNodeKey key : session.workspace().cache().keySet()) {
 			Debug.line(key) ;
 		} 
 		

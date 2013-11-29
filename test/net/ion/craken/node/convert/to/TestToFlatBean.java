@@ -1,17 +1,15 @@
 package net.ion.craken.node.convert.to;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.sample.FlatPerson;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.framework.util.Debug;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class TestToFlatBean extends TestBaseCrud {
 

@@ -18,7 +18,7 @@ public class TestMany extends TestCase {
 
 	
 	public void testM() throws Exception{
-		Repository r = RepositoryImpl.testSingle();
+		Repository r = RepositoryImpl.inmemoryCreateWithTest();
 		r.start() ;
 		ReadSession session = r.login("test");
 		
@@ -45,7 +45,7 @@ public class TestMany extends TestCase {
 	
 	public void testMWithSearch() throws Exception {
 
-		RepositoryImpl r = RepositoryImpl.testSingle()  ;
+		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest()  ;
 		r.start() ;
 		ReadSession session = r.login("test");
 		

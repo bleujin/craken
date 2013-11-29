@@ -4,26 +4,22 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
-import net.ion.craken.io.GridBlob.Metadata;
+import net.ion.craken.io.Metadata;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.JsonSyntaxException;
-import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
 import org.apache.commons.collections.set.ListOrderedSet;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 

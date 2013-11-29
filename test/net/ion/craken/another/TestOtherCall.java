@@ -1,12 +1,11 @@
 package net.ion.craken.another;
 
+import junit.framework.TestCase;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeNodeKey;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.DefaultCacheManager;
-
-import junit.framework.TestCase;
 
 public class TestOtherCall extends TestCase{
 
@@ -30,6 +29,6 @@ public class TestOtherCall extends TestCase{
 	public void testCreate() throws Exception {
 		Cache<TreeNodeKey, Object> cache = dfm.getCache("test");
 		
-		cache.put(Fqn.fromString("/bleujin").contentKey(), "/bleujin") ;
+		cache.put(Fqn.fromString("/bleujin").dataKey(), "/bleujin") ;
 	}
 }

@@ -1,7 +1,6 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map.Entry;
 
 import net.ion.craken.loaders.lucene.DocEntry;
@@ -15,19 +14,12 @@ import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
-import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexSession;
-import net.ion.nsearcher.search.SearchRequest;
 
 import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.TermQuery;
 import org.infinispan.atomic.AtomicMap;
 
 public class TransactionLog{
@@ -36,7 +28,7 @@ public class TransactionLog{
 	private String path;
 	private Touch touch;
 	private JsonObject val;
-	private Action action = Action.CREATE ;
+	private Action action = Action.MERGE ;
 	private String parentPath ;
 
 	public static class PropId {

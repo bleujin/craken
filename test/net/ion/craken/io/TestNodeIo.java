@@ -10,10 +10,7 @@ import java.io.Writer;
 import java.util.Date;
 
 import junit.framework.TestCase;
-import net.ion.craken.io.GridBlob.Metadata;
-import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
@@ -21,16 +18,9 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
-
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.ecs.xhtml.del;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
 
 public class TestNodeIo extends TestCase {
 
@@ -71,6 +61,18 @@ public class TestNodeIo extends TestCase {
 		}) ;
 	}
 	
+	
+	public void testHello() throws Exception {
+		 session.tranSync(new TransactionJob<Void>() {
+			 public Void handle(WriteSession wsession) throws Exception {
+				 wsession.pathBy("/blobtest").property("name", "korea").blob("text", 
+						 new com.amazonaws.util.StringInputStream("Long Long String")) ;
+				 return null;
+			 }
+		 });
+	 
+		 Debug.line(IOUtil.toStringWithClose(session.pathBy("/blobtest").property("text").asBlob().toInputStream())) ;
+	}
 	
 	public void testWR() throws Exception {
 		final GridBlob blob = writeAndRead("config", "./resource/config/server-simple.xml");

@@ -20,7 +20,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.infinispan.marshall.AbstractExternalizer;
-import org.infinispan.util.ReflectionUtil;
 import org.infinispan.util.Util;
 
 import com.google.common.base.Splitter;
@@ -34,20 +33,15 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 
 	private final String[] elements;
 	private transient int hash_code = 0;
-	/**
-	 * Immutable root Fqn.
-	 */
+
 	public static final Fqn ROOT = new Fqn();
 	public static final Fqn TRANSACTIONS = Fqn.fromString("/__transactions");
 
-	/**
-	 * A cached string representation of this Fqn, used by toString to it isn't calculated again every time.
-	 */
 	protected String stringRepresentation;
 	private static final String[] EMPTY_ARRAY = new String[0];
 
-	private TreeNodeKey contNodeKey;
-	private TreeNodeKey struNodeKey;
+	private TreeNodeKey dataKey;
+	private TreeNodeKey struKey;
 	
 	private Fqn(String... elements) {
 		this.elements = elements;
@@ -67,18 +61,18 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	}
 
 	private void initKey() {
-		this.contNodeKey = new TreeNodeKey(this, Type.DATA) ;
-		this.struNodeKey = new TreeNodeKey(this, Type.STRUCTURE) ;
+		this.dataKey = new TreeNodeKey(this, Type.DATA) ;
+		this.struKey = new TreeNodeKey(this, Type.STRUCTURE) ;
 	}
 	
 	// ----------------- END: Private constructors for use by factory methods only. ----------------------
 
-	public TreeNodeKey contentKey(){
-		return contNodeKey ;
+	public TreeNodeKey dataKey(){
+		return dataKey ;
 	}
 	
-	public TreeNodeKey structureKey(){
-		return struNodeKey ;
+	public TreeNodeKey struKey(){
+		return struKey ;
 	}
 
 	public TreeNodeKey systemKey(){

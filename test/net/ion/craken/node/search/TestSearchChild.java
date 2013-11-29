@@ -2,7 +2,6 @@ package net.ion.craken.node.search;
 
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.ChildQueryResponse;
 
 public class TestSearchChild extends TestBaseSearch {
 	

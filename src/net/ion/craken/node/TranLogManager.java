@@ -3,13 +3,12 @@ package net.ion.craken.node;
 import java.io.IOException;
 import java.util.List;
 
+import net.ion.craken.node.TransactionLog.PropId;
+import net.ion.nsearcher.config.Central;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.TermQuery;
-
-import net.ion.craken.node.TransactionLog.PropId;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.search.SearchRequest;
 
 public class TranLogManager {
 

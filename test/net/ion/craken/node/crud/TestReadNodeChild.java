@@ -1,8 +1,6 @@
 package net.ion.craken.node.crud;
 
-import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import junit.framework.TestCase;
 
 public class TestReadNodeChild extends TestBaseCrud {
 

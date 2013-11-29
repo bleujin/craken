@@ -3,7 +3,6 @@ package net.ion.craken.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 import org.infinispan.Cache;
 
 
