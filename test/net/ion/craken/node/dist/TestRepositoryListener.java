@@ -1,4 +1,4 @@
-package net.ion.craken.node.crud;
+package net.ion.craken.node.dist;
 
 import java.io.File;
 import java.util.List;
@@ -11,8 +11,9 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.ServerStatus.ElectRecent;
+import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
+import net.ion.craken.node.dist.ServerStatus.ElectRecent;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.ChainMap;
 import net.ion.framework.util.Debug;
@@ -28,25 +29,7 @@ import org.apache.lucene.search.TermQuery;
 
 public class TestRepositoryListener extends TestCase{
 	
-	public void testQuery() throws Exception {
-		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create()) ;
-		ReadSession session = r.login("test");
 
-		session.tranSync(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").property("name", "bleujin") ;
-				return null;
-			}
-		}) ;
-		
-		TransactionBean bean = session.pathBy("/__transactions").childQuery("").descending("time").findOne().toBean(TransactionBean.class);
-		assertEquals(false, bean.iwconfig().isIgnoreBodyField()) ;
-		Debug.line(bean) ;
-		r.shutdown() ;
-	}
-	
 	
 	public void xtestSave() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/save")) ;

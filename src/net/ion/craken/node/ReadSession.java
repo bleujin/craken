@@ -59,4 +59,8 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public TranLogManager logManager() throws IOException;
 
+	public void attribute(String key, Object value);
+	
+	public Object attribute(String key) ;
+
 }

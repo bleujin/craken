@@ -8,6 +8,7 @@ import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
@@ -35,28 +36,19 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	public WriteNode createBy(String fqn) {
-		final Fqn self = forCreateAncestor(fqn);
-		return WriteNodeImpl.loadTo(this, workspace().createNode(self));
+		return createBy(Fqn.fromString(fqn)) ;
+	}
+
+	public WriteNode createBy(Fqn fqn) {
+		return workspace().createNode(this, ancestorsFqn, fqn);
 	}
 
 	public WriteNode resetBy(String fqn) {
-		final Fqn self = forCreateAncestor(fqn);
-		return WriteNodeImpl.loadTo(this, workspace().resetNode(self));
+		return resetBy(Fqn.fromString(fqn)) ;
 	}
 
-	private Fqn forCreateAncestor(String fqn) {
-
-		final Fqn self = Fqn.fromString(fqn);
-		Fqn parent = self.getParent();
-		while (true) {
-			if (parent.isRoot() || parent.isSystem())
-				break;
-			if (ancestorsFqn.add(parent) && (!exists(parent))) {
-				WriteNodeImpl.loadTo(this, workspace().pathNode(parent, true), Touch.MODIFY);
-			}
-			parent = parent.getParent();
-		}
-		return self;
+	public WriteNode resetBy(Fqn fqn) {
+		return workspace().resetNode(this, ancestorsFqn, fqn);
 	}
 
 	public WriteNode pathBy(String fqn) {
@@ -68,21 +60,9 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-
-		Fqn parent = fqn.getParent();
-		while (true) {
-			if (parent.isRoot())
-				break;
-			ancestorsFqn.add(parent) ;
-			parent = parent.getParent();
-		}
-		
-		return exists(fqn) ? WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, false)) : WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, true), Touch.MODIFY);
+		return workspace().writeNode(this, this.ancestorsFqn, fqn) ;
 	}
 
-	// public WriteNode logBy(String tranId){
-	// return WriteNodeImpl.loadTo(this, workspace.logNode(this.iwconfig, Fqn.fromString(tranId))) ;
-	// }
 
 	public WriteNode root() {
 		return pathBy("/");
@@ -112,11 +92,14 @@ public abstract class AbstractWriteSession implements WriteSession {
 	public void endCommit() throws IOException {
 		InstantLogWriter logWriter = rsession.workspace().createLogWriter(this, rsession);
 
-		for (Fqn parentFqn : ancestorsFqn) { // create parent node
-			workspace().pathNode(parentFqn, true);
-			logRows.add(LogRow.create(pathBy(parentFqn), Touch.MODIFY, parentFqn));
-		}
+//		for (Fqn parentFqn : ancestorsFqn) { // create parent node
+//			workspace().pathNode(parentFqn, true);
+//			logRows.add(LogRow.create(pathBy(parentFqn), Touch.MODIFY, parentFqn));
+//		}
 
+		
+//		Debug.debug(logRows.size(), logRows) ;
+		
 		logWriter.beginLog(logRows);
 		for (LogRow row : logRows) {
 			logWriter.writeLog(row);

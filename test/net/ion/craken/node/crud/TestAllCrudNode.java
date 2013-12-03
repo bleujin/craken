@@ -16,12 +16,14 @@ public class TestAllCrudNode extends TestSuite {
 		suite.addTestSuite(TestDefineWorkspace.class) ;
 		suite.addTestSuite(TestPathBy.class) ;
 		suite.addTestSuite(TestReadNode.class) ;
+		suite.addTestSuite(TestExtendProperty.class) ;
 		suite.addTestSuite(TestReadNodeChild.class) ;
 		suite.addTestSuite(TestReadSession.class) ;
 		suite.addTestSuite(TestTransaction.class) ;
 		suite.addTestSuite(TestWriteNode.class) ;
 		suite.addTestSuite(TestWriteSession.class) ;
 		suite.addTestSuite(TestFieldIndexConfig.class) ;
+		suite.addTestSuite(TestPredicate.class) ;
 		suite.addTestSuite(TestCreateBy.class) ;
 		suite.addTestSuite(TestRelation.class) ;
 		suite.addTestSuite(TestWorkspace.class) ;

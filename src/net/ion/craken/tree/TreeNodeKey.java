@@ -81,6 +81,11 @@ public class TreeNodeKey implements Serializable {
 		return action ;
 	}
 	
+	public TreeNodeKey createKey(Action action){
+		final TreeNodeKey result = new TreeNodeKey(this.fqn, this.contents);
+		result.action = action ;
+		return result ;
+	}
 	
 	
 

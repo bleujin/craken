@@ -28,4 +28,9 @@ public class TestFqn extends TestBaseCrud {
 		
 		Debug.line(fqn.toString()) ;
 	}
+	
+	public void testRelative() throws Exception {
+		Fqn child = Fqn.fromRelativeFqn(Fqn.root(), Fqn.fromString("/a/b/c/d"));
+		Debug.debug(child) ;
+	}
 }

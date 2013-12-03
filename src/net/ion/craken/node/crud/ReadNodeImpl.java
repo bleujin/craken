@@ -351,11 +351,6 @@ class GhostTreeNode extends TreeNode {
 		super(session.workspace(), fqn) ;
 		this.session = session ;
 	}
-	
-	@Override
-	public TreeNode addChild(Fqn f) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
 
 	@Override
 	public void clearData() {
@@ -386,7 +381,7 @@ class GhostTreeNode extends TreeNode {
 
 
 	@Override
-	public Set<Object> getChildrenNames() {
+	public Set<String> getChildrenNames() {
 		return SetUtil.EMPTY;
 	}
 

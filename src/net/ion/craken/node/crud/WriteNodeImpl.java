@@ -269,15 +269,16 @@ public class WriteNodeImpl implements WriteNode{
 //		final TreeNode find = inner.addChild(Fqn.fromString(relativeFqn));
 //		return load(find) ;
 		
+		return wsession.pathBy(Fqn.fromRelativeFqn(fqn(), Fqn.fromString(relativeFqn))) ;
 		
-		Iterator<String> iter = Fqn.fromString(relativeFqn).peekElements().iterator();
-		
-		TreeNode last = tree() ;
-		while(iter.hasNext()){
-			last = last.addChild(Fqn.fromElements(iter.next()));
-			loadTo(session(), last, Touch.MODIFY) ;
-		}
-		return load(session(), last) ;
+//		Iterator<String> iter = Fqn.fromString(relativeFqn).peekElements().iterator();
+//		
+//		TreeNode last = tree() ;
+//		while(iter.hasNext()){
+//			last = last.addChild(Fqn.fromElements(iter.next()));
+//			loadTo(session(), last, Touch.MODIFY) ;
+//		}
+//		return load(session(), last) ;
 	}
 	
 	

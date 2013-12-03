@@ -23,7 +23,7 @@ public class TreeNode {
 	private Workspace workspace ;
 	private Fqn fqn;
 	private AtomicMap<PropertyId, PropertyValue> lazyProp = null ;
-	private AtomicMap<Object, Fqn> lazyStru = null ;
+	private AtomicMap<String, Fqn> lazyStru = null ;
 
 	public TreeNode(Workspace workspace, Fqn fqn) {
 		if (workspace == null){
@@ -40,7 +40,7 @@ public class TreeNode {
 		return this.lazyProp ;
 	}
 	
-	private synchronized Map<Object, Fqn> strus() {
+	private synchronized Map<String, Fqn> strus() {
 		if (lazyStru == null){
 			this.lazyStru = workspace.strus(fqn) ;
 		}
@@ -80,10 +80,6 @@ public class TreeNode {
 
 	
 	
-	
-	
-	
-	
 	public Set<TreeNode> getChildren() {
 		Set<TreeNode> result = new HashSet<TreeNode>();
 		for (Fqn f : strus().values()) {
@@ -92,33 +88,17 @@ public class TreeNode {
 		return Immutables.immutableSetWrap(result);
 	}
 
-	public Set<Object> getChildrenNames() {
+	public Set<String> getChildrenNames() {
 		return Immutables.immutableSetCopy(strus().keySet());
 	}
 
-
-	public TreeNode addChild(Fqn f) {
-		Fqn absoluteChildFqn = Fqn.fromRelativeFqn(fqn, f);
-
-		// 1) first register it with the parent
-		// AtomicMap<Object, Fqn> structureMap = getStructure(structureKey);
-		// structureMap.put(f.getLastElement(), absoluteChildFqn);
-
-		// Debug.line(f, new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE)) ;
-		// cache.remove(new TreeNodeKey(absoluteChildFqn.getParent() , TreeNodeKey.Type.STRUCTURE));
-
-		// 2) then create the structure and data maps
-		workspace.mergeAncestor(absoluteChildFqn);
-
-		return new TreeNode(workspace, absoluteChildFqn);
-	}
 
 	public boolean removeChild(Fqn f) {
 		return removeChild(f.getLastElement());
 	}
 
 	public boolean removeChild(Object childName) {
-		Map<Object, Fqn> s = strus();
+		Map<String, Fqn> s = strus();
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
 			TreeNode child = new TreeNode(workspace, childFqn);
@@ -210,8 +190,8 @@ public class TreeNode {
 	}
 
 	public void removeChildren() {
-		Map<Object, Fqn> s = strus();
-		for (Object o : Immutables.immutableSetCopy(s.keySet()))
+		Map<String, Fqn> s = strus();
+		for (String o : Immutables.immutableSetCopy(s.keySet()))
 			removeChild(o);
 	}
 

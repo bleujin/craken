@@ -1,10 +1,15 @@
 package net.ion.craken.version;
 
+import java.util.Map;
+
 import junit.framework.TestCase;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.MapUtil;
 
 public class TestNewVersion extends TestCase {
 
@@ -57,6 +62,43 @@ public class TestNewVersion extends TestCase {
 			}
 		}).get() ;
 		session.pathBy("/sroot").children().debugPrint() ;
+		
+	}
+	
+	public void testChild() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin/address").property("city", "seoul").property("", "") ;
+				return null;
+			}
+		}) ;
+		
+		ReadNode node = session.pathBy("/bleujin").child("address");
+		assertEquals("/bleujin/address", node.fqn().toString()) ;
+	}
+	
+	public void testMergeChildInWriteSession() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
+				wsession.root().addChild("/1/2/3/4/5/6").property("name", "line") ;
+				return null;
+			}
+		}).get() ;
+		
+		
+		Map<Fqn, ReadNode> childrenMap = MapUtil.newMap() ;
+		for (ReadNode node : session.pathBy("/").children().toList()) {
+			childrenMap.put(node.fqn(), node) ;
+		}
+		
+		assertEquals(2, childrenMap.size()) ;
+		assertEquals(true, childrenMap.containsKey(Fqn.fromString("/a"))) ;
+		assertEquals(true, childrenMap.containsKey(Fqn.fromString("/1"))) ;
+
+		assertEquals(true, session.exists("/a/b") && session.exists("/a") && session.exists("/a/b/c")) ;
 		
 	}
 }

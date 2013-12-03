@@ -21,35 +21,6 @@ public class TreeStructureSupport extends AutoBatchSupport {
 		this.batchContainer = batchContainer;
 	}
 
-	public boolean exists(Fqn f) {
-		if (Fqn.ROOT.equals(f)) {
-			return true ;
-		}
-		final boolean result = cache.containsKey(f.dataKey()) && cache.containsKey(f.struKey());
-		return result;
-//			return cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.DATA)) && cache.containsKey(new TreeNodeKey(f, TreeNodeKey.Type.STRUCTURE));
-	}
-
-	protected boolean mergeAncestor(Fqn fqn) {
-		if (cache.containsKey(fqn.dataKey()))
-			return false;
-
-		if (!fqn.isRoot()) {
-			Fqn parent = fqn.getParent();
-			if (!exists(parent))
-				mergeAncestor(parent);
-			
-			Map<Object, Fqn> parentStructure = strus(parent);
-			parentStructure.put(fqn.getLastElement(), fqn);
-		}
-		
-		
-		getAtomicMap(fqn.dataKey());
-		getAtomicMap(fqn.struKey());
-		
-		return true;
-	}
-
 	public static boolean isLocked(LockManager lockManager, Fqn fqn) {
 		return ((lockManager.isLocked(fqn.struKey()) && lockManager.isLocked(fqn.dataKey())));
 	}
@@ -65,8 +36,9 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 	
 
-	public AtomicMap<Object, Fqn> strus(Fqn fqn){
-		AtomicMap<Object, Fqn> props =  AtomicMapLookup.getAtomicMap(cache, fqn.struKey(), true);
+	public AtomicMap<String, Fqn> strus(Fqn fqn){
+		
+		AtomicMap<String, Fqn> props =  AtomicMapLookup.getAtomicMap(cache, fqn.struKey(), true);
 		return props ;
 	} 
 	

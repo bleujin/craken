@@ -44,7 +44,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	protected ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
 		if (exists(fqn)) {
-			return ReadNodeImpl.load(this, workspace.pathNode(fqn, emptyIfNotExist));
+			return ReadNodeImpl.load(this, workspace.readNode(fqn));
 		} else if (emptyIfNotExist) {
 			return ReadNodeImpl.ghost(this, fqn) ;
 		}

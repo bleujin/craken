@@ -261,4 +261,25 @@ public class TestPathBy extends TestBaseCrud {
 	}
 	
 	
+	public void testValidPropertyWhenTwiceLoad() throws Exception {
+		
+		session.tranSync(new TransactionJob<Void>() {
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emp/bleujin").property("name", "bleujin") ;
+				assertEquals(1, wsession.pathBy("/emp/bleujin").toMap().size()) ;
+				
+				wsession.pathBy("/emp/bleujin").property("age", 22) ;
+				assertEquals(2, wsession.pathBy("/emp/bleujin").toMap().size()) ;
+				
+				assertEquals("bleujin", wsession.pathBy("/emp/bleujin").property("name").stringValue()) ;
+				assertEquals(22, wsession.pathBy("/emp/bleujin").property("age").intValue(0)) ;
+
+				return null;
+			}
+		}) ;
+		
+		assertEquals("bleujin", session.pathBy("/emp/bleujin").property("name").stringValue()) ;
+		assertEquals(22, session.pathBy("/emp/bleujin").property("age").intValue(0)) ;
+	}
+	
 }

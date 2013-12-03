@@ -178,31 +178,6 @@ public class RepositoryImpl implements Repository {
 
 	}
 
-	// private synchronized AbstractWorkspace loadWorkspce(String wsName) throws CorruptIndexException, IOException{
-	// if (wss.containsKey(wsName)){
-	// return wss.get(wsName) ;
-	// } else {
-	// final TreeCache treeCache = TreeCacheFactory.createTreeCache(this, dm, wsName);
-	// GridFilesystem gfs = new GridFilesystem(dm.<String, byte[]>getCache(wsName + ".blobdata")) ;
-	// SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
-	//			
-	// // cacheStore.gfs(this.dm, gfs) ;
-	// final AbstractWorkspace newWorkspace = WorkspaceImpl.create(this, cacheStore, gfs, treeCache, wsName, configs.get(wsName));
-	//
-	//			
-	// newWorkspace.init() ;
-	//			
-	// wss.put(wsName, newWorkspace) ;
-	// return wss.get(wsName) ;
-	// }
-	// }
-
-	// public Central central(String wsName){
-	// SearcherCacheStore cacheStore = (SearcherCacheStore) dm.getCache(wsName + ".node").getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore();
-	// if (cacheStore == null) throw new IllegalArgumentException("not defined workspace") ;
-	//
-	// return cacheStore.central() ;
-	// }
 
 	public RepositoryImpl defineWorkspace(String wsName, CentralCacheStoreConfig config) {
 		if (configs.containsKey(wsName)) throw new IllegalStateException("already define workspace : " + wsName) ;
@@ -216,8 +191,8 @@ public class RepositoryImpl implements Repository {
 
 		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(
 				config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-		dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.LOCAL, "./resource/logs", 1000));
-		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.LOCAL, "./resource/logs", 7));
+		dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.REPL_SYNC, config.location(), 1000));
+		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 7));
 
 		log.info("Workspace[" + wsName + ", DIST] defined");
 		return this;
