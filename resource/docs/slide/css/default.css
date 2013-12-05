@@ -93,6 +93,10 @@ body {
   opacity: 0.25;
 }
 
+.note{
+  visibility:hidden;
+}
+
 .offline-storage .counter:after {
   background-image: url(/src/HTML5_Offline_Storage_32.png);
 }

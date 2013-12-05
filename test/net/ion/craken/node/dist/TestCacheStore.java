@@ -1,13 +1,12 @@
 package net.ion.craken.node.dist;
 
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TranResult;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestCacheStore extends TestCase  {
 

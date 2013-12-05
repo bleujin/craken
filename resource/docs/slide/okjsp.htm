@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
-    <title>HTML5 Presentation</title>
+    <title>OKJSP Craken Presentation</title>
     <link href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono" rel="stylesheet" type="text/css" />
     <link id="prettify-link" href="src/prettify/prettify.css" rel="stylesheet" disabled />
     <link href="css/moon.css" class="theme" rel="stylesheet" />
@@ -84,19 +84,241 @@
 			<section>
 				<h2>I am..</h2>
 				<pre>blog : http://bleujin.tistory.com/
-company : i-on communications, cxm team
-role : 표준프레임워크 커미터(since 2011)</pre>
+company : i-on communications, platform service team
+role : 표준 프레임워크 커미터(since 2011)</pre>
 				
 				<h2>Working</h2>
 				<pre> - https://github.com/bleujin/aradon(분산 미들웨어)
  - https://github.com/bleujin/craken(분산 레파지토리)
- - etc) aradonClient, isearcher, ionframework
+ - https://github.com/bleujin/aradonClient(websocket client)
+ - etc) isearcher, ionframework
 </pre>				
 			</section>
 		</div>
 
-        <div class="slide" id="title-slide">
+
+        <div class="slide" id="pretitle-slide">
           <style>
+            #pretitle-slide h1, #pretitle-slide h2 {
+              color: black;
+            }
+            #pretitle-slide h1 {
+              letter-spacing: -2px;
+              font-size: 96px;
+            }
+            #pretitle-slide h2 {
+              margin-top: -5px;
+              font-size: 40px;
+              letter-spacing: -1px;
+            }
+          </style>
+          
+          <section class="middle">
+          	<hgroup>
+              <h1>
+                Repository*
+              </h1>
+              <h2>
+                One Size Fits All ?
+              </h2>
+            </hgroup>
+            <img src="img/repo.jpg" width="600" height="337" />
+          </section>
+		</div>
+
+
+        <div class="slide styling" id="repository-aspect">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><h1>Database를 바라보는 관점</h1></header>
+          <section>
+          	 
+			<h2 class="sheader">PM</h2>
+<pre>오라클은 너무 비싼데.
+여기에 이런 필드 하나만 더 넣어주세요.
+개발자는 머만 바꾸자 맨날 어렵데.</pre>			
+
+             <h2 class="sheader">Developer</h2>
+<pre>빌어먹을 DB - 테이블이 왜 이렇게 많아?
+오라클에서는 이렇게 했는데 MySQL에서는 어떻게 하지?
+고작해야 값 넣고 빼는 건데 왜 이렇게 복잡? 그냥 파일에 저장할까?
+Data는 여기에 저장하고 UploadFile은 저기에 저장하고... 머 서치엔진?
+DBA는 머만 바꾸자 하면 맨날 어렵데.
+</pre>
+
+             <h2 class="sheader">DBA</h2>
+             <pre>멋지게 정규화 시켰는데 왜 불편하다고 할까
+DB 아키텍쳐 이해와 옵티마이저의 룰과 알면 됩니다. 
+Query를 잘 하려면 집합적인 사고방식을 가지면 됩니다. 참 쉽죠.(by Bob Uncle)
+</pre>
+          </section>
+        </div>
+
+		<div class="slide styling" id="find-solution">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><h1>변화의 탐색 - XX가 최고시다.</h1></header>
+          <section>
+          	 
+			<h2 class="sheader">OODBMS</h2>
+			<pre>캡슐화, 상속, 다형성 등 프로그래밍에 도움을 주는 특성의 보유
+종류 : Objectivity, O2, Gemstone</pre>			
+
+            <h2 class="sheader">ORDBMS</h2>
+			<pre>RDBMS의 확장 모델
+RDB의 문제점들인 반복그룹, 포인터, 자료형의 한계를 완화
+종류 : Unisql(큐브리드), RDB의 확장 모델, XML DB
+</pre>
+
+			<h2 class="sheader">New Framework</h2>
+			<pre>구체화됐고 번거로운 JDBC API를 추상화 & 간결화
+종류 : JDBC Helper library, iBatis, ionFramework
+</pre>
+
+			<h2 class="sheader">OR Adapter</h2>
+			<pre>CRUD 빨리 만들기  - 관공서 or SI 프로젝트에서 많이 사용
+종류 : Hibernate, JPA
+</pre>
+          </section>
+          
+	      <aside class="note">
+	      	<section>PS가 좋냐, XBox가 좋냐의 싸움.
+	      	남이 추상화 단계를 높여서 만든 프레임워크를 사용하는 건 생각의 속도로 코딩을 하는걸 지연시키고, 코딩도 즐겁지 않습니다.</section>
+	      </aside> 
+       </div>
+
+
+		<div class="slide styling" id="env-change">
+        <header><h1>환경의 변화</h1></header>
+          
+        <section>
+
+			<h2 class="sheader">통제된 데이타에서 통제되지 않은 데이타 환경으로</h2>
+			<pre>미리 설계되지 않은 데이타와의 통신/호환(섬에서 체인으로) 
+</pre>			
+
+			<h2 class="sheader">중앙집중형 DB에서 감당할 수 없는 BIG Data</h2>
+			<pre>전세계 해변에 있는 모래알의 수가 많을까, 올 한해 생성된 디지털 데이터의 양이 많을까
+모래알의 수 - 7 * (10^18 ~ 10^20)
+테라(10^12), 페타(10^15), 엑사(10^18), 제타(10^21)</pre>
+
+
+            <h2 class="sheader">HTML5, OpenSource의 활성화</h2>
+            <pre>DB는 더이상 BlackBox가 아님
+HTML5를 이용해 이전의 Dummy 이상의 기능을 할 수 있음            
+</pre>
+
+        </section>
+          
+		<aside class="note">
+		<section>
+			RDBM를 사용할 때 공유하고 싶은 데이터 엔티티(Entity)를 정의하고 엔티티의 항목과 관계등을 정의하는 설계과정이 필수적이었으며 데이터는 설계자에 의해 미리 정규화된 데이터였고 데이터 생산-처리는 통제된 환경에서 다루어졌다. 
+			이제는 통제되지 않는 환경에서 생산된 데이터가 먼저 존재한다. 
+			로그 데이터나 사용자 컴퓨터에 파일로 존재한 비정형 데이터(Semi-Structured Data)처럼 통제되지 않은 Data를 다루어야 하며 
+			이런 데이터들은 설계자의 예측보다 훨씬 더 자주 변한다. 
+			
+			중앙 집중형인 RDBMS가 관리할 수 있는 데이터의 양보다 훨씬 더 많아졌고 데이터의 종류도 이전의 varchar, number뿐 아니라 blob과 index 데이터 같은 이진데이타도 repository가 관리해야 할 중요한 데이터가 되었다. 
+		
+		    http://hallet.tistory.com/659
+	      	EMC가 조사기관인 IDC에 의뢰해서 "디지털 유니버스 보고서 : 빅데이터, 더욱 길어진 디지털 그림자, 이머징 마켓의 놀라운 성장" 이라는 보고서를 만들었는데
+	      	2012년 만들어진 전 세계 데이타의 양은 2.8Zeta이며 그중 유용한 가치를 창출한 것으로 판단된 데이타의 양은 23%이며, 3%만이 분류되고 0.5%만이 분석되어 있다고 합니다. 
+		</section>
+		</aside>
+        </div>
+
+		
+		
+		<div class="slide styling" id="env-change2">
+		  <style>	
+			.matrix {
+              vertical-align: middle;
+              margin-left: 120px;
+            }
+          </style>
+		<header><h1>환경의 변화</h1></header>
+		      
+		<section>
+
+            <h2 class="sheader">반복적인 노드의 탐색, 연관정보 탐색</h2>
+            <img src="img/matrix.png" class="matrix">
+            <pre>session.tranSync(new TransactionJob&lt;Void&gt;(){
+  public Void handle(WriteSession wsession){
+    wsession.pathBy("/matrix/anderson").property("age", 29).refTo("KNOWS", "/matrix/trinity").property("name", "Tomas Anderson") ;
+    wsession.pathBy("/matrix/trinity").property("name", "Trinity") ;
+    return null ;	
+  }
+}) ;
+String name = session.pathBy("/matrix").children().eq("age", 29).findOne()
+    .ref("KNOW").property("name").stringValue() ;
+assertEquals("Trinity", name) ;</pre>
+
+		</section>
+		
+		<aside class="note">
+			<seciton>현재의 서비스가 중요시하는 소셜 기능, 추천 기능, 네트워크 분석 기능의 구현에  있어서 반복적인 노드의 탐색, 연속적으로 꼬리를 무는 연관정보 탐색 기능이 필요하지만 이전의 RDB Repository로는 여러 가지 어려움이 있다.</seciton>
+		</aside>
+		</div>
+		
+		
+		<div class="slide styling" id="find-solution2">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><h1>변화의 탐색 V2 - No one size Hat fits all</h1></header>
+          <section>
+          	 
+			<h2 class="sheader">이전 고민의 주제</h2>
+			<pre>Oracle을 쓸까 MSSql 혹은 MySQL을 쓸까
+DBFramework는 iBatis를 쓸까? Hibernate를 쓸까? 라고 고민</pre>			
+
+            <h2 class="sheader">새로운 고민의 주제</h2>
+			<pre>
+</pre>
+          </section>
+          
+	      <aside class="note">
+	      	<section></section>
+	      </aside> 
+       </div>
+		
+	   <div class="slide styling" id="daas">
+          <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+          </style>
+          <header><h1>DAAS(Repository As A Service</h1></header>
+          <section>
+          	 
+			<h2 class="sheader"></h2>
+			<pre></pre>			
+
+            <h2 class="sheader"></h2>
+			<pre>
+</pre>
+          </section>
+          
+	      <aside class="note">
+	      	<section></section>
+	      </aside> 
+       </div>
+		
+		
+		
+		
+
+
+
+        <div class="slide" id="title-slide">
+        <style>
             #title-slide h1, #title-slide h2 {
               color: black;
             }
@@ -109,8 +331,9 @@ role : 표준프레임워크 커미터(since 2011)</pre>
               font-size: 40px;
               letter-spacing: -1px;
             }
-          </style>
-          <section class="middle">
+        </style>
+          
+        <section class="middle">
             <hgroup>
               <h1>
                 CRAKEN*
@@ -122,6 +345,13 @@ role : 표준프레임워크 커미터(since 2011)</pre>
             <img src="img/craken.jpg" />
           </section>
         </div>
+
+
+	
+
+		
+
+
 
 
         <div class="slide" id="timeline-slide">
@@ -394,11 +624,21 @@ Data Analytics Based MapReduce(expect)
 
 			<h2 class="sheader">극복해야할 과제</h2>
 <pre>낯설다.
-느리다.(300 ups, expect : 3000 ups)</pre>			
+아직 느리다.(1200 ups, expect : 3000 ups)
+Shard - 분산 쿼리</pre>			
           </section>
         </div>
 
 
+		<div class="slide styling" id="how-it-work">
+		<header><h1>How It Work</h1></header>
+			
+		
+		<section>
+					
+		
+		</section>	
+		</div>
 
 
 
@@ -487,7 +727,7 @@ Data Analytics Based MapReduce(expect)
           	 
              <h2 class="sheader">Blob IO</h2>
              <pre>public void testIO() throws Exception {
-    final InputStream src = new StringInputStream("LongLongString");
+    final InputStream src = new ByteArrayInputStream("LongLongString".getBytes("UTF-8"));
     
     session.tranSync(new TransactionJob&lt;Void&gt;() {
         public Void handle(WriteSession wsession) throws UnsupportedEncodingException {
@@ -693,6 +933,27 @@ session.root().children().eq("name", "hero").debugPrint() ;</textarea>
 
 
 
+        <div class="slide styling" id="and-after">
+        <style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+        </style>
+        <header><span class="js">Future</span> <h1>마지막으로</h1></header>
+        <section>
+          	 
+             <h2 class="sheader">No one Size Repository Fits all</h2>
+             <pre>은총알은 없고 환경은 변했다.
+</pre>
+
+             <h2 class="sheader">OpenSource를 직접 해보자 </h2>
+			<pre>지루한 프로그래밍 - 기계적인 삶
+만들지 않으면 알 수 없는 것들이 있다.
+바꾸지 않으면 바뀌지 않는다.</pre>
+
+
+		</section>
+        </div>
 
 
 
