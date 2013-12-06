@@ -32,4 +32,5 @@ public class WriteSessionImpl extends  AbstractWriteSession {
 	public String tranId(){
 		return tranId ;
 	}
+	
 }

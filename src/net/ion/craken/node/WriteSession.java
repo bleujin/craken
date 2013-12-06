@@ -31,7 +31,7 @@ public interface WriteSession extends ISession<WriteNode> {
 	public void failRollback();
 
 	public void endCommit() throws IOException;
-	
+
 	public Credential credential() ;
 
 	public Workspace workspace() ;
@@ -55,6 +55,7 @@ public interface WriteSession extends ISession<WriteNode> {
 	public WriteSession fieldIndexConfig(IndexWriteConfig wconfig);
 
 	public IndexWriteConfig iwconfig();
+
 
 	
 }

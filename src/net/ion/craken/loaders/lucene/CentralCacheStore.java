@@ -163,13 +163,9 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 			if (key.getType().isStructure()) {
 				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.fqnString()))).selections(IKeywordField.ISKey).offset(1000000).find().getDocument();
-				Debug.line("STRU", key) ;
 				return DocEntry.create(key, docs);
 			}
 			ReadDocument findDoc = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).selections(DocEntry.VALUE).findOne();
-			
-			Debug.line("DATA", key) ;
-
 			
 			if (findDoc == null) {
 				return null;

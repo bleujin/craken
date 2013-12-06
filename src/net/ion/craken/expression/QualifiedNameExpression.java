@@ -3,6 +3,7 @@ package net.ion.craken.expression ;
 import java.util.Iterator;
 
 import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NotFoundNodeException;
 import net.ion.framework.util.NumberUtil;
 
 
@@ -40,9 +41,9 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 				findNode = findNode.parent() ;
 				continue ;
 			}
-			if (findNode.hasChild(nextString)){
+			if (iter.hasNext() && findNode.hasChild(nextString)){
 				findNode = findNode.child(nextString) ;
-			} else if (findNode.hasRef(nextString)) {
+			} else if (iter.hasNext() && findNode.hasRef(nextString)) {
 				findNode = findNode.ref(nextString) ;
 			} else if (iter.hasNext()){
 				return null ;

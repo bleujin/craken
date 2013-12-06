@@ -1,6 +1,7 @@
 package net.ion.craken.node;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
@@ -28,8 +30,6 @@ import net.ion.craken.node.AbstractWriteSession.LogRow;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.node.exception.NodeNotExistsException;
-import net.ion.craken.node.exception.NotFoundPath;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -38,6 +38,7 @@ import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeStructureSupport;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.TreeNodeKey.Action;
+import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
@@ -46,6 +47,7 @@ import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyField;
@@ -69,45 +71,50 @@ import org.infinispan.distexec.mapreduce.Reducer;
 import org.infinispan.loaders.AbstractCacheStoreConfig;
 import org.infinispan.loaders.CacheLoaderManager;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
+import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
+
 @Listener
-public abstract class Workspace extends TreeStructureSupport{
-	
+public abstract class Workspace extends TreeStructureSupport {
+
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
-	private GridFilesystem gfsBlob ;	
-	private GridFilesystem logContent ;
-	private Cache<String, Metadata> logMeta ;
+	private GridFilesystem gfsBlob;
+	private GridFilesystem logContent;
+	private Cache<String, Metadata> logMeta;
 	private String wsName;
 	private BatchContainer batchContainer;
 	private CentralCacheStore cstore;
 	private AbstractCacheStoreConfig config;
-	private Engine parseEngine = Engine.createDefaultEngine() ;
-	
+	private Engine parseEngine = Engine.createDefaultEngine();
+
 	private static final Log log = LogFactory.getLog(Workspace.class);
-	
+
 	protected Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) throws CorruptIndexException, IOException {
-		this(repository, cache.getAdvancedCache(), wsName, config) ;
+		this(repository, cache.getAdvancedCache(), wsName, config);
 	}
-	
+
 	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) throws CorruptIndexException, IOException {
-		super(cache, cache.getBatchContainer()) ;
+		super(cache, cache.getBatchContainer());
 		this.repository = repository;
 		this.cache = cache;
-		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]>getCache(wsName + ".blob")) ;
-		
-		this.logContent = new GridFilesystem(cache.getCacheManager().<String, byte[]>getCache(wsName + ".log")) ;
-		this.logMeta = cache.getCacheManager().<String, Metadata>getCache(wsName + ".logmeta") ;
+
+		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".blob"));
+		this.logContent = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".log"));
+		this.logMeta = cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta");
+
 		this.cstore = ((CentralCacheStore) cache.getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore());
-		
+
 		this.wsName = wsName;
-		this.config = config ;
+		this.config = config;
 		this.batchContainer = cache.getBatchContainer();
+
+		logMeta.addListener(new SyncListener(this));
 	}
-	
-	
 
 	public <T> T getAttribute(String key, Class<T> clz) {
 		return repository.getAttribute(key, clz);
@@ -126,96 +133,95 @@ public abstract class Workspace extends TreeStructureSupport{
 		cache.stop();
 	}
 
-//	public void init() {
-//		try {
-//			beginTran();
-//			createNode(IndexWriteConfig.Default, Fqn.ROOT);
-//			createNode(IndexWriteConfig.Default, Fqn.TRANSACTIONS);
-//		} finally {
-//			endTran();
-//		}
-//	}
+	// public void init() {
+	// try {
+	// beginTran();
+	// createNode(IndexWriteConfig.Default, Fqn.ROOT);
+	// createNode(IndexWriteConfig.Default, Fqn.TRANSACTIONS);
+	// } finally {
+	// endTran();
+	// }
+	// }
 
 	WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
-		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn) ;
-		
+		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
+
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
-		cache.put(fqn.dataKey().createAction(), props) ;
-		
-		if (log.isTraceEnabled()) log.tracef("Created node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn)) ;
+		cache.put(fqn.dataKey().createAction(), props);
+
+		if (log.isTraceEnabled())
+			log.tracef("Created node %s", fqn);
+		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn));
 	}
 
 	WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
-		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn) ;
-		
+		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
+
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
-		cache.put(fqn.dataKey().resetAction(), props) ;
-		
-		if (log.isTraceEnabled()) log.tracef("Reset node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn)) ;
+		cache.put(fqn.dataKey().resetAction(), props);
+
+		if (log.isTraceEnabled())
+			log.tracef("Reset node %s", fqn);
+		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn));
 	}
 
 	private void createAncestor(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn parent, Fqn fqn) {
-		if (fqn.isRoot()) return ;
-		
+		if (fqn.isRoot())
+			return;
+
 		AtomicMap<String, Fqn> parentStru = super.strus(parent);
-		if (parentStru.containsKey(fqn.getLastElement())){
-			
+		if (parentStru.containsKey(fqn.getLastElement())) {
+
 		} else {
-			parentStru.put(fqn.getLastElementAsString(), fqn) ;
-//			super.props(fqn) ;
-			cache.put(fqn.dataKey().createKey(Action.CREATE), new AtomicHashMap<PropertyId, PropertyValue>())  ;
-//			cache.put(fqn.struKey().createKey(Action.CREATE), new AtomicHashMap()) ;
-			WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn), Touch.MODIFY) ;
+			parentStru.put(fqn.getLastElementAsString(), fqn);
+			// super.props(fqn) ;
+			cache.put(fqn.dataKey().createKey(Action.CREATE), new AtomicHashMap<PropertyId, PropertyValue>());
+			// cache.put(fqn.struKey().createKey(Action.CREATE), new AtomicHashMap()) ;
+			WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn), Touch.MODIFY);
 		}
-		
+
 		if (parent.isRoot() || parent.isSystem())
-			return ;
-		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent) ;
+			return;
+		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}
-	
-	WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn){
-		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn) ;
-		
-		if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
+
+	WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
+
+		if (log.isTraceEnabled())
+			log.tracef("Merged node %s", fqn);
 		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn), Touch.MODIFY);
-//		return exists(fqn) ? WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, false)) : WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, true), Touch.MODIFY);
-		
-//		mergeAncestor(fqn) ;
-//		if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
-//		return new TreeNode(this, fqn);
+		// return exists(fqn) ? WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, false)) : WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, true), Touch.MODIFY);
+
+		// mergeAncestor(fqn) ;
+		// if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
+		// return new TreeNode(this, fqn);
 	}
-	
+
 	TreeNode readNode(Fqn fqn) {
 		return new TreeNode(this, fqn);
 	}
-
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
 		return tran(wsession, tjob, null);
 	}
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler ehandler) {
-		final Workspace self = this;
 		return repository.executor().submitTask(new Callable<T>() {
 
 			@Override
 			public T call() throws Exception {
 				try {
-					batchContainer.startBatch(true) ;
+					batchContainer.startBatch(true);
 					wsession.prepareCommit();
 					T result = tjob.handle(wsession);
-					
-					wsession.endCommit();
-					batchContainer.endBatch(true, true) ;
-					
-					index(wsession) ;
-					
+
+					endTran(wsession);
+
 					return result;
 				} catch (Throwable ex) {
-//					ex.printStackTrace() ;
-					batchContainer.endBatch(true, false) ;
+					// ex.printStackTrace() ;
+					batchContainer.endBatch(true, false);
 					if (ehandler == null)
 						if (ex instanceof Exception)
 							throw (Exception) ex;
@@ -230,87 +236,109 @@ public abstract class Workspace extends TreeStructureSupport{
 			}
 		});
 	}
-	
+
+	private void endTran(WriteSession wsession) throws IOException {
+		wsession.endCommit();
+		batchContainer.endBatch(true, true);
+		Metadata metadata = logContent.gridBlob(wsession.tranId()).getMetadata() ;
+		int count = index(wsession, metadata);
+		
+		
+		logMeta.put(wsession.tranId(), metadata);
+
+	}
+
 	public boolean exists(Fqn f) {
 		if (Fqn.ROOT.equals(f)) {
-			return true ;
+			return true;
 		}
-		final boolean result = cache.containsKey(f.dataKey()) && cache.containsKey(f.struKey());
+		final boolean result = cache.containsKey(f.dataKey()); // && cache.containsKey(f.struKey());
 		return result;
 	}
 
 	public boolean existsData(Fqn f) {
 		if (Fqn.ROOT.equals(f)) {
-			return true ;
+			return true;
 		}
 		final boolean result = cache.containsKey(f.dataKey());
 		return result;
 	}
 
+	private int index(WriteSession wsession, Metadata meta) throws IOException {
+		long startTime = System.currentTimeMillis();
+		InputStream input = null ;
+		int count ;
+		try {
+			input = logContent.getGridBlob(meta).toInputStream();
+			count = storeData(input);
+		} finally {
+			IOUtil.closeQuietly(input);
+		}
 
-	
-	private void index(WriteSession wsession) throws IOException {
-		final Metadata meta = logMeta.get(wsession.tranId());
-		InputStream input = logContent.getGridBlob(meta).toInputStream();
-		
-//		Debug.line(IOUtil.toStringWithClose(input)) ;
-		
+		wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(count, System.currentTimeMillis() - startTime));
+		return count;
+	}
+
+	private int storeData(InputStream input) throws IOException {
+
+		// Debug.line(IOUtil.toStringWithClose(input)) ;
+
 		final JsonReader reader = new JsonReader(new InputStreamReader(input, "UTF-8"));
-		
 		reader.beginObject();
-		String configName = reader.nextName() ;
-		final JsonObject config = reader.nextJsonObject() ;
-		String logName = reader.nextName() ;
-		
-//		Debug.line(config, wsession.tranId(), meta) ;
-		
-		long startTime = System.currentTimeMillis() ;
+		String configName = reader.nextName();
+		final JsonObject config = reader.nextJsonObject();
+		String logName = reader.nextName();
+
+		// Debug.line(config, wsession.tranId(), meta) ;
+
 		int count = central().newIndexer().index(new IndexJob<Integer>() {
 			public Integer handle(IndexSession isession) throws Exception {
 
-				final long start = System.currentTimeMillis() ;
-				isession.setIgnoreBody(config.asBoolean("ignoreBody")) ;
-//				isession.indexWriterConfig(new IndexWriterConfig(Version.LUCENE_CURRENT, new MyKoreanAnalyzer(Version.LUCENE_CURRENT)));
-				
-				reader.beginArray() ;
-				final int count = config.asInt("count") ;
-				for(int i = 0 ; i < count ; i++){
-					JsonObject tlog = reader.nextJsonObject() ;
-					String path = tlog.asString("path") ;
-					Touch touch = Touch.valueOf(tlog.asString("touch")) ;
-					Action action = Action.valueOf(tlog.asString("action")) ;
-//					Debug.line(path, touch) ;
+				final long start = System.currentTimeMillis();
+				isession.setIgnoreBody(config.asBoolean("ignoreBody"));
+				// isession.indexWriterConfig(new IndexWriterConfig(Version.LUCENE_CURRENT, new MyKoreanAnalyzer(Version.LUCENE_CURRENT)));
+
+				reader.beginArray();
+				final int count = config.asInt("count");
+				for (int i = 0; i < count; i++) {
+					JsonObject tlog = reader.nextJsonObject();
+					String path = tlog.asString("path");
+					Touch touch = Touch.valueOf(tlog.asString("touch"));
+					Action action = Action.valueOf(tlog.asString("action"));
+					// Debug.line(path, touch) ;
 					switch (touch) {
-					case TOUCH :
-						break ;
+					case TOUCH:
+						break;
 					case MODIFY:
-						JsonObject val = tlog.asJsonObject("val") ;
+						JsonObject val = tlog.asJsonObject("val");
 						WriteDocument propDoc = isession.newDocument(path);
 						JsonObject jobj = new JsonObject();
-		                jobj.addProperty(DocEntry.ID, path);
-		                jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
-		                jobj.add(DocEntry.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
-		                propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
-		                
-		                if (action == Action.CREATE) isession.insertDocument(propDoc) ;
-		                else isession.updateDocument(propDoc);
-//						isession.updateDocument(propDoc) ;
-						
+						jobj.addProperty(DocEntry.ID, path);
+						jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
+						jobj.add(DocEntry.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
+						propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
+
+						if (action == Action.CREATE)
+							isession.insertDocument(propDoc);
+						else
+							isession.updateDocument(propDoc);
+						// isession.updateDocument(propDoc) ;
+
 						break;
 					case REMOVE:
 						isession.deleteTerm(new Term(IKeywordField.ISKey, path));
 						break;
 					case REMOVECHILDREN:
-						isession.deleteQuery(new WildcardQuery(new Term(DocEntry.PARENT, Fqn.fromString(path).startWith() )));
+						isession.deleteQuery(new WildcardQuery(new Term(DocEntry.PARENT, Fqn.fromString(path).startWith())));
 						break;
 					default:
 						throw new IllegalArgumentException("Unknown modification type " + touch);
 					}
 				}
-				
+
 				return count;
 			}
-			
+
 			private JsonObject fromMapToJson(String path, WriteDocument doc, IndexWriteConfig iwconfig, Set<Map.Entry<String, JsonElement>> props) {
 				JsonObject jso = new JsonObject();
 				String parentPath = Fqn.fromString(path).getParent().toString();
@@ -319,10 +347,9 @@ public abstract class Workspace extends TreeStructureSupport{
 
 				for (Entry<String, JsonElement> entry : props) {
 					final PropertyId propertyId = PropertyId.fromIdString(entry.getKey());
-					
-					
-					if (propertyId.type() == PType.NORMAL){
-						String propId = propertyId.getString() ;
+
+					if (propertyId.type() == PType.NORMAL) {
+						String propId = propertyId.getString();
 						JsonArray pvalue = entry.getValue().getAsJsonArray();
 						jso.add(propId, entry.getValue().getAsJsonArray());
 						for (JsonElement e : pvalue.toArray()) {
@@ -331,8 +358,8 @@ public abstract class Workspace extends TreeStructureSupport{
 							FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
 							fieldIndex.index(doc, propId, e.isJsonObject() ? e.toString() : e.getAsString());
 						}
-					} else if (propertyId.type() == PType.REFER){
-						final String propId = propertyId.getString() ;
+					} else if (propertyId.type() == PType.REFER) {
+						final String propId = propertyId.getString();
 						JsonArray pvalue = entry.getValue().getAsJsonArray();
 						jso.add(propId, entry.getValue().getAsJsonArray()); // if type == refer, @
 						for (JsonElement e : pvalue.toArray()) {
@@ -344,27 +371,21 @@ public abstract class Workspace extends TreeStructureSupport{
 				}
 				return jso;
 			}
-			
-			
-		}) ;
-		
-		wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(count, System.currentTimeMillis() - startTime)) ;
-		
-		reader.endArray() ;
-		reader.endObject() ;
-		reader.close() ;
-		input.close() ;
+
+		});
+
+		reader.endArray();
+		reader.endObject();
+		IOUtil.closeQuietly(reader) ;
+		return count ;
 	}
-	
 
 	public void continueUnit(WriteSession wsession) throws IOException {
-		wsession.endCommit() ;
-		batchContainer.endBatch(true, true) ;
-		index(wsession) ;
-		
-		wsession.tranId(new ObjectId().toString()) ;
-		batchContainer.startBatch(true) ;
-		wsession.prepareCommit() ;
+		endTran(wsession);
+
+		wsession.tranId(new ObjectId().toString());
+		batchContainer.startBatch(true);
+		wsession.prepareCommit();
 	}
 
 	public void begin() {
@@ -378,9 +399,7 @@ public abstract class Workspace extends TreeStructureSupport{
 	public void end() {
 		super.endAtomic();
 	}
-	
-	
-	
+
 	public Workspace addListener(Object listener) {
 		if (listener instanceof WorkspaceListener) {
 			((WorkspaceListener) listener).registered(this);
@@ -456,23 +475,14 @@ public abstract class Workspace extends TreeStructureSupport{
 			return inner.reduce(key, iter);
 		}
 	}
-	
-	
-	
 
-	
-	public void remove(Fqn fqn){
+	public void remove(Fqn fqn) {
 		cache.remove(fqn.dataKey());
 		cache.remove(fqn.struKey());
 	}
 
-
-	
-	
-	
-	
 	// TestOnly
-	public  Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache() {
+	public Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache() {
 		return cache;
 	}
 
@@ -485,133 +495,166 @@ public abstract class Workspace extends TreeStructureSupport{
 	}
 
 	public InstantLogWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
-		return new InstantLogWriter(this, wsession, rsession) ;
+		return new InstantLogWriter(this, wsession, rsession);
 	}
-
-	
-	
-	private boolean trace = false ;
-	
-//	void move(GridFilesystem gfs, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
-//		if (trace) log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
-//		if (nodeToMoveFqn == null || newParentFqn == null)
-//			throw new NullPointerException("Cannot accept null parameters!");
-//
-//		if (nodeToMoveFqn.getParent().equals(newParentFqn)) {
-//			if (trace) log.trace("Not doing anything as this node is equal with its parent");
-//			// moving onto self! Do nothing!
-//			return;
-//		}
-//
-//		// Depth first. Lets start with getting the node we want.
-//		boolean success = false;
-//		try {
-//			// check that parent's structure map contains the node to be moved. in case of optimistic locking this
-//			// ensures the write skew is properly detected if some other thread removes the child
-//			TreeNode parent = pathNode(nodeToMoveFqn.getParent(), true);
-//			if (!parent.hasChild(nodeToMoveFqn.getLastElement())) {
-//				 if (trace) log.trace("The parent does not have the child that needs to be moved. Returning...");
-//				return;
-//			}
-//			TreeNode nodeToMove = pathNode(nodeToMoveFqn, true);
-//			if (nodeToMove == null) {
-//				if (trace) log.trace("Did not find the node that needs to be moved. Returning...");
-//				return; // nothing to do here!
-//			}
-//			if (!exists(newParentFqn)) {
-//				// then we need to silently create the new parent
-//				mergeAncestor(newParentFqn);
-//				if (trace) log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
-//			}
-//
-//			// create an empty node for this new parent
-//			Fqn newFqn = Fqn.fromRelativeElements(newParentFqn, nodeToMoveFqn.getLastElement());
-//			mergeAncestor(newFqn);
-//			TreeNode newNode = pathNode(newFqn, true);
-//			Map<PropertyId, PropertyValue> oldData = nodeToMove.readMap();
-//			if (oldData != null && !oldData.isEmpty())
-//				newNode.putAll(oldData);
-//			for (Object child : nodeToMove.getChildrenNames()) {
-//				// move kids
-//				if (trace) log.tracef("Moving child %s", child);
-//				Fqn oldChildFqn = Fqn.fromRelativeElements(nodeToMoveFqn, child);
-//				move(gfs, oldChildFqn, newFqn);
-//			}
-//			remove(nodeToMoveFqn);
-//			success = true;
-//		} finally {
-//			if (!success) {
-//				failAtomic();
-//			}
-//		}
-//		log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
-//	}
-	
-
 
 	static class InstantLogWriter {
 
 		private final Workspace wspace;
 		private final WriteSession wsession;
-		private final ReadSession rsession ;
-		
-		private JsonWriter jwriter ;
-		private Metadata metadata;
-		
+		private final ReadSession rsession;
+
+		private JsonWriter jwriter;
+//		private Metadata metadata;
+
 		public InstantLogWriter(Workspace wspace, WriteSession wsession, ReadSession rsession) throws IOException {
-			this.wspace = wspace ;
-			this.wsession = wsession ;
-			this.rsession = rsession ;
-			this.metadata = Metadata.create(wsession.tranId());
-			GridBlob gridBlob = wspace.logContent.getGridBlob(metadata);
-			OutputStream output = wspace.logContent.getOutput(gridBlob, false) ;
+			this.wspace = wspace;
+			this.wsession = wsession;
+			this.rsession = rsession;
+//			this.metadata = Metadata.create(wsession.tranId());
+			GridBlob gridBlob = wspace.logContent.gridBlob(wsession.tranId());
+			OutputStream output = wspace.logContent.getOutput(gridBlob, false);
 
 			Writer swriter = new BufferedWriter(new OutputStreamWriter(output, Charset.forName("UTF-8")));
-			this.jwriter = new JsonWriter(swriter) ;
+			this.jwriter = new JsonWriter(swriter);
 		}
 
 		public InstantLogWriter beginLog(Set<LogRow> logRows) throws IOException {
 			final long thisTime = System.currentTimeMillis();
-			
-			jwriter.beginObject() ;
-			
-			jwriter.name("config") ;
-			jwriter.beginObject() ;
-			wsession.iwconfig().writeJson(jwriter, thisTime, logRows.size()) ;
-			jwriter.endObject() ;
-			
-			jwriter.name("logs") ;
-			jwriter.beginArray() ;
-			
-			return this ;
-		}
-		
-		public void writeLog(LogRow row) throws IOException {
-			Fqn target = row.target() ;
-			Touch touch = row.touch() ;
-			
-			jwriter.beginObject() ;
-			
-			jwriter.name("path").value(target.toString()).name("touch").value(touch.name()).name("action").value(target.dataKey().action().toString()) ; //.jsonElement("val", nodeValue) ;
-			if (touch == Touch.MODIFY) {
-				jwriter.jsonElement("val", rsession.workspace().existsData(target) ? rsession.workspace().readNode(target).toValueJson() : JsonObject.create()) ;
-			} 
-			
-			jwriter.endObject() ;
+
+			jwriter.beginObject();
+
+			jwriter.name("config");
+			jwriter.beginObject();
+			wsession.iwconfig().writeJson(jwriter, thisTime, logRows.size());
+			jwriter.endObject();
+
+			jwriter.name("logs");
+			jwriter.beginArray();
+
+			return this;
 		}
 
-		public InstantLogWriter endLog() throws IOException{
-			jwriter.endArray() ;
-			jwriter.endObject() ;
-			jwriter.flush() ;
-			jwriter.close() ;
-			
-			wspace.logMeta.put(wsession.tranId(), metadata) ;
-			return this ;
+		public void writeLog(LogRow row) throws IOException {
+			Fqn target = row.target();
+			Touch touch = row.touch();
+
+			jwriter.beginObject();
+
+			jwriter.name("path").value(target.toString()).name("touch").value(touch.name()).name("action").value(target.dataKey().action().toString()); // .jsonElement("val", nodeValue) ;
+			if (touch == Touch.MODIFY) {
+				jwriter.jsonElement("val", rsession.workspace().existsData(target) ? rsession.workspace().readNode(target).toValueJson() : JsonObject.create());
+			}
+
+			jwriter.endObject();
 		}
+
+		public void endLog() throws IOException {
+			jwriter.endArray();
+			jwriter.endObject();
+			jwriter.flush();
+			jwriter.close();
+
+//			Metadata metadata = wspace.logContent.gridBlob(wsession.tranId()).getMetadata() ;
+//			wspace.logMeta.put(wsession.tranId(), metadata);
+//			return new EndCommit(wsession.tranId(), metadata);
+		}
+
 	}
 
+	@Listener
+	public static class SyncListener {
 
+		private Workspace wspace;
 
+		public SyncListener(Workspace wspace) {
+			this.wspace = wspace;
+
+		}
+
+		@CacheEntryModified
+		public void modified(final CacheEntryModifiedEvent<String, Metadata> e) throws IOException {
+			if (e.isPre())
+				return;
+			if (e.isOriginLocal()) return ;
+
+//			wspace.executor().submitTask(new Callable<Void>() {
+//				public Void call() {
+//					try {
+//						Thread.sleep(100) ;
+						GridBlob gridBlob = wspace.logContent.gridBlob(e.getKey()) ;
+						InputStream input = gridBlob.toInputStream();
+						Debug.line(e.getKey(), IOUtil.toStringWithClose(input));
+//						wspace.storeData(gridBlob.getMetadata()) ;
+//					} catch (Throwable ex) {
+//						ex.printStackTrace();
+//					}
+//					return null;
+//				}
+//			});
+
+			// GridBlob gridBlob = wspace.logContent.getGridBlob(metadata);
+			// InputStream input = gridBlob.toInputStream();
+			// Debug.line(IOUtil.toStringWithClose(input)) ;
+		}
+
+	}
+
+	private boolean trace = false;
+	// void move(GridFilesystem gfs, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
+	// if (trace) log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
+	// if (nodeToMoveFqn == null || newParentFqn == null)
+	// throw new NullPointerException("Cannot accept null parameters!");
+	//
+	// if (nodeToMoveFqn.getParent().equals(newParentFqn)) {
+	// if (trace) log.trace("Not doing anything as this node is equal with its parent");
+	// // moving onto self! Do nothing!
+	// return;
+	// }
+	//
+	// // Depth first. Lets start with getting the node we want.
+	// boolean success = false;
+	// try {
+	// // check that parent's structure map contains the node to be moved. in case of optimistic locking this
+	// // ensures the write skew is properly detected if some other thread removes the child
+	// TreeNode parent = readNode(nodeToMoveFqn.getParent());
+	// if (!parent.hasChild(nodeToMoveFqn.getLastElement())) {
+	// if (trace) log.trace("The parent does not have the child that needs to be moved. Returning...");
+	// return;
+	// }
+	// TreeNode nodeToMove = readNode(nodeToMoveFqn);
+	// if (nodeToMove == null) {
+	// if (trace) log.trace("Did not find the node that needs to be moved. Returning...");
+	// return; // nothing to do here!
+	// }
+	// if (!exists(newParentFqn)) {
+	// // then we need to silently create the new parent
+	// mergeAncestor(newParentFqn);
+	// if (trace) log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
+	// }
+	//
+	// // create an empty node for this new parent
+	// Fqn newFqn = Fqn.fromRelativeElements(newParentFqn, nodeToMoveFqn.getLastElement());
+	// mergeAncestor(newFqn);
+	// TreeNode newNode = readNode(newFqn);
+	// Map<PropertyId, PropertyValue> oldData = nodeToMove.readMap();
+	// if (oldData != null && !oldData.isEmpty())
+	// newNode.putAll(oldData);
+	// for (Object child : nodeToMove.getChildrenNames()) {
+	// // move kids
+	// if (trace) log.tracef("Moving child %s", child);
+	// Fqn oldChildFqn = Fqn.fromRelativeElements(nodeToMoveFqn, child);
+	// move(gfs, oldChildFqn, newFqn);
+	// }
+	// remove(nodeToMoveFqn);
+	// success = true;
+	// } finally {
+	// if (!success) {
+	// failAtomic();
+	// }
+	// }
+	// log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
+	// }
+	//	
 
 }

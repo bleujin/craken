@@ -1,14 +1,15 @@
 package net.ion.craken.node.dist;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.util.Debug;
-import net.ion.nsearcher.config.Central;
+import net.ion.framework.util.FileUtil;
 
 public class TestAtSingleCom extends TestCase {
 
@@ -21,16 +22,16 @@ public class TestAtSingleCom extends TestCase {
 	public void xtestReader() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
 		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
+//		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
+		
 		ReadSession session = r.login("test");
 
 		try {
-			for (int i = 0; i < 100; i++) {
+			for (int i = 0; i < 150; i++) {
 				if (session.exists("/bleujin")) {
-					Debug.line(session.pathBy("/bleujin").children().toList().size());
+					session.pathBy("/bleujin").children().toList().size();
 				}
-
 				Thread.sleep(1000);
-				System.out.print('.');
 			}
 		} finally {
 			r.shutdown();
@@ -49,10 +50,13 @@ public class TestAtSingleCom extends TestCase {
 	
 	
 	public void xtestWriter() throws Exception {
+		FileUtil.deleteDirectory(new File("./resource/c2")) ;
 		RepositoryImpl r = RepositoryImpl.create();
 		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c2"));
-		ReadSession session = r.login("test");
+		
+//		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
 
+		ReadSession session = r.login("test");
 		try {
 			for (int i = 0; i < 100; i++) {
 				final int num = i;
@@ -68,7 +72,6 @@ public class TestAtSingleCom extends TestCase {
 		} finally {
 			r.shutdown();
 		}
-
 	}
 
 }

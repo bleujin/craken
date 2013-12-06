@@ -42,7 +42,7 @@ public class TestCrakenServer extends TestCase {
 	
 				public void onClose(EventSourceConnection conn) throws Exception {
 				} })
-			.add("/*", new SimpleStaticFileHandler(new File("./resource/docs/"))).createRadon();
+			.add("/*", new SimpleStaticFileHandler(new File("./resource/docs/slide/"))).createRadon();
 
 		radon.start().get();
 

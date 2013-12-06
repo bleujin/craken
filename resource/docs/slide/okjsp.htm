@@ -151,7 +151,7 @@ DBA는 머만 바꾸자 하면 맨날 어렵데.
 
              <h2 class="sheader">DBA</h2>
              <pre>멋지게 정규화 시켰는데 왜 불편하다고 할까
-DB 아키텍쳐 이해와 옵티마이저의 룰과 알면 됩니다. 
+DB 아키텍쳐 이해와 옵티마이저의 룰만 알면 됩니다. 
 Query를 잘 하려면 집합적인 사고방식을 가지면 됩니다. 참 쉽죠.(by Bob Uncle)
 </pre>
           </section>
@@ -177,7 +177,7 @@ RDB의 문제점들인 반복그룹, 포인터, 자료형의 한계를 완화
 </pre>
 
 			<h2 class="sheader">New Framework</h2>
-			<pre>구체화됐고 번거로운 JDBC API를 추상화 & 간결화
+			<pre>상세하고 번거로운 JDBC API를 프로그래밍 관점에서 추상화 & 간결화
 종류 : JDBC Helper library, iBatis, ionFramework
 </pre>
 
@@ -200,7 +200,7 @@ RDB의 문제점들인 반복그룹, 포인터, 자료형의 한계를 완화
         <section>
 
 			<h2 class="sheader">통제된 데이타에서 통제되지 않은 데이타 환경으로</h2>
-			<pre>미리 설계되지 않은 데이타와의 통신/호환(섬에서 체인으로) 
+			<pre>미리 설계되지 않은 데이타와의 통신/호환(no man is an island) 
 </pre>			
 
 			<h2 class="sheader">중앙집중형 DB에서 감당할 수 없는 BIG Data</h2>
@@ -211,7 +211,7 @@ RDB의 문제점들인 반복그룹, 포인터, 자료형의 한계를 완화
 
             <h2 class="sheader">HTML5, OpenSource의 활성화</h2>
             <pre>DB는 더이상 BlackBox가 아님
-HTML5를 이용해 이전의 Dummy 이상의 기능을 할 수 있음            
+HTML5를 이용해 이전의 Dummy Client이상의 기능을 할 수 있음            
 </pre>
 
         </section>
@@ -249,7 +249,7 @@ HTML5를 이용해 이전의 Dummy 이상의 기능을 할 수 있음
             <img src="img/matrix.png" class="matrix">
             <pre>session.tranSync(new TransactionJob&lt;Void&gt;(){
   public Void handle(WriteSession wsession){
-    wsession.pathBy("/matrix/anderson").property("age", 29).refTo("KNOWS", "/matrix/trinity").property("name", "Tomas Anderson") ;
+    wsession.pathBy("/matrix/anderson").refTo("KNOWS", "/matrix/trinity").property("age", 29).property("name", "Tomas Anderson") ;
     wsession.pathBy("/matrix/trinity").property("name", "Trinity") ;
     return null ;	
   }
@@ -272,48 +272,68 @@ assertEquals("Trinity", name) ;</pre>
           		margin-top : 30px ;
           	}
           </style>
-          <header><h1>변화의 탐색 V2 - No one size Hat fits all</h1></header>
+          <header><h1>변화의 탐색 V2</h1></header>
           <section>
           	 
 			<h2 class="sheader">이전 고민의 주제</h2>
 			<pre>Oracle을 쓸까 MSSql 혹은 MySQL을 쓸까
-DBFramework는 iBatis를 쓸까? Hibernate를 쓸까? 라고 고민</pre>			
+DBFramework는 iBatis를 쓸까? Hibernate를 쓸까? 라고 고민
+- 결국 RDBMS BASE 였음.</pre>			
 
-            <h2 class="sheader">새로운 고민의 주제</h2>
-			<pre>
-</pre>
+            <h2 class="sheader">새로운 옵션 - No one repository fits all</h2>
+			<pre><em>BigData</em> : Hadoop + Hbase, Redis, Cassandra - Potal, Mobile
+<em>NoSQL</em> : mongoDB, neo4j 			
+<em>Daas</em> : https://baas.io/ 
+       http://gaia.i-on.net 
+       http://doc.fluidinfo.com/fluidDB/
+<em>Pass</em> : RDS or DynamoDB on AWS, Google Play</pre>
+
+          <img src="img/asaservice.png" width="425" height="190" align="right">
+
           </section>
-          
-	      <aside class="note">
-	      	<section></section>
-	      </aside> 
+
        </div>
-		
-	   <div class="slide styling" id="daas">
+
+		<div class="slide styling" id="newsql">
+ 			<header><h1>변화의 탐색 V2</h1></header>
+			<section>
+				<h2 class="sheader">NoSQL or NewSQL</h2>
+				from http://nextbigfuture.com/2011/04/nosql-newsql-highly-scalable-databases.html
+				<br/><br/>
+				<img src="img/nosqlnewsql.jpg" width="800" /><br clear="all"/>
+						
+			</section>
+		</div>
+
+
+		<div class="slide styling" id="daas">
           <style>
           	.sheader {
           		margin-top : 30px ;
           	}
           </style>
-          <header><h1>DAAS(Repository As A Service</h1></header>
+          <header><h1>DAAS(Repository As A Service)</h1></header>
           <section>
           	 
-			<h2 class="sheader"></h2>
-			<pre></pre>			
+			<h2 class="sheader">DAAS</h2>
+			from http://www.infoq.com/news/2008/02/Database-as-a-Service<br/>
+			<img src="img/daas.gif" width="820" height="300" />			
 
-            <h2 class="sheader"></h2>
-			<pre>
+            <h2 class="sheader">고려해야 할 점</h2>
+			<pre><em>Remote Call</em>의 비용
+<em> - 프로토콜</em> : REST or WebSocket
+<em> - 추상화 정도</em> : Fine grained or Coarsed grained
+<em>Return</em> : json or xml or stream
+<em>트랜잭션</em> 지원
 </pre>
           </section>
           
 	      <aside class="note">
-	      	<section></section>
+	      	<section> one size Hat fits all</section>
 	      </aside> 
        </div>
-		
-		
-		
-		
+
+
 
 
 
@@ -385,9 +405,9 @@ DBFramework는 iBatis를 쓸까? Hibernate를 쓸까? 라고 고민</pre>
         </div>
         
 
-        <div class="slide" id="table-of-contents">
-          <header><h1>Today, Agenda...</h1></header>
-          <style>
+		<div class="slide" id="table-of-contents">
+		<header><h1>Today, Agenda...</h1></header>
+		  <style>
             #toc-list > li {
               font-size: 26px;
               line-height: 33px;
@@ -406,12 +426,12 @@ DBFramework는 iBatis를 쓸까? Hibernate를 쓸까? 라고 고민</pre>
               vertical-align: middle;
               margin-left: 15px;
             }
-          </style>
-          <section>
-            <ul id="toc-list">
-            </ul>
-          </section>
-        </div>
+		  </style>
+		  <section>
+			<ul id="toc-list">
+			</ul>
+		  </section>
+		</div>
 
 
         <div class="slide transitionSlide" id="semantics-markup-title">
@@ -625,18 +645,61 @@ Data Analytics Based MapReduce(expect)
 			<h2 class="sheader">극복해야할 과제</h2>
 <pre>낯설다.
 아직 느리다.(1200 ups, expect : 3000 ups)
-Shard - 분산 쿼리</pre>			
+Not BigData(required Shard, 분산 쿼리)</pre>			
           </section>
         </div>
 
 
-		<div class="slide styling" id="how-it-work">
-		<header><h1>How It Work</h1></header>
-			
-		
+
+
+        <div class="slide transitionSlide" id="howitwork-markup-title">
+          <section class="middle">
+            <h2>How It Work</h2>
+            <p>&nbsp;</p>
+            <img src="src/HTML5_Offline_Storage_32.png" title="Demo" alt="Demo">
+          </section>
+        </div>
+
+
+		<div class="slide styling" id="how-it-work1">
 		<section>
-					
-		
+			<h2 class="sheader">- 멤버 등록 과정</h2>
+			<img src="img/howitwork1.png" width="100%" height="530" >
+		</section>	
+		</div>
+
+		<div class="slide styling" id="how-it-work2">
+		<section>
+			<h2 class="sheader">- 트랜잭션 로그 공유</h2>
+			<img src="img/howitwork2.png" width="100%" height="530" >
+		</section>	
+		</div>
+
+		<div class="slide styling" id="how-it-work3">
+		<section>
+			<h2 class="sheader">- 커밋 이벤트 전송</h2>
+			<img src="img/howitwork3.png" width="100%" height="530" >
+		</section>	
+		</div>
+
+		<div class="slide styling" id="how-it-work4">
+		<section>
+			<h2 class="sheader">- 데이타 인덱스 & 저장</h2>
+			<img src="img/howitwork4.png" width="100%" height="530" >
+		</section>	
+		</div>
+
+		<div class="slide styling" id="how-it-work5">
+		<section>
+			<h2 class="sheader">- 데이타 읽기</h2>
+			<img src="img/howitwork5.png" width="100%" height="530" >
+		</section>	
+		</div>
+
+		<div class="slide styling" id="how-it-work6">
+		<section>
+			<h2 class="sheader">- 외부에서 읽기</h2>
+			<img src="img/howitwork6.png" width="100%" height="530" >
 		</section>	
 		</div>
 
@@ -668,12 +731,15 @@ Shard - 분산 쿼리</pre>
         
     session.tranSync(<em>new TransactionJob&lt;Void&gt;</em>() {
         public <em>Void</em> handle(WriteSession wsession) {
-            wsession.pathBy("/hello").property("greeting", "Hello World");
+            wsession.pathBy("/hello").property("greeting", "Hello World")
+              .property("lang", "en");
             return null;
         }
     }) ;
-        
-    assertEquals("Hello World", session.pathBy("/hello").property("greeting").value()) ;
+    
+    ReadNode node = session.pathBy("/hello") ;
+    assertEquals("Hello World", node.property("greeting").stringValue()) ;
+    assertEquals("en", node.property("lang").stringValue()) ;
     <em>r.shutdown() ;</em>
 }</pre>			
           </section>
@@ -947,8 +1013,8 @@ session.root().children().eq("name", "hero").debugPrint() ;</textarea>
 </pre>
 
              <h2 class="sheader">OpenSource를 직접 해보자 </h2>
-			<pre>지루한 프로그래밍 - 기계적인 삶
-만들지 않으면 알 수 없는 것들이 있다.
+			<pre>지루한 프로그래밍 - 기계적인 프로그래밍과 삶
+직접 하지 않으면 알 수 없는 것들이 있다.
 바꾸지 않으면 바뀌지 않는다.</pre>
 
 

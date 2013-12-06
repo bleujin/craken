@@ -123,7 +123,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		if (value instanceof String) {
 			try {
 				final JsonObject json = JsonObject.fromString((String) value);
-				return gfs.getGridBlob(json.asString("path"), json.getAsObject(Metadata.class));
+				return gfs.gridBlob(json.asString("path"));
 			} catch (JsonSyntaxException ex) {
 				throw new NodeIOException("this value is not blob type : " + ex.getMessage());
 			}
