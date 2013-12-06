@@ -578,24 +578,13 @@ public abstract class Workspace extends TreeStructureSupport {
 				return;
 			if (e.isOriginLocal()) return ;
 
-//			wspace.executor().submitTask(new Callable<Void>() {
-//				public Void call() {
-//					try {
-//						Thread.sleep(100) ;
-						GridBlob gridBlob = wspace.logContent.gridBlob(e.getKey()) ;
-						InputStream input = gridBlob.toInputStream();
-						Debug.line(e.getKey(), IOUtil.toStringWithClose(input));
-//						wspace.storeData(gridBlob.getMetadata()) ;
-//					} catch (Throwable ex) {
-//						ex.printStackTrace();
-//					}
-//					return null;
-//				}
-//			});
-
-			// GridBlob gridBlob = wspace.logContent.getGridBlob(metadata);
-			// InputStream input = gridBlob.toInputStream();
-			// Debug.line(IOUtil.toStringWithClose(input)) ;
+			GridBlob gridBlob = wspace.logContent.gridBlob(e.getKey()) ;
+			InputStream input = gridBlob.toInputStream();
+			try {
+				wspace.storeData(input) ;
+			} finally {
+				IOUtil.closeQuietly(input) ;
+			}
 		}
 
 	}

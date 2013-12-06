@@ -20,6 +20,7 @@ public class TestAtSingleCom extends TestCase {
 	}
 	
 	public void xtestReader() throws Exception {
+		FileUtil.deleteDirectory(new File("./resource/c1")) ;
 		RepositoryImpl r = RepositoryImpl.create();
 		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
 //		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
@@ -29,7 +30,7 @@ public class TestAtSingleCom extends TestCase {
 		try {
 			for (int i = 0; i < 150; i++) {
 				if (session.exists("/bleujin")) {
-					session.pathBy("/bleujin").children().toList().size();
+					Debug.line(session.pathBy("/bleujin").children().toList().size());
 				}
 				Thread.sleep(1000);
 			}
