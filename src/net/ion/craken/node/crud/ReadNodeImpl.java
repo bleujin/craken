@@ -143,7 +143,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	
 	public PropertyValue property(PropertyId pid) {
-		return ObjectUtil.coalesce(tnode.get(pid), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(tnode.get(pid).gfs(gfs()), PropertyValue.NotFound);
 	}
 
 //	public Optional<PropertyValue> optional(String key) {

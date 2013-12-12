@@ -8,7 +8,6 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 
 public class TestAtSingleCom extends TestCase {
@@ -23,15 +22,15 @@ public class TestAtSingleCom extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/c1")) ;
 		RepositoryImpl r = RepositoryImpl.create();
 		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
+		r.start() ;
 //		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
 		
-		ReadSession session = r.login("test");
-
 		try {
+//			ReadSession session = r.login("test");
 			for (int i = 0; i < 150; i++) {
-				if (session.exists("/bleujin")) {
-					Debug.line(session.pathBy("/bleujin").children().toList().size());
-				}
+//				if (session.exists("/bleujin")) {
+//					Debug.line(session.pathBy("/bleujin").children().toList().size());
+//				}
 				Thread.sleep(1000);
 			}
 		} finally {

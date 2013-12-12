@@ -69,12 +69,12 @@ public class TestInsertSpeed extends TestCase {
 		// 20k : resetBy 14, createBy 12, mergeBy 41
 		// 100k : resetBy 41, createBy 37, mergeBy 269
 		// 500k : createBy 197
-		int loopCount = 20000 ;
+		int loopCount = 100000 ;
 		long start = System.currentTimeMillis();
-		session.tranSync(new SampleInsertJob("/bleujin/", loopCount, Action.MERGE)); 
+		session.tranSync(new SampleInsertJob("/bleujin/", loopCount, Action.CREATE)); 
 		Debug.line(System.currentTimeMillis() - start);
 		
-//		session.pathBy("/bleujin").children().offset(10).debugPrint();
+		session.pathBy("/bleujin").children().offset(10).debugPrint();
 	}
 	
 	

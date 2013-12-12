@@ -2,7 +2,6 @@ package net.ion.craken.node.dist;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.ion.craken.node.convert.to.TestToRefBean;
 
 public class TestAllDist extends TestCase{
 

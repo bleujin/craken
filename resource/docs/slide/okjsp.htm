@@ -157,6 +157,58 @@ Query를 잘 하려면 집합적인 사고방식을 가지면 됩니다. 참 쉽
           </section>
         </div>
 
+
+		<div class="slide styling" id="diff-paradiem">
+			<style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+        	</style>
+			<header><h1>패러다임의 차이</h1></header>		
+			<section>
+				<h2 class="sheader">미션(2002.10)</h2>
+				<pre>매일매일의 접속자 수를 알기위해 매일 첫번째의 사용자는
+   insert into 카운터테이블(일자 , 명수) values(@오늘일자,  1)
+그리고 2명째부터는
+   update 카운터테이블 set 명수 = 명수 + 1 where 일자 = @오늘일자 
+를 하여 일자별 접속자수를 테이블에 저장하여야 한다.</pre>				
+
+				<h2 class="sheader">금붕어 해결책</h2>
+				<pre>select count(*) as @cnt from 카운터테이블 where 일자 = @오늘일자
+
+if (@cnt > 0)
+   update 카운터테이블 set 명수 = 명수 + 1 where 일자 = @오늘일자
+else
+   insert into 카운터테이블(일자 , 명수) values(@오늘일자,  1)</pre>				
+
+			</section>
+		</div>
+		
+		<div class="slide styling" id="diff-paradiem2">
+			<style>
+          	.sheader {
+          		margin-top : 30px ;
+          	}
+        	</style>
+			<header><h1>패러다임의 차이</h1></header>		
+			<section>
+				<h2 class="sheader">고양이 해결책</h2>
+				<pre>if ( Exists(select top 1 "있음"  from 카운터테이블 where 일자 = @오늘일자) )
+   update 카운터테이블 set 명수 = 명수 + 1 where 일자 = @오늘일자
+else
+   insert into 카운터테이블(일자 , 명수) values(@오늘일자,  1)</pre>				
+
+
+				<h2 class="sheader">사람의 해결책</h2>
+				<pre>update 카운터테이블 set 명수 = 명수+ 1 where 일자 = @오늘일자
+
+if (@@ROWCOUNT == 0)
+　 insert into 카운터테이블 (일자,명수) values(@오늘일자, 1)</pre>				
+
+			</section>
+		</div>
+		
+
 		<div class="slide styling" id="find-solution">
           <style>
           	.sheader {

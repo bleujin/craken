@@ -3,8 +3,10 @@ package net.ion.craken.io;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -15,9 +17,11 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ListUtil;
 import net.ion.radon.impl.util.CsvReader;
 
@@ -158,6 +162,15 @@ public class TestGridIO extends TestCase {
 //		return new JsonWriter(writer);
 	}
 	
+	private InputStream targetInput() throws FileNotFoundException{
+		int defaultChunkSize = 32 * 1024;
+		GridFilesystem gfs = new GridFilesystem(cache, defaultChunkSize);
+		
+		GridBlob gblob = gfs.gridBlob("/root/temp");
+		Metadata meta = gblob.getMetadata() ;
+		Debug.line(meta) ;
+		return gblob.toInputStream() ;
+	}
 	
 
 	public void xtestJsonWriter() throws Exception {
@@ -182,11 +195,31 @@ public class TestGridIO extends TestCase {
 				}
 			}
 			writer.endObject() ;
+			line = reader.readLine() ;
 		}
 		writer.endArray() ;
 		writer.flush() ;
 		tout.close() ;
 	}
+	
+	public void xreadJsonReader() throws Exception {
+		InputStream input = targetInput() ;
+		
+		JsonReader reader = new JsonReader(new InputStreamReader(input));
+		reader.beginArray() ;
+		
+		for (int i = 0; i < 100000; i++) {
+			JsonObject obj = reader.nextJsonObject() ;
+		}
+		reader.endArray() ;
+		reader.close() ;
+		input.close() ;
+	}
+	
+	public void testWait() throws Exception {
+		new InfinityThread().startNJoin() ;
+	}
+	
 	
 	public void testReadIndex() throws Exception {
 //		Central central = CentralConfig.newLocalFile().dirFile("./resource/temp").build();

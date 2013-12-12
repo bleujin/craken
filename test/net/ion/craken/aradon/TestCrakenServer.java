@@ -1,7 +1,6 @@
 package net.ion.craken.aradon;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
@@ -19,30 +18,26 @@ import net.ion.nradon.WebSocketHandler;
 import net.ion.nradon.ajax.BroadEchoWebSocket;
 import net.ion.nradon.config.RadonConfiguration;
 import net.ion.nradon.handler.SimpleStaticFileHandler;
-import net.ion.scriptexecutor.manager.ManagerBuilder;
-import net.ion.scriptexecutor.manager.ScriptManager;
+import net.ion.script.rhino.RhinoEngine;
 
 public class TestCrakenServer extends TestCase {
 
 	public void testSlide() throws Exception {
-		ScriptManager manager = ManagerBuilder.createBuilder().languages(ManagerBuilder.LANG.JAVASCRIPT).build();
-		manager.createRhinoScript("envjs").defineScript(new FileReader("./resource/env.rhino.1.2.js")).setPreScript();
-		manager.createRhinoScript("jquery").defineScript(new FileReader("./resource/jquery-1.10.2.min.js")).setPreScript();
-		manager.start();
+		RhinoEngine rengine = RhinoEngine.create().start();
 
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
 		r.start();
 
 		Radon radon = RadonConfiguration.newBuilder(9000)
 			.add("/websocket/{id}", new BroadEchoWebSocket())
-			.add("/script/{id}", new ScriptWebSocket(manager, r))
+			.add("/script/{id}", new ScriptWebSocket(rengine, r))
 			.add("/events/{id}", new EventSourceHandler() {
 				public void onOpen(EventSourceConnection conn) throws Exception {
 				}
 	
 				public void onClose(EventSourceConnection conn) throws Exception {
 				} })
-			.add("/*", new SimpleStaticFileHandler(new File("./resource/docs/slide/"))).createRadon();
+			.add("/*", new SimpleStaticFileHandler(new File("./resource/docs/"))).createRadon();
 
 		radon.start().get();
 
@@ -52,11 +47,11 @@ public class TestCrakenServer extends TestCase {
 	
 	private static class ScriptWebSocket implements WebSocketHandler {
 		private List<WebSocketConnection> connections = new CopyOnWriteArrayList<WebSocketConnection>();
-		private final ScriptManager manager;
+		private final RhinoEngine rengine;
 		private final RepositoryImpl r;
 
-		public ScriptWebSocket(ScriptManager manager, RepositoryImpl r) {
-			this.manager = manager;
+		public ScriptWebSocket(RhinoEngine manager, RepositoryImpl r) {
+			this.rengine = manager;
 			this.r = r;
 		}
 
@@ -70,7 +65,7 @@ public class TestCrakenServer extends TestCase {
 			ReadSession session = r.login("test");
 			final MyOutput output = new MyOutput();
 			session.credential().tracer(output);
-			manager.createRhinoScript(wconn.getString("id")).bind("session", session).defineScript(script).execute();
+			rengine.newScript(wconn.getString("id")).bind("session", session).defineScript(script).exec();
 			wconn.send(output.readOut());
 		}
 

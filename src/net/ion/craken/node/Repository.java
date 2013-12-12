@@ -10,7 +10,7 @@ public interface Repository {
 
 	public final static String SYSTEM_CACHE = "__system" ;
 	
-	public void start() ;
+	public void start() throws IOException ;
 	
 	public void shutdown()  ;
 

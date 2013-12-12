@@ -128,10 +128,15 @@ public class GridBlob implements Comparable<GridBlob> {
 		metadata.setModificationTime(System.currentTimeMillis());
 	}
 
-	protected GridOutputStream outputStream() throws IOException {
+	public GridOutputStream outputStream() throws IOException {
 		return gfs.getOutput(this, false);
 	}
 
+	public GridOutputStream outputStream(boolean append) throws IOException {
+		return gfs.getOutput(this, append);
+	}
+
+	
 	protected WritableGridFileChannel getWritableChannel(boolean append) throws IOException {
 		return gfs.getWritableChannel(this, append);
 	}

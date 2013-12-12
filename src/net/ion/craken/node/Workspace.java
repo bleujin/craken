@@ -30,6 +30,7 @@ import net.ion.craken.node.AbstractWriteSession.LogRow;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
+import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -49,6 +50,7 @@ import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
+import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
@@ -132,16 +134,6 @@ public abstract class Workspace extends TreeStructureSupport {
 
 		cache.stop();
 	}
-
-	// public void init() {
-	// try {
-	// beginTran();
-	// createNode(IndexWriteConfig.Default, Fqn.ROOT);
-	// createNode(IndexWriteConfig.Default, Fqn.TRANSACTIONS);
-	// } finally {
-	// endTran();
-	// }
-	// }
 
 	WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
@@ -240,10 +232,9 @@ public abstract class Workspace extends TreeStructureSupport {
 	private void endTran(WriteSession wsession) throws IOException {
 		wsession.endCommit();
 		batchContainer.endBatch(true, true);
-		Metadata metadata = logContent.gridBlob(wsession.tranId()).getMetadata() ;
+		Metadata metadata = logContent.gridBlob(wsession.tranId()).getMetadata();
 		int count = index(wsession, metadata);
-		
-		
+
 		logMeta.put(wsession.tranId(), metadata);
 
 	}
@@ -266,8 +257,8 @@ public abstract class Workspace extends TreeStructureSupport {
 
 	private int index(WriteSession wsession, Metadata meta) throws IOException {
 		long startTime = System.currentTimeMillis();
-		InputStream input = null ;
-		int count ;
+		InputStream input = null;
+		int count;
 		try {
 			input = logContent.getGridBlob(meta).toInputStream();
 			count = storeData(input);
@@ -294,7 +285,6 @@ public abstract class Workspace extends TreeStructureSupport {
 		int count = central().newIndexer().index(new IndexJob<Integer>() {
 			public Integer handle(IndexSession isession) throws Exception {
 
-				final long start = System.currentTimeMillis();
 				isession.setIgnoreBody(config.asBoolean("ignoreBody"));
 				// isession.indexWriterConfig(new IndexWriterConfig(Version.LUCENE_CURRENT, new MyKoreanAnalyzer(Version.LUCENE_CURRENT)));
 
@@ -376,8 +366,8 @@ public abstract class Workspace extends TreeStructureSupport {
 
 		reader.endArray();
 		reader.endObject();
-		IOUtil.closeQuietly(reader) ;
-		return count ;
+		IOUtil.closeQuietly(reader);
+		return count;
 	}
 
 	public void continueUnit(WriteSession wsession) throws IOException {
@@ -481,10 +471,15 @@ public abstract class Workspace extends TreeStructureSupport {
 		cache.remove(fqn.struKey());
 	}
 
-	// TestOnly
+	@Deprecated
 	public Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache() {
 		return cache;
 	}
+	@Deprecated
+	public Cache<String, Metadata> logmeta() {
+		return logMeta;
+	}
+	
 
 	public GridFilesystem gfs() {
 		return gfsBlob;
@@ -505,13 +500,14 @@ public abstract class Workspace extends TreeStructureSupport {
 		private final ReadSession rsession;
 
 		private JsonWriter jwriter;
-//		private Metadata metadata;
+
+		// private Metadata metadata;
 
 		public InstantLogWriter(Workspace wspace, WriteSession wsession, ReadSession rsession) throws IOException {
 			this.wspace = wspace;
 			this.wsession = wsession;
 			this.rsession = rsession;
-//			this.metadata = Metadata.create(wsession.tranId());
+			// this.metadata = Metadata.create(wsession.tranId());
 			GridBlob gridBlob = wspace.logContent.gridBlob(wsession.tranId());
 			OutputStream output = wspace.logContent.getOutput(gridBlob, false);
 
@@ -555,9 +551,9 @@ public abstract class Workspace extends TreeStructureSupport {
 			jwriter.flush();
 			jwriter.close();
 
-//			Metadata metadata = wspace.logContent.gridBlob(wsession.tranId()).getMetadata() ;
-//			wspace.logMeta.put(wsession.tranId(), metadata);
-//			return new EndCommit(wsession.tranId(), metadata);
+			// Metadata metadata = wspace.logContent.gridBlob(wsession.tranId()).getMetadata() ;
+			// wspace.logMeta.put(wsession.tranId(), metadata);
+			// return new EndCommit(wsession.tranId(), metadata);
 		}
 
 	}
@@ -576,74 +572,81 @@ public abstract class Workspace extends TreeStructureSupport {
 		public void modified(final CacheEntryModifiedEvent<String, Metadata> e) throws IOException {
 			if (e.isPre())
 				return;
-			if (e.isOriginLocal()) return ;
+			if (e.isOriginLocal())
+				return;
 
-			GridBlob gridBlob = wspace.logContent.gridBlob(e.getKey()) ;
+			GridBlob gridBlob = wspace.logContent.gridBlob(e.getKey());
 			InputStream input = gridBlob.toInputStream();
 			try {
-				wspace.storeData(input) ;
+				wspace.storeData(input);
 			} finally {
-				IOUtil.closeQuietly(input) ;
+				IOUtil.closeQuietly(input);
+				Debug.line() ;
 			}
 		}
 
 	}
 
 	private boolean trace = false;
-	// void move(GridFilesystem gfs, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
-	// if (trace) log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
-	// if (nodeToMoveFqn == null || newParentFqn == null)
-	// throw new NullPointerException("Cannot accept null parameters!");
-	//
-	// if (nodeToMoveFqn.getParent().equals(newParentFqn)) {
-	// if (trace) log.trace("Not doing anything as this node is equal with its parent");
-	// // moving onto self! Do nothing!
-	// return;
-	// }
-	//
-	// // Depth first. Lets start with getting the node we want.
-	// boolean success = false;
-	// try {
-	// // check that parent's structure map contains the node to be moved. in case of optimistic locking this
-	// // ensures the write skew is properly detected if some other thread removes the child
-	// TreeNode parent = readNode(nodeToMoveFqn.getParent());
-	// if (!parent.hasChild(nodeToMoveFqn.getLastElement())) {
-	// if (trace) log.trace("The parent does not have the child that needs to be moved. Returning...");
-	// return;
-	// }
-	// TreeNode nodeToMove = readNode(nodeToMoveFqn);
-	// if (nodeToMove == null) {
-	// if (trace) log.trace("Did not find the node that needs to be moved. Returning...");
-	// return; // nothing to do here!
-	// }
-	// if (!exists(newParentFqn)) {
-	// // then we need to silently create the new parent
-	// mergeAncestor(newParentFqn);
-	// if (trace) log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
-	// }
-	//
-	// // create an empty node for this new parent
-	// Fqn newFqn = Fqn.fromRelativeElements(newParentFqn, nodeToMoveFqn.getLastElement());
-	// mergeAncestor(newFqn);
-	// TreeNode newNode = readNode(newFqn);
-	// Map<PropertyId, PropertyValue> oldData = nodeToMove.readMap();
-	// if (oldData != null && !oldData.isEmpty())
-	// newNode.putAll(oldData);
-	// for (Object child : nodeToMove.getChildrenNames()) {
-	// // move kids
-	// if (trace) log.tracef("Moving child %s", child);
-	// Fqn oldChildFqn = Fqn.fromRelativeElements(nodeToMoveFqn, child);
-	// move(gfs, oldChildFqn, newFqn);
-	// }
-	// remove(nodeToMoveFqn);
-	// success = true;
-	// } finally {
-	// if (!success) {
-	// failAtomic();
-	// }
-	// }
-	// log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
-	// }
-	//	
+	void move(WriteSession wsession, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
+		if (trace)
+			log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
+		if (nodeToMoveFqn == null || newParentFqn == null)
+			throw new NullPointerException("Cannot accept null parameters!");
+
+		if (nodeToMoveFqn.getParent().equals(newParentFqn)) {
+			if (trace)
+				log.trace("Not doing anything as this node is equal with its parent");
+			// moving onto self! Do nothing!
+			return;
+		}
+
+		// Depth first. Lets start with getting the node we want.
+		boolean success = false;
+		try {
+			// check that parent's structure map contains the node to be moved. in case of optimistic locking this
+			// ensures the write skew is properly detected if some other thread removes the child
+			TreeNode parent = readNode(nodeToMoveFqn.getParent());
+			if (!parent.hasChild(nodeToMoveFqn.getLastElement())) {
+				if (trace)
+					log.trace("The parent does not have the child that needs to be moved. Returning...");
+				return;
+			}
+			TreeNode nodeToMove = readNode(nodeToMoveFqn);
+			if (nodeToMove == null) {
+				if (trace)
+					log.trace("Did not find the node that needs to be moved. Returning...");
+				return; // nothing to do here!
+			}
+			if (!exists(newParentFqn)) {
+				// then we need to silently create the new parent
+				writeNode(wsession, SetUtil.EMPTY, newParentFqn);
+				if (trace)
+					log.tracef("The new parent (%s) did not exists, was created", newParentFqn);
+			}
+
+			// create an empty node for this new parent
+			Fqn newFqn = Fqn.fromRelativeElements(newParentFqn, nodeToMoveFqn.getLastElement());
+			writeNode(wsession, SetUtil.EMPTY, newFqn);
+			TreeNode newNode = readNode(newFqn);
+			Map<PropertyId, PropertyValue> oldData = nodeToMove.readMap();
+			if (oldData != null && !oldData.isEmpty())
+				newNode.putAll(oldData);
+			for (Object child : nodeToMove.getChildrenNames()) {
+				// move kids
+				if (trace)
+					log.tracef("Moving child %s", child);
+				Fqn oldChildFqn = Fqn.fromRelativeElements(nodeToMoveFqn, child);
+				move(wsession, oldChildFqn, newFqn);
+			}
+			remove(nodeToMoveFqn);
+			success = true;
+		} finally {
+			if (!success) {
+				failAtomic();
+			}
+		}
+		log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
+	}
 
 }

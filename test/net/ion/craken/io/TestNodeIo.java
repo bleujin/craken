@@ -91,6 +91,7 @@ public class TestNodeIo extends TestCase {
 		final GridBlob blob = writeAndRead("jar", file.getAbsolutePath());
 		
 		InputStream input = blob.toInputStream();
+
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		IOUtil.copy(input, output) ;
 		

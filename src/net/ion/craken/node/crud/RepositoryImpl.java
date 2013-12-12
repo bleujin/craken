@@ -125,11 +125,11 @@ public class RepositoryImpl implements Repository {
 		return this;
 	}
 
-	public void start() {
-		// for (String wsName : configs.keySet()) {
-		// loadWorkspce(wsName);
-		// }
+	public void start() throws IOException {
 		dm.start();
+		 for (String wsName : configs.keySet()) {
+			 login(wsName) ;
+		 }
 	}
 
 	public void shutdown() {
@@ -195,7 +195,7 @@ public class RepositoryImpl implements Repository {
 		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 7));
 
 		log.info("Workspace[" + wsName + ", DIST] defined");
-		return this;
+		return this ;
 	}
 
 	public RepositoryImpl defineWorkspaceForTest(String wsName, CentralCacheStoreConfig config) throws CorruptIndexException, IOException {
@@ -209,7 +209,7 @@ public class RepositoryImpl implements Repository {
 			.build());
 
 		log.info("Workspace[" + wsName + ", LOCAL] defined");
-		return this;
+		return this ;
 	}
 
 
