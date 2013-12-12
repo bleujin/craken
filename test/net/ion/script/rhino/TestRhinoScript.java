@@ -4,7 +4,7 @@ package net.ion.script.rhino;
 public class TestRhinoScript extends TestBaseScript{
 
     public void testDefineScript(){
-        assertEquals(rengine.newScript("DefineScript").defineScript("print('Hello World!');").script(), "print('Hello World!');");
+        assertEquals(rengine.newScript("DefineScript").defineScript("print('Hello World!');").scriptCode(), "print('Hello World!');");
     }
 
     public void testFailure(){

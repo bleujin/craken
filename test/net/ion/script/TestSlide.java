@@ -1,4 +1,4 @@
-package net.ion.script.rhino;
+package net.ion.script;
 
 import java.io.File;
 import java.util.Date;
@@ -21,6 +21,8 @@ import net.ion.nradon.WebSocketHandler;
 import net.ion.nradon.ajax.BroadEchoWebSocket;
 import net.ion.nradon.config.RadonConfiguration;
 import net.ion.nradon.handler.SimpleStaticFileHandler;
+import net.ion.script.rhino.MyOutput;
+import net.ion.script.rhino.RhinoEngine;
 
 public class TestSlide extends TestCase {
 	

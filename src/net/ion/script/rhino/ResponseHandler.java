@@ -28,16 +28,6 @@ public abstract class ResponseHandler<T> {
 		}
 	};
 
-	private long elapsedTime ;
-	ResponseHandler<T> elpasedTime(long elapsedTime){
-		this.elapsedTime = elapsedTime ;
-		return this ;
-	}
-	
-	public long elapsedTime(){
-		return elapsedTime ;
-	}
-	
 	public abstract T onSuccess(RhinoScript script, Object rtnValue, long elapsedTime) ;
 	public abstract T onFail(RhinoScript script, Throwable ex, long elapsedTime) ;
 }

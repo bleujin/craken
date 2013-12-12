@@ -27,6 +27,11 @@ public class RhinoEngine extends ContextFactory {
 
 	public static RhinoEngine create() throws IOException {
 		RhinoEngine result = new RhinoEngine();
+		return result ;
+	}
+
+	public static RhinoEngine createWithJQuery() throws IOException {
+		RhinoEngine result = new RhinoEngine();
 		
 		result.definePreScript("envjs", IOUtil.toStringWithClose(RhinoEngine.class.getResourceAsStream("env.rhino.1.2.js"))) ;
 		result.definePreScript("jquery", IOUtil.toStringWithClose(RhinoEngine.class.getResourceAsStream("jquery-1.10.2.min.js"))) ;
@@ -38,7 +43,7 @@ public class RhinoEngine extends ContextFactory {
 		RhinoScript pscript = newScript(name).defineScript(script);
 		try {
 			Context context = Context.enter();
-			Script compiledScript = context.compileString(pscript.script(), pscript.name(), 1, null);
+			Script compiledScript = context.compileString(pscript.scriptCode(), pscript.name(), 1, null);
 			preScripts.add(PreCompiledScript.create(compiledScript, pscript));
 		} finally {
 			Context.exit();
@@ -93,6 +98,8 @@ public class RhinoEngine extends ContextFactory {
 	
 	
 	public <T> T run(RhinoScript script, ResponseHandler<T> rhandler) {
+		start() ;
+		
 		long start = System.currentTimeMillis() ;
 		Context context = Context.enter();
 
@@ -105,10 +112,10 @@ public class RhinoEngine extends ContextFactory {
 				scope.put(entry.getKey(), scope, entry.getValue());
 			}
 
-			Object obj = context.evaluateString(scope, script.script(), script.name(), 1, null);
-			return rhandler.elpasedTime(System.currentTimeMillis() - start).onSuccess(script, obj, System.currentTimeMillis() - start) ;
+			Object obj = context.evaluateString(scope, script.scriptCode(), script.name(), 1, null);
+			return rhandler.onSuccess(script, obj, System.currentTimeMillis() - start) ;
 		} catch (Throwable e) {
-			return rhandler.elpasedTime(System.currentTimeMillis() - start).onFail(script, e, System.currentTimeMillis() - start) ; 
+			return rhandler.onFail(script, e, System.currentTimeMillis() - start) ; 
 
 		} finally {
 			Context.exit();
@@ -116,6 +123,7 @@ public class RhinoEngine extends ContextFactory {
 	}
 
 	public void close() {
+		IOUtil.close(outPrint) ;
 		Context.exit() ;
 	}
 

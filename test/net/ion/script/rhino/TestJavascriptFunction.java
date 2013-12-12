@@ -25,7 +25,8 @@ public class TestJavascriptFunction extends TestBaseScript {
 	}
 
 	public void testExternalScript() throws IOException {
-
+		rengine.close() ;
+		rengine = RhinoEngine.createWithJQuery() ;
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread thread, Throwable throwable) {

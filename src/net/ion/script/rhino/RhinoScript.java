@@ -13,7 +13,7 @@ public class RhinoScript {
 
 	private final RhinoEngine engine ;
 	private final String name;
-	private String script = "";
+	private String scriptCode = "";
 	private Map<String, Object> bindings = MapUtil.newMap() ;
 	
 	RhinoScript(RhinoEngine engine, String name) {
@@ -22,12 +22,12 @@ public class RhinoScript {
 	}
 
 	public RhinoScript defineScript(String script) {
-		this.script = script ;
+		this.scriptCode = script ;
 		return this;
 	}
 	
 	public RhinoScript defineScript(Reader reader) throws IOException {
-		this.script = IOUtil.toStringWithClose(reader) ;
+		this.scriptCode = IOUtil.toStringWithClose(reader) ;
 		return this;
 	}
 
@@ -50,8 +50,8 @@ public class RhinoScript {
 		return this;
 	}
 
-	public String script() {
-		return script;
+	public String scriptCode() {
+		return scriptCode;
 	}
 
 	public String name() {

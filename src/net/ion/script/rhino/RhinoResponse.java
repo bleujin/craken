@@ -1,6 +1,5 @@
 package net.ion.script.rhino;
 
-import org.apache.ecs.xhtml.s;
 
 public abstract class RhinoResponse {
 
@@ -38,7 +37,7 @@ public abstract class RhinoResponse {
 	}
 
 	public String script() {
-		return script.script();
+		return script.scriptCode();
 	}
 
 }
