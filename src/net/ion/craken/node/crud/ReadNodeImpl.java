@@ -133,7 +133,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public PropertyValue property(String key) {
-		return property(PropertyId.normal(key)) ;
+		return propertyId(PropertyId.normal(key)) ;
 	}
 
 
@@ -142,7 +142,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	
-	public PropertyValue property(PropertyId pid) {
+	public PropertyValue propertyId(PropertyId pid) {
 		return ObjectUtil.coalesce(tnode.get(pid).gfs(gfs()), PropertyValue.NotFound);
 	}
 
@@ -219,13 +219,13 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 	
 	public boolean hasRef(String refName, Fqn fqn){
-		return property(PropertyId.refer(refName)).asSet().contains(fqn.toString()) ;
+		return propertyId(PropertyId.refer(refName)).asSet().contains(fqn.toString()) ;
 	}
 	
 	public ReadNode ref(String refName){
 		PropertyId referId = PropertyId.refer(refName);
 		if (hasProperty(referId)) {
-			Object val = property(referId).value() ;
+			Object val = propertyId(referId).value() ;
 			if (val == null ) throw new NodeNotExistsException("not found ref :" + refName) ;
 
 			return session.ghostBy(val.toString()) ;
@@ -237,7 +237,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public IteratorList<ReadNode> refs(String refName){
 		
 		PropertyId referId = PropertyId.refer(refName);
-		final Iterator<String> iter = hasProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		final Iterator<String> iter = hasProperty(referId) ? propertyId(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
 		
 		return new IteratorList<ReadNode>() {
 			@Override

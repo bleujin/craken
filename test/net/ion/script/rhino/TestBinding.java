@@ -1,7 +1,7 @@
 package net.ion.script.rhino;
 
 
-public class TestRhinoBinding extends TestBaseScript {
+public class TestBinding extends TestBaseScript {
 
 	public void testBind() {
 		RhinoResponse response = rengine.newScript("Bind Script").defineScript("bindTest;").bind("bindTest", "Hello World!").exec();

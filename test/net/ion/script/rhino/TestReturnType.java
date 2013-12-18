@@ -3,7 +3,7 @@ package net.ion.script.rhino;
 import junit.framework.TestCase;
 
 
-public class TestRhinoReturn extends TestCase {
+public class TestReturnType extends TestCase {
 
 	
 	private RhinoEngine rengine;
@@ -11,7 +11,7 @@ public class TestRhinoReturn extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.rengine = RhinoEngine.create() ;
+		this.rengine = RhinoEngine.create().start().get() ;
 	}
 	
 	public void testIntegerValue() {

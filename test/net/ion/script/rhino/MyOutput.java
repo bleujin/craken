@@ -6,6 +6,7 @@ import java.io.PrintStream;
 
 public class MyOutput extends PrintStream {
 
+	
 	private StringBuilder builder = new StringBuilder();
 
 	public MyOutput() throws IOException {

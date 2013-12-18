@@ -23,7 +23,6 @@ public abstract class RhinoResponse {
 		return new FailResponse(script, ex, elapsedTime);
 	}
 
-	
 	public boolean isOk() {
 		return isOk ;
 	}

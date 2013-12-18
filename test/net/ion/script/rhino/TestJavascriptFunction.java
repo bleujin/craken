@@ -1,6 +1,7 @@
 package net.ion.script.rhino;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public class TestJavascriptFunction extends TestBaseScript {
 
@@ -24,9 +25,9 @@ public class TestJavascriptFunction extends TestBaseScript {
 		});
 	}
 
-	public void testExternalScript() throws IOException {
-		rengine.close() ;
-		rengine = RhinoEngine.createWithJQuery() ;
+	public void testExternalScript() throws IOException, InterruptedException, ExecutionException {
+		rengine.shutdown() ;
+		rengine = RhinoEngine.createWithJQuery().start().get() ;
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread thread, Throwable throwable) {

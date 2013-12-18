@@ -30,7 +30,7 @@ public class TestSlide extends TestCase {
 		ExecutorService webThread = Executors.newSingleThreadExecutor();
 		final Pusher pusher = new Pusher();
 		
-		RhinoEngine manager = RhinoEngine.create().start();
+		RhinoEngine manager = RhinoEngine.create().start().get();
 		manager.start() ;
 		
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();

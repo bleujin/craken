@@ -300,7 +300,7 @@ public class WriteNodeImpl implements WriteNode{
 	public WriteNode ref(String refName) {
 		PropertyId referId = createReferId(refName);
 		if (hasProperty(referId)) {
-			Object val = property(referId).value() ;
+			Object val = propertyId(referId).value() ;
 			if (val == null) new IllegalArgumentException("not found ref :" + refName) ;
 			return wsession.pathBy(val.toString()) ;
 		} else {
@@ -311,7 +311,7 @@ public class WriteNodeImpl implements WriteNode{
 	public IteratorList<WriteNode> refs(String refName){
 		
 		PropertyId referId = createReferId(refName);
-		final Iterator<String> iter = hasProperty(referId) ? property(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		final Iterator<String> iter = hasProperty(referId) ? propertyId(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
 		
 		return new IteratorList<WriteNode>() {
 			@Override
@@ -389,7 +389,7 @@ public class WriteNodeImpl implements WriteNode{
 	public WriteNode refTos(String refName, String fqn){
 		
 		PropertyId referId = createReferId(refName);
-		PropertyValue findValue = property(referId) ;
+		PropertyValue findValue = propertyId(referId) ;
 		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
 		
 		findValue.append(fqn) ;
@@ -461,18 +461,18 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public boolean hasRef(String refName, Fqn fqn){
-		return property(createReferId(refName)).asSet().contains(fqn.toString()) ;
+		return propertyId(createReferId(refName)).asSet().contains(fqn.toString()) ;
 	}
 
 	public PropertyValue property(String key) {
-		return property(createNormalId(key));
+		return propertyId(createNormalId(key));
 	}
 
 	public PropertyValue extendProperty(String propPath) {
 		return ExtendPropertyId.create(propPath).propValue(this) ;
 	}
 	
-	public PropertyValue property(PropertyId pid) {
+	public PropertyValue propertyId(PropertyId pid) {
 		return ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
 	}
 	

@@ -125,20 +125,22 @@ public class RepositoryImpl implements Repository {
 		return this;
 	}
 
-	public void start() throws IOException {
+	public RepositoryImpl start() throws IOException {
 		dm.start();
 		 for (String wsName : configs.keySet()) {
 			 login(wsName) ;
 		 }
+		 return this ;
 	}
 
-	public void shutdown() {
+	public RepositoryImpl shutdown() {
 		for (Workspace ws : workspaceMap.asMap().values()) {
 			ws.close();
 		}
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
 		executor.shutdown();
 		dm.stop();
+		return this ;
 	}
 
 	public IExecutor executor() {

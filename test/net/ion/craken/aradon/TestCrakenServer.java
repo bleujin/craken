@@ -22,8 +22,9 @@ import net.ion.script.rhino.RhinoEngine;
 
 public class TestCrakenServer extends TestCase {
 
+
 	public void testSlide() throws Exception {
-		RhinoEngine rengine = RhinoEngine.create().start();
+		RhinoEngine rengine = RhinoEngine.create().start().get();
 
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
 		r.start();
@@ -34,7 +35,6 @@ public class TestCrakenServer extends TestCase {
 			.add("/events/{id}", new EventSourceHandler() {
 				public void onOpen(EventSourceConnection conn) throws Exception {
 				}
-	
 				public void onClose(EventSourceConnection conn) throws Exception {
 				} })
 			.add("/*", new SimpleStaticFileHandler(new File("./resource/docs/"))).createRadon();

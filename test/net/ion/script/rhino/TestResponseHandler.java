@@ -1,7 +1,7 @@
 package net.ion.script.rhino;
 
 
-public class TestRhinoResponse extends TestBaseScript {
+public class TestResponseHandler extends TestBaseScript {
 	
 	public void testElapsedTime() throws Exception {
 		RhinoResponse response = rengine.newScript("Hello").defineScript("print('Hello World');").exec();

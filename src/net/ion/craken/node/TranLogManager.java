@@ -40,6 +40,6 @@ public class TranLogManager {
 
 	public Long lastTranInfoBy() throws IOException, ParseException{
 		ReadNode lastLog = session.ghostBy("/__transactions").childQuery("").descending("time").findOne();
-		return (lastLog == null) ? 0L : lastLog.property(PropId.TIME).longValue(0) ; 
+		return (lastLog == null) ? 0L : lastLog.propertyId(PropId.TIME).longValue(0) ; 
 	}
 }

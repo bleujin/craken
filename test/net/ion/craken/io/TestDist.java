@@ -45,7 +45,7 @@ public class TestDist extends TestCase{
 	private void runServer(String targetDir, int port) throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/" + targetDir)) ;
 		
-		RhinoEngine rengine = RhinoEngine.create().start() ;
+		RhinoEngine rengine = RhinoEngine.create().start().get() ;
 		
 		RepositoryImpl repository = RepositoryImpl.create();
 		repository.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/" + targetDir)) ;

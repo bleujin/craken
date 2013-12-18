@@ -2,6 +2,7 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 
+import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.schedule.IExecutor;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -10,9 +11,9 @@ public interface Repository {
 
 	public final static String SYSTEM_CACHE = "__system" ;
 	
-	public void start() throws IOException ;
+	public RepositoryImpl start() throws IOException ;
 	
-	public void shutdown()  ;
+	public RepositoryImpl shutdown()  ;
 
 	public IExecutor executor() ;
 	

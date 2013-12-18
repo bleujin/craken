@@ -1,9 +1,5 @@
 package net.ion.script.rhino;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -13,7 +9,6 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
 public class TestOnCraken extends TestBaseScript{
-
 
 	public void testEngine() throws Exception {
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
@@ -53,6 +48,10 @@ public class TestOnCraken extends TestBaseScript{
 		Debug.line(output.readOut()) ;
 		r.shutdown() ;
 	}
+	
+	
+	
+	
 }
 
 

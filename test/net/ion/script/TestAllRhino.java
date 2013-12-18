@@ -1,14 +1,14 @@
 package net.ion.script;
 
-import net.ion.bleujin.infinispan.TestReadAtOther;
-import net.ion.script.rhino.TestRhinoBinding;
-import net.ion.script.rhino.TestJavascriptFunction;
-import net.ion.script.rhino.TestOnCraken;
-import net.ion.script.rhino.TestRhinoResponse;
-import net.ion.script.rhino.TestRhinoReturn;
-import net.ion.script.rhino.TestRhinoScript;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.ion.script.rhino.TestBinding;
+import net.ion.script.rhino.TestJavascriptFunction;
+import net.ion.script.rhino.TestOnCraken;
+import net.ion.script.rhino.TestResponseHandler;
+import net.ion.script.rhino.TestReturnType;
+import net.ion.script.rhino.TestRhinoScript;
+import net.ion.script.rhino.engine.TestTimeOutScript;
 
 public class TestAllRhino extends TestCase {
 
@@ -16,11 +16,18 @@ public class TestAllRhino extends TestCase {
 		TestSuite result = new TestSuite() ;
 		
 		result.addTestSuite(TestRhinoScript.class) ;
-		result.addTestSuite(TestRhinoBinding.class) ;
-		result.addTestSuite(TestRhinoResponse.class) ;
-		result.addTestSuite(TestRhinoReturn.class) ;
+		result.addTestSuite(TestBinding.class) ;
+		result.addTestSuite(TestResponseHandler.class) ;
+		result.addTestSuite(TestReturnType.class) ;
+		result.addTestSuite(TestContext.class) ;
+		
 
 		result.addTestSuite(TestJavascriptFunction.class) ;
+		result.addTestSuite(TestImportPackage.class) ;
+		result.addTestSuite(TestPreDefineScript.class) ;
+		
+//		result.addTestSuite(TestTimeOutScript.class) ;
+		
 		result.addTestSuite(TestOnCraken.class) ;
 		
 		

@@ -8,7 +8,7 @@ public class TestRhinoScript extends TestBaseScript{
     }
 
     public void testFailure(){
-    	Boolean result = rengine.newScript("Failure Script")
+    	Boolean result = rengine.newScript("FailureScript")
                 .defineScript("failure")
                 .exec(new ResponseHandler<Boolean>(){
 					@Override
@@ -27,14 +27,16 @@ public class TestRhinoScript extends TestBaseScript{
     }
 
     public void testEmptyScript(){
-    	RhinoResponse response = rengine.newScript("Empty Script").defineScript("").exec();
+    	RhinoResponse response = rengine.newScript("EmptyScript").defineScript("").exec();
         assertTrue(response.isOk());
     }
 
     public void testNullScript(){
-    	RhinoResponse response = rengine.newScript("Null Script").exec();
+    	RhinoResponse response = rengine.newScript("NullScript").exec();
     	assertEquals(response.script(), "");
     }
 
+    
+    
 
 }

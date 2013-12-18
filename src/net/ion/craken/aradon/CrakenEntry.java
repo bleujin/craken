@@ -4,6 +4,7 @@ import net.ion.craken.Craken;
 import net.ion.radon.core.IService;
 import net.ion.radon.core.context.OnEventObject;
 
+@Deprecated
 public class CrakenEntry implements OnEventObject{
 
 	private Craken craken ;
