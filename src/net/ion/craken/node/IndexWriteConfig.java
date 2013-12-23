@@ -65,6 +65,7 @@ public class IndexWriteConfig implements Serializable{
 	
 	private Map<String, FieldIndex> fieldIndexes = MapUtil.newMap() ;
 	private boolean ignoreBody;  
+	private boolean ignoreIndex ;
 	
 	public final static IndexWriteConfig Default = new IndexWriteConfig() ;
 	
@@ -77,6 +78,14 @@ public class IndexWriteConfig implements Serializable{
 		return this ;
 	}
 
+	public IndexWriteConfig ignoreIndex() {
+		this.ignoreIndex = true ;
+		return this ;
+	}
+	
+	
+
+	
 	public IndexWriteConfig keyword(String... fields) {
 		for (String field : fields) {
 			fieldIndexes.put(field, FieldIndex.KEYWORD) ;
@@ -106,6 +115,7 @@ public class IndexWriteConfig implements Serializable{
 	}
 
 	public FieldIndex fieldIndex(String propId) {
+		if (ignoreIndex) return FieldIndex.IGNORE ;
 		return ObjectUtil.coalesce(fieldIndexes.get(propId), FieldIndex.UNKNOWN);
 	}
 
@@ -131,6 +141,7 @@ public class IndexWriteConfig implements Serializable{
 		jwriter.endObject() ;
 		
 		jwriter.name("ignoreBody").value(ignoreBody) ;
+		jwriter.name("ignoreIndex").value(ignoreIndex) ;
 		jwriter.name("time").value(thisTime).name("count").value(count) ;
 	}
 
@@ -160,9 +171,9 @@ public class IndexWriteConfig implements Serializable{
 			result.fieldIndexes.put(entry.getKey(), FieldIndex.valueOf(entry.getValue().getAsString()) ) ;
 		}
 		result.ignoreBody = json.asBoolean("ignoreBody") ;
+		result.ignoreIndex = json.asBoolean("ignoreIndex") ;
 		return result ;
 	}
-	
-	
+
 
 }

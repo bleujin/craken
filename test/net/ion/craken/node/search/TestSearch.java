@@ -6,6 +6,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 public class TestSearch extends TestBaseSearch {
@@ -97,6 +98,41 @@ public class TestSearch extends TestBaseSearch {
 		assertEquals(0, session.queryRequest("bleujin").find().totalCount()) ;
 		
 	}
+	
+	
+	
+	public void testIgnorePropertyIndex() throws Exception {
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.iwconfig().ignore("pwd") ;
+				wsession.pathBy("/people").property("pwd", "qwer").property("id", "bleujin") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(0, session.queryRequest("pwd:qwer").find().size()) ;
+		assertEquals(0, session.queryRequest("qwer").find().size()) ;
+	}
+	
+	
+	public void testIgnoreAll() throws Exception {
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				Debug.line(wsession.iwconfig()) ;
+				wsession.iwconfig().ignoreIndex() ;
+				wsession.pathBy("/people").property("pwd", "bleujin") ;
+				Debug.line(wsession.iwconfig()) ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(0, session.queryRequest("pwd:bleujin").find().size()) ;
+		assertEquals(0, session.queryRequest("bleujin").find().size()) ;
+		
+	}
+	
 	
 	
 

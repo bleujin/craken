@@ -286,8 +286,7 @@ public abstract class Workspace extends TreeStructureSupport {
 			public Integer handle(IndexSession isession) throws Exception {
 
 				isession.setIgnoreBody(config.asBoolean("ignoreBody"));
-				// isession.indexWriterConfig(new IndexWriterConfig(Version.LUCENE_CURRENT, new MyKoreanAnalyzer(Version.LUCENE_CURRENT)));
-
+				
 				reader.beginArray();
 				final int count = config.asInt("count");
 				for (int i = 0; i < count; i++) {
@@ -301,12 +300,18 @@ public abstract class Workspace extends TreeStructureSupport {
 						break;
 					case MODIFY:
 						JsonObject val = tlog.asJsonObject("val");
+						if ("/".equals(path) && val.childSize() == 0) continue ;
+						
 						WriteDocument propDoc = isession.newDocument(path);
+						propDoc.keyword(DocEntry.PARENT, Fqn.fromString(path).getParent().toString());
+						propDoc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis());
+						
 						JsonObject jobj = new JsonObject();
 						jobj.addProperty(DocEntry.ID, path);
 						jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
 						jobj.add(DocEntry.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
-						propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
+						
+						propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED).ignoreBody());
 
 						if (action == Action.CREATE)
 							isession.insertDocument(propDoc);
@@ -331,9 +336,6 @@ public abstract class Workspace extends TreeStructureSupport {
 
 			private JsonObject fromMapToJson(String path, WriteDocument doc, IndexWriteConfig iwconfig, Set<Map.Entry<String, JsonElement>> props) {
 				JsonObject jso = new JsonObject();
-				String parentPath = Fqn.fromString(path).getParent().toString();
-				doc.keyword(DocEntry.PARENT, parentPath);
-				doc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis());
 
 				for (Entry<String, JsonElement> entry : props) {
 					final PropertyId propertyId = PropertyId.fromIdString(entry.getKey());

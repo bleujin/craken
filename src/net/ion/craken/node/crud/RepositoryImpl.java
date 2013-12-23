@@ -67,12 +67,12 @@ public class RepositoryImpl implements Repository {
 	public static RepositoryImpl create(GlobalConfiguration gconfig) {
 		Configuration config = new ConfigurationBuilder().locking().lockAcquisitionTimeout(20000).concurrencyLevel(5000).useLockStriping(false).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build(); // not indexable : indexing().enable().
 		final RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(gconfig, config));
-		
+
 		result.dm.defineConfiguration(SYSTEM_CACHE, new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_ASYNC).eviction().maxEntries(1000).build());
 		RepositoryListener listener = new RepositoryListener(result);
 		result.dm.addListener(listener);
 		result.dm.getCache(SYSTEM_CACHE).addListener(listener);
-		
+
 		return result;
 	}
 
@@ -125,12 +125,16 @@ public class RepositoryImpl implements Repository {
 		return this;
 	}
 
-	public RepositoryImpl start() throws IOException {
+	public RepositoryImpl start() {
 		dm.start();
-		 for (String wsName : configs.keySet()) {
-			 login(wsName) ;
-		 }
-		 return this ;
+		try {
+			for (String wsName : configs.keySet()) {
+				login(wsName);
+			}
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex.getMessage());
+		}
+		return this;
 	}
 
 	public RepositoryImpl shutdown() {
@@ -140,7 +144,7 @@ public class RepositoryImpl implements Repository {
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
 		executor.shutdown();
 		dm.stop();
-		return this ;
+		return this;
 	}
 
 	public IExecutor executor() {
@@ -165,10 +169,10 @@ public class RepositoryImpl implements Repository {
 						throw new ConfigurationException("Invocation batching not enabled in current configuration! Please enable it.");
 					cache.start();
 					final WorkspaceImpl result = WorkspaceImpl.create(RepositoryImpl.this, cache, wsName, configs.get(wsName));
-					
-//					result.begin() ;
-//					result.pathNode(Fqn.ROOT, true) ;
-//					result.end() ;
+
+					// result.begin() ;
+					// result.pathNode(Fqn.ROOT, true) ;
+					// result.end() ;
 					return result;
 				}
 			});
@@ -180,15 +184,13 @@ public class RepositoryImpl implements Repository {
 
 	}
 
-
 	public RepositoryImpl defineWorkspace(String wsName, CentralCacheStoreConfig config) {
-		if (configs.containsKey(wsName)) throw new IllegalStateException("already define workspace : " + wsName) ;
+		if (configs.containsKey(wsName))
+			throw new IllegalStateException("already define workspace : " + wsName);
 		configs.put(wsName, config);
 
-		dm.defineConfiguration(wsName, new ConfigurationBuilder()
-				.clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().clustering()
-				.eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(CentralCacheStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
+		dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().clustering().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
+				config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(CentralCacheStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
 				.build());
 
 		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(
@@ -197,23 +199,21 @@ public class RepositoryImpl implements Repository {
 		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 7));
 
 		log.info("Workspace[" + wsName + ", DIST] defined");
-		return this ;
+		return this;
 	}
 
 	public RepositoryImpl defineWorkspaceForTest(String wsName, CentralCacheStoreConfig config) throws CorruptIndexException, IOException {
-		if (configs.containsKey(wsName)) throw new IllegalStateException("already define workspace : " + wsName) ;
+		if (configs.containsKey(wsName))
+			throw new IllegalStateException("already define workspace : " + wsName);
 		configs.put(wsName, config);
 
-		dm.defineConfiguration(wsName, new ConfigurationBuilder()
-			.clustering().cacheMode(CacheMode.LOCAL).invocationBatching().enable().eviction()
-			.eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-			.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(CentralCacheStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(true).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
-			.build());
+		dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.LOCAL).invocationBatching().enable().eviction().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
+				config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(CentralCacheStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(true).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
+				.build());
 
 		log.info("Workspace[" + wsName + ", LOCAL] defined");
-		return this ;
+		return this;
 	}
-
 
 }
 

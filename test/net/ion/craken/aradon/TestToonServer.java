@@ -6,6 +6,7 @@ import org.restlet.data.Method;
 
 import net.ion.craken.aradon.bean.RepositoryEntry;
 import net.ion.craken.aradon.bean.RhinoEntry;
+import net.ion.craken.aradon.let.DebugTalkHandler;
 import net.ion.craken.aradon.let.ResourceFileHandler;
 import net.ion.craken.aradon.let.ScriptLet;
 import net.ion.craken.aradon.let.ScriptTalkHandler;
@@ -44,6 +45,7 @@ public class TestToonServer extends TestCase {
 		Aradon aradon = Aradon.create(config);
 		TalkEngine tengine = TalkEngine.create(aradon) ;
 		tengine.registerHandler(new ScriptTalkHandler()) ;
+		tengine.registerHandler(new DebugTalkHandler()) ;
 		
 		AradonHandler ahandler = AradonHandler.create(aradon);
 

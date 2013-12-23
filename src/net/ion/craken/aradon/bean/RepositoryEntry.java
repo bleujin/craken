@@ -27,11 +27,7 @@ public class RepositoryEntry implements OnEventObject {
 	@Override
 	public void onEvent(AradonEvent event, IService service) {
 		if (event == AradonEvent.START){
-			try {
-				r.start() ;
-			} catch (IOException e) {
-				throw new IllegalStateException(e.getMessage()) ;
-			}
+			r.start() ;
 		} else if (event == AradonEvent.STOP){
 			r.shutdown() ;
 		}

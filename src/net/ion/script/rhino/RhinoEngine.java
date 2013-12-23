@@ -116,7 +116,7 @@ public class RhinoEngine  {
 		try {
 			Context context = Context.enter();
 			context.getWrapFactory().setJavaPrimitiveWrap(false);
-			context.setInstructionObserverThreshold(10000);
+			context.setInstructionObserverThreshold(50000);
 
 			Scriptable scope = context.newObject(sharedScope);
 			scope.setPrototype(sharedScope);
