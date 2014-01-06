@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import net.ion.craken.loaders.WorkspaceConfig;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceStore;
 import net.ion.craken.loaders.lucene.LazyCentralConfig;
-import net.ion.craken.loaders.lucene.ISearchWorkspace;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.tree.PropertyId;
@@ -25,7 +22,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.loaders.AbstractCacheStoreConfig;
 
 public class NeoWorkspaceConfig extends WorkspaceConfig {
 

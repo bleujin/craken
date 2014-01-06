@@ -1,10 +1,8 @@
 package net.ion.craken.node;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -12,24 +10,18 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.listener.WorkspaceListener;
-import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.WorkspaceConfig;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceStore;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.AbstractWriteSession.LogRow;
-import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.exception.NodeNotExistsException;
@@ -39,31 +31,17 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeStructureSupport;
-import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.TreeNodeKey.Action;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.mte.Engine;
-import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
-import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.MyField;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
@@ -73,14 +51,11 @@ import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
 import org.infinispan.loaders.AbstractCacheStoreConfig;
-import org.infinispan.loaders.CacheLoaderManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
-
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 @Listener
 public abstract class Workspace extends TreeStructureSupport {

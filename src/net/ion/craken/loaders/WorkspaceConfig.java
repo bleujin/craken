@@ -8,7 +8,6 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 
-import org.apache.lucene.index.CorruptIndexException;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.loaders.AbstractCacheStoreConfig;

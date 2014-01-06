@@ -1,9 +1,7 @@
 package net.ion.craken.loaders.neo;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.tree.Fqn;
@@ -12,11 +10,8 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
-import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.common.ReadDocument;
 
 import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.container.entries.ImmortalCacheEntry;

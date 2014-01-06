@@ -1,10 +1,8 @@
 package net.ion.craken.loaders.neo;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +10,6 @@ import java.util.Set;
 
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.WorkspaceStore;
-import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.framework.util.Debug;
@@ -20,19 +17,13 @@ import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.container.entries.InternalCacheEntry;
-import org.infinispan.loaders.CacheLoader;
 import org.infinispan.loaders.CacheLoaderConfig;
 import org.infinispan.loaders.CacheLoaderException;
 import org.infinispan.loaders.CacheLoaderMetadata;
 import org.infinispan.loaders.modifications.Modification;
-import org.infinispan.loaders.modifications.Remove;
-import org.infinispan.loaders.modifications.Store;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.marshall.StreamingMarshaller;
 import org.infinispan.remoting.transport.Address;
@@ -40,7 +31,6 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 

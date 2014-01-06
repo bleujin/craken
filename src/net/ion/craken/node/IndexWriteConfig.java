@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.ion.craken.loaders.EntryKey;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map.Entry;
 
 import net.ion.craken.loaders.EntryKey;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;

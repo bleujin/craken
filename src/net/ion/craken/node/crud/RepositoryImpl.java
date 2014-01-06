@@ -10,10 +10,7 @@ import java.util.logging.Logger;
 
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.craken.loaders.WorkspaceConfig;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceStore;
 import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
-import net.ion.craken.loaders.neo.NeoWorkspaceConfig;
-import net.ion.craken.loaders.neo.NeoWorkspaceStore;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.ReadSession;
@@ -42,7 +39,6 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.loaders.AbstractCacheStoreConfig;
 import org.infinispan.loaders.CacheLoader;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.manager.DefaultCacheManager;

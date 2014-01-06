@@ -15,7 +15,6 @@ import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.loaders.EntryKey;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.ion.craken.loaders.EntryKey;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ObjectUtil;
