@@ -1,7 +1,7 @@
 package net.ion.bleujin.infinispan;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -16,8 +16,8 @@ public class TestFirst extends TestCase {
 	@Test
 	public void testCreate() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("")) ;
-		r.defineWorkspace("test2", CentralCacheStoreConfig.create().location("")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("")) ;
+		r.defineWorkspace("test2", ISearcherWorkspaceConfig.create().location("")) ;
 		r.start() ;
 		
 		r.login("test2").root().children().debugPrint() ;

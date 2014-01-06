@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -22,7 +22,7 @@ public class TestCentralCacheStore extends TestCase {
 	public void testRepository() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
 		FileUtil.deleteDirectory(new File("./resource/ff5")) ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/ff5"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/ff5"));
 
 		ReadSession session = r.login("test");
 		session.tranSync(new TransactionJob<Void>() {
@@ -42,7 +42,7 @@ public class TestCentralCacheStore extends TestCase {
 	
 	public void testRead() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/ff5"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/ff5"));
 
 		ReadSession session = r.login("test");
 		session.pathBy("/bleujin").children().debugPrint();
@@ -53,7 +53,7 @@ public class TestCentralCacheStore extends TestCase {
 
 	public void testRunning() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/ff5"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/ff5"));
 
 		ReadSession session = r.login("test");
 		while (true) {
@@ -84,7 +84,7 @@ public class TestCentralCacheStore extends TestCase {
 	
 	public void testRemoveChild() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create());
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create());
 
 		final ReadSession session = r.login("test");
 		session.tran(new TransactionJob<Void>() {
@@ -117,7 +117,7 @@ public class TestCentralCacheStore extends TestCase {
 	
 	public void testReplactModify() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create());
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create());
 
 		final ReadSession session = r.login("test");
 		session.tran(new TransactionJob<Void>(){

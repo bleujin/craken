@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.TransactionLog;
@@ -25,9 +25,9 @@ public class TestLogLob extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		FileUtil.deleteDirectory(new File(CentralCacheStoreConfig.create().location())) ;
+		FileUtil.deleteDirectory(new File(ISearcherWorkspaceConfig.create().location())) ;
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().maxNodeEntry(5)) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().maxNodeEntry(5)) ;
 		this.session = r.login("test") ;
 	}
 	

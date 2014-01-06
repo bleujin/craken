@@ -14,6 +14,7 @@ import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
@@ -279,11 +280,11 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 	@Override
 	public ChildQueryRequest childQuery(String query) throws IOException, ParseException {
-		if (StringUtil.isBlank(query)) return childQuery(new TermQuery(new Term(DocEntry.PARENT, this.fqn().toString()))) ;
+		if (StringUtil.isBlank(query)) return childQuery(new TermQuery(new Term(EntryKey.PARENT, this.fqn().toString()))) ;
 		
 		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
 		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
-		result.filter(new TermFilter(DocEntry.PARENT, this.fqn().toString())) ;
+		result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString())) ;
 		
 		return result;
 	} 

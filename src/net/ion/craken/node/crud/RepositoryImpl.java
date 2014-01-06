@@ -9,8 +9,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.CentralCacheStore;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.WorkspaceConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceStore;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
+import net.ion.craken.loaders.neo.NeoWorkspaceConfig;
+import net.ion.craken.loaders.neo.NeoWorkspaceStore;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.ReadSession;
@@ -39,6 +42,8 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.loaders.AbstractCacheStoreConfig;
+import org.infinispan.loaders.CacheLoader;
 import org.infinispan.loaders.file.FileCacheStore;
 import org.infinispan.manager.DefaultCacheManager;
 
@@ -47,8 +52,8 @@ import com.google.common.cache.CacheBuilder;
 public class RepositoryImpl implements Repository {
 
 	private IExecutor executor;
-	private com.google.common.cache.Cache<String, Workspace> workspaceMap = CacheBuilder.newBuilder().maximumSize(20).build();
-	private Map<String, CentralCacheStoreConfig> configs = MapUtil.newCaseInsensitiveMap();
+	private com.google.common.cache.Cache<String, Workspace> workspaceCache = CacheBuilder.newBuilder().maximumSize(20).build();
+	private Map<String, WorkspaceConfig> configs = MapUtil.newCaseInsensitiveMap();
 	private DefaultCacheManager dm;
 	private Map<String, Object> attrs = MapUtil.newMap();
 	private Logger log = LogBroker.getLogger(Repository.class);
@@ -78,7 +83,7 @@ public class RepositoryImpl implements Repository {
 
 	public static RepositoryImpl inmemoryCreateWithTest() throws CorruptIndexException, IOException {
 		RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager());
-		return result.defineWorkspaceForTest("test", CentralCacheStoreConfig.create().location(""));
+		return result.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().location(""));
 	}
 
 	public String memberName() {
@@ -86,13 +91,13 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public Set<String> workspaceNames() {
-		return workspaceMap.asMap().keySet();
+		return workspaceCache.asMap().keySet();
 	}
 
 	public Map<String, Long> lastSyncModified() throws IOException, ExecutionException, ParseException {
 		Map<String, Long> result = MapUtil.newMap();
 
-		for (Workspace ws : workspaceMap.asMap().values()) {
+		for (Workspace ws : workspaceCache.asMap().values()) {
 			Long lastCommitTime = login(ws.wsName()).logManager().lastTranInfoBy();
 			result.put(ws.wsName(), lastCommitTime);
 		}
@@ -138,7 +143,7 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public RepositoryImpl shutdown() {
-		for (Workspace ws : workspaceMap.asMap().values()) {
+		for (Workspace ws : workspaceCache.asMap().values()) {
 			ws.close();
 		}
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
@@ -162,13 +167,13 @@ public class RepositoryImpl implements Repository {
 	public ReadSessionImpl login(Credential credential, final String wsName, Analyzer queryAnalyzer) throws IOException {
 		try {
 
-			final Workspace workspace = workspaceMap.get(wsName, new Callable<Workspace>() {
+			final Workspace workspace = workspaceCache.get(wsName, new Callable<Workspace>() {
 				public Workspace call() throws Exception {
 					final Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName);
 					if (!cache.getCacheConfiguration().invocationBatching().enabled())
 						throw new ConfigurationException("Invocation batching not enabled in current configuration! Please enable it.");
 					cache.start();
-					final WorkspaceImpl result = WorkspaceImpl.create(RepositoryImpl.this, cache, wsName, configs.get(wsName));
+					final Workspace result = configs.get(wsName).createWorkspace(RepositoryImpl.this, cache, wsName);
 
 					// result.begin() ;
 					// result.pathNode(Fqn.ROOT, true) ;
@@ -184,36 +189,67 @@ public class RepositoryImpl implements Repository {
 
 	}
 
-	public RepositoryImpl defineWorkspace(String wsName, CentralCacheStoreConfig config) {
-		if (configs.containsKey(wsName))
-			throw new IllegalStateException("already define workspace : " + wsName);
-		configs.put(wsName, config);
+	public RepositoryImpl defineWorkspace(String wsName, WorkspaceConfig config) throws IOException {
+		try {
+			if (configs.containsKey(wsName))
+				throw new IllegalStateException("already define workspace : " + wsName);
+			configs.put(wsName, config);
 
-		dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().clustering().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
-				config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(CentralCacheStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
-				.build());
+			CacheLoader cloader = (CacheLoader) Class.forName(config.getCacheLoaderClassName()).newInstance();
+			dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().clustering().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
+					config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(cloader).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async()
+					.enabled(false).build());
 
-		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(
-				config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-		dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.REPL_SYNC, config.location(), 1000));
-		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 7));
+			dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder().clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore())
+					.addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+			dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.REPL_SYNC, config.location(), 1000));
+			dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 7));
 
-		log.info("Workspace[" + wsName + ", DIST] defined");
-		return this;
+			log.info("Workspace[" + wsName + ", DIST] defined");
+			return this;
+		} catch (ClassNotFoundException ex) {
+			throw new IOException(ex);
+		} catch (InstantiationException ex) {
+			throw new IOException(ex);
+		} catch (IllegalAccessException ex) {
+			throw new IOException(ex);
+		}
 	}
 
-	public RepositoryImpl defineWorkspaceForTest(String wsName, CentralCacheStoreConfig config) throws CorruptIndexException, IOException {
-		if (configs.containsKey(wsName))
-			throw new IllegalStateException("already define workspace : " + wsName);
-		configs.put(wsName, config);
+	public RepositoryImpl defineWorkspaceForTest(String wsName, WorkspaceConfig config) throws IOException {
+		try {
+			if (configs.containsKey(wsName))
+				throw new IllegalStateException("already define workspace : " + wsName);
+			configs.put(wsName, config);
 
-		dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.LOCAL).invocationBatching().enable().eviction().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
-				config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(CentralCacheStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(true).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
-				.build());
+			CacheLoader cloader = (CacheLoader) Class.forName(config.getCacheLoaderClassName()).newInstance();
 
-		log.info("Workspace[" + wsName + ", LOCAL] defined");
-		return this;
+			dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.LOCAL).invocationBatching().enable().eviction().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
+					config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(cloader).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+
+			log.info("Workspace[" + wsName + ", LOCAL] defined");
+			return this;
+		} catch (ClassNotFoundException ex) {
+			throw new IOException(ex);
+		} catch (InstantiationException ex) {
+			throw new IOException(ex);
+		} catch (IllegalAccessException ex) {
+			throw new IOException(ex);
+		}
 	}
+
+	// public RepositoryImpl defineWorkspace(String wsName, NeoWorkspaceConfig config) throws CorruptIndexException, IOException {
+	// if (configs.containsKey(wsName))
+	// throw new IllegalStateException("already define workspace : " + wsName);
+	// configs.put(wsName, config);
+	//
+	// dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.LOCAL).invocationBatching().enable().eviction().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true).locking().lockAcquisitionTimeout(
+	// config.lockTimeoutMs()).loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(NeoWorkspaceStore.blank()).addProperty(config.Location, config.location()).purgeOnStartup(true).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
+	// .build());
+	//
+	// log.info("Workspace[" + wsName + ", LOCAL] defined");
+	// return this;
+	// }
 
 }
 

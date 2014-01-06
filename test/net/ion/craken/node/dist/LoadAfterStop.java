@@ -1,7 +1,7 @@
 package net.ion.craken.node.dist;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -19,7 +19,7 @@ public class LoadAfterStop extends TestCase {
 	
 	public void xtestReader() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location(location));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location(location));
 		ReadSession session = r.login("test");
 
 		if (session.exists("/bleujin")) {
@@ -29,7 +29,7 @@ public class LoadAfterStop extends TestCase {
 
 	public void xtestConfirm() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location(location));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location(location));
 		ReadSession session = r.login("test");
 
 		session.workspace().central().newSearcher().createRequest("").find().debugPrint();
@@ -39,7 +39,7 @@ public class LoadAfterStop extends TestCase {
 
 	public void xtestWriter() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location(location));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location(location));
 		ReadSession session = r.login("test");
 
 		session.tranSync(new TransactionJob<Void>() {

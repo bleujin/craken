@@ -22,7 +22,7 @@ public class TestLogWorking extends TestCase {
 		FileUtil.deleteDirectory(new File(location)) ;
 		this.r = RepositoryImpl.create();
 //		r.defineWorkspace("test", CentralCacheStoreConfig.createDefault().location(location)) ;
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.createDefault().location(location)) ;
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.createDefault().location(location)) ;
 		this.session = r.login("test");
 	}
 	

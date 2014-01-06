@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map.Entry;
 
+import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -21,14 +22,6 @@ import org.infinispan.container.entries.InternalCacheEntry;
 
 public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	private static final long serialVersionUID = 8793021912637163008L;
-
-	public static final String VALUE = "__value";
-
-	public static final String ID = "__id";
-	public static final String LASTMODIFIED = "__lastmodified";
-	public static final String PROPS = "__props";
-
-	public static final String PARENT = "__parent";
 
 	public DocEntry(Object key, ImmortalCacheValue cacheValue) {
 		super(key, cacheValue);
@@ -49,14 +42,14 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 
 	
 	public static InternalCacheEntry create(ReadDocument findDoc) {
-		final String jsonString = findDoc.get(DocEntry.VALUE);
+		final String jsonString = findDoc.get(EntryKey.VALUE);
 		if (StringUtil.isBlank(jsonString)) {
 			
 			return null ;
 		}
 		
 		JsonObject raw = JsonObject.fromString(jsonString) ;
-		TreeNodeKey nodeKey = TreeNodeKey.fromString(raw.asString(ID));
+		TreeNodeKey nodeKey = TreeNodeKey.fromString(raw.asString(EntryKey.ID));
 
 		return createDataEntry(nodeKey, raw);
 	}
@@ -68,23 +61,19 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 	private static InternalCacheEntry createStruEntry(TreeNodeKey nodeKey, JsonObject raw) {
 		AtomicHashMap<String, Fqn> nodeValue = new AtomicHashMap<String, Fqn>();
 
-		JsonObject props = raw.getAsJsonObject(PROPS);
+		JsonObject props = raw.getAsJsonObject(EntryKey.PROPS);
 		for (Entry<String, JsonElement> entry : props.entrySet()) {
 			String pkey = entry.getKey();
 			String absoluteFqn = entry.getValue().getAsString();
 			nodeValue.put(pkey, Fqn.fromString(absoluteFqn));
 		}
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey) ;
-//		final DocEntry create = new DocEntry(nodeKey, new ImmortalCacheValue(nodeValue));
-//		MortalCacheValue mvalue = new MortalCacheValue(nodeValue, System.currentTimeMillis(), 10 * 1000);
-//		final DocEntry create = new DocEntry(nodeKey, mvalue);
-//		return create;
 	}
 
 	private static InternalCacheEntry createDataEntry(TreeNodeKey nodeKey, JsonObject raw) {
 		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
 
-		JsonObject props = raw.getAsJsonObject(PROPS);
+		JsonObject props = raw.getAsJsonObject(EntryKey.PROPS);
 		for (Entry<String, JsonElement> entry : props.entrySet()) {
 			String pkey = entry.getKey();
 			JsonElement pvalue = entry.getValue();

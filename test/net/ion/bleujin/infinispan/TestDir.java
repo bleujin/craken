@@ -7,7 +7,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
@@ -42,7 +42,7 @@ public class TestDir extends TestCase {
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig);
 		String wsName = "test" ;
 		
-		OldCacheStoreConfig config = OldCacheStoreConfig.create().location("./resource/ff3") ;
+		ISearcherWorkspaceConfig config = ISearcherWorkspaceConfig.create().location("./resource/ff3") ;
 		
 		dcm.defineConfiguration(wsName + ".node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.eviction().maxEntries(config.maxNodeEntry())
@@ -58,7 +58,7 @@ public class TestDir extends TestCase {
 				.addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 		
 		dcm.defineConfiguration(wsName + ".chunks", 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxChunkEntries()).invocationBatching().enable()
+				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxNodeEntry()).invocationBatching().enable()
 				.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
 				.loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
@@ -72,7 +72,7 @@ public class TestDir extends TestCase {
 		lockCache.start() ;
 
 //		Directory dir = new DirectoryBuilderImpl(metaCache, chunkCache, lockCache, wsname).chunkSize(1024 * 64).create(); // .chunkSize()
-		InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsName, config.chunkSize());
+		InfinispanDirectory dir = new InfinispanDirectory(metaCache, chunkCache, lockCache, wsName, 1024 * 64);
 		this.central = CentralConfig.oldFromDir(dir).build();
 	}
 	

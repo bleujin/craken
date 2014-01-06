@@ -3,7 +3,7 @@ package net.ion.bleujin.infinispan;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -21,7 +21,7 @@ public class TestInfinispanDir extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/ff2")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/ff2")) ;
 		this.session = r.login("test") ;
 		r.start() ;
 	}

@@ -1,6 +1,6 @@
 package net.ion.craken.node.problem;
 
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
@@ -56,7 +56,7 @@ public class TestTranLog extends TestBaseCrud{
 	public void testRoot() throws Exception {
 		tearDown() ;
 		this.r = RepositoryImpl.create() ;
-		CentralCacheStoreConfig config = CentralCacheStoreConfig.createDefault();
+		ISearcherWorkspaceConfig config = ISearcherWorkspaceConfig.createDefault();
 		r.defineWorkspaceForTest("test", config.maxNodeEntry(10)) ;
 		
 		r.start() ;

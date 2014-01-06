@@ -1,7 +1,7 @@
 package net.ion.craken.node.problem;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -13,12 +13,12 @@ public class TestMaxEntry extends TestCase {
 	
 	protected RepositoryImpl r ;
 	protected ReadSession session;
-	protected CentralCacheStoreConfig config;
+	protected ISearcherWorkspaceConfig config;
 
 	@Override
 	protected void setUp() throws Exception {
 		this.r = RepositoryImpl.create() ;
-		this.config = CentralCacheStoreConfig.createDefault().maxNodeEntry(1);
+		this.config = ISearcherWorkspaceConfig.createDefault().maxNodeEntry(1);
 		r.defineWorkspace("test", config) ;
 		
 		r.start() ;

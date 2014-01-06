@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyValue;
@@ -150,16 +151,16 @@ public class IndexWriteConfig implements Serializable{
 		
 		WriteDocument commitDoc = isession.newDocument(tranKey.fqnString()) ;
 		commitDoc.number("time", System.currentTimeMillis()); // searcher use for lastTranInfo
-		commitDoc.add(MyField.manual(DocEntry.PARENT, Fqn.TRANSACTIONS.toString(), Store.YES, Index.NOT_ANALYZED)) ;
-		commitDoc.add(MyField.manual(DocEntry.VALUE, createJsonValue(tranKey, tranPropertyValue).toString(), Store.YES, Index.NOT_ANALYZED)) ;
+		commitDoc.add(MyField.manual(EntryKey.PARENT, Fqn.TRANSACTIONS.toString(), Store.YES, Index.NOT_ANALYZED)) ;
+		commitDoc.add(MyField.manual(EntryKey.VALUE, createJsonValue(tranKey, tranPropertyValue).toString(), Store.YES, Index.NOT_ANALYZED)) ;
 
 		isession.insertDocument(commitDoc) ;
 	}
 
 	private JsonObject createJsonValue(TreeNodeKey tranKey, PropertyValue tranPropertyValue) {
 		JsonObject jobj = new JsonObject();
-		jobj.addProperty(DocEntry.ID, tranKey.fqnString());
-		jobj.add(DocEntry.PROPS, new JsonObject().put("time", System.currentTimeMillis()).put("config",  toJson().toString()).put("tran", tranPropertyValue.stringValue()) );
+		jobj.addProperty(EntryKey.ID, tranKey.fqnString());
+		jobj.add(EntryKey.PROPS, new JsonObject().put("time", System.currentTimeMillis()).put("config",  toJson().toString()).put("tran", tranPropertyValue.stringValue()) );
 		
 		return jobj;
 	}

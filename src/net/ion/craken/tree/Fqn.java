@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonPrimitive;
@@ -333,9 +334,9 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 
 	public Query childrenQuery() {
 		BooleanQuery result = new BooleanQuery();
-		result.add(new TermQuery(new Term(DocEntry.PARENT, "/__transactions")), Occur.MUST_NOT);
-		result.add(new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())), Occur.SHOULD);
-		result.add(new TermQuery(new Term(DocEntry.PARENT, this.toString())), Occur.SHOULD);
+		result.add(new TermQuery(new Term(EntryKey.PARENT, "/__transactions")), Occur.MUST_NOT);
+		result.add(new WildcardQuery(new Term(EntryKey.PARENT, this.startWith())), Occur.SHOULD);
+		result.add(new TermQuery(new Term(EntryKey.PARENT, this.toString())), Occur.SHOULD);
 		return result;
 		// return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
 	}

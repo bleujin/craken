@@ -27,14 +27,6 @@ public class TestPathBy extends TestBaseCrud {
 	
 	@Override
 	protected void tearDown() throws Exception {
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bluejin").removeChildren() ;
-				wsession.pathBy("/hero").removeChildren() ;
-				return null;
-			}
-		}).get() ;
 		super.tearDown();
 	}
 	

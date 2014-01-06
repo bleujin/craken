@@ -1,7 +1,7 @@
 package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.framework.util.Debug;
 
@@ -25,10 +25,10 @@ public class TestWorkspace extends TestCase {
 	}
 	
 	public void testViewConfig() throws Exception {
-		r.defineWorkspace("test", CentralCacheStoreConfig.createDefault()) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.createDefault()) ;
 		ReadSession session = r.login("test");
 		
-		CentralCacheStoreConfig config = (CentralCacheStoreConfig)session.workspace().config();
+		ISearcherWorkspaceConfig config = (ISearcherWorkspaceConfig)session.workspace().config();
 		
 		assertEquals(true, session.workspace().config() == config) ;
 		assertEquals("./resource/local", config.location()) ;
@@ -36,7 +36,7 @@ public class TestWorkspace extends TestCase {
 	}
 	
 	public void xtestIndexConfig() throws Exception {
-		CentralCacheStoreConfig newconfig = CentralCacheStoreConfig.create();
+		ISearcherWorkspaceConfig newconfig = ISearcherWorkspaceConfig.create();
 		final StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
 		newconfig.centralConfig().indexConfigBuilder().indexAnalyzer(analyzer);
 		r.defineWorkspace("newwork", newconfig) ;

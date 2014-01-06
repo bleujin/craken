@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
@@ -23,7 +23,7 @@ public class TestStoreSpeed extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.createDefault());
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.createDefault());
 		this.session = r.login("test");
 		session.tranSync(new TransactionJob<Void>() {
 			@Override

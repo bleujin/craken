@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="outer"/>
+	<classpathentry kind="src" path="neo"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/ref/mongonode_0.3.jar"/>
@@ -27,7 +28,6 @@
 	<classpathentry kind="lib" path="lib/ref/aradon_0.9.jar"/>
 	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar"/>
 	<classpathentry kind="lib" path="lib/iframe/ojdbc6.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ISearcher"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_4.4.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search440_fat.jar"/>
 	<classpathentry kind="output" path="bin"/>

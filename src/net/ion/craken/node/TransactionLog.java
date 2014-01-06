@@ -3,6 +3,7 @@ package net.ion.craken.node;
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
@@ -124,11 +125,11 @@ public class TransactionLog{
 	public void writeDocument(IndexSession isession, IndexWriteConfig config) throws IOException{
 		final WriteDocument propDoc = isession.newDocument(path());
 		JsonObject jobj = new JsonObject();
-		jobj.addProperty(DocEntry.ID, path());
+		jobj.addProperty(EntryKey.ID, path());
 		// jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
-		jobj.add(DocEntry.PROPS, fromMapToJson(propDoc, config));
+		jobj.add(EntryKey.PROPS, fromMapToJson(propDoc, config));
 
-		propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
+		propDoc.add(MyField.manual(EntryKey.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
 		
 		if (action() == Action.CREATE) 
 			isession.insertDocument(propDoc) ; 
@@ -140,8 +141,8 @@ public class TransactionLog{
 	private JsonObject fromMapToJson(WriteDocument doc, IndexWriteConfig iwconfig) {
 		JsonObject jso = new JsonObject();
 		String parentPath = parentPath();
-		doc.keyword(DocEntry.PARENT, parentPath);
-		doc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis());
+		doc.keyword(EntryKey.PARENT, parentPath);
+		doc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
 		
 		for (Entry<String, JsonElement> entry : props().entrySet()) {
 			final String propId = entry.getKey();

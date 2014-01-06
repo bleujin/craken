@@ -120,7 +120,6 @@ public class TestSearch extends TestBaseSearch {
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				Debug.line(wsession.iwconfig()) ;
 				wsession.iwconfig().ignoreIndex() ;
 				wsession.pathBy("/people").property("pwd", "bleujin") ;
 				Debug.line(wsession.iwconfig()) ;
@@ -130,7 +129,7 @@ public class TestSearch extends TestBaseSearch {
 		
 		assertEquals(0, session.queryRequest("pwd:bleujin").find().size()) ;
 		assertEquals(0, session.queryRequest("bleujin").find().size()) ;
-		
+		assertEquals("bleujin", session.pathBy("/people").property("pwd").stringValue()) ;
 	}
 	
 	

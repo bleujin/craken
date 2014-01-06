@@ -4,7 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.EntryKey;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -29,7 +30,7 @@ public class TestSelectSpeed extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/select"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/select"));
 		r.start();
 		this.session = r.login("test");
 	}
@@ -50,7 +51,7 @@ public class TestSelectSpeed extends TestCase {
 
 	public void testSearchTest() throws Exception {
 		Searcher searcher = session.workspace().central().newSearcher();
-		final SearchResponse response = searcher.createRequest(new TermQuery(new Term(DocEntry.PARENT, "/"))).selections(IKeywordField.ISKey).offset(1000000).find();
+		final SearchResponse response = searcher.createRequest(new TermQuery(new Term(EntryKey.PARENT, "/"))).selections(IKeywordField.ISKey).offset(1000000).find();
 		List<ReadDocument> docs = response.getDocument();
 		InternalCacheEntry entry = DocEntry.create(TreeNodeKey.fromString(""), docs);
 		Debug.line(docs.size()) ;

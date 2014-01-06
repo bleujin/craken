@@ -1,7 +1,7 @@
 package net.ion.craken.node.problem.speed;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.db.DBController;
@@ -37,7 +37,7 @@ public class TestBaseFromDB extends TestCase {
 		
 		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
 		this.r = RepositoryImpl.create(gconfig) ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.createDefault().location("./resource/test")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.createDefault().location("./resource/test")) ;
 		
 		r.start() ;
 		this.session = r.login("test") ;

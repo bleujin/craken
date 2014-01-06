@@ -3,7 +3,7 @@ package net.ion.craken.node.dist;
 import java.io.File;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -21,7 +21,7 @@ public class TestAtSingleCom extends TestCase {
 	public void xtestReader() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/c1")) ;
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/c1"));
 		r.start() ;
 //		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
 		
@@ -40,7 +40,7 @@ public class TestAtSingleCom extends TestCase {
 
 	public void xtestConfirm() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c1"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/c1"));
 		ReadSession session = r.login("test");
 
 		session.workspace().central().newSearcher().createRequest("").find().debugPrint();
@@ -52,7 +52,7 @@ public class TestAtSingleCom extends TestCase {
 	public void xtestWriter() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/c2")) ;
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c2"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/c2"));
 		
 //		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
 

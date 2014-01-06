@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.lucene.OldCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
@@ -44,14 +44,14 @@ public class TestISearchDistribute extends TestCase {
 		this.repository = RepositoryImpl.create(gconfig);
 		
 		String wsName = "test";
-		OldCacheStoreConfig config = OldCacheStoreConfig.createDefault() ;
+		ISearcherWorkspaceConfig config = ISearcherWorkspaceConfig.createDefault() ;
 		this.dm = repository.dm();
 		dm.defineConfiguration(wsName + ".meta", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
 				.build());
 		dm.defineConfiguration(wsName + ".chunks", 
-				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxChunkEntries()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
+				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(config.maxNodeEntry()).invocationBatching().enable().loaders().preload(true).shared(false).passivation(false)
 				.addCacheLoader().cacheLoader(new FileCacheStore()).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false)
 				.build());
 		

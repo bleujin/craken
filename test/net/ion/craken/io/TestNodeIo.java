@@ -10,7 +10,7 @@ import java.io.Writer;
 import java.util.Date;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
@@ -30,9 +30,9 @@ public class TestNodeIo extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		FileUtil.deleteDirectory(new File(CentralCacheStoreConfig.create().location())) ;
+		FileUtil.deleteDirectory(new File(ISearcherWorkspaceConfig.create().location())) ;
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", CentralCacheStoreConfig.create()) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create()) ;
 		this.session = r.login("test") ;
 	}
 	

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -48,7 +48,7 @@ public class TestDist extends TestCase{
 		RhinoEngine rengine = RhinoEngine.create().start().get() ;
 		
 		RepositoryImpl repository = RepositoryImpl.create();
-		repository.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/" + targetDir)) ;
+		repository.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/" + targetDir)) ;
 		repository.start() ;
 		
 		Aradon aradon = AradonTester.create()
@@ -67,7 +67,7 @@ public class TestDist extends TestCase{
 	public void testLocal() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/c3")) ;
 		RepositoryImpl repository = RepositoryImpl.create();
-		repository.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/c3")) ;
+		repository.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/c3")) ;
 		repository.start() ;
 		ReadSession session = repository.login("test"); 
 		session.tranSync(new TransactionJob<Void>() {

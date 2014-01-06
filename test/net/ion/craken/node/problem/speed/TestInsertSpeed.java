@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -31,7 +31,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/insert")) ;
 		
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/insert"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/insert"));
 		r.start();
 		this.session = r.login("test");
 	}

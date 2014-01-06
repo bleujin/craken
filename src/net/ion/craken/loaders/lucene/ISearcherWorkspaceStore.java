@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.loaders.EntryKey;
+import net.ion.craken.loaders.WorkspaceStore;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.framework.parse.gson.JsonObject;
@@ -39,26 +41,23 @@ import org.infinispan.transaction.xa.GlobalTransaction;
 
 import com.google.common.base.Function;
 
-@CacheLoaderMetadata(configurationClass = CentralCacheStoreConfig.class)
-public class CentralCacheStore extends AbstractCacheStore implements SearcherCacheStore {
+@CacheLoaderMetadata(configurationClass = ISearcherWorkspaceConfig.class)
+public class ISearcherWorkspaceStore extends WorkspaceStore {
 
-	private CentralCacheStoreConfig config;
+	private ISearcherWorkspaceConfig config;
 	private Central central;
-	private GridFilesystem gfs;
 	private Address address;
 
 	@Override
 	public Class<? extends CacheLoaderConfig> getConfigurationClass() {
-		return CentralCacheStoreConfig.class;
+		return ISearcherWorkspaceConfig.class;
 	}
 
 	@Override
 	public void init(CacheLoaderConfig config, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
 		super.init(config, cache, m);
-		this.config = (CentralCacheStoreConfig) config;
+		this.config = (ISearcherWorkspaceConfig) config;
 		EmbeddedCacheManager dm = cache.getCacheManager();
-		final String wsName = StringUtil.substringBefore(cache.getName(), ".");
-		this.gfs = new GridFilesystem(dm.<String, byte[]>getCache( wsName + ".blobdata")) ;
 		this.address = dm.getAddress() ;
 	}
 
@@ -71,11 +70,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 		} catch (Exception e) {
 			throw new CacheLoaderException(e);
 		}
-	}
-
-
-	public static CacheLoader blank() {
-		return new CentralCacheStore();
 	}
 
 	@Override
@@ -121,6 +115,8 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 	@Override
 	public boolean remove(Object _key) throws CacheLoaderException {
+//		return false ; // ignore(action in loglistener)
+		
 		final TreeNodeKey key = (TreeNodeKey) _key;
 		if (key.getType().isStructure())
 			return true;
@@ -133,7 +129,6 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				return Boolean.TRUE;
 			}
 		});
-		// return true ;
 	}
 
 	@Override
@@ -147,6 +142,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	}
 
 	protected void applyModifications(final List<? extends Modification> mods) throws CacheLoaderException {
+		; // ignore(action in loglistener)
 	}
 
 	@Override
@@ -162,10 +158,10 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 				return null; // if log, return
 
 			if (key.getType().isStructure()) {
-				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(DocEntry.PARENT, key.fqnString()))).selections(IKeywordField.ISKey).offset(1000000).find().getDocument();
+				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(EntryKey.PARENT, key.fqnString()))).selections(IKeywordField.ISKey).offset(1000000).find().getDocument();
 				return DocEntry.create(key, docs);
 			}
-			ReadDocument findDoc = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).selections(DocEntry.VALUE).findOne();
+			ReadDocument findDoc = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).selections(EntryKey.VALUE).findOne();
 			
 			if (findDoc == null) {
 				return null;
@@ -189,7 +185,7 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 
 //			Map<String, String> commitData = central.newReader().commitUserData();
 //			String lastCommitTime = commitData.get(IndexSession.LASTMODIFIED);
-			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).offset(numEntries).selections(DocEntry.VALUE).find();
+			SearchResponse response = central.newSearcher().createRequest("").selections(EntryKey.VALUE).offset(numEntries).selections(EntryKey.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 			Set<InternalCacheEntry> result = new HashSet<InternalCacheEntry>();
 			for (ReadDocument readDocument : docs) {
@@ -221,14 +217,14 @@ public class CentralCacheStore extends AbstractCacheStore implements SearcherCac
 	@Override
 	public Set<Object> loadAllKeys(Set<Object> keysToExclude) throws CacheLoaderException {
 		try {
-			SearchResponse response = central.newSearcher().createRequest("").selections(DocEntry.VALUE).find();
+			SearchResponse response = central.newSearcher().createRequest("").selections(EntryKey.VALUE).find();
 			List<ReadDocument> docs = response.getDocument();
 
 			Set<Object> result = new HashSet<Object>();
 			for (ReadDocument readDocument : docs) {
 				TreeNodeKey key = readDocument.transformer(new Function<ReadDocument, TreeNodeKey>() {
 					public TreeNodeKey apply(ReadDocument readDoc) {
-						String idString = JsonObject.fromString(readDoc.get(DocEntry.VALUE)).asString(DocEntry.ID);
+						String idString = JsonObject.fromString(readDoc.get(EntryKey.VALUE)).asString(EntryKey.ID);
 						return TreeNodeKey.fromString(idString);
 					}
 				});

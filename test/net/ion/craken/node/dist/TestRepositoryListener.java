@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -34,7 +34,7 @@ public class TestRepositoryListener extends TestCase{
 	public void xtestSave() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/save")) ;
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/save")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/save")) ;
 		ReadSession session = r.login("test");
 		session.tranSync( new TransactionJob<Void>() {
 			@Override
@@ -54,7 +54,7 @@ public class TestRepositoryListener extends TestCase{
 	
 	public void xtestRead() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.create().location("./resource/save")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/save")) ;
 		ReadSession session = r.login("test");
 		
 		Debug.line(r.lastSyncModified()) ;
@@ -70,7 +70,7 @@ public class TestRepositoryListener extends TestCase{
 	
 	public void testLastModInfo() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create()) ;
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create()) ;
 		ReadSession session = r.login("test");
 		session.tranSync( new TransactionJob<Void>() {
 			@Override
@@ -137,7 +137,7 @@ public class TestRepositoryListener extends TestCase{
 	
 	public void testOnceWriteServer() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create().maxNodeEntry(5)) ;
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().maxNodeEntry(5)) ;
 		ReadSession session = r.login("test");
 		
 		session.tranSync(new TransactionJob<Void>() {
@@ -156,7 +156,7 @@ public class TestRepositoryListener extends TestCase{
 	
 	public void testReadOnlyServer() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create().maxNodeEntry(5)) ;
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().maxNodeEntry(5)) ;
 		ReadSession session = r.login("test");
 
 		while(true){
@@ -181,7 +181,7 @@ public class TestRepositoryListener extends TestCase{
 	
 	public void testOnEvent() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineWorkspaceForTest("test", CentralCacheStoreConfig.create()) ;
+		r.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create()) ;
 		ReadSession session = r.login("test");
 
 		session.tranSync(new TransactionJob<Void>(){

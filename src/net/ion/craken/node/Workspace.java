@@ -22,7 +22,9 @@ import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.listener.WorkspaceListener;
-import net.ion.craken.loaders.lucene.CentralCacheStore;
+import net.ion.craken.loaders.EntryKey;
+import net.ion.craken.loaders.WorkspaceConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceStore;
 import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
@@ -90,17 +92,15 @@ public abstract class Workspace extends TreeStructureSupport {
 	private Cache<String, Metadata> logMeta;
 	private String wsName;
 	private BatchContainer batchContainer;
-	private CentralCacheStore cstore;
-	private AbstractCacheStoreConfig config;
 	private Engine parseEngine = Engine.createDefaultEngine();
 
 	private static final Log log = LogFactory.getLog(Workspace.class);
 
-	protected Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) throws CorruptIndexException, IOException {
+	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config)  {
 		this(repository, cache.getAdvancedCache(), wsName, config);
 	}
 
-	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) throws CorruptIndexException, IOException {
+	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config)  {
 		super(cache, cache.getBatchContainer());
 		this.repository = repository;
 		this.cache = cache;
@@ -109,10 +109,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		this.logContent = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".log"));
 		this.logMeta = cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta");
 
-		this.cstore = ((CentralCacheStore) cache.getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore());
-
 		this.wsName = wsName;
-		this.config = config;
 		this.batchContainer = cache.getBatchContainer();
 
 		logMeta.addListener(new SyncListener(this));
@@ -135,7 +132,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		cache.stop();
 	}
 
-	WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	protected WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -146,7 +143,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn));
 	}
 
-	WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	protected WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -177,7 +174,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}
 
-	WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	protected WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		if (log.isTraceEnabled())
@@ -190,7 +187,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		// return new TreeNode(this, fqn);
 	}
 
-	TreeNode readNode(Fqn fqn) {
+	protected TreeNode readNode(Fqn fqn) {
 		return new TreeNode(this, fqn);
 	}
 
@@ -270,107 +267,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		return count;
 	}
 
-	private int storeData(InputStream input) throws IOException {
-
-		// Debug.line(IOUtil.toStringWithClose(input)) ;
-
-		final JsonReader reader = new JsonReader(new InputStreamReader(input, "UTF-8"));
-		reader.beginObject();
-		String configName = reader.nextName();
-		final JsonObject config = reader.nextJsonObject();
-		String logName = reader.nextName();
-
-		// Debug.line(config, wsession.tranId(), meta) ;
-
-		int count = central().newIndexer().index(new IndexJob<Integer>() {
-			public Integer handle(IndexSession isession) throws Exception {
-
-				isession.setIgnoreBody(config.asBoolean("ignoreBody"));
-				
-				reader.beginArray();
-				final int count = config.asInt("count");
-				for (int i = 0; i < count; i++) {
-					JsonObject tlog = reader.nextJsonObject();
-					String path = tlog.asString("path");
-					Touch touch = Touch.valueOf(tlog.asString("touch"));
-					Action action = Action.valueOf(tlog.asString("action"));
-					// Debug.line(path, touch) ;
-					switch (touch) {
-					case TOUCH:
-						break;
-					case MODIFY:
-						JsonObject val = tlog.asJsonObject("val");
-						if ("/".equals(path) && val.childSize() == 0) continue ;
-						
-						WriteDocument propDoc = isession.newDocument(path);
-						propDoc.keyword(DocEntry.PARENT, Fqn.fromString(path).getParent().toString());
-						propDoc.number(DocEntry.LASTMODIFIED, System.currentTimeMillis());
-						
-						JsonObject jobj = new JsonObject();
-						jobj.addProperty(DocEntry.ID, path);
-						jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
-						jobj.add(DocEntry.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
-						
-						propDoc.add(MyField.manual(DocEntry.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED).ignoreBody());
-
-						if (action == Action.CREATE)
-							isession.insertDocument(propDoc);
-						else
-							isession.updateDocument(propDoc);
-						// isession.updateDocument(propDoc) ;
-
-						break;
-					case REMOVE:
-						isession.deleteTerm(new Term(IKeywordField.ISKey, path));
-						break;
-					case REMOVECHILDREN:
-						isession.deleteQuery(new WildcardQuery(new Term(DocEntry.PARENT, Fqn.fromString(path).startWith())));
-						break;
-					default:
-						throw new IllegalArgumentException("Unknown modification type " + touch);
-					}
-				}
-
-				return count;
-			}
-
-			private JsonObject fromMapToJson(String path, WriteDocument doc, IndexWriteConfig iwconfig, Set<Map.Entry<String, JsonElement>> props) {
-				JsonObject jso = new JsonObject();
-
-				for (Entry<String, JsonElement> entry : props) {
-					final PropertyId propertyId = PropertyId.fromIdString(entry.getKey());
-
-					if (propertyId.type() == PType.NORMAL) {
-						String propId = propertyId.getString();
-						JsonArray pvalue = entry.getValue().getAsJsonArray();
-						jso.add(propId, entry.getValue().getAsJsonArray());
-						for (JsonElement e : pvalue.toArray()) {
-							if (e == null)
-								continue;
-							FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
-							fieldIndex.index(doc, propId, e.isJsonObject() ? e.toString() : e.getAsString());
-						}
-					} else if (propertyId.type() == PType.REFER) {
-						final String propId = propertyId.getString();
-						JsonArray pvalue = entry.getValue().getAsJsonArray();
-						jso.add(propId, entry.getValue().getAsJsonArray()); // if type == refer, @
-						for (JsonElement e : pvalue.toArray()) {
-							if (e == null)
-								continue;
-							FieldIndex.KEYWORD.index(doc, '@' + propId, e.getAsString());
-						}
-					}
-				}
-				return jso;
-			}
-
-		});
-
-		reader.endArray();
-		reader.endObject();
-		IOUtil.closeQuietly(reader);
-		return count;
-	}
+	protected abstract int storeData(InputStream input) throws IOException ;
 
 	public void continueUnit(WriteSession wsession) throws IOException {
 		endTran(wsession);
@@ -409,18 +306,16 @@ public abstract class Workspace extends TreeStructureSupport {
 		cache.removeListener(listener);
 	}
 
-	public Central central() {
-		return cstore.central();
-	}
+	public abstract Central central() ;
 
+	public abstract WorkspaceConfig config()  ;
+
+
+	
 	public IExecutor executor() {
 		return repository.executor();
 	}
-
-	public AbstractCacheStoreConfig config() {
-		return config;
-	}
-
+	
 	public Engine parseEngine() {
 		return parseEngine;
 	}

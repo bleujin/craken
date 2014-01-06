@@ -10,7 +10,7 @@ public class LazyCentralConfig extends CentralConfig{
 
 	private Directory dir;
 
-	LazyCentralConfig dir(Directory dir){
+	public LazyCentralConfig dir(Directory dir){
 		this.dir = dir ;
 		return this ;
 	}

@@ -16,6 +16,7 @@ public class WriteSessionImpl extends  AbstractWriteSession {
 	public WriteSessionImpl(ReadSession session, Workspace workspace) {
 		super(session, workspace) ;
 		final String idString = new ObjectId().toString();
+		
 		this.tranId = TransactionLog.newTranId(idString) ;
 		this.idValue = PropertyValue.createPrimitive(idString) ;
 	}
@@ -23,12 +24,12 @@ public class WriteSessionImpl extends  AbstractWriteSession {
 	public PropertyValue idValue(){
 		return idValue ;
 	}
-	
+
 	public WriteSession tranId(String myid){
 		this.tranId = TransactionLog.newTranId(myid) ;
 		return this ;
 	}
-	
+
 	public String tranId(){
 		return tranId ;
 	}

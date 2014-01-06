@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.CentralCacheStoreConfig;
+import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
@@ -27,7 +27,7 @@ public class TestNodeDistribute extends TestCase {
 //		FileUtil.deleteDirectory(new File("./resource/local")) ;
 		
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", CentralCacheStoreConfig.createDefault()) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.createDefault()) ;
 		r.start() ;
 		this.workerPool = Executors.newCachedThreadPool();
 	}
