@@ -13,11 +13,12 @@ import org.jgroups.util.Util;
 
 
 
+
 public class Metadata implements Externalizable {
 	public static final byte FILE = 1;
 	public static final byte DIR = 1 << 1;
 
-	private String path ;
+	private transient String path ;
 	private int length = 0;
 	private long modificationTime = 0;
 	private int chunkSize = 0;
@@ -80,6 +81,7 @@ public class Metadata implements Externalizable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getType());
+		sb.append(", path=" + path()) ;
 		if (isFile())
 			sb.append(", len=" + Util.printBytes(length) + ", chunkSize=" + chunkSize);
 		sb.append(", modTime=").append(new Date(modificationTime));
@@ -127,4 +129,9 @@ public class Metadata implements Externalizable {
 		return path;
 	}
 
+	public Metadata path(String path){
+		this.path = path ;
+		return this ;
+	}
+	
 }

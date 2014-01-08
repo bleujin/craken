@@ -40,16 +40,12 @@ public class GridFilesystem {
 		return metaCache.getCacheConfiguration().clustering().cacheMode().isClustered() && !metaCache.getCacheConfiguration().clustering().cacheMode().isSynchronous();
 	}
 
-	public GridBlob getGridBlob(Metadata metadata) {
-		return new GridBlob(metadata.path(), metadata, this);
-	}
-
-	public GridBlob getGridBlob(String pathname, Metadata metadata) {
+	public GridBlob gridBlob(String pathname, Metadata metadata) {
 		return new GridBlob(pathname, metadata, this);
 	}
 
-	public GridBlob gridBlob(String pathname) {
-		return getGridBlob(pathname, Metadata.create(pathname)) ;
+	public GridBlob newGridBlob(String pathname) {
+		return gridBlob(pathname, Metadata.create(pathname)) ;
 	}
 
 	

@@ -153,7 +153,7 @@ public class TestGridIO extends TestCase {
 		int defaultChunkSize = 32 * 1024;
 		GridFilesystem gfs = new GridFilesystem(cache, defaultChunkSize);
 		
-		GridBlob gblob = gfs.gridBlob("/root/temp");
+		GridBlob gblob = gfs.newGridBlob("/root/temp");
 		GridOutputStream output = gfs.getOutput(gblob, false);
 		Writer writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
 
@@ -166,7 +166,7 @@ public class TestGridIO extends TestCase {
 		int defaultChunkSize = 32 * 1024;
 		GridFilesystem gfs = new GridFilesystem(cache, defaultChunkSize);
 		
-		GridBlob gblob = gfs.gridBlob("/root/temp");
+		GridBlob gblob = gfs.newGridBlob("/root/temp");
 		Metadata meta = gblob.getMetadata() ;
 		Debug.line(meta) ;
 		return gblob.toInputStream() ;
@@ -228,7 +228,7 @@ public class TestGridIO extends TestCase {
 		int defaultChunkSize = 32 * 1024;
 		GridFilesystem gfs = new GridFilesystem(cache, defaultChunkSize);
 		Metadata mdata = Metadata.loadFromJsonString("{'path':'/root/temp','length':45900001,'modificationTime':1383532359094,'chunkSize':32768,'flags':1,'type':'blob'}");
-		Reader input = new BufferedReader(new InputStreamReader(gfs.getInput(gfs.getGridBlob("/root/temp", mdata)), Charset.forName("UTF-8")));
+		Reader input = new BufferedReader(new InputStreamReader(gfs.getInput(gfs.gridBlob("/root/temp", mdata)), Charset.forName("UTF-8")));
 		
 //		long size = 0 ;
 //		while(input.read() != -1){
@@ -247,7 +247,7 @@ public class TestGridIO extends TestCase {
 		int defaultChunkSize = 32 * 1024;
 		GridFilesystem gfs = new GridFilesystem(cache, defaultChunkSize);
 		
-		GridBlob gb = gfs.gridBlob("/a/b/c");
+		GridBlob gb = gfs.newGridBlob("/a/b/c");
 		
 	}
 	

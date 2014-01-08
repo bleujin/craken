@@ -19,11 +19,9 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	private Credential credential ;
 	private Workspace workspace ;
-	private TranLogManager logManger ;
 	protected AbstractReadSession(Credential credential, Workspace workspace) {
 		this.credential = credential.clearSecretKey() ;
 		this.workspace = workspace ;
-		this.logManger = TranLogManager.create(this, workspace) ;
 	}
 
 	public ReadNode pathBy(String fqn0, String... fqns) {
@@ -127,9 +125,4 @@ public abstract class AbstractReadSession implements ReadSession {
 	}
 
 
-	@Override
-	public TranLogManager logManager() throws IOException{
-		return this.logManger ;
-	}
-	
 }

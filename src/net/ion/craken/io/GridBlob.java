@@ -12,13 +12,11 @@ public class GridBlob implements Comparable<GridBlob> {
 	private static final String SEPARATOR = "" + SEPARATOR_CHAR;
 
 	private final GridFilesystem gfs;
-	private final String pathname;
 	private Metadata metadata;
 
 	GridBlob(String pathname, Metadata metadata, GridFilesystem gfs) {
 		this.gfs = gfs;
-		this.pathname = pathname;
-		this.metadata = metadata ;
+		this.metadata = metadata.path(pathname) ;
 	}
 
 	public String getName() {
@@ -26,7 +24,7 @@ public class GridBlob implements Comparable<GridBlob> {
 	}
 
 	public String getPath() {
-		return pathname;
+		return metadata.path();
 	}
 
 	public String getAbsolutePath() {
@@ -114,7 +112,7 @@ public class GridBlob implements Comparable<GridBlob> {
 
 	@Override
 	public String toString() {
-		return "GridBlob{" + "path='" + pathname + '\'' + '}';
+		return "GridBlob{" + "path='" + metadata.path() + '\'' + '}';
 	}
 
 	

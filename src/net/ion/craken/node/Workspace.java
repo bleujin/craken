@@ -1,6 +1,7 @@
 package net.ion.craken.node;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,10 +12,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
+import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.listener.WorkspaceListener;
@@ -32,6 +37,7 @@ import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeStructureSupport;
 import net.ion.craken.tree.TreeNodeKey.Action;
+import net.ion.framework.logging.LogBroker;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonWriter;
@@ -39,9 +45,11 @@ import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.config.Central;
 
+import org.apache.commons.lang.SystemUtils;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
@@ -58,36 +66,34 @@ import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
 @Listener
-public abstract class Workspace extends TreeStructureSupport {
+public abstract class Workspace extends TreeStructureSupport implements Closeable {
 
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
 	private GridFilesystem gfsBlob;
 	private GridFilesystem logContent;
-	private Cache<String, Metadata> logMeta;
+	private TranLogManager logManager;
 	private String wsName;
 	private BatchContainer batchContainer;
 	private Engine parseEngine = Engine.createDefaultEngine();
 
 	private static final Log log = LogFactory.getLog(Workspace.class);
 
-	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config)  {
+	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) {
 		this(repository, cache.getAdvancedCache(), wsName, config);
 	}
 
-	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config)  {
+	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) {
 		super(cache, cache.getBatchContainer());
 		this.repository = repository;
 		this.cache = cache;
 
 		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".blob"));
 		this.logContent = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".log"));
-		this.logMeta = cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta");
+		this.logManager = TranLogManager.create(this, cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta"), repository().selfName());
 
 		this.wsName = wsName;
 		this.batchContainer = cache.getBatchContainer();
-
-		logMeta.addListener(new SyncListener(this));
 	}
 
 	public <T> T getAttribute(String key, Class<T> clz) {
@@ -96,6 +102,14 @@ public abstract class Workspace extends TreeStructureSupport {
 
 	public String wsName() {
 		return wsName;
+	}
+
+	public Workspace start() {
+		this.cache.start();
+		this.logManager.start();
+
+		
+		return this;
 	}
 
 	public void close() {
@@ -204,11 +218,22 @@ public abstract class Workspace extends TreeStructureSupport {
 	private void endTran(WriteSession wsession) throws IOException {
 		wsession.endCommit();
 		batchContainer.endBatch(true, true);
-		Metadata metadata = logContent.gridBlob(wsession.tranId()).getMetadata();
-		int count = index(wsession, metadata);
+		Metadata metadata = logContent.newGridBlob(wsession.tranId()).getMetadata();
+		int count = index(wsession, wsession.tranId(), metadata);
 
-		logMeta.put(wsession.tranId(), metadata);
+		logManager.endTran(wsession, metadata) ;
+	}
 
+	GridFilesystem logContent() {
+		return logContent;
+	}
+	
+	public Repository repository() {
+		return this.repository;
+	}
+	
+	public TranLogManager tranLogManager(){
+		return this.logManager ;
 	}
 
 	public boolean exists(Fqn f) {
@@ -227,12 +252,12 @@ public abstract class Workspace extends TreeStructureSupport {
 		return result;
 	}
 
-	private int index(WriteSession wsession, Metadata meta) throws IOException {
+	private int index(WriteSession wsession, String logPath, Metadata meta) throws IOException {
 		long startTime = System.currentTimeMillis();
 		InputStream input = null;
 		int count;
 		try {
-			input = logContent.getGridBlob(meta).toInputStream();
+			input = logContent.gridBlob(logPath, meta).toInputStream();
 			count = storeData(input);
 		} finally {
 			IOUtil.closeQuietly(input);
@@ -242,7 +267,7 @@ public abstract class Workspace extends TreeStructureSupport {
 		return count;
 	}
 
-	protected abstract int storeData(InputStream input) throws IOException ;
+	protected abstract int storeData(InputStream input) throws IOException;
 
 	public void continueUnit(WriteSession wsession) throws IOException {
 		endTran(wsession);
@@ -281,16 +306,14 @@ public abstract class Workspace extends TreeStructureSupport {
 		cache.removeListener(listener);
 	}
 
-	public abstract Central central() ;
+	public abstract Central central();
 
-	public abstract WorkspaceConfig config()  ;
+	public abstract WorkspaceConfig config();
 
-
-	
 	public IExecutor executor() {
 		return repository.executor();
 	}
-	
+
 	public Engine parseEngine() {
 		return parseEngine;
 	}
@@ -347,11 +370,7 @@ public abstract class Workspace extends TreeStructureSupport {
 	public Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache() {
 		return cache;
 	}
-	@Deprecated
-	public Cache<String, Metadata> logmeta() {
-		return logMeta;
-	}
-	
+
 
 	public GridFilesystem gfs() {
 		return gfsBlob;
@@ -380,7 +399,7 @@ public abstract class Workspace extends TreeStructureSupport {
 			this.wsession = wsession;
 			this.rsession = rsession;
 			// this.metadata = Metadata.create(wsession.tranId());
-			GridBlob gridBlob = wspace.logContent.gridBlob(wsession.tranId());
+			GridBlob gridBlob = wspace.logContent.newGridBlob(wsession.tranId());
 			OutputStream output = wspace.logContent.getOutput(gridBlob, false);
 
 			Writer swriter = new BufferedWriter(new OutputStreamWriter(output, Charset.forName("UTF-8")));
@@ -430,36 +449,10 @@ public abstract class Workspace extends TreeStructureSupport {
 
 	}
 
-	@Listener
-	public static class SyncListener {
-
-		private Workspace wspace;
-
-		public SyncListener(Workspace wspace) {
-			this.wspace = wspace;
-
-		}
-
-		@CacheEntryModified
-		public void modified(final CacheEntryModifiedEvent<String, Metadata> e) throws IOException {
-			if (e.isPre())
-				return;
-			if (e.isOriginLocal())
-				return;
-
-			GridBlob gridBlob = wspace.logContent.gridBlob(e.getKey());
-			InputStream input = gridBlob.toInputStream();
-			try {
-				wspace.storeData(input);
-			} finally {
-				IOUtil.closeQuietly(input);
-				Debug.line() ;
-			}
-		}
-
-	}
+	
 
 	private boolean trace = false;
+
 	void move(WriteSession wsession, Fqn nodeToMoveFqn, Fqn newParentFqn) throws NodeNotExistsException {
 		if (trace)
 			log.tracef("Moving node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
@@ -520,5 +513,9 @@ public abstract class Workspace extends TreeStructureSupport {
 		}
 		log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
 	}
+
+
+
+
 
 }
