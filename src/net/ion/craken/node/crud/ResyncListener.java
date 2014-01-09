@@ -3,16 +3,23 @@ package net.ion.craken.node.crud;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.TranLogManager;
+import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.WriteSession;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
 
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStarted;
+import org.infinispan.notifications.cachemanagerlistener.annotation.ViewChanged;
 import org.infinispan.notifications.cachemanagerlistener.event.CacheStartedEvent;
+import org.infinispan.notifications.cachemanagerlistener.event.ViewChangedEvent;
 import org.infinispan.remoting.transport.Address;
 
 @Listener
@@ -24,6 +31,32 @@ public class ResyncListener {
 		this.r = r;
 	}
 
+	@ViewChanged
+	public void viewChanged(ViewChangedEvent event) throws Exception{
+		final List<String> newAddressNames = ListUtil.newList() ;
+		for(Address newAddress : event.getNewMembers()){
+			newAddressNames.add(newAddress.toString()) ;
+		}
+		
+		for (String wname : r.workspaceNames()){
+			ReadSession session = r.login(wname);
+			session.tranSync(new TransactionJob<Void>(){
+				@Override
+				public Void handle(WriteSession wsession) throws Exception {
+					wsession.iwconfig().inmemory(true) ;
+					
+					Set<String> childNames = wsession.pathBy("/__servers").childrenNames();
+					for(String childName : childNames){
+						if (newAddressNames.contains(childName)) wsession.pathBy("/__servers/" + childName).property("repoid", r.repoId()) ;
+						else wsession.pathBy("/__servers/" + childName).removeSelf() ;
+					}
+					return null;
+				}
+			}) ;
+		}
+		
+	}
+	
 	@CacheStarted
 	public void onStartedCache(final CacheStartedEvent event) throws IOException {
 		if (!event.getCacheName().endsWith(".logmeta"))
@@ -38,13 +71,26 @@ public class ResyncListener {
 
 					final EmbeddedCacheManager cm = event.getCacheManager();
 					final List<Address> members = cm.getMembers();
+					
+					ReadSession session = r.login(wname);
+					session.tranSync(new TransactionJob<Void>() {
+						@Override
+						public Void handle(WriteSession wsession) throws Exception {
+							wsession.iwconfig().inmemory(true) ;
+							
+							wsession.pathBy("/__servers/" + r.addressId()).property("repoid", r.repoId()) ;
+							return null;
+						}
+					}) ;
+					
 					if (members.size() <= 1)
 						return null;
 					
-					ReadSession session = r.login(wname);
 					Workspace wspace = session.workspace();
 					
-					wspace.tranLogManager().resync() ;
+					
+					int applied = wspace.tranLogManager().resync() ;
+					r.putAttribute(TranLogManager.class.getSimpleName() + "." + wspace.wsName(), applied) ;
 					
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -53,7 +99,7 @@ public class ResyncListener {
 					r.release() ;
 				}
 				
-				r.logger().info("applied log in workspae[" + wname + "]") ;
+				r.logger().info("applied log in workspace[" + wname + "]") ;
 				return null;
 			}
 		});

@@ -13,7 +13,7 @@ public class TestDistDefault extends TestCase {
 	
 	public void testLoadInCache() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
-		r.defineConfig("test.node", TestConfig.createFastLocalCacheStore(5));
+		r.dm().defineConfiguration("test.node", TestConfig.createFastLocalCacheStore(5));
 
 		ReadSession session = r.login("test");
 		session.tranSync(TransactionJobs.dummy("/bleujin", 10));

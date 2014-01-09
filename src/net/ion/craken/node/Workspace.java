@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -44,6 +45,7 @@ import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
@@ -90,7 +92,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".blob"));
 		this.logContent = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".log"));
-		this.logManager = TranLogManager.create(this, cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta"), repository().selfName());
+		this.logManager = TranLogManager.create(this, cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta"), repository().repoId());
 
 		this.wsName = wsName;
 		this.batchContainer = cache.getBatchContainer();
@@ -218,8 +220,12 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	private void endTran(WriteSession wsession) throws IOException {
 		wsession.endCommit();
 		batchContainer.endBatch(true, true);
+		
+		if (wsession.iwconfig().isInmemory()) return ;
+		
+		
 		Metadata metadata = logContent.newGridBlob(wsession.tranId()).getMetadata();
-		int count = index(wsession, wsession.tranId(), metadata);
+		int count = index(wsession.readSession(), wsession.tranId(), metadata);
 
 		logManager.endTran(wsession, metadata) ;
 	}
@@ -252,7 +258,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		return result;
 	}
 
-	private int index(WriteSession wsession, String logPath, Metadata meta) throws IOException {
+	private int index(ReadSession rsession, String logPath, Metadata meta) throws IOException {
 		long startTime = System.currentTimeMillis();
 		InputStream input = null;
 		int count;
@@ -260,10 +266,12 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			input = logContent.gridBlob(logPath, meta).toInputStream();
 			count = storeData(input);
 		} finally {
-			IOUtil.closeQuietly(input);
+			input.close() ;
+//			IOUtil.closeQuietly(input);
+			log.info(logPath + " writed") ;
 		}
 
-		wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(count, System.currentTimeMillis() - startTime));
+		rsession.attribute(TranResult.class.getCanonicalName(), TranResult.create(count, System.currentTimeMillis() - startTime));
 		return count;
 	}
 
@@ -512,6 +520,17 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			}
 		}
 		log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
+	}
+
+	public List<String> memberNames() {
+		final TreeNode serversNode = readNode(Fqn.fromString("/__servers"));
+
+		final Set<TreeNode> children = serversNode.getChildren();
+		List<String> result = ListUtil.newList();
+		for(TreeNode child : children){
+			result.add(child.get(PropertyId.normal("repoid")).stringValue()) ;
+		}
+		return result;
 	}
 
 

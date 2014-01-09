@@ -22,7 +22,7 @@ public class TestLoader extends TestCase {
 		super.setUp();
 		repository = RepositoryImpl.create();
 //		repository.defineConfig("test", createFastLocalCacheStore(9000, 100)) ;
-		repository.defineConfig("test.node", createFastLocalCacheStore(100)) ;
+		repository.dm().defineConfiguration("test.node", createFastLocalCacheStore(100)) ;
 		repository.start() ;
 	}
 	

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -14,10 +15,10 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import net.ion.craken.io.GridBlob;
+import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.Metadata;
 import net.ion.framework.logging.LogBroker;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -33,12 +34,12 @@ public class TranLogManager {
 
 	private Workspace workspace;
 	private Cache<String, Metadata> logMeta;
-	private String repoName;
+	private String repoId;
 
 	private TranLogManager(Workspace workspace, Cache<String, Metadata> logMeta, String repoName) {
 		this.workspace = workspace;
 		this.logMeta = logMeta;
-		this.repoName = repoName;
+		this.repoId = repoName;
 	}
 
 	public static TranLogManager create(Workspace workspace, Cache<String, Metadata> logMeta, String repoName) {
@@ -53,25 +54,31 @@ public class TranLogManager {
 	public void endTran(WriteSession wsession, Metadata metadata) throws IOException {
 		logMeta.put(wsession.tranId(), metadata);
 
-		final String tranPath = selfTranPath();
-		final Metadata newMeta = Metadata.create(tranPath);
+		writeTransaction(wsession.tranId());
+	}
+
+	private void writeTransaction(String appliedTranId) throws IOException {
+		final String historyTranPath = historyTranPath();
+		final Metadata newMeta = Metadata.create(historyTranPath);
 		synchronized (this) {
-			Metadata transMeta = ObjectUtil.coalesce(logMeta.putIfAbsent(tranPath, newMeta), newMeta);
-			GridOutputStream output = workspace.logContent().gridBlob(tranPath, transMeta).outputStream(true);
+			Metadata transMeta = ObjectUtil.coalesce(logMeta.putIfAbsent(historyTranPath, newMeta), newMeta);
+			GridOutputStream output = workspace.logContent().gridBlob(historyTranPath, transMeta).outputStream(true);
+			Writer writer = null ; 
 			try {
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
-				writer.write(wsession.tranId() + SystemUtils.LINE_SEPARATOR);
-				writer.close();
+				writer = new BufferedWriter(new OutputStreamWriter(output));
+				writer.write(appliedTranId + SystemUtils.LINE_SEPARATOR);
+				writer.flush() ;
 			} finally {
-				logMeta.put(tranPath, output.metadata());
-				IOUtil.close(output);
+				logMeta.put(historyTranPath, output.metadata());
+				IOUtil.closeQuietly(writer) ;
+				IOUtil.closeQuietly(output);
 			}
 		}
 	}
 
 	public String[] readAll() throws IOException {
-		List<String> result = ListUtil.newList();
-		final BufferedReader reader = readSelfHistory();
+		List<String> result = ListUtil.newList() ;
+		final BufferedReader reader = readSelfHistory() ;
 		try {
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -81,21 +88,22 @@ public class TranLogManager {
 			IOUtil.closeQuietly(reader);
 		}
 
-		return result.toArray(new String[0]);
+		return result.toArray(new String[0]) ;
 	}
 
 	public int resync() throws IOException {
 		String[] aboveTrans = aboveHistory();
 
-		for (String tran : aboveTrans) {
-			Metadata meta = logMeta.get(tran);
+		for (String tranId : aboveTrans) {
+			Metadata findMeta = logMeta.get(tranId);
 			InputStream input = null ;
 			try {
-				input = workspace.logContent().gridBlob(tran, meta).toInputStream();
+				input = workspace.logContent().gridBlob(tranId, findMeta).toInputStream();
 				workspace.storeData(input);
 			} finally {
-				IOUtil.close(input);
-				workspace.repository().logger().info(tran + " applied") ;
+				IOUtil.closeQuietly(input);
+				writeTransaction(tranId) ;
+				workspace.repository().logger().info(tranId + " applied") ;
 			}
 		}
 
@@ -103,7 +111,7 @@ public class TranLogManager {
 	}
 
 	private String[] aboveHistory() throws IOException {
-
+		
 		String lastTran = lastTran();
 		if (StringUtil.isBlank(lastTran))
 			return otherHistory();
@@ -118,22 +126,21 @@ public class TranLogManager {
 	}
 
 	private String[] otherHistory() throws IOException {
-		final Repository repository = workspace.repository();
-		List<String> members = repository.memberNames();
+		List<String> members = workspace.memberNames();
 
 		if (members.size() <= 1)
 			return new String[0];
 
 		for (String member : members) {
-			if (member.equals(repoName))
+			if (member.equals(repoId))
 				continue;
 			return create(workspace, logMeta, member).readAll();
 		}
 		return new String[0];
 	}
 
-	public String selfTranPath() {
-		return "/transactions/" + repoName + "/" + workspace.wsName();
+	public String historyTranPath() {
+		return "/__transactions/" + repoId ;
 	}
 
 	public String lastTran() throws IOException {
@@ -155,11 +162,13 @@ public class TranLogManager {
 	private static BufferedReader EmptyReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(new byte[0])));
 
 	private BufferedReader readSelfHistory() throws IOException {
-		Metadata transMeta = logMeta.get(selfTranPath());
+		Metadata transMeta = logMeta.get(historyTranPath());
 		if (transMeta == null)
 			return EmptyReader;
 
-		return new BufferedReader(new InputStreamReader(workspace.logContent().gridBlob(selfTranPath(), transMeta).toInputStream()));
+
+		transMeta.path(historyTranPath()) ;
+		return new BufferedReader(new InputStreamReader(workspace.logContent().gridBlob(historyTranPath(), transMeta).toInputStream()));
 	}
 
 	@Listener
@@ -201,6 +210,16 @@ public class TranLogManager {
 			}); // async
 		}
 
+	}
+
+	@Deprecated
+	public Cache<String, Metadata> logmeta() {
+		return this.logMeta ;
+	}
+
+	@Deprecated
+	public GridFilesystem logContent(){
+		return workspace.logContent() ;
 	}
 
 }

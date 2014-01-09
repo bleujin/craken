@@ -8,6 +8,7 @@ import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.schedule.IExecutor;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.infinispan.remoting.transport.Address;
 
 public interface Repository {
 
@@ -27,9 +28,11 @@ public interface Repository {
 	
 	public Repository putAttribute(String key, Object value) ;
 	
-	public String selfName() ;
+	public String addressId() ;
+	
+	public String repoId() ;
 
-	public List<String> memberNames();
+	public List<Address> memberAddress();
 	
 	public Logger logger() ;
 

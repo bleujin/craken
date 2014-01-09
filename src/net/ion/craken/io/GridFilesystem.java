@@ -39,6 +39,11 @@ public class GridFilesystem {
 	private boolean isNotValid(Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> metaCache) {
 		return metaCache.getCacheConfiguration().clustering().cacheMode().isClustered() && !metaCache.getCacheConfiguration().clustering().cacheMode().isSynchronous();
 	}
+	
+	public Cache<String, byte[]> cacheData() {
+		return data ;
+	}
+
 
 	public GridBlob gridBlob(String pathname, Metadata metadata) {
 		return new GridBlob(pathname, metadata, this);
@@ -73,14 +78,6 @@ public class GridFilesystem {
 		return new WritableGridFileChannel(gblob, data, append);
 	}
 
-	/**
-	 * Removes the file denoted by absolutePath. This operation can either be executed synchronously or asynchronously.
-	 * 
-	 * @param absolutePath
-	 *            the absolute path of the file to remove
-	 * @param synchronous
-	 *            if true, the method will return only after the file has actually been removed; if false, the method will return immediately and the file will be removed asynchronously.
-	 */
 	void remove(String absolutePath, Metadata md, boolean synchronous) {
 		if (absolutePath == null)
 			return;
@@ -95,6 +92,7 @@ public class GridFilesystem {
 
 		// removeMeta
 	}
+
 
 
 }

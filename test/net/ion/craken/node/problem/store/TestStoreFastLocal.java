@@ -32,7 +32,7 @@ public class TestStoreFastLocal extends TestCase {
 	
 	
 	public void testLuceneDirStore() throws Exception {
-		r.defineConfig("test.node", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
+		r.dm().defineConfiguration("test.node", new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.loaders().addLoader()
 					.cacheLoader(new LuceneCacheLoader())
 					.addProperty(LuceneCacheLoaderConfig.LOCATION_OPTION, "./resource/lucene")
@@ -48,7 +48,7 @@ public class TestStoreFastLocal extends TestCase {
 
 	// 454 sec per 100k -> oom 
 	public void testAddNode() throws Exception {
-		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
+		r.dm().defineConfiguration("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.sync().replTimeout(20000)
 //				.eviction().maxEntries(10000)
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location","./resource/local")
@@ -60,7 +60,7 @@ public class TestStoreFastLocal extends TestCase {
 	}
 	
 	public void testReadNode() throws Exception {
-		r.defineConfig("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
+		r.dm().defineConfiguration("test.node",  new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).invocationBatching().enable().clustering()
 				.sync().replTimeout(20000)
 				.eviction().maxEntries(10000)
 				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FastFileCacheStore()).addProperty("location","./resource/local")

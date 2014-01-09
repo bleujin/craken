@@ -34,17 +34,17 @@ public class TestStoreInfinispanDir extends TestCase {
 //		r.defineConfig("test.chunks", TestConfig.createOldSearchCacheStore(10));
 //		r.defineConfig("test.locks", TestConfig.createOldSearchCacheStore(1000));
 		String wsname = "test" ;
-		r.defineConfig(wsname + ".node", 
+		r.dm().defineConfiguration(wsname + ".node", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC)
 				.clustering().eviction().maxEntries(10000).invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
 				.cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-		r.defineConfig(wsname + ".meta", 
+		r.dm().defineConfiguration(wsname + ".meta", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).addCacheLoader()
 				.cacheLoader(new FastFileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-		r.defineConfig(wsname + ".chunks", 
+		r.dm().defineConfiguration(wsname + ".chunks", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().eviction().maxEntries(10).invocationBatching().enable().loaders().preload(true).shared(false).passivation(
 				false).addCacheLoader().cacheLoader(new FileCacheStore()).addProperty("location", "./resource/workspace").purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-		r.defineConfig(wsname + ".locks", 
+		r.dm().defineConfiguration(wsname + ".locks", 
 				new ConfigurationBuilder().clustering().cacheMode(CacheMode.REPL_SYNC).clustering().invocationBatching().clustering().invocationBatching().enable().loaders().preload(true).shared(false).passivation(false).build());
 
 		

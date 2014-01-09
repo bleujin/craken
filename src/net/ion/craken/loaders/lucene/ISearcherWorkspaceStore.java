@@ -166,6 +166,7 @@ public class ISearcherWorkspaceStore extends WorkspaceStore {
 			if (readObject != null && readObject.isExpired(System.currentTimeMillis())) {
 				return null;
 			}
+			
 			return readObject;
 		} catch (IOException e) {
 			throw new CacheLoaderException(e);

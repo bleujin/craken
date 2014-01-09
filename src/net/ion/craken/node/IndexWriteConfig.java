@@ -66,6 +66,7 @@ public class IndexWriteConfig implements Serializable{
 	private Map<String, FieldIndex> fieldIndexes = MapUtil.newMap() ;
 	private boolean ignoreBody;  
 	private boolean ignoreIndex ;
+	private boolean inmemory;
 	
 	public final static IndexWriteConfig Default = new IndexWriteConfig() ;
 	
@@ -173,6 +174,16 @@ public class IndexWriteConfig implements Serializable{
 		result.ignoreBody = json.asBoolean("ignoreBody") ;
 		result.ignoreIndex = json.asBoolean("ignoreIndex") ;
 		return result ;
+	}
+
+	
+	public IndexWriteConfig inmemory(boolean inmemory) {
+		this.inmemory = inmemory ;
+		return this ;
+	}
+	
+	public boolean isInmemory(){
+		return inmemory ;
 	}
 
 

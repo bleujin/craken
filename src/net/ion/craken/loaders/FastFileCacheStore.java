@@ -502,24 +502,30 @@ public class FastFileCacheStore extends AbstractCacheStore {
 			return (diff != 0) ? diff : offset > fe.offset ? 1 : -1;
 		}
 	}
-	
+
+	public static Configuration fastStoreConfig(CacheMode mode, String location, int maxEntry, int owner) {
+		return new ConfigurationBuilder().clustering().cacheMode(mode).clustering().invocationBatching().enable()
+		.clustering().hash().numOwners(owner).unsafe()
+		.eviction().maxEntries(maxEntry)
+		.loaders().preload(true).shared(false).passivation(false)
+		.addCacheLoader().cacheLoader(new FastFileCacheStore()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).addProperty("location", location)
+		.build();
+	}
 	
 	public static Configuration fastStoreConfig(CacheMode mode, String location, int maxEntry) {
-		return new ConfigurationBuilder().clustering().cacheMode(mode).clustering().invocationBatching().enable()
-			.clustering().hash().numOwners(1).unsafe()
-			.eviction().maxEntries(maxEntry)
-			.loaders().preload(true).shared(false).passivation(false)
-			.addCacheLoader().cacheLoader(new FastFileCacheStore()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).addProperty("location", location)
-			.build();
+		return fastStoreConfig(mode, location, maxEntry, 1) ;
 	}
 	 
-	public static Configuration fileStoreConfig(CacheMode mode, String location, int maxEntry){
+	public static Configuration fileStoreConfig(CacheMode mode, String location, int maxEntry, int owners){
 		return new ConfigurationBuilder().clustering().cacheMode(mode).clustering().invocationBatching().enable()
-			.clustering().hash().numOwners(1).unsafe()
-			.eviction().maxEntries(maxEntry).strategy(EvictionStrategy.LIRS)
-			.loaders().preload(true).shared(false).passivation(false)
-			.addCacheLoader().cacheLoader(new FileCacheStore()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).addProperty("location", location)
-			.build() ;
+		.clustering().hash().numOwners(owners).unsafe()
+		.eviction().maxEntries(maxEntry).strategy(EvictionStrategy.LIRS)
+		.loaders().preload(true).shared(false).passivation(false)
+		.addCacheLoader().cacheLoader(new FileCacheStore()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).addProperty("location", location)
+		.build() ;
+	}
+	public static Configuration fileStoreConfig(CacheMode mode, String location, int maxEntry){
+		return fileStoreConfig(mode, location, maxEntry, 1) ;
 	}
 	 
 }

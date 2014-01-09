@@ -115,6 +115,7 @@ public class Metadata implements Externalizable {
 		out.writeLong(modificationTime);
 		out.writeInt(chunkSize);
 		out.writeByte(flags);
+		out.writeUTF(path) ;
 	}
 
 	@Override
@@ -123,6 +124,7 @@ public class Metadata implements Externalizable {
 		modificationTime = in.readLong();
 		chunkSize = in.readInt();
 		flags = in.readByte();
+		path = in.readUTF() ;
 	}
 
 	public String path() {
