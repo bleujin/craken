@@ -522,16 +522,6 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
 	}
 
-	public List<String> memberNames() {
-		final TreeNode serversNode = readNode(Fqn.fromString("/__servers"));
-
-		final Set<TreeNode> children = serversNode.getChildren();
-		List<String> result = ListUtil.newList();
-		for(TreeNode child : children){
-			result.add(child.get(PropertyId.normal("repoid")).stringValue()) ;
-		}
-		return result;
-	}
 
 
 

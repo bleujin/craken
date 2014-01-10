@@ -3,12 +3,16 @@ package net.ion.craken.node;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,17 +22,27 @@ import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.Metadata;
+import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.TreeNode;
 import net.ion.framework.logging.LogBroker;
+import net.ion.framework.parse.gson.JsonArray;
+import net.ion.framework.parse.gson.JsonElement;
+import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
+import net.ion.radon.core.config.WSPathConfiguration;
 
 import org.apache.commons.lang.SystemUtils;
 import org.infinispan.Cache;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.remoting.transport.Address;
 
 public class TranLogManager {
 
@@ -92,8 +106,12 @@ public class TranLogManager {
 	}
 
 	public int resync() throws IOException {
+		
+		
+		
+		
+		
 		String[] aboveTrans = aboveHistory();
-
 		for (String tranId : aboveTrans) {
 			Metadata findMeta = logMeta.get(tranId);
 			InputStream input = null ;
@@ -107,7 +125,7 @@ public class TranLogManager {
 			}
 		}
 
-		return aboveTrans.length;
+		return aboveTrans.length; 
 	}
 
 	private String[] aboveHistory() throws IOException {
@@ -126,7 +144,7 @@ public class TranLogManager {
 	}
 
 	private String[] otherHistory() throws IOException {
-		List<String> members = workspace.memberNames();
+		List<String> members = memberNames();
 
 		if (members.size() <= 1)
 			return new String[0];
@@ -220,6 +238,67 @@ public class TranLogManager {
 	@Deprecated
 	public GridFilesystem logContent(){
 		return workspace.logContent() ;
+	}
+	
+	public List<String> memberNames() throws IOException {
+		Metadata meta = logmeta().get(SERVERS_PATH);
+		if (meta == null){
+			meta = Metadata.create(SERVERS_PATH);
+			logmeta().put(SERVERS_PATH, meta) ;
+		}
+		
+		InputStream input = logContent().gridBlob(SERVERS_PATH, meta).toInputStream();
+		String members = IOUtil.toStringWithClose(input) ;
+		if (StringUtil.isBlank(members)) members = "{}" ;
+		JsonObject json = JsonObject.fromString(members) ;
+		
+		List<String> result = ListUtil.newList();
+		for(Entry<String, JsonElement> entry : json.entrySet()){
+			result.add(entry.getValue().getAsString()) ;
+		}
+		
+		return result;
+	}
+
+	public final static String SERVERS_PATH = "/__servers";
+	public TranLogManager registerMember(String addressId, String repoId) throws IOException {
+		Metadata meta = logmeta().get(SERVERS_PATH);
+		if (meta == null){
+			meta = Metadata.create(SERVERS_PATH);
+			logmeta().put(SERVERS_PATH, meta) ;
+		}
+		
+		InputStream input = logContent().gridBlob(SERVERS_PATH, meta).toInputStream();
+		String members = IOUtil.toStringWithClose(input) ;
+		if (StringUtil.isBlank(members)) members = "{}" ;
+		JsonObject json = JsonObject.fromString(members) ;
+		
+		String jsonString = json.put(addressId, repoId).toString() ;
+		ByteArrayInputStream binput = new ByteArrayInputStream(jsonString.getBytes("UTF-8"));
+		GridOutputStream output = logContent().gridBlob(SERVERS_PATH, meta).outputStream();
+		IOUtil.copyNClose(binput, output) ;
+		return this ;
+	}
+
+	public void removeMember(List<Address> removed) throws IOException {
+		Metadata meta = logmeta().get(SERVERS_PATH);
+		if (meta == null){
+			meta = Metadata.create(SERVERS_PATH);
+			logmeta().put(SERVERS_PATH, meta) ;
+		}
+		
+		InputStream input = logContent().gridBlob(SERVERS_PATH, meta).toInputStream();
+		String members = IOUtil.toStringWithClose(input) ;
+		if (StringUtil.isBlank(members)) members = "{}" ;
+		JsonObject json = JsonObject.fromString(members) ;
+		
+		for (Address rem : removed) {
+			json.remove(rem.toString()) ;
+		}
+		
+		ByteArrayInputStream binput = new ByteArrayInputStream(json.toString().getBytes("UTF-8"));
+		GridOutputStream output = logContent().gridBlob(SERVERS_PATH, meta).outputStream();
+		IOUtil.copyNClose(binput, output) ;
 	}
 
 }

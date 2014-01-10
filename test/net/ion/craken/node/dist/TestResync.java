@@ -45,7 +45,7 @@ public class TestResync extends TestCase{
 	
 	public void testResyncWhenEmpty() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/temp/c2")) ;
-		final RepositoryImpl r = RepositoryImpl.create("dopple");
+		final RepositoryImpl r = RepositoryImpl.create("hm");
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/c2")) ;
 		
 		r.start() ;
@@ -57,7 +57,7 @@ public class TestResync extends TestCase{
 	}
 
 	public void testResyncWhenBeforeData() throws Exception {
-		final RepositoryImpl r = RepositoryImpl.create("dopple");
+		final RepositoryImpl r = RepositoryImpl.create("hm");
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/c2")) ;
 		
 		r.start() ;

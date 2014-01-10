@@ -17,7 +17,7 @@ public class TestSessionConfig extends TestBaseCrud{
 		String tranId1 = session.tranSync(new TransactionJob<String>() {
 			@Override
 			public String handle(WriteSession wsession) throws Exception {
-				wsession.fieldIndexConfig().num("age") ;
+				wsession.iwconfig().num("age") ;
 				
 				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
 				wsession.pathBy("/hero").property("name", "hero").property("age", 20) ;
@@ -27,7 +27,7 @@ public class TestSessionConfig extends TestBaseCrud{
 		String tranId2 = session.tranSync(new TransactionJob<String>() {
 			@Override
 			public String handle(WriteSession wsession) throws Exception {
-				wsession.fieldIndexConfig().num("age") ;
+				wsession.iwconfig().num("age") ;
 				
 				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
 				return wsession.tranId();
@@ -44,7 +44,7 @@ public class TestSessionConfig extends TestBaseCrud{
 		String tranId1 = session.tranSync(new TransactionJob<String>() {
 			@Override
 			public String handle(WriteSession wsession) throws Exception {
-				wsession.fieldIndexConfig().num("age").keyword("name").ignoreBodyField() ;
+				wsession.iwconfig().num("age").keyword("name").ignoreBodyField() ;
 				
 				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
 				wsession.pathBy("/hero").property("name", "hero").property("age", 20) ;
@@ -70,7 +70,7 @@ public class TestSessionConfig extends TestBaseCrud{
 		String tranId1 = session.tranSync(new TransactionJob<String>() {
 			@Override
 			public String handle(WriteSession wsession) throws Exception {
-				wsession.fieldIndexConfig().num("age").keyword("name").ignoreBodyField() ;
+				wsession.iwconfig().num("age").keyword("name").ignoreBodyField() ;
 				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
 				wsession.pathBy("/hero").property("name", "hero").property("age", 20) ;
 				return wsession.tranId();

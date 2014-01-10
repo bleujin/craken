@@ -40,8 +40,6 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public void continueUnit() throws IOException;
 
-	public IndexWriteConfig fieldIndexConfig() ;
-	
 //	public WriteSession ignoreIndex(String... fields);
 //
 //	public PropertyId idInfoTo(PropertyId pid) ;
@@ -52,7 +50,7 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public void prepareCommit() throws IOException;
 
-	public WriteSession fieldIndexConfig(IndexWriteConfig wconfig);
+	public WriteSession iwconfig(IndexWriteConfig wconfig);
 
 	public IndexWriteConfig iwconfig();
 

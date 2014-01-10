@@ -103,7 +103,7 @@ public class TestWriteSession extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.fieldIndexConfig().ignore("name") ;
+				wsession.iwconfig().ignore("name") ;
 				wsession.pathBy("/index/2").property("index", 2).property("name", "hero") ;
 				return null;
 			}

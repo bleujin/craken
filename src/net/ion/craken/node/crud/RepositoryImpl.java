@@ -60,12 +60,12 @@ public class RepositoryImpl implements Repository {
 	private Map<String, Object> attrs = MapUtil.newMap();
 	private Logger log = LogBroker.getLogger(Repository.class);
 	private String repoId;
-	
+	private ResyncListener rsyncListener;
 
 	private RepositoryImpl(DefaultCacheManager dm, String repoId) {
 		this.dm = dm;
-		this.executor = new IExecutor(0, 3);
 		this.repoId = repoId ;
+		this.executor = new IExecutor(0, 3);
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser());
 	}
 
@@ -87,13 +87,19 @@ public class RepositoryImpl implements Repository {
 		Configuration config = new ConfigurationBuilder().locking().lockAcquisitionTimeout(20000).concurrencyLevel(5000).useLockStriping(false).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build(); // not indexable : indexing().enable().
 		final RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(gconfig, config), repoId);
 
-		result.dm.addListener(new ResyncListener(result)) ;
+		result.resyncListener(new ResyncListener(result)) ;
 		return result;
 	}
 
 	
+	private void resyncListener(ResyncListener resyncListener) {
+		this.rsyncListener = resyncListener ;
+		dm.addListener(resyncListener) ;
+	}
+
 	public static RepositoryImpl inmemoryCreateWithTest() throws CorruptIndexException, IOException {
 		RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(), "emanon");
+		result.resyncListener(new ResyncListener(result)) ;
 		return result.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().location(""));
 	}
 
@@ -154,7 +160,12 @@ public class RepositoryImpl implements Repository {
 			}
 		}) ;
 		
+		if (dm.getAddress() == null) {
+			rsyncListener.inmomory() ;
+		} 
+		
 		latch.await() ;
+		
 		log.info(repoId() +" started") ;
 		return this;
 	}
@@ -172,6 +183,8 @@ public class RepositoryImpl implements Repository {
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
 		executor.shutdown();
 		dm.stop();
+		
+		log.info(repoId() +" shutdowned") ;
 		return this;
 	}
 

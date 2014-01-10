@@ -160,11 +160,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 		workspace().continueUnit(this);
 	}
 
-	public IndexWriteConfig fieldIndexConfig() {
-		return iwconfig;
-	}
-
-	public WriteSession fieldIndexConfig(IndexWriteConfig iwconfig) {
+	public WriteSession iwconfig(IndexWriteConfig iwconfig) {
 		this.iwconfig = iwconfig;
 		return this;
 	}

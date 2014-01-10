@@ -52,7 +52,7 @@ public class TestStoreSpeed extends TestCase {
 
 				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv");
 				int max = 100000;
-				wsession.fieldIndexConfig().ignoreBodyField() ;
+				wsession.iwconfig().ignoreBodyField() ;
 				try {
 					CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
 					reader.setFieldDelimiter('\t');

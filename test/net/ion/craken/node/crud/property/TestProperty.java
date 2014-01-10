@@ -106,7 +106,7 @@ public class TestProperty extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 
-				wsession.fieldIndexConfig(JsonObject.fromString(tranNode.property("config").stringValue()).getAsObject(IndexWriteConfig.class)) ;
+				wsession.iwconfig(JsonObject.fromString(tranNode.property("config").stringValue()).getAsObject(IndexWriteConfig.class)) ;
 				
 				for (ReadNode found : tranNode.children().ascending("id")) {
 					if (Touch.MODIFY.toString().equals(found.property("touch").stringValue())){
