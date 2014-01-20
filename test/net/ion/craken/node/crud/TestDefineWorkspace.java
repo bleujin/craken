@@ -7,6 +7,8 @@ import net.ion.craken.node.ReadSession;
 public class TestDefineWorkspace extends TestCase{
 
 
+	
+	
 	public void testDuplDefine() throws Exception {
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest(); // predefine
 		try {

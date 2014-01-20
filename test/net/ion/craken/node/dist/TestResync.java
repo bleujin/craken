@@ -2,6 +2,7 @@ package net.ion.craken.node.dist;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.SystemUtils;
@@ -17,6 +18,11 @@ import net.ion.craken.node.TranLogManager;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.parse.gson.Gson;
+import net.ion.framework.parse.gson.GsonBuilder;
+import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
@@ -43,6 +49,14 @@ public class TestResync extends TestCase{
 	}
 	
 	
+	public void testAwaitWhenTwoWorkspace() throws Exception {
+		final RepositoryImpl r = RepositoryImpl.create();
+		r.defineWorkspace("test1", ISearcherWorkspaceConfig.create().location("./resource/temp/c1")) ;
+		r.defineWorkspace("test2", ISearcherWorkspaceConfig.create().location("./resource/temp/c2")) ;
+		r.start() ;
+		r.shutdown() ;
+	}
+
 	public void testResyncWhenEmpty() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/temp/c2")) ;
 		final RepositoryImpl r = RepositoryImpl.create("hm");
@@ -67,8 +81,6 @@ public class TestResync extends TestCase{
 		assertEquals(new Integer(0), applied) ;
 	}
 
-	
-	
 	public void testView() throws Exception {
 		final RepositoryImpl r = RepositoryImpl.create();
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/c1")) ;
@@ -83,12 +95,7 @@ public class TestResync extends TestCase{
 			final GridBlob blob = tmanager.logContent().gridBlob(key, meta.get(key));
 			Debug.line(key, IOUtil.toStringWithClose(blob.toInputStream())) ;
 		}
-		
-		
 	}
-	
-	
-	
-	
+
 	
 }

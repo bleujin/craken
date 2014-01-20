@@ -283,11 +283,6 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 		return Arrays.asList(elements);
 	}
 
-	public boolean isSystem() {
-		return toString().startsWith("/__");
-	}
-
-	
 	@Override
 	public int compareTo(Fqn fqn) {
 		return FqnComparator.INSTANCE.compare(this, fqn);

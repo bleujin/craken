@@ -12,7 +12,7 @@ import org.infinispan.remoting.transport.Address;
 
 public interface Repository {
 
-	public RepositoryImpl start() throws IOException, InterruptedException ;
+	public RepositoryImpl start() throws IOException ;
 	
 	public RepositoryImpl shutdown()  ;
 

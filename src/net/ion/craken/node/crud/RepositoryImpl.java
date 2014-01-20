@@ -30,6 +30,7 @@ import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.ecs.xhtml.address;
@@ -70,17 +71,23 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public static RepositoryImpl create() {
-		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
+		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport()
+			.clusterName("craken").nodeName("emanon")
+			.addProperty("configurationFile", "./resource/config/jgroups-udp.xml")
+			.build();
 		return create(gconfig);
 	}
 	
 	public static RepositoryImpl create(String repoId) {
-		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
+		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder()
+			.transport().clusterName("craken").nodeName(repoId)
+				.addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
 		return create(gconfig, repoId);
 	}
 
 	public static RepositoryImpl create(GlobalConfiguration gconfig) {
-		return create(gconfig, "emanon");
+		if (StringUtil.isBlank(gconfig.transport().nodeName())) throw new IllegalArgumentException("not defined repoId : transport nodename") ;
+		return create(gconfig, gconfig.transport().nodeName());
 	}
 
 	public static RepositoryImpl create(GlobalConfiguration gconfig, String repoId) {
@@ -141,16 +148,28 @@ public class RepositoryImpl implements Repository {
 	}
 
 	private CountDownLatch latch ;
-	public RepositoryImpl start() throws InterruptedException {
+	private boolean started;
+	public synchronized RepositoryImpl start() {
+		if (this.started) return this;
+		
 		dm.start();
-		
 		latch = new CountDownLatch(configs.size()) ;
-		
 		try {
-			for (String wsName : configs.keySet()) {
-				login(wsName);
+			for (final String wsName : configs.keySet()) {
+				final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
+					public Workspace call() throws Exception {
+						final Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName);
+						if (!cache.getCacheConfiguration().invocationBatching().enabled())
+							throw new ConfigurationException("Invocation batching not enabled in current configuration! Please enable it.");
+						final Workspace created = configs.get(wsName).createWorkspace(RepositoryImpl.this, cache, wsName).start() ;
+
+						return created;
+					}
+				});
 			}
-		} catch (IOException ex) {
+			log.info(repoId() +" maked workspace") ;
+			this.started = true ;
+		} catch (ExecutionException ex) {
 			throw new IllegalStateException(ex.getMessage());
 		}
 		
@@ -164,8 +183,11 @@ public class RepositoryImpl implements Repository {
 			rsyncListener.inmomory() ;
 		} 
 		
-		latch.await() ;
-		
+		try {
+			latch.await() ;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		log.info(repoId() +" started") ;
 		return this;
 	}
@@ -177,6 +199,8 @@ public class RepositoryImpl implements Repository {
 	
 
 	public RepositoryImpl shutdown() {
+		if (!started) return this ;
+		
 		for (Workspace ws : workspaceCache.asMap().values()) {
 			ws.close();
 		}
@@ -185,6 +209,7 @@ public class RepositoryImpl implements Repository {
 		dm.stop();
 		
 		log.info(repoId() +" shutdowned") ;
+		this.started = false ;
 		return this;
 	}
 
@@ -194,6 +219,16 @@ public class RepositoryImpl implements Repository {
 	
 	public Logger logger(){
 		return log ;
+	}
+	
+	Workspace findWorkspace(String wsName) throws ExecutionException{
+		final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
+			public Workspace call() throws Exception {
+				return null ;
+			}
+		});
+		if (found == null) throw new IllegalArgumentException("not found workspace") ;
+		return found ;
 	}
 
 	public ReadSession login(String wsname) throws IOException {
@@ -206,18 +241,9 @@ public class RepositoryImpl implements Repository {
 
 	public ReadSessionImpl login(Credential credential, final String wsName, Analyzer queryAnalyzer) throws IOException {
 		try {
+			if (! this.started) this.start() ;
 
-			final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
-				public Workspace call() throws Exception {
-					final Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName);
-					if (!cache.getCacheConfiguration().invocationBatching().enabled())
-						throw new ConfigurationException("Invocation batching not enabled in current configuration! Please enable it.");
-					final Workspace created = configs.get(wsName).createWorkspace(RepositoryImpl.this, cache, wsName).start() ;
-
-					return created;
-				}
-			});
-
+			final Workspace found = findWorkspace(wsName) ;
 			return new ReadSessionImpl(credential, found, ObjectUtil.coalesce(queryAnalyzer, found.central().searchConfig().queryAnalyzer()));
 		} catch (ExecutionException ex) {
 			throw new IOException(ex);

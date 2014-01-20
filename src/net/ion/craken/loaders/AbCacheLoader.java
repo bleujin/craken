@@ -1,4 +1,4 @@
-package net.ion.craken.loaders.lucene;
+package net.ion.craken.loaders;
 
 import org.infinispan.Cache;
 import org.infinispan.loaders.CacheLoader;

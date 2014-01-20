@@ -1,4 +1,4 @@
-package net.ion.craken.loaders.lucene;
+package net.ion.craken.loaders;
 
 import java.io.InputStream;
 import java.io.OutputStream;

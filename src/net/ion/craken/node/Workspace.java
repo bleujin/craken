@@ -160,7 +160,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn), Touch.MODIFY);
 		}
 
-		if (parent.isRoot() || parent.isSystem())
+		if (parent.isRoot())
 			return;
 		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}

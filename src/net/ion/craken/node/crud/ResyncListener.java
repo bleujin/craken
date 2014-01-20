@@ -71,8 +71,8 @@ public class ResyncListener {
 			public Void call() throws Exception {
 				for (String wname : r.workspaceNames()) {
 					try {
-						ReadSession session = r.login(wname);
-						session.workspace().tranLogManager().registerMember("inmemory", r.repoId());
+						Workspace wspace = r.findWorkspace(wname);
+						wspace.tranLogManager().registerMember("inmemory", r.repoId());
 					} finally {
 						r.release();
 					}
@@ -97,8 +97,9 @@ public class ResyncListener {
 
 					final EmbeddedCacheManager cm = event.getCacheManager();
 					final List<Address> members = cm.getMembers();
+					
 
-					ReadSession session = r.login(wname);
+					Workspace wspace = r.findWorkspace(wname);
 					// session.tranSync(new TransactionJob<Void>() {
 					// @Override
 					// public Void handle(WriteSession wsession) throws Exception {
@@ -109,10 +110,9 @@ public class ResyncListener {
 					// }
 					// }) ;
 
-					Workspace wspace = session.workspace();
 					wspace.tranLogManager().registerMember(r.addressId(), r.repoId());
 
-					if (members.size() <= 1)
+					if (members == null || members.size() <= 1)
 						return null;
 
 					int applied = wspace.tranLogManager().resync();

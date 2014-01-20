@@ -122,7 +122,7 @@ public class TestHelloWord extends TestCase {
 		@CacheEntryModified
 		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){
 			if (e.isPre()) return ;
-			if (e.getKey().getType() == Type.DATA && (!e.getKey().getFqn().isSystem()))  {
+			if (e.getKey().getType() == Type.DATA)  {
 				counter.incrementAndGet() ;
 			}
 		}

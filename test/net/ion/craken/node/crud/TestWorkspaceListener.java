@@ -15,7 +15,7 @@ import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 
-public class TestListener extends TestBaseCrud {
+public class TestWorkspaceListener extends TestBaseCrud {
 
 	public void testAddListener() throws Exception {
 		session.tranSync(new TransactionJob<Void>(){
@@ -61,8 +61,11 @@ public class TestListener extends TestBaseCrud {
 			}
 		}).get() ;
 		assertEquals(1, listener.getCount()) ;
-		
+
 	}
+	
+	
+	
 	
 	
 
@@ -74,7 +77,7 @@ public class TestListener extends TestBaseCrud {
 		@CacheEntryModified
 		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){
 			if (e.isPre()) return ;
-			if (e.getKey().getType() == Type.DATA && (!e.getKey().getFqn().isSystem()))  {
+			if (e.getKey().getType() == Type.DATA)  {
 				aint.incrementAndGet() ;
 				Debug.line("listener", e.getKey(), e.getValue().entrySet()) ;
 			}
@@ -86,8 +89,3 @@ public class TestListener extends TestBaseCrud {
 	}
 	
 }
-
-
-
-
-

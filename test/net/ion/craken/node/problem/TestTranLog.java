@@ -5,7 +5,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.crud.TestListener.DebugListener;
+import net.ion.craken.node.crud.TestWorkspaceListener.DebugListener;
 import net.ion.craken.node.problem.store.SampleWriteJob;
 
 public class TestTranLog extends TestBaseCrud{
