@@ -38,7 +38,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 public class NeoWorkspaceStore extends WorkspaceStore {
 
 	private NeoWorkspaceConfig config;
-	private Address address;
 	private Central central;
 	private GraphDatabaseService graphDB;
 
@@ -52,7 +51,6 @@ public class NeoWorkspaceStore extends WorkspaceStore {
 		super.init(config, cache, m);
 		this.config = (NeoWorkspaceConfig) config;
 		EmbeddedCacheManager dm = cache.getCacheManager();
-		this.address = dm.getAddress();
 	}
 
 	@Override
@@ -148,12 +146,12 @@ public class NeoWorkspaceStore extends WorkspaceStore {
 		}
 
 		Iterator<Node> nodes = graphDB.getAllNodes().iterator();
-		List<Object> result = ListUtil.newList();
+		List<TreeNodeKey> result = ListUtil.newList();
 		while (nodes.hasNext()) {
 			final Node node = nodes.next();
 			final Object path = node.getProperty(EntryKey.ID);
 			if (!excludeKey.contains(path)) {
-				result.add(path);
+				result.add(TreeNodeKey.fromString(path.toString()));
 			}
 		}
 		return new HashSet<Object>(result);
@@ -200,14 +198,6 @@ public class NeoWorkspaceStore extends WorkspaceStore {
 	public void stop() throws CacheLoaderException {
 		IOUtil.closeQuietly(central);
 		super.stop();
-	}
-
-	public void fromStream(ObjectInput inputStream) throws CacheLoaderException {
-		throw new UnsupportedOperationException();
-	}
-
-	public void toStream(ObjectOutput outputStream) throws CacheLoaderException {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

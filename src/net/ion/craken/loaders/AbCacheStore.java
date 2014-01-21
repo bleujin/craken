@@ -1,6 +1,8 @@
 package net.ion.craken.loaders;
 
 import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
@@ -175,4 +177,14 @@ public abstract class AbCacheStore extends AbCacheLoader implements CacheStore {
 	protected StreamingMarshaller getMarshaller() {
 		return marshaller;
 	}
+	
+
+	public void fromStream(ObjectInput inputStream) throws CacheLoaderException {
+		throw new UnsupportedOperationException();
+	}
+
+	public void toStream(ObjectOutput outputStream) throws CacheLoaderException {
+		throw new UnsupportedOperationException();
+	}
+
 }

@@ -2,6 +2,7 @@ package net.ion.craken.loaders.neo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import net.ion.craken.loaders.WorkspaceConfig;
 import net.ion.craken.loaders.lucene.LazyCentralConfig;
@@ -26,9 +27,9 @@ import org.infinispan.atomic.AtomicMap;
 public class NeoWorkspaceConfig extends WorkspaceConfig {
 
 	private static final long serialVersionUID = 5891372400491793884L;
+	private final static String NeoLocation = "NeoLocation" ; 
 	
-	private String location = "";
-	private String neoLocation = "./resource/neo" ; 
+	private String indexLocation = "";
 	private int lockTimeoutMs = 60 * 1000 ;
 
 	private int maxNodeEntry = 15000 ;
@@ -36,6 +37,7 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 
 	public NeoWorkspaceConfig() {
 		setCacheLoaderClassName(NeoWorkspaceStore.class.getName());
+		neoLocation("./resource/neo") ;
 	}
 	
 	public static NeoWorkspaceConfig create() {
@@ -44,7 +46,7 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 
 	public static NeoWorkspaceConfig createWithEmpty() throws IOException {
 		final NeoWorkspaceConfig result = new NeoWorkspaceConfig();
-		FileUtil.deleteDirectory(new File(result.neoLocation)) ;
+		FileUtil.deleteDirectory(new File(result.neoLocation())) ;
 		return result;
 	}
 	
@@ -54,33 +56,26 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 	
 
 	public String getLocation() {
-		return location;
+		return indexLocation;
 	}
 
 	public void setLocation(String location) {
 		testImmutability("location");
-		this.location = location ;
+		this.indexLocation = location ;
 //		this.properties.put("location", location) ;
 	}
 
-	public void setDataLocation(String dlocation) {
-		testImmutability("location");
-		this.neoLocation = dlocation ;
-//		this.properties.put("location", location) ;
-	}
-
-	
 	public NeoWorkspaceConfig resetDir() throws IOException{
-		FileUtil.deleteDirectory(new File(location)) ;
+		FileUtil.deleteDirectory(new File(indexLocation)) ;
 		return this ;
 	}
 	
 	public String location() {
-		return location;
+		return indexLocation;
 	}
 
 	public String neoLocation(){
-		return neoLocation ;
+		return otherProps().get(NeoLocation) ;
 	}
 	
 	public NeoWorkspaceConfig location(String path) {
@@ -88,8 +83,8 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 		return this;
 	}
 
-	public NeoWorkspaceConfig neoLocation(String dpath) {
-		setDataLocation(dpath) ;
+	public NeoWorkspaceConfig neoLocation(String dlocation) {
+		super.otherProp(NeoLocation, dlocation) ;
 		return this;
 	}
 
@@ -113,16 +108,16 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 	public int lockTimeoutMs(){
 		return lockTimeoutMs ;
 	}
-	
+
 
 	
 	
 	public Central buildCentral() throws CorruptIndexException, IOException {
 		Directory dir = null ;
-		if (StringUtil.isBlank(location)) {
+		if (StringUtil.isBlank(indexLocation)) {
 			dir = new RAMDirectory() ;
 		} else {
-			final File file = new File(location);
+			final File file = new File(indexLocation);
 			if (! file.exists()) file.mkdirs() ;
 			dir = FSDirectory.open(file) ;
 		}

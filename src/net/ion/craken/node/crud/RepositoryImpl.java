@@ -286,27 +286,14 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public RepositoryImpl defineWorkspaceForTest(String wsName, WorkspaceConfig config) throws IOException {
-		try {
-			if (configs.containsKey(wsName))
-				throw new IllegalStateException("already define workspace : " + wsName);
-			configs.put(wsName, config);
+		if (configs.containsKey(wsName))
+			throw new IllegalStateException("already define workspace : " + wsName);
+		configs.put(wsName, config);
 
-			CacheLoader cloader = (CacheLoader) Class.forName(config.getCacheLoaderClassName()).newInstance();
+		dm.defineConfiguration(wsName, config.build());
 
-			dm.defineConfiguration(wsName, new ConfigurationBuilder().clustering().cacheMode(CacheMode.LOCAL)
-					.invocationBatching().enable().eviction().eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true)
-					.syncRollbackPhase(true).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-					.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(cloader).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-
-			log.info("Workspace[" + wsName + ", LOCAL] defined");
-			return this;
-		} catch (ClassNotFoundException ex) {
-			throw new IOException(ex);
-		} catch (InstantiationException ex) {
-			throw new IOException(ex);
-		} catch (IllegalAccessException ex) {
-			throw new IOException(ex);
-		}
+		log.info("Workspace[" + wsName + ", LOCAL] defined");
+		return this;
 	}
 
 }

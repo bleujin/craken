@@ -22,6 +22,7 @@ import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 
@@ -72,9 +73,9 @@ public class NeoWorkspace extends Workspace {
 		String logName = reader.nextName();
 
 		Transaction tx = graphDB.beginTx();
+		final int count = config.asInt("count");
 		try {
 			reader.beginArray();
-			final int count = config.asInt("count");
 			for (int i = 0; i < count; i++) {
 				JsonObject tlog = reader.nextJsonObject();
 				String path = tlog.asString("path");
@@ -117,12 +118,13 @@ public class NeoWorkspace extends Workspace {
 			
 			tx.success() ;
 		} catch(Exception ex){
-			ex.printStackTrace() ;
 			tx.failure() ;
+			throw new IOException(ex) ;
 		} finally {
+			IOUtil.closeQuietly(reader) ;
 			tx.finish();
 		}
-		return 0;
+		return count;
 	}
 
 	private Object toNeoValue(Entry<String, JsonElement> entry) {

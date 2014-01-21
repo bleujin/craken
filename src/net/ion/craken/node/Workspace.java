@@ -81,11 +81,11 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 	private static final Log log = LogFactory.getLog(Workspace.class);
 
-	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) {
+	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, WorkspaceConfig config) {
 		this(repository, cache.getAdvancedCache(), wsName, config);
 	}
 
-	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, AbstractCacheStoreConfig config) {
+	private Workspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, WorkspaceConfig config) {
 		super(cache, cache.getBatchContainer());
 		this.repository = repository;
 		this.cache = cache;
