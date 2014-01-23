@@ -30,6 +30,7 @@ import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
@@ -189,11 +190,16 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	
-	public WriteNode unset(String key){
+	public WriteNode unset(String key, Object... values){
 		touch(Touch.MODIFY) ;
 		final PropertyId propId = createNormalId(key);
 		
-		PropertyValue pvalue = tree().remove(propId) ;
+			PropertyValue pvalue = tree().remove(propId) ;
+		if (values.length > 0){
+			pvalue.remove(values) ;
+			property(propId, pvalue) ;
+		}
+		
 //		if (pvalue.isBlob()) {
 //		// @Todo
 //	}
@@ -386,19 +392,38 @@ public class WriteNodeImpl implements WriteNode{
 		return wsession.workspace().gfs() ;
 	}
 	
-	public WriteNode refTos(String refName, String fqn){
+	public WriteNode refTos(String refName, String... fqns){
 		
 		PropertyId referId = createReferId(refName);
 		PropertyValue findValue = propertyId(referId) ;
 		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
 		
-		findValue.append(fqn) ;
+		for (String fqn : fqns) {
+			findValue.append(fqn) ;
+		}
 	
 		tree().put(referId, findValue) ;
 		touch(Touch.MODIFY) ;
 		
 		return this ;
 	}
+	
+	public WriteNode unRefTos(String refName, String... fqns){
+		PropertyId referId = createReferId(refName);
+		PropertyValue findValue = propertyId(referId) ;
+		if (fqns == null || fqns.length == 0 || findValue == PropertyValue.NotFound) {
+			tree().remove(referId) ;
+		} else {
+			Set<String> removedRefs = tree().remove(referId).asSet() ;
+			for (String ref : removedRefs) {
+				if (! ArrayUtil.contains(fqns, ref)) refTos(refName, ref) ;
+			}
+		}
+		
+		touch(Touch.MODIFY) ;
+		return this;
+	}
+	
 	
 	public boolean removeSelf(){
 		return parent().removeChild(fqn().name()) ;

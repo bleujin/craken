@@ -6,12 +6,19 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonPrimitive;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.radon.core.path.URLPattern;
+import net.ion.radon.util.uriparser.URIPattern;
+import net.ion.radon.util.uriparser.URIResolveResult;
+import net.ion.radon.util.uriparser.URIResolver;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
@@ -338,6 +345,20 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	@Override
 	public String replaceValue() {
 		return toString();
+	}
+
+	public boolean isPattern(String fqnPattern) {
+		return new URIPattern(fqnPattern).match(this.toString());
+	}
+	public Map<String, String> resolve(String fqnPattern){
+		URIResolveResult resolver = new URIResolver(toString()).resolve(new URIPattern(fqnPattern));
+		Map<String, String> result = MapUtil.newMap() ;
+		
+		for(String name : resolver.names()){
+			result.put(name, ObjectUtil.toString(resolver.get(name))) ;
+		}
+		
+		return result ;
 	}
 
 }

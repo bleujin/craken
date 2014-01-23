@@ -196,8 +196,6 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 					wsession.prepareCommit();
 					T result = tjob.handle(wsession);
 
-					endTran(wsession);
-
 					return result;
 				} catch (Throwable ex) {
 					// ex.printStackTrace() ;
@@ -211,6 +209,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 					ehandler.handle(wsession, ex);
 					return null;
 				} finally {
+					endTran(wsession);
 				}
 
 			}

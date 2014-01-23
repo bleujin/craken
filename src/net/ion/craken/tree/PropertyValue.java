@@ -93,6 +93,15 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}
 		return this;
 	}
+	
+	public PropertyValue remove(Object... vals){
+		for (Object val : vals) {
+			values.remove(val) ;
+		}
+		return this ;
+	}
+	
+	
 
 	public String stringValue() {
 		return ObjectUtil.toString(value());

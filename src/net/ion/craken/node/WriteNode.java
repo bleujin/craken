@@ -36,7 +36,7 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteNode replaceAll(Map<String, ? extends Object> newMap) ;
 	
 	
-	public WriteNode unset(String key) ;
+	public WriteNode unset(String key, Object... values) ;
 	
 	public WriteNode clear() ;
 	
@@ -48,8 +48,10 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteNode refTo(String refName, String fqn);
 	
-	public WriteNode refTos(String refName, String fqn);
+	public WriteNode refTos(String refName, String... fqn);
 
+	public WriteNode unRefTos(String refName, String... fqn);
+	
 	public WriteNode fromJson(JsonObject json);
 
 	public boolean removeSelf();
@@ -61,6 +63,7 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public ChildQueryRequest childQuery(String query) throws IOException, ParseException  ;
 	
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;
+
 
 
 }

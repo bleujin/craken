@@ -31,6 +31,7 @@ import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 
@@ -118,7 +119,9 @@ public class RDBWorkspace extends Workspace {
 			return upts.execUpdate() ;
 		} catch(SQLException ex){
 			throw new IOException(ex) ;
-		} 
+		} finally {
+			IOUtil.closeQuietly(reader) ;
+		}
 	}
 
 	
