@@ -21,7 +21,7 @@ public class TestServers extends TestCase {
 		
 		r.start() ;
 
-		assertEquals("emanon", r.repoId());
+		assertEquals("emanon", r.memberId());
 		ReadSession session = r.login("test");
 		assertEquals("emanon", session.pathBy("/__servers/" + r.addressId()).property("repoid").stringValue()) ;
 
@@ -34,7 +34,7 @@ public class TestServers extends TestCase {
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/c1")) ;
 		
 		r.start() ;
-		assertEquals("bleujin", r.repoId());
+		assertEquals("bleujin", r.memberId());
 		ReadSession session = r.login("test");
 		assertEquals("bleujin", session.pathBy("/__servers/" + r.addressId()).property("repoid").stringValue()) ;
 
@@ -49,7 +49,7 @@ public class TestServers extends TestCase {
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/c2")) ;
 		
 		r.start() ;
-		assertEquals(newRepoId, r.repoId());
+		assertEquals(newRepoId, r.memberId());
 		ReadSession session = r.login("test");
 		assertEquals(newRepoId, session.pathBy("/__servers/" + r.addressId()).property("repoid").stringValue()) ;
 		

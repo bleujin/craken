@@ -78,21 +78,7 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 			String pkey = entry.getKey();
 			JsonElement pvalue = entry.getValue();
 			if (pvalue.isJsonArray()) {
-				PropertyValue arrayValue = PropertyValue.createPrimitive(null);
-				for (JsonElement jele : (JsonArray) pvalue) {
-//					arrayValue.append(jele.getAsJsonPrimitive().getValue());
-					if (jele.isJsonObject()){
-						arrayValue.append(jele.toString()) ;
-//						throw new IllegalArgumentException(" -t- ?") ;
-//						arrayValue.append(BlobProxy.create(jele.getAsJsonObject().asString("fqnPath"))) ;
-					} else if (jele.isJsonPrimitive() && jele.getAsJsonPrimitive().isNumber()){
-						final long aslong = jele.getAsJsonPrimitive().getAsLong();
-						arrayValue.append(aslong);
-					} else {
-						arrayValue.append(jele.getAsJsonPrimitive().getValue());
-					}
-				}
-				nodeValue.put(PropertyId.fromIdString(pkey), arrayValue);
+				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom((JsonArray)pvalue));
 			} else {
 				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.isJsonObject() ?  pvalue.getAsJsonObject().toString() : pvalue.getAsJsonPrimitive().getValue()));
 			}

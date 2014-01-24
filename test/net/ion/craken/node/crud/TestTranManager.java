@@ -42,9 +42,11 @@ public class TestTranManager extends TestCase {
 		r.start() ;
 		
 		ReadSession session = r.login("test");
-		List<String> names = session.workspace().tranLogManager().memberNames();
+		List<String> names = session.workspace().tranLogManager().memberIds();
 		
 		assertEquals(1, names.size()) ;
 		assertEquals("emanon", names.get(0)) ;
+		
+		assertEquals("emanon", session.workspace().repository().memberId()) ;
 	}
 }

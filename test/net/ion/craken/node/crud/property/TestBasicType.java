@@ -19,7 +19,7 @@ public class TestBasicType extends TestBaseCrud {
 					.property("boolean", true)
 					.property("int", 1)
 					.property("long", 2L)
-					.property("string", "string").property("date", new Date()) ;
+					.property("string", "string") ;
 				return null;
 			}
 		}).get() ;
@@ -28,7 +28,6 @@ public class TestBasicType extends TestBaseCrud {
 		assertEquals(1, found.property("int").value()) ;
 		assertEquals(2L, found.property("long").value()) ;
 		assertEquals("string", found.property("string").value()) ;
-		assertEquals(new Date().getDate(), ((Date)found.property("date").value()).getDate()) ;
 	}
 	
 	
@@ -38,8 +37,7 @@ public class TestBasicType extends TestBaseCrud {
 			public Void handle(WriteSession wsession) {
 				wsession.root().addChild("type")
 					.property("float", 2.3f)
-					.property("double", 2.3d)
-					.property("date", new Date()) ;
+					.property("double", 2.3d);
 				return null;
 			}
 		}).get() ;
@@ -47,7 +45,6 @@ public class TestBasicType extends TestBaseCrud {
 		ReadNode found = session.pathBy("/type");
 		assertEquals(2.3f, found.property("float").value()) ;
 		assertEquals(2.3d, found.property("double").value()) ;
-		assertEquals(new Date().getDate(), ((Date)found.property("date").value()).getDate()) ;
 	}
 	
 	

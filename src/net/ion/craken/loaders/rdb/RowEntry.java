@@ -44,19 +44,7 @@ public class RowEntry {
 
 		JsonObject jsonProps = JsonObject.fromString(currRow.getString("props"));
 		for (Entry<String, JsonElement> entry : jsonProps.entrySet()) {
-			PropertyValue arrayValue = PropertyValue.createPrimitive(null);
-			JsonArray values = entry.getValue().getAsJsonArray();
-			for (JsonElement jele : values.toArray()) {
-				if (jele.isJsonObject()) {
-					arrayValue.append(jele.toString());
-				} else if (jele.isJsonPrimitive() && jele.getAsJsonPrimitive().isNumber()) {
-					final long aslong = jele.getAsJsonPrimitive().getAsLong();
-					arrayValue.append(aslong);
-				} else {
-					arrayValue.append(jele.getAsJsonPrimitive().getValue());
-				}
-			}
-			nodeValue.put(PropertyId.fromIdString(entry.getKey()), arrayValue);
+			nodeValue.put(PropertyId.fromIdString(entry.getKey()), PropertyValue.loadFrom(entry.getValue().getAsJsonArray()));
 		}
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey);
 	}

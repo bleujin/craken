@@ -123,6 +123,9 @@ public class ISearchWorkspace extends Workspace {
 						throw new IllegalArgumentException("Unknown modification type " + touch);
 					}
 				}
+				
+				reader.endArray(); 
+				reader.endObject(); 
 
 				return count;
 			}
@@ -159,8 +162,6 @@ public class ISearchWorkspace extends Workspace {
 
 		});
 
-		reader.endArray();
-		reader.endObject();
 		IOUtil.closeQuietly(reader);
 		return count;
 	}

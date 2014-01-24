@@ -125,12 +125,8 @@ public class WriteNodeImpl implements WriteNode{
 		}
 		return property(createNormalId(key), PropertyValue.createPrimitive(value)) ;
 	}
-	
-	public WriteNode property(JsonObject jsonObject){
-		return propertyAll(jsonObject.toMap()) ;
-	}
-	
-	
+
+
 	public WriteNode property(PropertyId pid, PropertyValue pvalue){
 		touch(Touch.MODIFY) ; 
 		
@@ -163,14 +159,6 @@ public class WriteNodeImpl implements WriteNode{
 		return tree().replace(createNormalId(key), PropertyValue.createPrimitive(oldValue), PropertyValue.createPrimitive(newValue)) ;
 	}
 	
-	public WriteNode propertyAll(Map<String, ? extends Object> map){
-		touch(Touch.MODIFY) ;
-
-		tree().putAll(modMap(map)) ;
-		return this ;
-	}
-
-	
 	public WriteNode append(String key, Object... value){
 		touch(Touch.MODIFY) ;
 		PropertyValue findValue = property(key) ;
@@ -179,13 +167,6 @@ public class WriteNodeImpl implements WriteNode{
 		findValue.append(value) ;
 		
 		tree().put(createNormalId(key), findValue) ;
-		return this ;
-	}
-	
-
-	public WriteNode replaceAll(Map<String, ? extends Object> newMap){
-		touch(Touch.MODIFY) ;
-		tree().replaceAll(modMap(newMap)) ;
 		return this ;
 	}
 	
@@ -250,22 +231,6 @@ public class WriteNodeImpl implements WriteNode{
 		return this ;
 	}
 
-	@Deprecated
-	public WritableGridBlob blob(String key) throws IOException {
-		final String path = fqn().toString() + "/" + key;
-		PropertyValue pvalue = property(key) ;
-		Metadata meta = null ;
-		if (pvalue == PropertyValue.NotFound) {
-			meta = Metadata.create(path) ;
-		} else {
-			// @Todo
-			meta = Metadata.loadFromJsonString(pvalue.stringValue()) ;
-		}
-
-		return wsession.workspace().gridBlob(path, meta);
-	}
-	
-	
 	
 	
 	
@@ -368,15 +333,6 @@ public class WriteNodeImpl implements WriteNode{
 			}
 		}
 	}
-	
-	private Map<PropertyId, PropertyValue> modMap(Map<String, ? extends Object> map) {
-		Map<PropertyId, PropertyValue> modMap = MapUtil.newMap() ;
-		for (Entry<String, ? extends Object> entry : map.entrySet()) {
-			modMap.put(createNormalId(entry.getKey()), PropertyValue.createPrimitive(entry.getValue())) ;
-		}
-		return modMap;
-	}
-	
 	
 	public WriteNode refTo(String refName, String fqn){
 		PropertyId referId = createReferId(refName);
@@ -498,7 +454,9 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	public PropertyValue propertyId(PropertyId pid) {
-		return ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
+		PropertyValue result = ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
+		if (result.isBlob()) result.gfs(wsession.workspace().gfs()) ;
+		return result;
 	}
 	
 	public Map<PropertyId, PropertyValue> toMap() {

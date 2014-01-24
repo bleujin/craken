@@ -72,7 +72,7 @@ public class ResyncListener {
 				for (String wname : r.workspaceNames()) {
 					try {
 						Workspace wspace = r.findWorkspace(wname);
-						wspace.tranLogManager().registerMember("inmemory", r.repoId());
+						wspace.tranLogManager().registerMember("inmemory", r.memberId());
 					} finally {
 						r.release();
 					}
@@ -110,7 +110,7 @@ public class ResyncListener {
 					// }
 					// }) ;
 
-					wspace.tranLogManager().registerMember(r.addressId(), r.repoId());
+					wspace.tranLogManager().registerMember(r.addressId(), r.memberId());
 
 					if (members == null || members.size() <= 1)
 						return null;

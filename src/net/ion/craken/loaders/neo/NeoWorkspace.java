@@ -5,18 +5,25 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.WorkspaceConfig;
+import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.TreeNodeKey.Action;
+import net.ion.framework.db.procedure.IUserCommandBatch;
+import net.ion.framework.db.procedure.IUserProcedures;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
@@ -24,8 +31,14 @@ import net.ion.framework.parse.gson.stream.JsonReader;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.common.IKeywordField;
+import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.loaders.CacheLoaderException;
@@ -72,59 +85,126 @@ public class NeoWorkspace extends Workspace {
 		final JsonObject config = reader.nextJsonObject();
 		String logName = reader.nextName();
 
-		Transaction tx = graphDB.beginTx();
-		final int count = config.asInt("count");
+		final Transaction tx = graphDB.beginTx();
 		try {
-			reader.beginArray();
-			for (int i = 0; i < count; i++) {
-				JsonObject tlog = reader.nextJsonObject();
-				String path = tlog.asString("path");
-				Touch touch = Touch.valueOf(tlog.asString("touch"));
-				Action action = Action.valueOf(tlog.asString("action"));
-				// Debug.line(path, touch) ;
-				switch (touch) {
-				case TOUCH:
-					break;
-				case MODIFY:
-					JsonObject val = tlog.asJsonObject("val");
-					if ("/".equals(path) && val.childSize() == 0)
-						continue;
-
-					Node mergeNode = mergeNode(graphDB, action, StringUtil.split(path, "/")) ;
-					mergeNode.setProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis()) ;
-					mergeNode.setProperty(EntryKey.ID, path) ;
-					for(Entry<String, JsonElement> entry : val.entrySet()){
-						final PropertyId propertyId = PropertyId.fromIdString(entry.getKey());
-
-						String propId = propertyId.getString();
-						if (propertyId.type() == PType.NORMAL) {
-							mergeNode.setProperty(propId, toNeoValue(entry)) ;
-						} else if (propertyId.type() == PType.REFER) {
-							mergeNode.setProperty('@' + propId, toNeoValue(entry)) ;
+			int count = central().newIndexer().index(new IndexJob<Integer>() {
+				public Integer handle(IndexSession isession) throws Exception {
+	
+					isession.setIgnoreBody(config.asBoolean("ignoreBody"));
+					
+					reader.beginArray();
+					final int count = config.asInt("count");
+					for (int seq = 0; seq < count; seq++) {
+						JsonObject tlog = reader.nextJsonObject();
+						String path = tlog.asString("path");
+						Touch touch = Touch.valueOf(tlog.asString("touch"));
+						Action action = Action.valueOf(tlog.asString("action"));
+						String parentPath = Fqn.fromString(path).getParent().toString() ;
+						// Debug.line(path, touch) ;
+						switch (touch) {
+						case TOUCH:
+							break;
+						case MODIFY:
+							JsonObject val = tlog.asJsonObject("val");
+							if ("/".equals(path) && val.childSize() == 0) continue ;
+	
+							Node mergeNode = mergeNode(graphDB, action, StringUtil.split(path, "/")) ;
+							mergeNode.setProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis()) ;
+							mergeNode.setProperty(EntryKey.ID, path) ;
+							for(Entry<String, JsonElement> entry : val.entrySet()){
+								final PropertyId propertyId = PropertyId.fromIdString(entry.getKey());
+	
+								String propId = propertyId.getString();
+								if (propertyId.type() == PType.NORMAL) {
+									mergeNode.setProperty(propId, toNeoValue(entry)) ;
+								} else if (propertyId.type() == PType.REFER) {
+									mergeNode.setProperty('@' + propId, toNeoValue(entry)) ;
+								}
+							}
+	
+							{
+								WriteDocument propDoc = isession.newDocument(path);
+								propDoc.keyword(EntryKey.PARENT, Fqn.fromString(path).getParent().toString());
+								propDoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+								
+								JsonObject jobj = new JsonObject();
+								jobj.addProperty(EntryKey.ID, path);
+								jobj.addProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+								
+								fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()) ;
+	//							propDoc.add(MyField.manual(EntryKey.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED).ignoreBody());
+		
+								if (action == Action.CREATE)
+									isession.insertDocument(propDoc);
+								else
+									isession.updateDocument(propDoc);
+								// isession.updateDocument(propDoc) ;
+							}
+							
+							break;
+						case REMOVE:
+							deleteNode(graphDB, action, path) ;
+							isession.deleteTerm(new Term(IKeywordField.ISKey, path));
+							break;
+						case REMOVECHILDREN:
+							deleteChildren(graphDB, action, findNode(graphDB, action, StringUtil.split(path, "/"))) ;
+							isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));
+							break;
+						default:
+							throw new IllegalArgumentException("Unknown modification type " + touch);
 						}
 					}
-
-					break;
-				case REMOVE:
-					deleteNode(graphDB, action, path) ;
-					break;
-				case REMOVECHILDREN:
-					deleteChildren(graphDB, action, findNode(graphDB, action, StringUtil.split(path, "/"))) ;
-					break;
-				default:
-					throw new IllegalArgumentException("Unknown modification type " + touch);
+					
+					tx.success(); 
+					reader.endArray(); 
+					reader.endObject(); 
+	
+					
+					return count;
 				}
-			}
-			
-			tx.success() ;
+	
+				
+				private JsonObject fromMapToJson(String path, WriteDocument doc, IndexWriteConfig iwconfig, Set<Map.Entry<String, JsonElement>> props) {
+					JsonObject jso = new JsonObject();
+	
+					for (Entry<String, JsonElement> entry : props) {
+						final PropertyId propertyId = PropertyId.fromIdString(entry.getKey());
+	
+						if (propertyId.type() == PType.NORMAL) {
+							String propId = propertyId.getString();
+							JsonArray pvalue = entry.getValue().getAsJsonArray();
+							jso.add(propId, entry.getValue().getAsJsonArray());
+							for (JsonElement e : pvalue.toArray()) {
+								if (e == null)
+									continue;
+								FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
+								fieldIndex.index(doc, propId, e.isJsonObject() ? e.toString() : e.getAsString());
+							}
+						} else if (propertyId.type() == PType.REFER) {
+							final String propId = propertyId.getString();
+							JsonArray pvalue = entry.getValue().getAsJsonArray();
+							jso.add(propId, entry.getValue().getAsJsonArray()); // if type == refer, @
+							for (JsonElement e : pvalue.toArray()) {
+								if (e == null)
+									continue;
+								FieldIndex.KEYWORD.index(doc, '@' + propId, e.getAsString());
+							}
+						}
+					}
+					return jso;
+				}
+			});
+
+			return count ; 
 		} catch(Exception ex){
-			tx.failure() ;
-			throw new IOException(ex) ;
+			tx.failure();
+			throw new IOException(ex) ; 
 		} finally {
-			IOUtil.closeQuietly(reader) ;
-			tx.finish();
+			IOUtil.close(reader) ;
+			tx.finish(); 
 		}
-		return count;
+		
+		
 	}
 
 	private Object toNeoValue(Entry<String, JsonElement> entry) {

@@ -72,5 +72,16 @@ public class TestRDBWorkspace extends TestCase {
 	}
 	
 	
+	public void testQuery() throws Exception {
+		r.defineWorkspaceForTest("rdb", RDBWorkspaceConfig.createDefault());
+		r.start();
+		
+		ReadSession session = r.login("rdb") ;
+		
+		assertEquals(10, session.pathBy("/bleujin").childQuery("").find().size()) ;
+		assertEquals(1, session.pathBy("/bleujin").childQuery("dummy:3").find().size()) ;
+		
+	}
+	
 	
 }

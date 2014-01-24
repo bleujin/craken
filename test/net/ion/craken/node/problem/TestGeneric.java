@@ -1,6 +1,8 @@
 package net.ion.craken.node.problem;
 
+import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
@@ -13,7 +15,7 @@ import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 
 @Listener
-public class TestGeneric extends TestBaseCrud {
+public class TestGeneric extends TestBaseCrud implements WorkspaceListener {
 
 	public void testToBean() throws Exception {
 		session.workspace().addListener(this) ;
@@ -34,5 +36,15 @@ public class TestGeneric extends TestBaseCrud {
 	@CacheEntryModified
 	public void entryModified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap> e){
 		Debug.line(e) ;
+	}
+
+
+	@Override
+	public void registered(Workspace workspace) {
+	}
+
+
+	@Override
+	public void unRegistered(Workspace workspace) {
 	}
 }

@@ -2,7 +2,9 @@ package net.ion.craken.node.crud;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -70,7 +72,7 @@ public class TestWorkspaceListener extends TestBaseCrud {
 	
 
 	@Listener
-	static public class DebugListener {
+	static public class DebugListener implements WorkspaceListener {
 
 		private AtomicInteger aint = new AtomicInteger() ;
 		
@@ -85,6 +87,18 @@ public class TestWorkspaceListener extends TestBaseCrud {
 		
 		public int getCount(){
 			return aint.get() ;
+		}
+
+		@Override
+		public void registered(Workspace workspace) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void unRegistered(Workspace workspace) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

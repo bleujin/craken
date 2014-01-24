@@ -13,6 +13,7 @@ import net.ion.craken.io.Metadata;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
 import net.ion.framework.parse.gson.JsonArray;
+import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.JsonSyntaxException;
@@ -50,6 +51,22 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 			return new PropertyValue(SetUtil.create(value));
 		}
 	}
+	
+	public static PropertyValue loadFrom(JsonArray jarray){
+		PropertyValue propValue = new PropertyValue(SetUtil.newSet()) ;
+		for (JsonElement jele : jarray) {
+			if (jele.isJsonObject()){
+				propValue.append(jele.toString()) ;
+			} else if (jele.isJsonPrimitive() && jele.getAsJsonPrimitive().isNumber()){
+				final long aslong = jele.getAsJsonPrimitive().getAsLong();
+				propValue.append(aslong);
+			} else {
+				propValue.append(jele.getAsJsonPrimitive().getValue());
+			}
+		}
+		return propValue ;
+	}
+	
 
 	public PropertyValue gfs(GridFilesystem gfs) {
 		this.gfs = gfs;
@@ -144,6 +161,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	// @Todo
 	@Deprecated
 	public boolean isBlob() {
+		
 		return Metadata.isValid(value()) ;
 	}	
 

@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
+import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
@@ -117,7 +119,7 @@ public class TestHelloWord extends TestCase {
 	}
 	
 	@Listener
-	static public class DebugListener {
+	static public class DebugListener implements WorkspaceListener{
 		private AtomicInteger counter = new AtomicInteger() ;
 		@CacheEntryModified
 		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){
@@ -129,6 +131,18 @@ public class TestHelloWord extends TestCase {
 		
 		public int getCount(){
 			return counter.get() ;
+		}
+
+		@Override
+		public void registered(Workspace workspace) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void unRegistered(Workspace workspace) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }

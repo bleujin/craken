@@ -30,7 +30,7 @@ public interface Repository {
 	
 	public String addressId() ;
 	
-	public String repoId() ;
+	public String memberId() ;
 
 	public List<Address> memberAddress();
 	

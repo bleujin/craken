@@ -23,11 +23,14 @@ import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
+import net.ion.craken.listener.CDDHandler;
+import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.loaders.WorkspaceConfig;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.AbstractWriteSession.LogRow;
+import net.ion.craken.node.crud.ReadSessionImpl;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.exception.NodeNotExistsException;
@@ -78,6 +81,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	private String wsName;
 	private BatchContainer batchContainer;
 	private Engine parseEngine = Engine.createDefaultEngine();
+	private CDDMListener cddmListener;
 
 	private static final Log log = LogFactory.getLog(Workspace.class);
 
@@ -92,7 +96,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".blob"));
 		this.logContent = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache(wsName + ".log"));
-		this.logManager = TranLogManager.create(this, cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta"), repository().repoId());
+		this.logManager = TranLogManager.create(this, cache.getCacheManager().<String, Metadata> getCache(wsName + ".logmeta"), repository().memberId());
 
 		this.wsName = wsName;
 		this.batchContainer = cache.getBatchContainer();
@@ -110,14 +114,16 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		this.cache.start();
 		this.logManager.start();
 
+		this.cddmListener = new CDDMListener(new ReadSessionImpl(Credential.EMANON, this, central().searchConfig().queryAnalyzer()));
+		this.addListener(cddmListener) ;
 		
 		return this;
 	}
 
 	public void close() {
-		final Object[] caches = cache.getListeners().toArray(new Object[0]);
-		for (Object listener : caches) {
-			this.removeListener(listener);
+		final Object[] listeners = cache.getListeners().toArray(new Object[0]);
+		for (Object wlistener : listeners) {
+			if (wlistener instanceof WorkspaceListener) this.removeListener((WorkspaceListener)wlistener);
 		}
 
 		cache.stop();
@@ -196,6 +202,8 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 					wsession.prepareCommit();
 					T result = tjob.handle(wsession);
 
+					endTran(wsession);
+
 					return result;
 				} catch (Throwable ex) {
 					// ex.printStackTrace() ;
@@ -209,7 +217,6 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 					ehandler.handle(wsession, ex);
 					return null;
 				} finally {
-					endTran(wsession);
 				}
 
 			}
@@ -296,23 +303,17 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		super.endAtomic();
 	}
 
-	public Workspace addListener(Object listener) {
-		if (listener instanceof WorkspaceListener) {
-			((WorkspaceListener) listener).registered(this);
-		}
-
+	public Workspace addListener(WorkspaceListener listener) {
+		listener.registered(this);
 		cache.addListener(listener);
 		return this;
 	}
 
-	public void removeListener(Object listener) {
-		if (listener instanceof WorkspaceListener) {
-			((WorkspaceListener) listener).unRegistered(this);
-		}
-
+	public void removeListener(WorkspaceListener listener) {
+		listener.unRegistered(this);
 		cache.removeListener(listener);
 	}
-
+	
 	public abstract Central central();
 
 	public abstract WorkspaceConfig config();
@@ -521,7 +522,9 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		log.tracef("Successfully moved node '%s' to '%s'", nodeToMoveFqn, newParentFqn);
 	}
 
-
+	public CDDMListener cddm() {
+		return cddmListener;
+	}
 
 
 

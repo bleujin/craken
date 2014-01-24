@@ -115,7 +115,9 @@ public class TestProperty extends TestBaseCrud {
 						
 						Map<String, Object> props = jvals.asJsonObject("properties").toMap();
 						final WriteNode targetNode = wsession.pathBy(path);
-						targetNode.propertyAll(props) ;
+						for (Entry<String, Object> entry : props.entrySet()) {
+							targetNode.property(entry.getKey(), entry.getValue()) ;
+						}
 						
 						JsonObject rels = jvals.asJsonObject("references");
 						for (Entry<String, JsonElement> entry : rels.entrySet()) {

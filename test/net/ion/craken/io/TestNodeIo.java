@@ -1,5 +1,6 @@
 package net.ion.craken.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -133,13 +134,22 @@ public class TestNodeIo extends TestCase {
 	
 	
 	public void testRead() throws Exception {
+		final InputStream input = new ByteArrayInputStream("HelloWorld".getBytes("UTF-8")) ;
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				WriteNode bleujin = wsession.pathBy("/bleujin/my").blob("config", input);
+				return null;
+			}
+		}) ;
+		
 		final PropertyValue property = session.pathBy("/bleujin/my").property("config");
 
 		Debug.line(property.stringValue()) ;
 		
 		final GridBlob blob = property.asBlob();
 		String readString = IOUtil.toString(blob.toInputStream());
-		assertEquals(true, readString.startsWith("<?xml version=")) ;
+		assertEquals("HelloWorld", readString) ;
 	}
 	
 	

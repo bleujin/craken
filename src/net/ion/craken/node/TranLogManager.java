@@ -144,7 +144,7 @@ public class TranLogManager {
 	}
 
 	private String[] otherHistory() throws IOException {
-		List<String> members = memberNames();
+		List<String> members = memberIds();
 
 		if (members.size() <= 1)
 			return new String[0];
@@ -240,7 +240,11 @@ public class TranLogManager {
 		return workspace.logContent() ;
 	}
 	
-	public List<String> memberNames() throws IOException {
+	public String selfId() {
+		return workspace.repository().memberId() ;
+	}
+	
+	public List<String> memberIds() throws IOException {
 		Metadata meta = logmeta().get(SERVERS_PATH);
 		if (meta == null){
 			meta = Metadata.create(SERVERS_PATH);

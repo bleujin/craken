@@ -31,11 +31,6 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	
 	public boolean replace(String key, Object oldValue, Object newValue) ;
 	
-	public WriteNode propertyAll(Map<String, ? extends Object> map) ;
-	
-	public WriteNode replaceAll(Map<String, ? extends Object> newMap) ;
-	
-	
 	public WriteNode unset(String key, Object... values) ;
 	
 	public WriteNode clear() ;
@@ -58,8 +53,6 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteNode blob(String key, InputStream input);
 
-	public WritableGridBlob blob(String key) throws IOException;
-	
 	public ChildQueryRequest childQuery(String query) throws IOException, ParseException  ;
 	
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;

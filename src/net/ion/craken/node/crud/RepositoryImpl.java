@@ -110,7 +110,7 @@ public class RepositoryImpl implements Repository {
 		return result.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().location(""));
 	}
 
-	public String repoId() {
+	public String memberId() {
 		return repoId; 
 	}
 	
@@ -167,7 +167,7 @@ public class RepositoryImpl implements Repository {
 					}
 				});
 			}
-			log.info(repoId() +" maked workspace") ;
+			log.info(memberId() +" maked workspace") ;
 			this.started = true ;
 		} catch (ExecutionException ex) {
 			throw new IllegalStateException(ex.getMessage());
@@ -188,7 +188,7 @@ public class RepositoryImpl implements Repository {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		log.info(repoId() +" started") ;
+		log.info(memberId() +" started") ;
 		return this;
 	}
 	
@@ -208,7 +208,7 @@ public class RepositoryImpl implements Repository {
 		executor.shutdown();
 		dm.stop();
 		
-		log.info(repoId() +" shutdowned") ;
+		log.info(memberId() +" shutdowned") ;
 		this.started = false ;
 		return this;
 	}
