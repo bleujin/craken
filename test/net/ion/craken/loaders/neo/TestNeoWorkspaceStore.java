@@ -1,15 +1,17 @@
 package net.ion.craken.loaders.neo;
 
+import java.io.File;
 import java.util.Iterator;
 
-import org.neo4j.graphdb.Node;
-
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
+import net.ion.framework.util.FileUtil;
+
+import org.neo4j.graphdb.Node;
 
 public class TestNeoWorkspaceStore extends TestCase {
 
@@ -21,6 +23,9 @@ public class TestNeoWorkspaceStore extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+//		FileUtil.deleteDirectory(new File(NeoWorkspaceConfig.create().neoLocation()));
+		
 		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
 		r.defineWorkspaceForTest("neo", NeoWorkspaceConfig.create()) ;
 		r.start() ;
@@ -37,14 +42,14 @@ public class TestNeoWorkspaceStore extends TestCase {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20) ;
+				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20).append("loc", "seoul", "sungnam") ;
 				return null;
 			}
 		}) ;
 	}
 	
 	public void testRead() throws Exception {
-		session.pathBy("/emps/bleujin").toRows("name, age").debugPrint() ;
+		session.pathBy("/emps/bleujin").toRows("name, age, loc").debugPrint() ;
 	}
 	
 	public void testConfirm() throws Exception {

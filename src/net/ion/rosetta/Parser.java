@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.ion.framework.util.Debug;
 import net.ion.rosetta.annotations.Private;
 import net.ion.rosetta.error.ParserException;
 import net.ion.rosetta.functors.Map;
@@ -31,11 +32,7 @@ import net.ion.rosetta.functors.Maps;
 import net.ion.rosetta.util.Checks;
 
 /**
- * Defines grammar and encapsulates parsing logic. A {@link Parser} takes as
- * input a {@link CharSequence} source and parses it when the
- * {@link #parse(CharSequence)} method is called. A value of type {@code T} will
- * be returned if parsing succeeds, or a {@link ParserException} is thrown to
- * indicate parsing error. For example:
+ * Defines grammar and encapsulates parsing logic. A {@link Parser} takes as input a {@link CharSequence} source and parses it when the {@link #parse(CharSequence)} method is called. A value of type {@code T} will be returned if parsing succeeds, or a {@link ParserException} is thrown to indicate parsing error. For example:
  * 
  * <pre>
  * Parser&lt;String&gt; scanner = Scanners.IDENTIFIER;
@@ -43,27 +40,17 @@ import net.ion.rosetta.util.Checks;
  * </pre>
  * 
  * <p>
- * {@code Parser}s are immutable and inherently covariant on the type parameter
- * {@code T}. Because Java generics has no native support for covariant type
- * parameter, a workaround is to use the {@link Parser#cast()} method to
- * explicitly force covariance whenever needed.
+ * {@code Parser}s are immutable and inherently covariant on the type parameter {@code T}. Because Java generics has no native support for covariant type parameter, a workaround is to use the {@link Parser#cast()} method to explicitly force covariance whenever needed.
  * 
  * <p>
- * {@code Parser}s run either on character level to scan the source, or on token
- * level to parse a list of {@link Token} objects returned from another parser.
- * This other parser that returns the list of tokens for token level parsing is
- * hooked up via the {@link #from(Parser)} or {@link #from(Parser, Parser)}
- * method.
+ * {@code Parser}s run either on character level to scan the source, or on token level to parse a list of {@link Token} objects returned from another parser. This other parser that returns the list of tokens for token level parsing is hooked up via the {@link #from(Parser)} or {@link #from(Parser, Parser)} method.
  * 
  * <p>
  * The following are important naming conventions used throughout the library:
  * <ul>
- * <li>A character level parser object that recognizes a single lexical word is
- * called a scanner.
- * <li>A scanner that translates the recognized lexical word into a token is
- * called a tokenizer.
- * <li >A character level parser object that does lexical analysis and returns a
- * list of {@link Token} is called a lexer.
+ * <li>A character level parser object that recognizes a single lexical word is called a scanner.
+ * <li>A scanner that translates the recognized lexical word into a token is called a tokenizer.
+ * <li >A character level parser object that does lexical analysis and returns a list of {@link Token} is called a lexer.
  * <li>All {@code index} parameters are 0-based indexes in the original source.
  * </ul>
  * 
@@ -75,8 +62,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * An atomic mutable reference to {@link Parser}. Is useful to work around
-	 * circular dependency between parser objects.
+	 * An atomic mutable reference to {@link Parser}. Is useful to work around circular dependency between parser objects.
 	 * 
 	 * <p>
 	 * Example usage:
@@ -95,8 +81,7 @@ public abstract class Parser<T> {
 		private final Parser<T> lazy = new LazyParser<T>(this);
 
 		/**
-		 * A {@link Parser} that delegates to the parser object referenced by
-		 * {@code this} during parsing time.
+		 * A {@link Parser} that delegates to the parser object referenced by {@code this} during parsing time.
 		 */
 		public Parser<T> lazy() {
 			return lazy;
@@ -109,115 +94,98 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that executes {@code this}, and returns {@code value} if
-	 * succeeds.
+	 * A {@link Parser} that executes {@code this}, and returns {@code value} if succeeds.
 	 */
 	public final <R> Parser<R> retn(R value) {
 		return next(Parsers.constant(value));
 	}
 
 	/**
-	 * A {@link Parser} that sequentially executes {@code this} and then
-	 * {@code parser}. The return value of {@code parser} is preserved.
+	 * A {@link Parser} that sequentially executes {@code this} and then {@code parser}. The return value of {@code parser} is preserved.
 	 */
 	public final <R> Parser<R> next(Parser<R> parser) {
 		return Parsers.sequence(this, parser);
 	}
 
 	/**
-	 * A {@link Parser} that executes {@code this}, maps the result using
-	 * {@code map} to another {@code Parser} object to be executed as the next
-	 * step.
+	 * A {@link Parser} that executes {@code this}, maps the result using {@code map} to another {@code Parser} object to be executed as the next step.
 	 */
 	public final <To> Parser<To> next(Map<? super T, ? extends Parser<? extends To>> map) {
 		return new BindNextParser<T, To>(this, map);
 	}
 
 	/**
-	 * A {@link Parser} that sequentially executes {@code this} and then
-	 * {@code parser}, whose return value is ignored.
+	 * A {@link Parser} that sequentially executes {@code this} and then {@code parser}, whose return value is ignored.
 	 */
 	public final Parser<T> followedBy(Parser<?> parser) {
 		return Parsers.sequence(this, parser, InternalFunctors.<T, Object> firstOfTwo());
 	}
 
 	/**
-	 * A {@link Parser} that succeeds if {@code this} succeeds and the pattern
-	 * recognized by {@code parser} isn't following.
+	 * A {@link Parser} that succeeds if {@code this} succeeds and the pattern recognized by {@code parser} isn't following.
 	 */
 	public final Parser<T> notFollowedBy(Parser<?> parser) {
 		return followedBy(parser.not());
 	}
 
 	/**
-	 * {@code p.many()} is equivalent to {@code p*} in EBNF. The return values
-	 * are collected and returned in a {@link List}.
+	 * {@code p.many()} is equivalent to {@code p*} in EBNF. The return values are collected and returned in a {@link List}.
 	 */
 	public final Parser<List<T>> many() {
 		return atLeast(0);
 	}
 
 	/**
-	 * {@code p.skipMany()} is equivalent to {@code p*} in EBNF. The return
-	 * values are discarded.
+	 * {@code p.skipMany()} is equivalent to {@code p*} in EBNF. The return values are discarded.
 	 */
 	public final Parser<Void> skipMany() {
 		return skipAtLeast(0);
 	}
 
 	/**
-	 * {@code p.many1()} is equivalent to {@code p+} in EBNF. The return values
-	 * are collected and returned in a {@link List}.
+	 * {@code p.many1()} is equivalent to {@code p+} in EBNF. The return values are collected and returned in a {@link List}.
 	 */
 	public final Parser<List<T>> many1() {
 		return atLeast(1);
 	}
 
 	/**
-	 * {@code p.skipMany1()} is equivalent to {@code p+} in EBNF. The return
-	 * values are discarded.
+	 * {@code p.skipMany1()} is equivalent to {@code p+} in EBNF. The return values are discarded.
 	 */
 	public final Parser<Void> skipMany1() {
 		return skipAtLeast(1);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} parser greedily for at least
-	 * {@code min} times. The return values are collected and returned in a
-	 * {@link List}.
+	 * A {@link Parser} that runs {@code this} parser greedily for at least {@code min} times. The return values are collected and returned in a {@link List}.
 	 */
 	public final Parser<List<T>> atLeast(int min) {
 		return new RepeatAtLeastParser<T>(this, Checks.checkMin(min));
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} parser greedily for at least
-	 * {@code min} times and ignores the return values.
+	 * A {@link Parser} that runs {@code this} parser greedily for at least {@code min} times and ignores the return values.
 	 */
 	public final Parser<Void> skipAtLeast(int min) {
 		return new SkipAtLeastParser(this, Checks.checkMin(min));
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs {@code this} for {@code n} times
-	 * and ignores the return values.
+	 * A {@link Parser} that sequentially runs {@code this} for {@code n} times and ignores the return values.
 	 */
 	public final Parser<Void> skipTimes(int n) {
 		return skipTimes(n, n);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} for {@code n} times and collects
-	 * the return values in a {@link List}.
+	 * A {@link Parser} that runs {@code this} for {@code n} times and collects the return values in a {@link List}.
 	 */
 	public final Parser<List<T>> times(int n) {
 		return times(n, n);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} parser for at least {@code min}
-	 * times and up to {@code max} times. The return values are collected and
-	 * returned in {@link List}.
+	 * A {@link Parser} that runs {@code this} parser for at least {@code min} times and up to {@code max} times. The return values are collected and returned in {@link List}.
 	 */
 	public final Parser<List<T>> times(int min, int max) {
 		Checks.checkMinMax(min, max);
@@ -225,8 +193,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} parser for at least {@code min}
-	 * times and up to {@code max} times, with all the return values ignored.
+	 * A {@link Parser} that runs {@code this} parser for at least {@code min} times and up to {@code max} times, with all the return values ignored.
 	 */
 	public final Parser<Void> skipTimes(int min, int max) {
 		Checks.checkMinMax(min, max);
@@ -234,8 +201,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} parser and transforms the return
-	 * value using {@code map}.
+	 * A {@link Parser} that runs {@code this} parser and transforms the return value using {@code map}.
 	 */
 	public final <R> Parser<R> map(Map<? super T, ? extends R> map) {
 		return new MapParser<T, R>(this, map);
@@ -253,32 +219,28 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * {@code p.optional()} is equivalent to {@code p?} in EBNF. {@code null} is
-	 * the result when {@code this} fails with no partial match.
+	 * {@code p.optional()} is equivalent to {@code p?} in EBNF. {@code null} is the result when {@code this} fails with no partial match.
 	 */
 	public final Parser<T> optional() {
 		return Parsers.plus(this, Parsers.<T> always());
 	}
 
 	/**
-	 * A {@link Parser} that returns {@code defaultValue} if {@code this} fails
-	 * with no partial match.
+	 * A {@link Parser} that returns {@code defaultValue} if {@code this} fails with no partial match.
 	 */
 	public final Parser<T> optional(T defaultValue) {
 		return Parsers.plus(this, Parsers.constant(defaultValue));
 	}
 
 	/**
-	 * A {@link Parser} that fails if {@code this} succeeds. Any input
-	 * consumption is undone.
+	 * A {@link Parser} that fails if {@code this} succeeds. Any input consumption is undone.
 	 */
 	public final Parser<?> not() {
 		return not(toString());
 	}
 
 	/**
-	 * A {@link Parser} that fails if {@code this} succeeds. Any input
-	 * consumption is undone.
+	 * A {@link Parser} that fails if {@code this} succeeds. Any input consumption is undone.
 	 * 
 	 * @param unexpected
 	 *            the name of what we don't expect.
@@ -288,8 +250,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} and undoes any input consumption
-	 * if succeeds.
+	 * A {@link Parser} that runs {@code this} and undoes any input consumption if succeeds.
 	 */
 	public final Parser<T> peek() {
 		return new PeekParser<T>(this);
@@ -301,8 +262,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} parser and sets the number of
-	 * logical steps explicitly to {@code n}.
+	 * A {@link Parser} that runs {@code this} parser and sets the number of logical steps explicitly to {@code n}.
 	 */
 	final Parser<T> step(int n) {
 		checkArgument(n >= 0, "step < 0");
@@ -310,48 +270,42 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that returns {@code true} if {@code this} succeeds,
-	 * {@code false} otherwise.
+	 * A {@link Parser} that returns {@code true} if {@code this} succeeds, {@code false} otherwise.
 	 */
 	public final Parser<Boolean> succeeds() {
 		return ifelse(Parsers.TRUE, Parsers.FALSE);
 	}
 
 	/**
-	 * A {@link Parser} that returns {@code true} if {@code this} fails,
-	 * {@code false} otherwise.
+	 * A {@link Parser} that returns {@code true} if {@code this} fails, {@code false} otherwise.
 	 */
 	public final Parser<Boolean> fails() {
 		return ifelse(Parsers.FALSE, Parsers.TRUE);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code consequence} if {@code this} succeeds,
-	 * or {@code alternative} otherwise.
+	 * A {@link Parser} that runs {@code consequence} if {@code this} succeeds, or {@code alternative} otherwise.
 	 */
 	public final <R> Parser<R> ifelse(Parser<? extends R> consequence, Parser<? extends R> alternative) {
 		return ifelse(Maps.constant(consequence), alternative);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code consequence} if {@code this} succeeds,
-	 * or {@code alternative} otherwise.
+	 * A {@link Parser} that runs {@code consequence} if {@code this} succeeds, or {@code alternative} otherwise.
 	 */
 	public final <R> Parser<R> ifelse(Map<? super T, ? extends Parser<? extends R>> consequence, Parser<? extends R> alternative) {
 		return new IfElseParser<R, T>(this, consequence, alternative);
 	}
 
 	/**
-	 * A {@link Parser} that reports reports an error about {@code name}
-	 * expected, if {@code this} fails with no partial match.
+	 * A {@link Parser} that reports reports an error about {@code name} expected, if {@code this} fails with no partial match.
 	 */
 	public final Parser<T> label(String name) {
 		return Parsers.plus(this, Parsers.<T> expect(name));
 	}
 
 	/**
-	 * Casts {@code this} to a {@link Parser} of type {@code R}. Use it only if
-	 * you know the parser actually returns value of type {@code R}.
+	 * Casts {@code this} to a {@link Parser} of type {@code R}. Use it only if you know the parser actually returns value of type {@code R}.
 	 */
 	@SuppressWarnings("unchecked")
 	public final <R> Parser<R> cast() {
@@ -359,21 +313,17 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} between {@code before} and
-	 * {@code after}. The return value of {@code this} is preserved.
+	 * A {@link Parser} that runs {@code this} between {@code before} and {@code after}. The return value of {@code this} is preserved.
 	 * 
 	 * <p>
-	 * Equivalent to {@link Parsers#between(Parser, Parser, Parser)}, which
-	 * preserves the natural order of the parsers in the argument list, but is a
-	 * bit more verbose.
+	 * Equivalent to {@link Parsers#between(Parser, Parser, Parser)}, which preserves the natural order of the parsers in the argument list, but is a bit more verbose.
 	 */
 	public final Parser<T> between(Parser<?> before, Parser<?> after) {
 		return before.next(followedBy(after));
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} 1 or more times separated by
-	 * {@code delim}.
+	 * A {@link Parser} that runs {@code this} 1 or more times separated by {@code delim}.
 	 * 
 	 * <p>
 	 * The return values are collected in a {@link List}.
@@ -389,8 +339,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} 0 or more times separated by
-	 * {@code delim}.
+	 * A {@link Parser} that runs {@code this} 0 or more times separated by {@code delim}.
 	 * 
 	 * <p>
 	 * The return values are collected in a {@link List}.
@@ -400,8 +349,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} for 0 or more times delimited and
-	 * terminated by {@code delim}.
+	 * A {@link Parser} that runs {@code this} for 0 or more times delimited and terminated by {@code delim}.
 	 * 
 	 * <p>
 	 * The return values are collected in a {@link List}.
@@ -411,8 +359,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} for 1 or more times delimited and
-	 * terminated by {@code delim}.
+	 * A {@link Parser} that runs {@code this} for 1 or more times delimited and terminated by {@code delim}.
 	 * 
 	 * <p>
 	 * The return values are collected in a {@link List}.
@@ -422,10 +369,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} for 1 ore more times separated
-	 * and optionally terminated by {@code delim}. For example:
-	 * {@code "foo;foo;foo"} and {@code "foo;foo;"} both matches
-	 * {@code foo.sepEndBy1(semicolon)}.
+	 * A {@link Parser} that runs {@code this} for 1 ore more times separated and optionally terminated by {@code delim}. For example: {@code "foo;foo;foo"} and {@code "foo;foo;"} both matches {@code foo.sepEndBy1(semicolon)}.
 	 * 
 	 * <p>
 	 * The return values are collected in a {@link List}.
@@ -439,10 +383,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} for 0 ore more times separated
-	 * and optionally terminated by {@code delim}. For example:
-	 * {@code "foo;foo;foo"} and {@code "foo;foo;"} both matches
-	 * {@code foo.sepEndBy(semicolon)}.
+	 * A {@link Parser} that runs {@code this} for 0 ore more times separated and optionally terminated by {@code delim}. For example: {@code "foo;foo;foo"} and {@code "foo;foo;"} both matches {@code foo.sepEndBy(semicolon)}.
 	 * 
 	 * <p>
 	 * The return values are collected in a {@link List}.
@@ -452,9 +393,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code op} for 0 or more times greedily, then
-	 * runs {@code this}. The {@link Map} objects returned from {@code op} are
-	 * applied from right to left to the return value of {@code p}.
+	 * A {@link Parser} that runs {@code op} for 0 or more times greedily, then runs {@code this}. The {@link Map} objects returned from {@code op} are applied from right to left to the return value of {@code p}.
 	 * 
 	 * <p>
 	 * {@code p.prefix(op)} is equivalent to {@code op* p} in EBNF.
@@ -465,9 +404,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} and then runs {@code op} for 0 or
-	 * more times greedily. The {@link Map} objects returned from {@code op} are
-	 * applied from left to right to the return value of p.
+	 * A {@link Parser} that runs {@code this} and then runs {@code op} for 0 or more times greedily. The {@link Map} objects returned from {@code op} are applied from left to right to the return value of p.
 	 * 
 	 * <p>
 	 * {@code p.postfix(op)} is equivalent to {@code p op*} in EBNF.
@@ -478,11 +415,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that parses non-associative infix operator. Runs
-	 * {@code this} for the left operand, and then runs {@code op} and
-	 * {@code this} for the operator and the right operand optionally. The
-	 * {@link Map2} objects returned from {@code op} are applied to the return
-	 * values of the two operands, if any.
+	 * A {@link Parser} that parses non-associative infix operator. Runs {@code this} for the left operand, and then runs {@code op} and {@code this} for the operator and the right operand optionally. The {@link Map2} objects returned from {@code op} are applied to the return values of the two operands, if any.
 	 * 
 	 * <p>
 	 * {@code p.infixn(op)} is equivalent to {@code p (op p)?} in EBNF.
@@ -492,12 +425,8 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} for left-associative infix operator. Runs {@code this}
-	 * for the left operand, and then runs {@code op} and {@code this} for the
-	 * operator and the right operand for 0 or more times greedily. The
-	 * {@link Map2} objects returned from {@code op} are applied from left to
-	 * right to the return values of {@code this}, if any. For example:
-	 * {@code a + b + c + d} is evaluated as {@code (((a + b)+c)+d)}.
+	 * A {@link Parser} for left-associative infix operator. Runs {@code this} for the left operand, and then runs {@code op} and {@code this} for the operator and the right operand for 0 or more times greedily. The {@link Map2} objects returned from {@code op} are applied from left to right to the return values of {@code this}, if any. For example: {@code a + b + c + d} is evaluated as
+	 * {@code (((a + b)+c)+d)}.
 	 * 
 	 * <p>
 	 * {@code p.infixl(op)} is equivalent to {@code p (op p)*} in EBNF.
@@ -508,12 +437,8 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} for right-associative infix operator. Runs {@code this}
-	 * for the left operand, and then runs {@code op} and {@code this} for the
-	 * operator and the right operand for 0 or more times greedily. The
-	 * {@link Map2} objects returned from {@code op} are applied from right to
-	 * left to the return values of {@code this}, if any. For example:
-	 * {@code a + b + c + d} is evaluated as {@code a + (b + (c + d))}.
+	 * A {@link Parser} for right-associative infix operator. Runs {@code this} for the left operand, and then runs {@code op} and {@code this} for the operator and the right operand for 0 or more times greedily. The {@link Map2} objects returned from {@code op} are applied from right to left to the return values of {@code this}, if any. For example: {@code a + b + c + d} is evaluated as
+	 * {@code a + (b + (c + d))}.
 	 * 
 	 * <p>
 	 * {@code p.infixr(op)} is equivalent to {@code p (op p)*} in EBNF.
@@ -523,13 +448,10 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code this} and wraps the return value in a
-	 * {@link Token}.
+	 * A {@link Parser} that runs {@code this} and wraps the return value in a {@link Token}.
 	 * 
 	 * <p>
-	 * It is normally not necessary to call this method explicitly.
-	 * {@link #lexer(Parser)} and {@link #from(Parser, Parser)} both do the
-	 * conversion automatically.
+	 * It is normally not necessary to call this method explicitly. {@link #lexer(Parser)} and {@link #from(Parser, Parser)} both do the conversion automatically.
 	 */
 	public final Parser<Token> token() {
 		return new ToTokenParser(this);
@@ -541,8 +463,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that takes as input the {@link Token} collection
-	 * returned by {@code lexer}, and runs {@code this} to parse the tokens.
+	 * A {@link Parser} that takes as input the {@link Token} collection returned by {@code lexer}, and runs {@code this} to parse the tokens.
 	 * 
 	 * <p>
 	 * {@code this} must be a token level parser.
@@ -552,9 +473,7 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that takes as input the tokens returned by
-	 * {@code tokenizer} delimited by {@code delim}, and runs {@code this} to
-	 * parse the tokens.
+	 * A {@link Parser} that takes as input the tokens returned by {@code tokenizer} delimited by {@code delim}, and runs {@code this} to parse the tokens.
 	 * 
 	 * <p>
 	 * {@code this} must be a token level parser.
@@ -564,18 +483,10 @@ public abstract class Parser<T> {
 	}
 
 	/**
-	 * A {@link Parser} that greedily runs {@code this} repeatedly, and ignores
-	 * the pattern recognized by {@code delim} before and after each occurrence.
-	 * The result tokens are wrapped in {@link Token} and are collected and
-	 * returned in a {@link List}.
+	 * A {@link Parser} that greedily runs {@code this} repeatedly, and ignores the pattern recognized by {@code delim} before and after each occurrence. The result tokens are wrapped in {@link Token} and are collected and returned in a {@link List}.
 	 * 
 	 * <p>
-	 * It is normally not necessary to call this method explicitly.
-	 * {@link #from(Parser, Parser)} is more convenient for simple uses that
-	 * just need to connect a token level parser with a lexer that produces the
-	 * tokens. When more flexible control over the token list is needed, for
-	 * example, to parse indentation sensitive language, a pre-processor of the
-	 * token list may be needed.
+	 * It is normally not necessary to call this method explicitly. {@link #from(Parser, Parser)} is more convenient for simple uses that just need to connect a token level parser with a lexer that produces the tokens. When more flexible control over the token list is needed, for example, to parse indentation sensitive language, a pre-processor of the token list may be needed.
 	 * 
 	 * <p>
 	 * {@code this} must be a tokenizer that returns a token value.

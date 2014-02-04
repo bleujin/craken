@@ -13,6 +13,7 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
 
@@ -44,7 +45,8 @@ public class RowEntry {
 
 		JsonObject jsonProps = JsonObject.fromString(currRow.getString("props"));
 		for (Entry<String, JsonElement> entry : jsonProps.entrySet()) {
-			nodeValue.put(PropertyId.fromIdString(entry.getKey()), PropertyValue.loadFrom(entry.getValue().getAsJsonArray()));
+			PropertyValue pvalue = PropertyValue.loadFrom(entry.getValue().getAsJsonObject());
+			nodeValue.put(PropertyId.fromIdString(entry.getKey()), pvalue);
 		}
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey);
 	}

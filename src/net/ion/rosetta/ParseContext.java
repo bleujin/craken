@@ -37,8 +37,7 @@ abstract class ParseContext {
 	final SourceLocator locator;
 
 	/**
-	 * The current position of the input. Points to the token array for token
-	 * level.
+	 * The current position of the input. Points to the token array for token level.
 	 */
 	int at;
 
@@ -54,14 +53,12 @@ abstract class ParseContext {
 		NONE(false),
 
 		/**
-		 * When {@link Parsers#never()} is called. Only for creating a trap
-		 * programmatically.
+		 * When {@link Parsers#never()} is called. Only for creating a trap programmatically.
 		 */
 		TRAP(false),
 
 		/**
-		 * When {@link Parser#not()} is called. Signals that something isn't
-		 * expected.
+		 * When {@link Parser#not()} is called. Signals that something isn't expected.
 		 */
 		UNEXPECTED(false),
 
@@ -69,14 +66,12 @@ abstract class ParseContext {
 		EXPECTED(true),
 
 		/**
-		 * When {@link Parsers#fail(String)} is called. Signals a serious
-		 * problem.
+		 * When {@link Parsers#fail(String)} is called. Signals a serious problem.
 		 */
 		FAILURE(false),
 
 		/**
-		 * When {@link Parsers#expect(String)} or {@link Parser#label(String)}
-		 * is called.
+		 * When {@link Parsers#expect(String)} or {@link Parser#label(String)} is called.
 		 */
 		EXPECT(true);
 
@@ -89,11 +84,9 @@ abstract class ParseContext {
 
 	private ErrorType currentErrorType = ErrorType.NONE;
 	private int currentErrorAt;
-	private int currentErrorIndex = 0; // TODO: is it necessary to set this to
-										// the starting index?
+	private int currentErrorIndex = 0; // TODO: is it necessary to set this to the starting index?
 	private final ArrayList<Object> errors = Lists.arrayList();
-	private String encountered = null; // for explicitly setting encountered
-										// token into ScannerState.
+	private String encountered = null; // for explicitly setting encountered token into ScannerState.
 
 	// explicit suppresses error recording if true.
 	private boolean errorSuppressed = false;
@@ -165,16 +158,14 @@ abstract class ParseContext {
 	}
 
 	/**
-	 * Explicitly sets the encountered token, which is from a nested
-	 * {@link ParseContext} instance.
+	 * Explicitly sets the encountered token, which is from a nested {@link ParseContext} instance.
 	 */
 	final void setEncountered(String encountered) {
 		this.encountered = encountered;
 	}
 
 	/**
-	 * Returns the string representation of the current input (character or
-	 * token).
+	 * Returns the string representation of the current input (character or token).
 	 */
 	abstract String getInputName(int pos);
 
@@ -290,8 +281,7 @@ abstract class ParseContext {
 	}
 
 	/**
-	 * Reads the characters as input. Only applicable to character level
-	 * parsers.
+	 * Reads the characters as input. Only applicable to character level parsers.
 	 */
 	abstract CharSequence characters();
 }

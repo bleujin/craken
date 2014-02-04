@@ -26,6 +26,7 @@ import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.craken.tree.TreeNode;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.parse.gson.JsonElement;
@@ -63,6 +64,10 @@ public class WriteNodeImpl implements WriteNode{
 		@Override
 		public String replaceValue() {
 			return this.toString();
+		}
+		
+		public VType vtype(){
+			return VType.STR ;
 		}
 	}
 	
@@ -162,7 +167,7 @@ public class WriteNodeImpl implements WriteNode{
 	public WriteNode append(String key, Object... value){
 		touch(Touch.MODIFY) ;
 		PropertyValue findValue = property(key) ;
-		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
+		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createBlank() ;
 		
 		findValue.append(value) ;
 		
@@ -220,7 +225,7 @@ public class WriteNodeImpl implements WriteNode{
 			IOUtil.copyNClose(input, gblob.outputStream());
 			meta = gblob.getMetadata() ;
 			
-			property(PropertyId.normal(key), meta.asPropertyValue()) ;
+			property(PropertyId.normal(key), PropertyValue.createPrimitive(meta)) ;
 			
 		} catch (IOException e) {
 			throw new NodeIOException(e) ;
@@ -352,7 +357,7 @@ public class WriteNodeImpl implements WriteNode{
 		
 		PropertyId referId = createReferId(refName);
 		PropertyValue findValue = propertyId(referId) ;
-		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createPrimitive(null) ;
+		if (findValue == PropertyValue.NotFound) findValue = PropertyValue.createBlank() ;
 		
 		for (String fqn : fqns) {
 			findValue.append(fqn) ;

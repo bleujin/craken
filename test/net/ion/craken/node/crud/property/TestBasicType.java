@@ -63,24 +63,4 @@ public class TestBasicType extends TestBaseCrud {
 	}
 	
 	
-	public void testReplaceValue() throws Exception {
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) {
-				wsession.pathBy("replace").property("rep", new PropertyValue.ReplaceValue() {
-					@Override
-					public String replaceValue() {
-						return "hello";
-					}
-				});
-				return null;
-			}
-		}).get() ;
-		
-		assertEquals("hello", session.pathBy("/replace").property("rep").stringValue()) ;
-	}
-
-	
-	
-	
 }

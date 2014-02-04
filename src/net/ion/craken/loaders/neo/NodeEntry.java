@@ -1,15 +1,20 @@
 package net.ion.craken.loaders.neo;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
+import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
 
@@ -58,13 +63,22 @@ public class NodeEntry extends ImmortalCacheEntry implements Serializable{
 		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
 
 		for (String pkey : findNode.getPropertyKeys()) {
+			if (pkey.startsWith("__")) continue ; // __id, __lastmodified
+			
 			Object pvalue = findNode.getProperty(pkey);
-			if (List.class.isInstance(pvalue)) {
-				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom((JsonArray)pvalue));
-			} else {
-				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue)) ;
-//				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.isJsonObject() ?  pvalue.getAsJsonObject().toString() : pvalue.getAsJsonPrimitive().getValue()));
+
+			JsonObject json = JsonObject.create() ;
+			json.addProperty("vtype", VType.UNKNOWN.name());
+			int length = Array.getLength(pvalue) ;
+			JsonArray jarray = new JsonArray() ;
+			json.add("vals", jarray) ;
+			Debug.line(pvalue, pvalue.getClass());
+			for(int i = 0 ; i <length ; i++){
+				Object obj = Array.get(pvalue, i);
+				jarray.adds(obj) ;
+				if (i == 0) json.addProperty("vtype", PropertyValue.VType.findType(obj).name()) ;
 			}
+			nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(json));
 		}
 
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey) ;

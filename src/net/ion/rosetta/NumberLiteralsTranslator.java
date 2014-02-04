@@ -16,8 +16,7 @@
 package net.ion.rosetta;
 
 /**
- * Transforms the recognized character range to an integer within 64 bits. For
- * bigger integer, use {@link TokenizerMaps#DECIMAL_FRAGMENT} instead.
+ * Transforms the recognized character range to an integer within 64 bits. For bigger integer, use {@link TokenizerMaps#DECIMAL_FRAGMENT} instead.
  * 
  * @author Ben Yu
  */

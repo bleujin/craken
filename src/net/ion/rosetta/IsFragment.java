@@ -15,11 +15,11 @@
  *****************************************************************************/
 package net.ion.rosetta;
 
+import net.ion.framework.util.Debug;
 import net.ion.rosetta.Tokens.Fragment;
 
 /**
- * Returns the fragment text if the token is an instance of {@Link
- * Fragment} with expected tag.
+ * Returns the fragment text if the token is an instance of {@Link Fragment} with expected tag.
  * 
  * @author Ben Yu
  */
@@ -27,6 +27,7 @@ abstract class IsFragment implements TokenMap<String> {
 
 	public String map(final Token token) {
 		final Object val = token.value();
+
 		if (val instanceof Fragment) {
 			Fragment c = (Fragment) val;
 			if (!isExpectedTag(c.tag()))

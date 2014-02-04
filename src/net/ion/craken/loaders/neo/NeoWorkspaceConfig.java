@@ -37,7 +37,7 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 
 	public NeoWorkspaceConfig() {
 		setCacheLoaderClassName(NeoWorkspaceStore.class.getName());
-		neoLocation("./resource/neo") ;
+		neoLocation("./resource/temp/neo") ;
 	}
 	
 	public static NeoWorkspaceConfig create() {
@@ -51,7 +51,7 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 	}
 	
 	public static NeoWorkspaceConfig createDefault() {
-		return NeoWorkspaceConfig.create().neoLocation("./resource/neo").location("") ;
+		return NeoWorkspaceConfig.create().neoLocation("./resource/temp/neo").location("") ;
 	}
 	
 
@@ -88,6 +88,10 @@ public class NeoWorkspaceConfig extends WorkspaceConfig {
 		return this;
 	}
 
+	
+	public NeoWorkspaceConfig setNeoLocation(String dlocation){
+		return neoLocation(dlocation) ;
+	}
 
 
 	public NeoWorkspaceConfig maxNodeEntry(int maxNodeEntry){

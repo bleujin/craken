@@ -1,8 +1,7 @@
 package net.ion.rosetta;
 
 /**
- * Converts the current return value as a {@link Token} with starting index and
- * length.
+ * Converts the current return value as a {@link Token} with starting index and length.
  * 
  * @author Ben Yu
  */

@@ -26,7 +26,7 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 
 	private static final long serialVersionUID = 5891372400491793884L;
 
-	private String location = "./resource/local";
+	private String location = "./resource/temp/isearch";
 	private int lockTimeoutMs = 60 * 1000;
 
 	private int maxNodeEntry = 15000;
@@ -41,7 +41,7 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 	}
 
 	public static ISearcherWorkspaceConfig createDefault() {
-		return ISearcherWorkspaceConfig.create().location("./resource/local");
+		return ISearcherWorkspaceConfig.create().location("./resource/temp/isearch");
 	}
 
 	public String getLocation() {
@@ -109,7 +109,7 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 
 	@Override
 	public Workspace createWorkspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName) throws IOException {
-		return new ISearchWorkspace(repository, cache, wsName, this);
+		return new ISearcherWorkspace(repository, cache, wsName, this);
 	}
 
 }

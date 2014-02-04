@@ -2,8 +2,10 @@ package net.ion.craken.expression;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import net.ion.craken.node.NodeCommon;
+import net.ion.framework.util.SetUtil;
 import net.ion.rosetta.functors.Pair;
 
 public final class SimpleCaseExpression extends ValueObject implements Expression {
@@ -25,4 +27,5 @@ public final class SimpleCaseExpression extends ValueObject implements Expressio
 		}
 		return defaultValue.value(node);
 	}
+	
 }

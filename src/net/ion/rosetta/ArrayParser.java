@@ -16,8 +16,7 @@
 package net.ion.rosetta;
 
 /**
- * Sequentially runs an array of {@link Parser} objects and collects the return
- * values in an array.
+ * Sequentially runs an array of {@link Parser} objects and collects the return values in an array.
  * 
  * @author Ben Yu
  */

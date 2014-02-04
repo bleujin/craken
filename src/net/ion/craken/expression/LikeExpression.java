@@ -1,7 +1,10 @@
 package net.ion.craken.expression;
 
+import java.util.Set;
+
 import net.ion.craken.node.NodeCommon;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 
 public final class LikeExpression extends ValueObject implements Expression {
@@ -30,5 +33,8 @@ public final class LikeExpression extends ValueObject implements Expression {
 			return StringUtil.equals(expValue, patternString) ;
 		}
 	}
+
+
+
 }
 

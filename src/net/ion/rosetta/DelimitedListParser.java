@@ -18,8 +18,7 @@ package net.ion.rosetta;
 import java.util.List;
 
 /**
- * A parser that ignores delimiters before each repetitive pattern until no more
- * delimiter is found.
+ * A parser that ignores delimiters before each repetitive pattern until no more delimiter is found.
  * 
  * @author Ben Yu
  */

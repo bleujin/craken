@@ -1,9 +1,12 @@
 package net.ion.craken.expression ;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import net.ion.craken.node.NodeCommon;
 import net.ion.framework.util.NumberUtil;
+import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
 
 
 public final class QualifiedNameExpression extends ValueObject implements Expression {
@@ -29,7 +32,7 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 		NodeCommon findNode = node ;
 		String nextString = null ;
 		while(iter.hasNext()){
-			nextString = iter.next() ;
+			nextString = StringUtil.trim(iter.next()) ;
 			
 			if ("true".equalsIgnoreCase(nextString) && ! iter.hasNext()) return Boolean.TRUE ;
 			if ("false".equalsIgnoreCase(nextString) && ! iter.hasNext()) return Boolean.FALSE ;
@@ -49,10 +52,20 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 			}
 		}
 		
-		final Object value = findNode.property(nextString).value();
+		if (nextString.startsWith("[") && nextString.endsWith("]")){
+			String propId = StringUtil.substringBetween(nextString, "[", "]") ;
+			return new SetComparable(findNode.property(propId).asSet()) ;
+		}
+		
+		
+		Object value = findNode.property(nextString).value() ;
 		if (value != null && (value instanceof Integer || value instanceof Long || value instanceof Float || value instanceof Double)){
 			return NumberUtil.createBigDecimal(value.toString()) ;
 		}
-		return (Comparable) value;
+		return (Comparable)value ;
 	}
+	
 }
+
+
+

@@ -21,13 +21,9 @@ import net.ion.rosetta.pattern.Pattern;
 import net.ion.rosetta.pattern.Patterns;
 
 /**
- * Provides common {@link Parser} implementations that scan the source and match
- * certain string patterns.
+ * Provides common {@link Parser} implementations that scan the source and match certain string patterns.
  * <p>
- * Some scanners like {@link #IDENTIFIER} and {@link #INTEGER} return the
- * matched string, while others like {@link #WHITESPACES} return nothing, as
- * indicated by the {@link Void} type parameter. In case the matched string is
- * still needed nontheless, use the {@link Parser#source()} method.
+ * Some scanners like {@link #IDENTIFIER} and {@link #INTEGER} return the matched string, while others like {@link #WHITESPACES} return nothing, as indicated by the {@link Void} type parameter. In case the matched string is still needed nontheless, use the {@link Parser#source()} method.
  * 
  * @author Ben Yu
  */
@@ -37,9 +33,7 @@ public final class Scanners {
 	public static final Parser<Void> WHITESPACES = pattern(Patterns.many1(CharPredicates.IS_WHITESPACE), "whitespaces");
 
 	/**
-	 * Matches any character in the input. Different from
-	 * {@link Parsers#always()}, it fails on EOF. Also it consumes the current
-	 * character in the input.
+	 * Matches any character in the input. Different from {@link Parsers#always()}, it fails on EOF. Also it consumes the current character in the input.
 	 */
 	public static final Parser<Void> ANY_CHAR = new AnyCharScanner("any character");
 
@@ -64,15 +58,12 @@ public final class Scanners {
 	public static final Parser<Void> HASKELL_BLOCK_COMMENT = Parsers.sequence(string("{-"), pattern(notChar2('-', '}').many(), "commented block"), string("-}"));
 
 	/**
-	 * Scanner with a pattern for SQL style string literal. A SQL string literal
-	 * is a string quoted by single quote, a single quote character is escaped
-	 * by 2 single quotes.
+	 * Scanner with a pattern for SQL style string literal. A SQL string literal is a string quoted by single quote, a single quote character is escaped by 2 single quotes.
 	 */
 	public static final Parser<String> SINGLE_QUOTE_STRING = quotedBy(pattern(Patterns.regex("(('')|[^'])*"), "quoted string"), isChar('\'')).source();
 
 	/**
-	 * Scanner with a pattern for double quoted string literal. Backslash '\' is
-	 * used as escape character.
+	 * Scanner with a pattern for double quoted string literal. Backslash '\' is used as escape character.
 	 */
 	public static final Parser<String> DOUBLE_QUOTE_STRING = quotedBy(pattern(Patterns.regex("((\\\\.)|[^\"\\\\])*"), "quoted string"), Scanners.isChar('"')).source();
 
@@ -80,28 +71,26 @@ public final class Scanners {
 	public static final Parser<String> SINGLE_QUOTE_CHAR = quotedBy(pattern(Patterns.regex("(\\\\.)|[^'\\\\]"), "quoted char"), Scanners.isChar('\'')).source();
 
 	/**
-	 * Scanner for the c++/java style delimiter of tokens. For example,
-	 * whitespaces, line comment and block comment.
+	 * Scanner for the c++/java style delimiter of tokens. For example, whitespaces, line comment and block comment.
 	 */
 	public static final Parser<Void> JAVA_DELIMITER = Parsers.plus(WHITESPACES, JAVA_LINE_COMMENT, JAVA_BLOCK_COMMENT).skipMany();
 
 	/**
-	 * Scanner for the haskell style delimiter of tokens. For example,
-	 * whitespaces, line comment and block comment.
+	 * Scanner for the haskell style delimiter of tokens. For example, whitespaces, line comment and block comment.
 	 */
 	public static final Parser<Void> HASKELL_DELIMITER = Parsers.plus(WHITESPACES, HASKELL_LINE_COMMENT, HASKELL_BLOCK_COMMENT).skipMany();
 
 	/**
-	 * Scanner for the SQL style delimiter of tokens. For example, whitespaces
-	 * and line comment.
+	 * Scanner for the SQL style delimiter of tokens. For example, whitespaces and line comment.
 	 */
 	public static final Parser<Void> SQL_DELIMITER = Parsers.plus(WHITESPACES, SQL_LINE_COMMENT, SQL_BLOCK_COMMENT).skipMany();
 
 	/**
-	 * Scanner for a regular identifier, that starts with either an underscore
-	 * or an alpha character, followed by 0 or more alphanumeric characters.
+	 * Scanner for a regular identifier, that starts with either an underscore or an alpha character, followed by 0 or more alphanumeric characters.
 	 */
 	public static final Parser<String> IDENTIFIER = pattern(Patterns.WORD, "word").source();
+
+	public static final Parser<String> ARRAY_IDENTIFIER = pattern(Patterns.ARRAYWORD, "array word").source();
 
 	/** Scanner for an integer. */
 	public static final Parser<String> INTEGER = pattern(Patterns.INTEGER, "integer").source();
@@ -116,8 +105,7 @@ public final class Scanners {
 	public static final Parser<String> OCT_INTEGER = pattern(Patterns.OCT_INTEGER, "octal integer").source();
 
 	/**
-	 * Scanner for a hexadecimal number. Has to start with {@code 0x} or
-	 * {@code 0X}.
+	 * Scanner for a hexadecimal number. Has to start with {@code 0x} or {@code 0X}.
 	 */
 	public static final Parser<String> HEX_INTEGER = pattern(Patterns.HEX_INTEGER, "hexadecimal integer").source();
 
@@ -125,8 +113,7 @@ public final class Scanners {
 	public static final Parser<String> SCIENTIFIC_NOTATION = pattern(Patterns.SCIENTIFIC_NOTATION, "scientific notation").source();
 
 	/**
-	 * A scanner that scans greedily for 0 or more characters that satisfies the
-	 * given CharPredicate.
+	 * A scanner that scans greedily for 0 or more characters that satisfies the given CharPredicate.
 	 * 
 	 * @param predicate
 	 *            the predicate object.
@@ -137,8 +124,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that scans greedily for 1 or more characters that satisfies the
-	 * given CharPredicate.
+	 * A scanner that scans greedily for 1 or more characters that satisfies the given CharPredicate.
 	 * 
 	 * @param predicate
 	 *            the predicate object.
@@ -149,14 +135,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that scans greedily for 0 or more occurrences of the given
-	 * pattern.
+	 * A scanner that scans greedily for 0 or more occurrences of the given pattern.
 	 * 
 	 * @param pattern
 	 *            the pattern object.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the Parser object.
 	 */
 	public static Parser<Void> many(Pattern pattern, String name) {
@@ -164,14 +148,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that scans greedily for 1 or more occurrences of the given
-	 * pattern.
+	 * A scanner that scans greedily for 1 or more occurrences of the given pattern.
 	 * 
 	 * @param pattern
 	 *            the pattern object.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the Parser object.
 	 */
 	public static Parser<Void> many1(Pattern pattern, String name) {
@@ -195,8 +177,7 @@ public final class Scanners {
 	 * @param str
 	 *            the string to match
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> string(String str, String name) {
@@ -209,8 +190,7 @@ public final class Scanners {
 	 * @param pattern
 	 *            the pattern object.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the Parser object.
 	 */
 	public static Parser<Void> pattern(Pattern pattern, String name) {
@@ -218,14 +198,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that matches the input against the specified string case
-	 * insensitively.
+	 * A scanner that matches the input against the specified string case insensitively.
 	 * 
 	 * @param str
 	 *            the string to match
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> stringCaseInsensitive(String str, String name) {
@@ -233,8 +211,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that matches the input against the specified string case
-	 * insensitively.
+	 * A scanner that matches the input against the specified string case insensitively.
 	 * 
 	 * @param str
 	 *            the string to match
@@ -245,8 +222,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it
-	 * satisfies the given {@link CharPredicate}.
+	 * A scanner that succeeds and consumes the current character if it satisfies the given {@link CharPredicate}.
 	 * 
 	 * @param predicate
 	 *            the predicate.
@@ -257,14 +233,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it
-	 * satisfies the given {@link CharPredicate}.
+	 * A scanner that succeeds and consumes the current character if it satisfies the given {@link CharPredicate}.
 	 * 
 	 * @param predicate
 	 *            the predicate.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> isChar(CharPredicate predicate, String name) {
@@ -272,14 +246,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it is equal
-	 * to {@code ch}.
+	 * A scanner that succeeds and consumes the current character if it is equal to {@code ch}.
 	 * 
 	 * @param ch
 	 *            the expected character.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> isChar(char ch, String name) {
@@ -287,8 +259,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it is equal
-	 * to {@code ch}.
+	 * A scanner that succeeds and consumes the current character if it is equal to {@code ch}.
 	 * 
 	 * @param ch
 	 *            the expected character.
@@ -299,14 +270,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it is equal
-	 * to {@code ch}.
+	 * A scanner that succeeds and consumes the current character if it is equal to {@code ch}.
 	 * 
 	 * @param ch
 	 *            the expected character.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            mesage.
+	 *            the name of what's expected logically. Is used in error mesage.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> notChar(char ch, String name) {
@@ -314,8 +283,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it is not
-	 * equal to {@code ch}.
+	 * A scanner that succeeds and consumes the current character if it is not equal to {@code ch}.
 	 * 
 	 * @param ch
 	 *            the expected character.
@@ -326,14 +294,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it equals
-	 * to any character in {@code chars}.
+	 * A scanner that succeeds and consumes the current character if it equals to any character in {@code chars}.
 	 * 
 	 * @param chars
 	 *            the characters.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> among(String chars, String name) {
@@ -341,8 +307,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it equals
-	 * to any character in {@code chars}.
+	 * A scanner that succeeds and consumes the current character if it equals to any character in {@code chars}.
 	 */
 	public static Parser<Void> among(String chars) {
 		if (chars.length() == 0)
@@ -353,14 +318,12 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it is not
-	 * equal to any character in {@code chars}.
+	 * A scanner that succeeds and consumes the current character if it is not equal to any character in {@code chars}.
 	 * 
 	 * @param chars
 	 *            the characters.
 	 * @param name
-	 *            the name of what's expected logically. Is used in error
-	 *            message.
+	 *            the name of what's expected logically. Is used in error message.
 	 * @return the scanner.
 	 */
 	public static Parser<Void> notAmong(String chars, String name) {
@@ -368,8 +331,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes the current character if it is not
-	 * equal to any character in {@code chars}.
+	 * A scanner that succeeds and consumes the current character if it is not equal to any character in {@code chars}.
 	 */
 	public static Parser<Void> notAmong(String chars) {
 		if (chars.length() == 0)
@@ -380,17 +342,14 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that succeeds and consumes all the characters until the
-	 * {@code '\n'} character if the current input starts with the string
-	 * literal {@code begin}. The {@code '\n'} character isn't consumed.
+	 * A scanner that succeeds and consumes all the characters until the {@code '\n'} character if the current input starts with the string literal {@code begin}. The {@code '\n'} character isn't consumed.
 	 */
 	public static Parser<Void> lineComment(String begin) {
 		return pattern(Patterns.lineComment(begin), begin);
 	}
 
 	/**
-	 * A scanner for non-nested block comment that starts with {@code begin} and
-	 * ends with {@code end}.
+	 * A scanner for non-nested block comment that starts with {@code begin} and ends with {@code end}.
 	 */
 	public static Parser<Void> blockComment(String begin, String end) {
 		Pattern opening = Patterns.string(begin).next(Patterns.notString(end).many());
@@ -398,8 +357,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a non-nestable block comment that starts with {@code begin}
-	 * and ends with {@code end}.
+	 * A scanner for a non-nestable block comment that starts with {@code begin} and ends with {@code end}.
 	 * 
 	 * @param begin
 	 *            begins a block comment
@@ -415,8 +373,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a non-nestable block comment that starts with {@code begin}
-	 * and ends with {@code end}.
+	 * A scanner for a non-nestable block comment that starts with {@code begin} and ends with {@code end}.
 	 * 
 	 * @param begin
 	 *            begins a block comment
@@ -431,8 +388,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a nestable block comment that starts with {@code begin} and
-	 * ends with {@code end}.
+	 * A scanner for a nestable block comment that starts with {@code begin} and ends with {@code end}.
 	 * 
 	 * @param begin
 	 *            begins a block comment
@@ -445,8 +401,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a nestable block comment that starts with {@code begin} and
-	 * ends with {@code end}.
+	 * A scanner for a nestable block comment that starts with {@code begin} and ends with {@code end}.
 	 * 
 	 * @param begin
 	 *            begins a block comment
@@ -461,8 +416,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a nestable block comment that starts with {@code begin} and
-	 * ends with {@code end}.
+	 * A scanner for a nestable block comment that starts with {@code begin} and ends with {@code end}.
 	 * 
 	 * @param begin
 	 *            starts a block comment
@@ -477,8 +431,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a quoted string that starts with character {@code begin}
-	 * and ends with character {@code end}.
+	 * A scanner for a quoted string that starts with character {@code begin} and ends with character {@code end}.
 	 */
 	public static Parser<String> quoted(char begin, char end) {
 		Pattern beforeClosingQuote = Patterns.isChar(begin).next(Patterns.many(CharPredicates.notChar(end)));
@@ -486,8 +439,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner for a quoted string that starts with {@code begin} and ends
-	 * with {@code end}.
+	 * A scanner for a quoted string that starts with {@code begin} and ends with {@code end}.
 	 * 
 	 * @param begin
 	 *            begins a quote
@@ -502,8 +454,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * A scanner that after character level {@code outer} succeeds, subsequently
-	 * feeds the recognized characters to {@code inner} for a nested scanning.
+	 * A scanner that after character level {@code outer} succeeds, subsequently feeds the recognized characters to {@code inner} for a nested scanning.
 	 * 
 	 * <p>
 	 * Is useful for scenaios like parsing string interpolation grammar.
@@ -513,9 +464,7 @@ public final class Scanners {
 	}
 
 	/**
-	 * Matches a character if the input has at least 1 character, or if the
-	 * input has at least 2 characters with the first 2 characters not being
-	 * {@code c1} and {@code c2}.
+	 * Matches a character if the input has at least 1 character, or if the input has at least 2 characters with the first 2 characters not being {@code c1} and {@code c2}.
 	 * 
 	 * @return the Pattern object.
 	 */

@@ -20,6 +20,7 @@ import net.ion.framework.util.ListUtil;
 
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 public class TestCDDHandler extends TestCase {
 
@@ -91,7 +92,7 @@ class ToNotiHandler implements CDDHandler{
 
 
 	@Override
-	public TransactionJob<Void> nextTran(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+	public TransactionJob<Void> modified(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
 		final String roomId = resolveMap.get("roomId");
 		final String msgId = resolveMap.get("msgId");
 		
@@ -106,6 +107,12 @@ class ToNotiHandler implements CDDHandler{
 				return null;
 			}
 		} ;
+	}
+
+
+	@Override
+	public TransactionJob<Void> deleted(Map<String, String> resolveMap, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+		return null;
 	}
 }
 

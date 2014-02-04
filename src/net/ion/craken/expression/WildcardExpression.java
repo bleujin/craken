@@ -1,6 +1,9 @@
 package net.ion.craken.expression;
 
+import java.util.Set;
+
 import net.ion.craken.node.NodeCommon;
+import net.ion.framework.util.SetUtil;
 
 public final class WildcardExpression extends ValueObject implements Expression {
 	public final QualifiedName owner;
@@ -15,5 +18,7 @@ public final class WildcardExpression extends ValueObject implements Expression 
 		
 		return null;
 	}
+	
+
 }
 

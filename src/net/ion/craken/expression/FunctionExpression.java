@@ -5,10 +5,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import net.ion.craken.node.NodeCommon;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.NumberUtil;
+import net.ion.framework.util.SetUtil;
 
 import com.google.common.collect.Iterables;
 
@@ -24,7 +26,7 @@ public final class FunctionExpression extends ValueObject implements Expression 
 	public static FunctionExpression of(QualifiedName function, Expression... args) {
 		return new FunctionExpression(function, Arrays.asList(args));
 	}
-
+	
 	@Override
 	public Comparable value(NodeCommon node) {
 		if (args.size() < 1)

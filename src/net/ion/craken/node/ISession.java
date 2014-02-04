@@ -14,4 +14,5 @@ public interface ISession<T extends NodeCommon<T>> {
 
 	public Credential credential();
 
+	public Workspace workspace() ;
 }

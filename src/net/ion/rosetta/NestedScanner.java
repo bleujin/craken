@@ -16,8 +16,7 @@
 package net.ion.rosetta;
 
 /**
- * After a scanner succeeds, feeds the recognized character range to a nested
- * scanner.
+ * After a scanner succeeds, feeds the recognized character range to a nested scanner.
  * 
  * @author Ben Yu
  */

@@ -18,9 +18,7 @@ package net.ion.rosetta;
 import net.ion.rosetta.functors.Map;
 
 /**
- * Runs a {@link Parser} and then maps the parser result to another
- * {@code Parser} object, the returned {@code Parser} object is then executed as
- * the next step.
+ * Runs a {@link Parser} and then maps the parser result to another {@code Parser} object, the returned {@code Parser} object is then executed as the next step.
  * 
  * @author Ben Yu
  */

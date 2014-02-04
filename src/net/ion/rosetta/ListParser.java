@@ -21,8 +21,7 @@ import java.util.List;
 import net.ion.rosetta.util.Lists;
 
 /**
- * Sequentially runs a list of {@link Parser} objects and collects the return
- * values in a {@link List}.
+ * Sequentially runs a list of {@link Parser} objects and collects the return values in a {@link List}.
  * 
  * @author Ben Yu
  */

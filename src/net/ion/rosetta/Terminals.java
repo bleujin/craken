@@ -15,6 +15,7 @@
  *****************************************************************************/
 package net.ion.rosetta;
 
+import net.ion.framework.util.Debug;
 import net.ion.rosetta.Tokens.Fragment;
 import net.ion.rosetta.Tokens.ScientificNotation;
 import net.ion.rosetta.Tokens.Tag;
@@ -32,9 +33,7 @@ import net.ion.rosetta.util.Strings;
 public final class Terminals extends Lexicon {
 
 	/**
-	 * {@link Parser} that recognizes reserved word tokens. i.e.
-	 * {@link Tokens.Fragment} tokens tagged as {@link Tag#RESERVED}.
-	 * {@link Fragment#text()} is returned as parser result.
+	 * {@link Parser} that recognizes reserved word tokens. i.e. {@link Tokens.Fragment} tokens tagged as {@link Tag#RESERVED}. {@link Fragment#text()} is returned as parser result.
 	 */
 	public static final Parser<String> RESERVED = fragment(Tag.RESERVED);
 
@@ -48,9 +47,7 @@ public final class Terminals extends Lexicon {
 		public static final Parser<Character> PARSER = Parsers.tokenType(Character.class, "character literal");
 
 		/**
-		 * A tokenizer that parses single quoted character literal (escaped by
-		 * {@code '\'}), and then converts the character to a {@link Character}
-		 * token.
+		 * A tokenizer that parses single quoted character literal (escaped by {@code '\'}), and then converts the character to a {@link Character} token.
 		 */
 		public static final Parser<Character> SINGLE_QUOTE_TOKENIZER = Scanners.SINGLE_QUOTE_CHAR.map(TokenizerMaps.SINGLE_QUOTE_CHAR);
 	}
@@ -65,23 +62,18 @@ public final class Terminals extends Lexicon {
 		public static final Parser<String> PARSER = Parsers.tokenType(String.class, "string literal");
 
 		/**
-		 * A tokenizer that parses double quoted string literal (escaped by
-		 * {@code '\'}), and transforms the quoted content by applying escape
-		 * characters.
+		 * A tokenizer that parses double quoted string literal (escaped by {@code '\'}), and transforms the quoted content by applying escape characters.
 		 */
 		public static final Parser<String> DOUBLE_QUOTE_TOKENIZER = Scanners.DOUBLE_QUOTE_STRING.map(TokenizerMaps.DOUBLE_QUOTE_STRING);
 
 		/**
-		 * A tokenizer that parses single quoted string literal (single quote is
-		 * escaped with another single quote), and transforms the quoted content
-		 * by applying escape characters.
+		 * A tokenizer that parses single quoted string literal (single quote is escaped with another single quote), and transforms the quoted content by applying escape characters.
 		 */
 		public static final Parser<String> SINGLE_QUOTE_TOKENIZER = Scanners.SINGLE_QUOTE_STRING.map(TokenizerMaps.SINGLE_QUOTE_STRING);
 	}
 
 	/**
-	 * Entry point for parser and tokenizers of integral number literal
-	 * represented as {@link Long}.
+	 * Entry point for parser and tokenizers of integral number literal represented as {@link Long}.
 	 */
 	public static final class LongLiteral {
 
@@ -92,15 +84,12 @@ public final class Terminals extends Lexicon {
 		public static final Parser<Long> PARSER = Parsers.tokenType(Long.class, "integer literal");
 
 		/**
-		 * A tokenizer that parses a decimal integer number (valid patterns are:
-		 * {@code 1, 10, 123}), and converts the string to a {@link Long} value.
+		 * A tokenizer that parses a decimal integer number (valid patterns are: {@code 1, 10, 123}), and converts the string to a {@link Long} value.
 		 */
 		public static final Parser<Long> DEC_TOKENIZER = Scanners.DEC_INTEGER.map(TokenizerMaps.DEC_AS_LONG);
 
 		/**
-		 * A tokenizer that parses a octal integer number (valid patterns are:
-		 * {@code 0, 07, 017, 0371} etc.), and converts the string to a
-		 * {@link Long} value.
+		 * A tokenizer that parses a octal integer number (valid patterns are: {@code 0, 07, 017, 0371} etc.), and converts the string to a {@link Long} value.
 		 * 
 		 * <p>
 		 * An octal number has to start with 0.
@@ -108,9 +97,7 @@ public final class Terminals extends Lexicon {
 		public static final Parser<Long> OCT_TOKENIZER = Scanners.OCT_INTEGER.map(TokenizerMaps.OCT_AS_LONG);
 
 		/**
-		 * A tokenizer that parses a hex integer number (valid patterns are:
-		 * {@code 0x1, 0Xff, 0xFe1} etc.), and converts the string to a
-		 * {@link Long} value.
+		 * A tokenizer that parses a hex integer number (valid patterns are: {@code 0x1, 0Xff, 0xFe1} etc.), and converts the string to a {@link Long} value.
 		 * 
 		 * <p>
 		 * A hex number has to start with either 0x or 0X.
@@ -118,15 +105,13 @@ public final class Terminals extends Lexicon {
 		public static final Parser<Long> HEX_TOKENIZER = Scanners.HEX_INTEGER.map(TokenizerMaps.HEX_AS_LONG);
 
 		/**
-		 * A tokenizer that parses decimal, hex, and octal numbers and converts
-		 * the string to a {@code Long} value.
+		 * A tokenizer that parses decimal, hex, and octal numbers and converts the string to a {@code Long} value.
 		 */
 		public static final Parser<Long> TOKENIZER = Parsers.plus(HEX_TOKENIZER, DEC_TOKENIZER, OCT_TOKENIZER);
 	}
 
 	/**
-	 * Entry point for any arbitrary integer literal represented as a
-	 * {@link String}.
+	 * Entry point for any arbitrary integer literal represented as a {@link String}.
 	 */
 	public static final class IntegerLiteral {
 
@@ -134,22 +119,18 @@ public final class Terminals extends Lexicon {
 		}
 
 		/**
-		 * {@link Parser} that recognizes {@link Tokens.Fragment} tokens tagged
-		 * as {@link Tag#INTEGER}.
+		 * {@link Parser} that recognizes {@link Tokens.Fragment} tokens tagged as {@link Tag#INTEGER}.
 		 */
 		public static final Parser<String> PARSER = fragment(Tag.INTEGER);
 
 		/**
-		 * A tokenizer that parses a integer number (valid patterns are:
-		 * {@code 0, 00, 1, 10}) and returns a {@link Fragment} token tagged as
-		 * {@link Tag#INTEGER}.
+		 * A tokenizer that parses a integer number (valid patterns are: {@code 0, 00, 1, 10}) and returns a {@link Fragment} token tagged as {@link Tag#INTEGER}.
 		 */
 		public static final Parser<Fragment> TOKENIZER = Scanners.INTEGER.map(TokenizerMaps.INTEGER_FRAGMENT);
 	}
 
 	/**
-	 * Entry point for parser and tokenizers of decimal number literal
-	 * represented as {@link String}.
+	 * Entry point for parser and tokenizers of decimal number literal represented as {@link String}.
 	 */
 	public static final class DecimalLiteral {
 
@@ -157,15 +138,12 @@ public final class Terminals extends Lexicon {
 		}
 
 		/**
-		 * {@link Parser} that recognizes {@link Tokens.Fragment} tokens tagged
-		 * as {@link Tag#DECIMAL}.
+		 * {@link Parser} that recognizes {@link Tokens.Fragment} tokens tagged as {@link Tag#DECIMAL}.
 		 */
 		public static final Parser<String> PARSER = fragment(Tag.DECIMAL);
 
 		/**
-		 * A tokenizer that parses a decimal number (valid patterns are:
-		 * {@code 1, 2.3, 00, 0., .23}) and returns a {@link Fragment} token
-		 * tagged as {@link Tag#DECIMAL}.
+		 * A tokenizer that parses a decimal number (valid patterns are: {@code 1, 2.3, 00, 0., .23}) and returns a {@link Fragment} token tagged as {@link Tag#DECIMAL}.
 		 */
 		public static final Parser<Fragment> TOKENIZER = Scanners.DECIMAL.map(TokenizerMaps.DECIMAL_FRAGMENT);
 	}
@@ -180,8 +158,7 @@ public final class Terminals extends Lexicon {
 		public static final Parser<ScientificNotation> PARSER = Parsers.tokenType(ScientificNotation.class, "scientific number literal");
 
 		/**
-		 * A tokenizer that parses a scientific notation and converts the string
-		 * to a {@link ScientificNotation} value.
+		 * A tokenizer that parses a scientific notation and converts the string to a {@link ScientificNotation} value.
 		 */
 		public static final Parser<ScientificNotation> TOKENIZER = Scanners.SCIENTIFIC_NOTATION.map(TokenizerMaps.SCIENTIFIC_NOTATION);
 	}
@@ -193,19 +170,15 @@ public final class Terminals extends Lexicon {
 		}
 
 		/**
-		 * {@link Parser} that recognizes identifier tokens. i.e.
-		 * {@link Tokens.Fragment} tokens tagged as {@link Tag#IDENTIFIER}.
-		 * {@link Fragment#text()} is returned as parser result.
+		 * {@link Parser} that recognizes identifier tokens. i.e. {@link Tokens.Fragment} tokens tagged as {@link Tag#IDENTIFIER}. {@link Fragment#text()} is returned as parser result.
 		 */
 		public static final Parser<String> PARSER = fragment(Tag.IDENTIFIER);
 
 		/**
-		 * A tokenizer that parses any identifier and returns a {@link Fragment}
-		 * token tagged as {@link Tag#IDENTIFIER}.
+		 * A tokenizer that parses any identifier and returns a {@link Fragment} token tagged as {@link Tag#IDENTIFIER}.
 		 * 
 		 * <p>
-		 * An identifier starts with an alphametic character or underscore, and
-		 * is followed by 0 or more alphanumeric characters or underscore.
+		 * An identifier starts with an alphametic character or underscore, and is followed by 0 or more alphanumeric characters or underscore.
 		 */
 		public static final Parser<Fragment> TOKENIZER = Scanners.IDENTIFIER.map(TokenizerMaps.IDENTIFIER_FRAGMENT);
 	}
@@ -215,14 +188,8 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing and parsing the operators
-	 * with names specified in {@code ops}, and for lexing and parsing the
-	 * keywords case insensitively. Keywords and operators are lexed as
-	 * {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not
-	 * among {@code keywords} are lexed as {@code Fragment} with
-	 * {@link Tag#IDENTIFIER} tag. A word is defined as an alphanumeric string
-	 * that starts with {@code [_a - zA - Z]}, with 0 or more
-	 * {@code [0 - 9_a - zA - Z]} following.
+	 * Returns a {@link Terminals} object for lexing and parsing the operators with names specified in {@code ops}, and for lexing and parsing the keywords case insensitively. Keywords and operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not among {@code keywords} are lexed as {@code Fragment} with {@link Tag#IDENTIFIER} tag. A word is defined as an
+	 * alphanumeric string that starts with {@code [_a - zA - Z]}, with 0 or more {@code [0 - 9_a - zA - Z]} following.
 	 * 
 	 * @param ops
 	 *            the operator names.
@@ -235,14 +202,8 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing and parsing the operators
-	 * with names specified in {@code ops}, and for lexing and parsing the
-	 * keywords case sensitively. Keywords and operators are lexed as
-	 * {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not
-	 * among {@code keywords} are lexed as {@code Fragment} with
-	 * {@link Tag#IDENTIFIER} tag. A word is defined as an alphanumeric string
-	 * that starts with {@code [_a - zA - Z]}, with 0 or more
-	 * {@code [0 - 9_a - zA - Z]} following.
+	 * Returns a {@link Terminals} object for lexing and parsing the operators with names specified in {@code ops}, and for lexing and parsing the keywords case sensitively. Keywords and operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not among {@code keywords} are lexed as {@code Fragment} with {@link Tag#IDENTIFIER} tag. A word is defined as an
+	 * alphanumeric string that starts with {@code [_a - zA - Z]}, with 0 or more {@code [0 - 9_a - zA - Z]} following.
 	 * 
 	 * @param ops
 	 *            the operator names.
@@ -255,12 +216,7 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing and parsing the operators
-	 * with names specified in {@code ops}, and for lexing and parsing the
-	 * keywords case insensitively. Keywords and operators are lexed as
-	 * {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not
-	 * among {@code keywords} are lexed as {@code Fragment} with
-	 * {@link Tag#IDENTIFIER} tag.
+	 * Returns a {@link Terminals} object for lexing and parsing the operators with names specified in {@code ops}, and for lexing and parsing the keywords case insensitively. Keywords and operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not among {@code keywords} are lexed as {@code Fragment} with {@link Tag#IDENTIFIER} tag.
 	 * 
 	 * @param wordScanner
 	 *            the scanner that returns a word in the language.
@@ -275,12 +231,7 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing and parsing the operators
-	 * with names specified in {@code ops}, and for lexing and parsing the
-	 * keywords case sensitively. Keywords and operators are lexed as
-	 * {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not
-	 * among {@code keywords} are lexed as {@code Fragment} with
-	 * {@link Tag#IDENTIFIER} tag.
+	 * Returns a {@link Terminals} object for lexing and parsing the operators with names specified in {@code ops}, and for lexing and parsing the keywords case sensitively. Keywords and operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not among {@code keywords} are lexed as {@code Fragment} with {@link Tag#IDENTIFIER} tag.
 	 * 
 	 * @param wordScanner
 	 *            the scanner that returns a word in the language.
@@ -295,12 +246,7 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing and parsing the operators
-	 * with names specified in {@code ops}, and for lexing and parsing the
-	 * keywords case insensitively. Keywords and operators are lexed as
-	 * {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not
-	 * among {@code keywords} are lexed as {@code Fragment} with
-	 * {@link Tag#IDENTIFIER} tag.
+	 * Returns a {@link Terminals} object for lexing and parsing the operators with names specified in {@code ops}, and for lexing and parsing the keywords case insensitively. Keywords and operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not among {@code keywords} are lexed as {@code Fragment} with {@link Tag#IDENTIFIER} tag.
 	 * 
 	 * @param wordScanner
 	 *            the scanner that returns a word in the language.
@@ -309,8 +255,7 @@ public final class Terminals extends Lexicon {
 	 * @param keywords
 	 *            the keyword names.
 	 * @param wordMap
-	 *            maps the text to a token value for non-keywords recognized by
-	 *            {@code wordScanner}.
+	 *            maps the text to a token value for non-keywords recognized by {@code wordScanner}.
 	 * @return the Terminals instance.
 	 */
 	public static Terminals caseInsensitive(Parser<String> wordScanner, String[] ops, String[] keywords, Map<String, ?> wordMap) {
@@ -318,12 +263,7 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing and parsing the operators
-	 * with names specified in {@code ops}, and for lexing and parsing the
-	 * keywords case sensitively. Keywords and operators are lexed as
-	 * {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not
-	 * among {@code keywords} are lexed as {@code Fragment} with
-	 * {@link Tag#IDENTIFIER} tag.
+	 * Returns a {@link Terminals} object for lexing and parsing the operators with names specified in {@code ops}, and for lexing and parsing the keywords case sensitively. Keywords and operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag. Words that are not among {@code keywords} are lexed as {@code Fragment} with {@link Tag#IDENTIFIER} tag.
 	 * 
 	 * @param wordScanner
 	 *            the scanner that returns a word in the language.
@@ -332,8 +272,7 @@ public final class Terminals extends Lexicon {
 	 * @param keywords
 	 *            the keyword names.
 	 * @param wordMap
-	 *            maps the text to a token value for non-keywords recognized by
-	 *            {@code wordScanner}.
+	 *            maps the text to a token value for non-keywords recognized by {@code wordScanner}.
 	 * @return the Terminals instance.
 	 */
 	public static Terminals caseSensitive(Parser<String> wordScanner, String[] ops, String[] keywords, Map<String, ?> wordMap) {
@@ -341,9 +280,7 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Terminals} object for lexing the operators with names
-	 * specified in {@code ops}. Operators are lexed as {@link Tokens.Fragment}
-	 * with {@link Tag#RESERVED} tag.
+	 * Returns a {@link Terminals} object for lexing the operators with names specified in {@code ops}. Operators are lexed as {@link Tokens.Fragment} with {@link Tag#RESERVED} tag.
 	 * 
 	 * @param ops
 	 *            the operator names.
@@ -354,18 +291,16 @@ public final class Terminals extends Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Parser} that recognizes {@link Tokens.Fragment} token
-	 * values tagged with one of {@code tags}.
+	 * Returns a {@link Parser} that recognizes {@link Tokens.Fragment} token values tagged with one of {@code tags}.
 	 */
 	public static Parser<String> fragment(final Object... tags) {
 		return Parsers.token(fromFragment(tags));
 	}
 
 	/**
-	 * Returns a {@link TokenMap} object that only recognizes
-	 * {@link Tokens.Fragment} token values tagged with one of {@code tags}.
+	 * Returns a {@link TokenMap} object that only recognizes {@link Tokens.Fragment} token values tagged with one of {@code tags}.
 	 */
-	static TokenMap<String> fromFragment(final Object... tags) {
+	public static TokenMap<String> fromFragment(final Object... tags) {
 		return new IsFragment() {
 			@Override
 			boolean isExpectedTag(Object type) {

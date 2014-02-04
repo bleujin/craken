@@ -1,8 +1,11 @@
 package net.ion.craken.expression;
 
+import java.util.Set;
+
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.crud.Filters;
 import net.ion.framework.util.NumberUtil;
+import net.ion.framework.util.SetUtil;
 
 import org.apache.lucene.search.Filter;
 
@@ -17,6 +20,7 @@ public final class NumberExpression extends ValueObject implements Expression , 
 	public Comparable value(NodeCommon node) {
 		return NumberUtil.createBigDecimal(number);
 	}
+	
 	
 	@Override
 	public Filter filter(Op operand, QualifiedNameExpression qne) {

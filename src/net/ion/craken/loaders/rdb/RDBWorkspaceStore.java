@@ -27,6 +27,7 @@ import net.ion.craken.loaders.neo.NeoWorkspaceConfig;
 import net.ion.craken.loaders.neo.NodeEntry;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.TreeNodeKey.Action;
+import net.ion.framework.db.DBController;
 import net.ion.framework.db.IDBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.manager.OracleCacheDBManager;
@@ -41,7 +42,7 @@ public class RDBWorkspaceStore extends WorkspaceStore {
 
 	private RDBWorkspaceConfig config;
 	private Central central;
-	private IDBController dc;
+	private DBController dc;
 
 	@Override
 	public void init(CacheLoaderConfig config, Cache<?, ?> cache, StreamingMarshaller m) throws CacheLoaderException {
@@ -68,7 +69,7 @@ public class RDBWorkspaceStore extends WorkspaceStore {
 		return central;
 	}
 
-	public IDBController dc() {
+	public DBController dc() {
 		return dc;
 	}
 
@@ -90,11 +91,7 @@ public class RDBWorkspaceStore extends WorkspaceStore {
 	@Override
 	public void stop() throws CacheLoaderException {
 		IOUtil.closeQuietly(central);
-		try {
-			dc.destroySelf();
-		} catch (SQLException ignore) {
-			ignore.printStackTrace();
-		}
+		dc.destroySelf();
 		super.stop();
 	}
 

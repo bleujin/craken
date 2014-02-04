@@ -44,8 +44,7 @@ public final class Parsers {
 	public static final Parser<?> EOF = eof("EOF");
 
 	/**
-	 * A {@link Parser} that consumes a token. The token value is returned from
-	 * the parser.
+	 * A {@link Parser} that consumes a token. The token value is returned from the parser.
 	 */
 	public static final Parser<Object> ANY_TOKEN = token(new TokenMap<Object>() {
 		public Object map(Token tok) {
@@ -83,8 +82,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that succeeds only if EOF is met. Fails with
-	 * {@code message} otherwise.
+	 * A {@link Parser} that succeeds only if EOF is met. Fails with {@code message} otherwise.
 	 */
 	static Parser<?> eof(String message) {
 		return new EofParser(message);
@@ -96,8 +94,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * Runs a character level {@code parser} against {@code src} using
-	 * {@code locator} to locate error location.
+	 * Runs a character level {@code parser} against {@code src} using {@code locator} to locate error location.
 	 */
 	static <T> T parse(CharSequence src, Parser<T> parser, SourceLocator locator, String module) {
 		ScannerState ctxt = new ScannerState(module, src, 0, locator);
@@ -108,16 +105,14 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that always succeeds and invokes {@link Runnable#run()}
-	 * against {@code runnable}.
+	 * A {@link Parser} that always succeeds and invokes {@link Runnable#run()} against {@code runnable}.
 	 */
 	public static Parser<?> runnable(Runnable runnable) {
 		return new ActionParser(runnable);
 	}
 
 	/**
-	 * Converts a parser of a collection of {@link Token} to a parser of an
-	 * array of {@code Token}.
+	 * Converts a parser of a collection of {@link Token} to a parser of an array of {@code Token}.
 	 */
 	static Parser<Token[]> tokens(final Parser<? extends Collection<Token>> parser) {
 		return parser.map(new Map<Collection<Token>, Token[]>() {
@@ -133,8 +128,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that takes as input the array of {@link Token} returned
-	 * from {@code lexer}, and feeds the tokens as input into {@code parser}.
+	 * A {@link Parser} that takes as input the array of {@link Token} returned from {@code lexer}, and feeds the tokens as input into {@code parser}.
 	 * 
 	 * <p>
 	 * It fails if either {@code lexer} or {@code parser} fails.
@@ -168,8 +162,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that runs 2 parser objects sequentially. {@code p1} is
-	 * executed, if it succeeds, {@code p2} is executed.
+	 * A {@link Parser} that runs 2 parser objects sequentially. {@code p1} is executed, if it succeeds, {@code p2} is executed.
 	 */
 	public static <T> Parser<T> sequence(Parser<?> p1, Parser<T> p2) {
 		return sequence(p1, p2, InternalFunctors.<Object, T> lastOfTwo());
@@ -191,123 +184,105 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs {@code p1} and {@code p2} and
-	 * collects the results in a {@link Pair} object. Is equivalent to
-	 * {@link #tuple(Parser, Parser)}.
+	 * A {@link Parser} that sequentially runs {@code p1} and {@code p2} and collects the results in a {@link Pair} object. Is equivalent to {@link #tuple(Parser, Parser)}.
 	 */
 	public static <A, B> Parser<Pair<A, B>> pair(Parser<? extends A> p1, Parser<? extends B> p2) {
 		return sequence(p1, p2, Maps.<A, B> toPair());
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs {@code p1} and {@code p2} and
-	 * collects the results in a {@link Pair} object. Is equivalent to
-	 * {@link #pair(Parser, Parser)}.
+	 * A {@link Parser} that sequentially runs {@code p1} and {@code p2} and collects the results in a {@link Pair} object. Is equivalent to {@link #pair(Parser, Parser)}.
 	 */
 	public static <A, B> Parser<Pair<A, B>> tuple(Parser<? extends A> p1, Parser<? extends B> p2) {
 		return pair(p1, p2);
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs 3 parser objects and collects the
-	 * results in a {@link Tuple3} object.
+	 * A {@link Parser} that sequentially runs 3 parser objects and collects the results in a {@link Tuple3} object.
 	 */
 	public static <A, B, C> Parser<Tuple3<A, B, C>> tuple(Parser<? extends A> p1, Parser<? extends B> p2, Parser<? extends C> p3) {
 		return sequence(p1, p2, p3, Maps.<A, B, C> toTuple3());
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs 4 parser objects and collects the
-	 * results in a {@link Tuple4} object.
+	 * A {@link Parser} that sequentially runs 4 parser objects and collects the results in a {@link Tuple4} object.
 	 */
 	public static <A, B, C, D> Parser<Tuple4<A, B, C, D>> tuple(Parser<? extends A> p1, Parser<? extends B> p2, Parser<? extends C> p3, Parser<? extends D> p4) {
 		return sequence(p1, p2, p3, p4, Maps.<A, B, C, D> toTuple4());
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs 5 parser objects and collects the
-	 * results in a {@link Tuple5} object.
+	 * A {@link Parser} that sequentially runs 5 parser objects and collects the results in a {@link Tuple5} object.
 	 */
 	public static <A, B, C, D, E> Parser<Tuple5<A, B, C, D, E>> tuple(Parser<? extends A> p1, Parser<? extends B> p2, Parser<? extends C> p3, Parser<? extends D> p4, Parser<? extends E> p5) {
 		return sequence(p1, p2, p3, p4, p5, Maps.<A, B, C, D, E> toTuple5());
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs {@code parsers} one by one and
-	 * collects the return values in an array.
+	 * A {@link Parser} that sequentially runs {@code parsers} one by one and collects the return values in an array.
 	 */
 	public static Parser<Object[]> array(Parser<?>... parsers) {
 		return new ArrayParser(parsers);
 	}
 
 	/**
-	 * A {@link Parser} that sequentially runs {@code parsers} one by one and
-	 * collects the return values in a {@link List}.
+	 * A {@link Parser} that sequentially runs {@code parsers} one by one and collects the return values in a {@link List}.
 	 */
 	public static <T> Parser<List<T>> list(Iterable<? extends Parser<? extends T>> parsers) {
 		return new ListParser<T>(toArray(parsers));
 	}
 
 	/**
-	 * Equivalent to {@link Parser#between(Parser, Parser)}. Use this to list
-	 * the parsers in the natural order.
+	 * Equivalent to {@link Parser#between(Parser, Parser)}. Use this to list the parsers in the natural order.
 	 */
 	public static <T> Parser<T> between(Parser<?> before, Parser<T> parser, Parser<?> after) {
 		return parser.between(before, after);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code p1} and {@code p2} sequentially and
-	 * transforms the return values using {@code map}.
+	 * A {@link Parser} that runs {@code p1} and {@code p2} sequentially and transforms the return values using {@code map}.
 	 */
 	public static <A, B, T> Parser<T> sequence(Parser<A> p1, Parser<B> p2, Map2<? super A, ? super B, ? extends T> map) {
 		return new Sequence2Parser<A, B, T>(p1, p2, map);
 	}
 
 	/**
-	 * A {@link Parser} that runs 3 parser objects sequentially and transforms
-	 * the return values using {@code map}.
+	 * A {@link Parser} that runs 3 parser objects sequentially and transforms the return values using {@code map}.
 	 */
 	public static <A, B, C, T> Parser<T> sequence(Parser<A> p1, Parser<B> p2, Parser<C> p3, Map3<? super A, ? super B, ? super C, ? extends T> map) {
 		return new Sequence3Parser<A, B, C, T>(p1, p2, p3, map);
 	}
 
 	/**
-	 * A {@link Parser} that runs 4 parser objects sequentially and transforms
-	 * the return values using {@code map}.
+	 * A {@link Parser} that runs 4 parser objects sequentially and transforms the return values using {@code map}.
 	 */
 	public static <A, B, C, D, T> Parser<T> sequence(Parser<A> p1, Parser<B> p2, Parser<C> p3, Parser<D> p4, Map4<? super A, ? super B, ? super C, ? super D, ? extends T> map) {
 		return new Sequence4Parser<A, B, C, D, T>(p1, p2, p3, p4, map);
 	}
 
 	/**
-	 * A {@link Parser} that runs 5 parser objects sequentially and transforms
-	 * the return values using {@code map}.
+	 * A {@link Parser} that runs 5 parser objects sequentially and transforms the return values using {@code map}.
 	 */
-	public static <A, B, C, D, E, T> Parser<T> sequence(Parser<A> p1, Parser<B> p2, Parser<C> p3, Parser<D> p4, Parser<E> p5,
-			Map5<? super A, ? super B, ? super C, ? super D, ? super E, ? extends T> map) {
+	public static <A, B, C, D, E, T> Parser<T> sequence(Parser<A> p1, Parser<B> p2, Parser<C> p3, Parser<D> p4, Parser<E> p5, Map5<? super A, ? super B, ? super C, ? super D, ? super E, ? extends T> map) {
 		return new Sequence5Parser<A, B, C, D, E, T>(p1, p2, p3, p4, p5, map);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code parsers} sequentially and discards the
-	 * return values.
+	 * A {@link Parser} that runs {@code parsers} sequentially and discards the return values.
 	 */
 	public static Parser<Object> sequence(Parser<?>... parsers) {
 		return new SequenceParser(parsers);
 	}
 
 	/**
-	 * A {@link Parser} that runs {@code parsers} sequentially and discards the
-	 * return values.
+	 * A {@link Parser} that runs {@code parsers} sequentially and discards the return values.
 	 */
 	public static Parser<Object> sequence(Iterable<? extends Parser<?>> parsers) {
 		return sequence(toArray(parsers));
 	}
 
 	/**
-	 * Overload of {@link #plus(Parser[])} that takes 2 parser objects to avoid
-	 * unchecked compiler warning.
+	 * Overload of {@link #plus(Parser[])} that takes 2 parser objects to avoid unchecked compiler warning.
 	 */
 	@SuppressWarnings("unchecked")
 	static <T> Parser<T> plus(Parser<? extends T> p1, Parser<? extends T> p2) {
@@ -315,8 +290,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * Overload of {@link #plus(Parser[])} that takes 3 parser objects to avoid
-	 * unchecked compiler warning.
+	 * Overload of {@link #plus(Parser[])} that takes 3 parser objects to avoid unchecked compiler warning.
 	 */
 	@SuppressWarnings("unchecked")
 	static <T> Parser<T> plus(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3) {
@@ -324,9 +298,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that tries each alternative parser in
-	 * {@code alternatives} and falls back to the next parser if the previous
-	 * parser fails <em>with no partial match</em>.
+	 * A {@link Parser} that tries each alternative parser in {@code alternatives} and falls back to the next parser if the previous parser fails <em>with no partial match</em>.
 	 */
 	static <T> Parser<T> plus(Parser<? extends T>... alternatives) {
 		if (alternatives.length == 0)
@@ -337,79 +309,66 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that tries 2 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 2 alternative parser objects. Fallback happens regardless of partial match.
 	 */
 	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2) {
 		return alt(p1, p2).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 3 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 3 alternative parser objects. Fallback happens regardless of partial match.
 	 */
 	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3) {
 		return alt(p1, p2, p3).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 4 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 4 alternative parser objects. Fallback happens regardless of partial match.
 	 */
 	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4) {
 		return alt(p1, p2, p3, p4).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 5 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 5 alternative parser objects. Fallback happens regardless of partial match.
 	 */
 	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5) {
 		return alt(p1, p2, p3, p4, p5).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 6 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 6 alternative parser objects. Fallback happens regardless of partial match.
 	 */
 	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6) {
 		return alt(p1, p2, p3, p4, p5, p6).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 7 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 7 alternative parser objects. Fallback happens regardless of partial match.
 	 */
-	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6,
-			Parser<? extends T> p7) {
+	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6, Parser<? extends T> p7) {
 		return alt(p1, p2, p3, p4, p5, p6, p7).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 8 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 8 alternative parser objects. Fallback happens regardless of partial match.
 	 */
-	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6,
-			Parser<? extends T> p7, Parser<? extends T> p8) {
+	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6, Parser<? extends T> p7, Parser<? extends T> p8) {
 		return alt(p1, p2, p3, p4, p5, p6, p7, p8).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries 9 alternative parser objects. Fallback
-	 * happens regardless of partial match.
+	 * A {@link Parser} that tries 9 alternative parser objects. Fallback happens regardless of partial match.
 	 */
-	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6,
-			Parser<? extends T> p7, Parser<? extends T> p8, Parser<? extends T> p9) {
+	public static <T> Parser<T> or(Parser<? extends T> p1, Parser<? extends T> p2, Parser<? extends T> p3, Parser<? extends T> p4, Parser<? extends T> p5, Parser<? extends T> p6, Parser<? extends T> p7, Parser<? extends T> p8, Parser<? extends T> p9) {
 		return alt(p1, p2, p3, p4, p5, p6, p7, p8, p9).cast();
 	}
 
 	/**
-	 * A {@link Parser} that tries each alternative parser in
-	 * {@code alternatives}.
+	 * A {@link Parser} that tries each alternative parser in {@code alternatives}.
 	 * 
 	 * <p>
-	 * Different than {@link #alt(Parser[])}, it requires all alternative
-	 * parsers to have type {@code T}.
+	 * Different than {@link #alt(Parser[])}, it requires all alternative parsers to have type {@code T}.
 	 */
 	public static <T> Parser<T> or(Parser<? extends T>... alternatives) {
 		if (alternatives.length == 0)
@@ -420,24 +379,21 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that tries each alternative parser in
-	 * {@code alternatives}.
+	 * A {@link Parser} that tries each alternative parser in {@code alternatives}.
 	 */
 	public static <T> Parser<T> or(Iterable<? extends Parser<? extends T>> alternatives) {
 		return or(toArray(alternatives));
 	}
 
 	/**
-	 * Allows the overloads of "or()" to call the varargs version of "or" with
-	 * no ambiguity.
+	 * Allows the overloads of "or()" to call the varargs version of "or" with no ambiguity.
 	 */
 	private static Parser<Object> alt(Parser<?>... alternatives) {
 		return or(alternatives);
 	}
 
 	/**
-	 * A {@link Parser} that runs both {@code p1} and {@code p2} and selects the
-	 * longer match. If both matches the same length, the first one is favored.
+	 * A {@link Parser} that runs both {@code p1} and {@code p2} and selects the longer match. If both matches the same length, the first one is favored.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Parser<T> longer(Parser<? extends T> p1, Parser<? extends T> p2) {
@@ -445,9 +401,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that runs every element of {@code parsers} and selects
-	 * the longest match. If two matches have the same length, the first one is
-	 * favored.
+	 * A {@link Parser} that runs every element of {@code parsers} and selects the longest match. If two matches have the same length, the first one is favored.
 	 */
 	public static <T> Parser<T> longest(Parser<? extends T>... parsers) {
 		if (parsers.length == 0)
@@ -458,17 +412,14 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that runs every element of {@code parsers} and selects
-	 * the longest match. If two matches have the same length, the first one is
-	 * favored.
+	 * A {@link Parser} that runs every element of {@code parsers} and selects the longest match. If two matches have the same length, the first one is favored.
 	 */
 	public static <T> Parser<T> longest(Iterable<? extends Parser<? extends T>> parsers) {
 		return longest(toArray(parsers));
 	}
 
 	/**
-	 * A {@link Parser} that runs both {@code p1} and {@code p2} and selects the
-	 * shorter match. If both matches the same length, the first one is favored.
+	 * A {@link Parser} that runs both {@code p1} and {@code p2} and selects the shorter match. If both matches the same length, the first one is favored.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Parser<T> shorter(Parser<? extends T> p1, Parser<? extends T> p2) {
@@ -476,9 +427,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that runs every element of {@code parsers} and selects
-	 * the shortest match. If two matches have the same length, the first one is
-	 * favored.
+	 * A {@link Parser} that runs every element of {@code parsers} and selects the shortest match. If two matches have the same length, the first one is favored.
 	 */
 	public static <T> Parser<T> shortest(Parser<? extends T>... parsers) {
 		if (parsers.length == 0)
@@ -489,35 +438,28 @@ public final class Parsers {
 	}
 
 	/**
-	 * A {@link Parser} that runs every element of {@code parsers} and selects
-	 * the shortest match. If two matches have the same length, the first one is
-	 * favored.
+	 * A {@link Parser} that runs every element of {@code parsers} and selects the shortest match. If two matches have the same length, the first one is favored.
 	 */
 	public static <T> Parser<T> shortest(Iterable<? extends Parser<? extends T>> parsers) {
 		return shortest(toArray(parsers));
 	}
 
 	/**
-	 * A {@link Parser} that fails and reports that {@code name} is logically
-	 * expected.
+	 * A {@link Parser} that fails and reports that {@code name} is logically expected.
 	 */
 	public static <T> Parser<T> expect(String name) {
 		return new ExpectParser<T>(name);
 	}
 
 	/**
-	 * A {@link Parser} that fails and reports that {@code name} is logically
-	 * unexpected.
+	 * A {@link Parser} that fails and reports that {@code name} is logically unexpected.
 	 */
 	public static <T> Parser<T> unexpected(String name) {
 		return new UnexpectedParser<T>(name);
 	}
 
 	/**
-	 * Checks the current token with the {@code fromToken} object. If the
-	 * {@link TokenMap#map(Token)} method returns null, an unexpected token
-	 * error occurs; if the method returns a non-null value, the value is
-	 * returned and the parser succeeds.
+	 * Checks the current token with the {@code fromToken} object. If the {@link TokenMap#map(Token)} method returns null, an unexpected token error occurs; if the method returns a non-null value, the value is returned and the parser succeeds.
 	 * 
 	 * @param fromToken
 	 *            the {@code FromToken} object.
@@ -528,8 +470,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * Checks whether the current token value is of {@code type}, in which case,
-	 * the token value is returned and parse succeeds.
+	 * Checks whether the current token value is of {@code type}, in which case, the token value is returned and parse succeeds.
 	 * 
 	 * @param type
 	 *            the expected token value type.
@@ -542,9 +483,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * We always convert {@link Iterable} to an array to avoid the cost of
-	 * creating a new {@Link java.util.Iterator} object each time the
-	 * parser runs.
+	 * We always convert {@link Iterable} to an array to avoid the cost of creating a new {@Link java.util.Iterator} object each time the parser runs.
 	 */
 	@SuppressWarnings("unchecked")
 	static <T> Parser<T>[] toArray(Iterable<? extends Parser<? extends T>> parsers) {
@@ -581,10 +520,7 @@ public final class Parsers {
 	static final Map2 POSTFIX_OPERATOR_MAP2 = postfixOperatorMap2("postfix");
 
 	/**
-	 * Non-associative infix operator. Runs {@code p} and then runs {@code op}
-	 * and {@code p} optionally. The {@link Map2} objects returned from
-	 * {@code op} is applied to the return values of the two {@code this}
-	 * pattern, if any.
+	 * Non-associative infix operator. Runs {@code p} and then runs {@code op} and {@code p} optionally. The {@link Map2} objects returned from {@code op} is applied to the return values of the two {@code this} pattern, if any.
 	 * <p>
 	 * {@code infixn(p, op)} is equivalent to {@code p (op p)?} in EBNF.
 	 * 
@@ -616,11 +552,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * Left associative infix operator. Runs Parser {@code p} and then runs
-	 * {@code op} and {@code p} for 0 or more times greedily. The Map objects
-	 * returned from op are applied from left to right to the return values of
-	 * {@code p}. For example: {@code a + b+c + d} is evaluated as
-	 * {@code (((a + b)+c)+d)}.
+	 * Left associative infix operator. Runs Parser {@code p} and then runs {@code op} and {@code p} for 0 or more times greedily. The Map objects returned from op are applied from left to right to the return values of {@code p}. For example: {@code a + b+c + d} is evaluated as {@code (((a + b)+c)+d)}.
 	 * 
 	 * <p>
 	 * {@code infixl(p, op)} is equivalent to {@code p (op p)*} in EBNF.
@@ -658,11 +590,7 @@ public final class Parsers {
 	}
 
 	/**
-	 * Right associative infix operator. Runs Parser {@code p} and then runs
-	 * {@code op} and {@code p} for 0 or more times greedily. The {@link Map}
-	 * objects returned from {@code op} are applied from right to left to the
-	 * return values of {@code p}. For example: {@code a + b+c + d} is evaluated
-	 * as {@code a+(b+(c + d))}.
+	 * Right associative infix operator. Runs Parser {@code p} and then runs {@code op} and {@code p} for 0 or more times greedily. The {@link Map} objects returned from {@code op} are applied from right to left to the return values of {@code p}. For example: {@code a + b+c + d} is evaluated as {@code a+(b+(c + d))}.
 	 * 
 	 * <p>
 	 * {@code infixr(p, op)} is equivalent to {@code p (op p)*} in EBNF.

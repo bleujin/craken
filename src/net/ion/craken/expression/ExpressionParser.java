@@ -5,6 +5,7 @@ import static net.ion.craken.expression.TerminalParser.term;
 
 import java.util.List;
 
+import net.ion.framework.mte.util.NestedParser.SelectionParser;
 import net.ion.rosetta.OperatorTable;
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
@@ -22,14 +23,16 @@ public class ExpressionParser {
 	public static final Parser<Expression> NUMBER = curry(NumberExpression.class).sequence(TerminalParser.NUMBER);
 
 	static final Parser<Expression> QUALIFIED_NAME = curry(QualifiedNameExpression.class).sequence(TerminalParser.QUALIFIED_NAME);
-
+	
+	static final Parser<Expression> QUALIFIED_ARRAYNAME = curry(QualifiedNameExpression.class).sequence(TerminalParser.QUALIFIED_ARRAYNAME);
+	
 //	static final Parser<Expression> RELATION_NAME = curry(RelationNameExpression.class).sequence(TerminalParser.RELATION_NAME);
 
 	static final Parser<Expression> QUALIFIED_WILDCARD = curry(WildcardExpression.class).sequence(TerminalParser.QUALIFIED_NAME, TerminalParser.phrase(". *"));
 
 	static final Parser<Expression> WILDCARD = TerminalParser.term("*").<Expression> retn(new WildcardExpression(QualifiedName.of())).or(QUALIFIED_WILDCARD);
 
-	static final Parser<Expression> STRING = curry(StringExpression.class).sequence(TerminalParser.STRING);
+	static final Parser<Expression> STRING = curry(StringExpression.class).sequence(TerminalParser.STRING) ;
 
 	static final Parser<String> ALIAS = term("as").optional().next(TerminalParser.NAME);
 
@@ -42,13 +45,28 @@ public class ExpressionParser {
 	}
 	
 	public static Parser<SelectProjection> selectProjection(){
+		return projections(SelectProjection.class) ;
+	}
+	
+	
+	public static <T extends ValueObject> Parser<T> projections(Class<T> curry){
 		Reference<Expression> conditionRef = Parser.newReference();
 		Parser<Expression> expr = ExpressionParser.selection(conditionRef.lazy());
 		Parser<Expression> cond = ExpressionParser.logical(compare(expr));
 		conditionRef.set(cond) ;
 		
-		return Mapper.curry(SelectProjection.class).sequence(list(projection(expr))) ;
+		return Mapper.curry(curry).sequence(list(projection(expr))) ;
 	}
+
+	public static <T extends ValueObject> Parser<T> projections2(Class<T> curry){
+		Reference<Expression> conditionRef = Parser.newReference();
+		Parser<Expression> expr = ExpressionParser.selection2(conditionRef.lazy());
+		Parser<Expression> cond = ExpressionParser.logical(compare(expr));
+		conditionRef.set(cond) ;
+		
+		return Mapper.curry(curry).sequence(list(projection(expr))) ;
+	}
+
 	
 	static final Parser<Projection> projection(Parser<Expression> expr) {
 		return Mapper.curry(Projection.class).sequence(expr, ALIAS.optional());
@@ -106,6 +124,15 @@ public class ExpressionParser {
 		Reference<Expression> reference = Parser.newReference();
 		Parser<Expression> lazyExpr = reference.lazy();
 		Parser<Expression> atom = Parsers.or(NUMBER, STRING, QUALIFIED_NAME, simpleCase(lazyExpr), fullCase(cond, lazyExpr)); // WILDCARD, 
+		Parser<Expression> expression = arithmetic(atom).label("expression");
+		reference.set(expression);
+		return expression;
+	}
+	
+	static Parser<Expression> selection2(Parser<Expression> cond) {
+		Reference<Expression> reference = Parser.newReference();
+		Parser<Expression> lazyExpr = reference.lazy();
+		Parser<Expression> atom = Parsers.or(NUMBER, STRING, QUALIFIED_ARRAYNAME, simpleCase(lazyExpr), fullCase(cond, lazyExpr)); // WILDCARD, 
 		Parser<Expression> expression = arithmetic(atom).label("expression");
 		reference.set(expression);
 		return expression;

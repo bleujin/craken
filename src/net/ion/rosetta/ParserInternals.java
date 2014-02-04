@@ -140,8 +140,7 @@ final class ParserInternals {
 	}
 
 	/**
-	 * Runs {@code parser} in greedy mode. Currently it does nothing special.
-	 * May want to suppress irrelevant errors (such the 'x expected' in x*).
+	 * Runs {@code parser} in greedy mode. Currently it does nothing special. May want to suppress irrelevant errors (such the 'x expected' in x*).
 	 */
 	static boolean greedyRun(Parser<?> parser, ParseContext ctxt) {
 		return parser.run(ctxt);

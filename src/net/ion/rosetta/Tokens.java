@@ -15,6 +15,8 @@
  *****************************************************************************/
 package net.ion.rosetta;
 
+import net.ion.framework.util.Debug;
+
 /**
  * Provides common token values.
  * 
@@ -83,8 +85,7 @@ public final class Tokens {
 	}
 
 	/**
-	 * Returns a {@link ScientificNotation} with {@code significand} before the
-	 * 'e' or 'E' and {@code exponent} after.
+	 * Returns a {@link ScientificNotation} with {@code significand} before the 'e' or 'E' and {@code exponent} after.
 	 */
 	public static ScientificNotation scientificNotation(String significand, String exponent) {
 		return new ScientificNotation(significand, exponent);
@@ -134,9 +135,7 @@ public final class Tokens {
 	}
 
 	/**
-	 * Represents a scientific notation with a significand (mantissa) and an
-	 * exponent. Both are represented with a {@link String} to avoid number
-	 * range issue.
+	 * Represents a scientific notation with a significand (mantissa) and an exponent. Both are represented with a {@link String} to avoid number range issue.
 	 */
 	public static final class ScientificNotation {
 

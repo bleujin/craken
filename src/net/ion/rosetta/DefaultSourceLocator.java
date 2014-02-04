@@ -23,9 +23,7 @@ import net.ion.rosetta.util.IntList;
  * Default implementation of {@link SourceLocator}.
  * 
  * <p>
- * This class internally keeps a cache of the indices of all the line break
- * characters scanned so far, therefore repeated location lookup can be done in
- * amortized log(n) time.
+ * This class internally keeps a cache of the indices of all the line break characters scanned so far, therefore repeated location lookup can be done in amortized log(n) time.
  * 
  * <p>
  * It is <EM>not</EM> multi-thread safe.
@@ -58,10 +56,7 @@ final class DefaultSourceLocator implements SourceLocator {
 	int nextColumnIndex = 0;
 
 	/**
-	 * Uses binary search to look up the index of the first element in
-	 * {@code ascendingInts} that's greater than or equal to {@code value}. If
-	 * all elements are smaller than {@code value}, {@code ascendingInts.size()}
-	 * is returned.
+	 * Uses binary search to look up the index of the first element in {@code ascendingInts} that's greater than or equal to {@code value}. If all elements are smaller than {@code value}, {@code ascendingInts.size()} is returned.
 	 */
 	@Private
 	static int binarySearch(IntList ascendingInts, int value) {
@@ -80,9 +75,7 @@ final class DefaultSourceLocator implements SourceLocator {
 	}
 
 	/**
-	 * Looks up the location identified by {@code ind} using the cached indices
-	 * of line break characters. This assumes that all line-break characters
-	 * before {@code ind} are already scanned.
+	 * Looks up the location identified by {@code ind} using the cached indices of line break characters. This assumes that all line-break characters before {@code ind} are already scanned.
 	 */
 	@Private
 	Location lookup(int index) {
@@ -97,15 +90,10 @@ final class DefaultSourceLocator implements SourceLocator {
 	}
 
 	/**
-	 * Scans from {@code nextIndex} to {@code ind} and saves all indices of line
-	 * break characters into {@code lineBreakIndices} and adjusts the current
-	 * column number as it goes. The location of the character on {@code ind} is
-	 * returned.
+	 * Scans from {@code nextIndex} to {@code ind} and saves all indices of line break characters into {@code lineBreakIndices} and adjusts the current column number as it goes. The location of the character on {@code ind} is returned.
 	 * 
 	 * <p>
-	 * After this method returns, {@code nextIndex} and {@code nextColumnIndex}
-	 * will point to the next character to be scanned or the EOF if the end of
-	 * input is encountered.
+	 * After this method returns, {@code nextIndex} and {@code nextColumnIndex} will point to the next character to be scanned or the EOF if the end of input is encountered.
 	 */
 	@Private
 	Location scanTo(int index) {
@@ -134,8 +122,7 @@ final class DefaultSourceLocator implements SourceLocator {
 	}
 
 	/**
-	 * Gets the 0-based column number of the line break character for line
-	 * identified by {@code lineIndex}.
+	 * Gets the 0-based column number of the line break character for line identified by {@code lineIndex}.
 	 */
 	private int getLineBreakColumnIndex(int lineIndex) {
 		int lineBreakIndex = lineBreakIndices.get(lineIndex);

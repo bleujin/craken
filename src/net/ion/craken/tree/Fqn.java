@@ -8,24 +8,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import net.ion.craken.loaders.EntryKey;
+import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
-import net.ion.radon.core.path.URLPattern;
 import net.ion.radon.util.uriparser.URIPattern;
 import net.ion.radon.util.uriparser.URIResolveResult;
 import net.ion.radon.util.uriparser.URIResolver;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.infinispan.marshall.AbstractExternalizer;
 import org.infinispan.util.Util;
 
@@ -345,6 +344,11 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	@Override
 	public String replaceValue() {
 		return toString();
+	}
+
+	@Override
+	public VType vtype() {
+		return VType.STR;
 	}
 
 	public boolean isPattern(String fqnPattern) {

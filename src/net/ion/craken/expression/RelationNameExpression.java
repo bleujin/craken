@@ -1,6 +1,9 @@
 package net.ion.craken.expression;
 
+import java.util.Set;
+
 import net.ion.craken.node.NodeCommon;
+import net.ion.framework.util.SetUtil;
 
 public final class RelationNameExpression extends ValueObject implements Expression {
 	

@@ -30,6 +30,8 @@ public class TupleExpression extends ValueObject implements Expression {
 
 		return result;
 	}
+
+
 }
 
 class ComparableSet implements Set<Comparable>, Comparable<ComparableSet>{

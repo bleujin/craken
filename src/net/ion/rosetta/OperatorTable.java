@@ -24,13 +24,10 @@ import net.ion.rosetta.functors.Map2;
 import net.ion.rosetta.util.Lists;
 
 /**
- * Builds {@link Parser} to parse expressions with operator-precedence grammar.
- * The operators and precedences are declared in this table.
+ * Builds {@link Parser} to parse expressions with operator-precedence grammar. The operators and precedences are declared in this table.
  * 
  * <p>
- * Operators have precedences. The higher the precedence number, the higher the
- * precedence. For the same precedence, prefix > postfix > left-associative >
- * non-associative > right-asscociative.
+ * Operators have precedences. The higher the precedence number, the higher the precedence. For the same precedence, prefix > postfix > left-associative > non-associative > right-asscociative.
  * 
  * @author Ben Yu
  */
@@ -135,8 +132,7 @@ public final class OperatorTable<T> {
 	}
 
 	/**
-	 * Builds a {@link Parser} based on information in this
-	 * {@link OperatorTable}.
+	 * Builds a {@link Parser} based on information in this {@link OperatorTable}.
 	 * 
 	 * @param operand
 	 *            parser for the operands.
@@ -153,8 +149,7 @@ public final class OperatorTable<T> {
 	}
 
 	/**
-	 * Builds a {@link Parser} based on information described by
-	 * {@link OperatorTable}.
+	 * Builds a {@link Parser} based on information described by {@link OperatorTable}.
 	 * 
 	 * @param term
 	 *            parser for the terminals.

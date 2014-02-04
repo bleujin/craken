@@ -16,8 +16,7 @@
 package net.ion.rosetta;
 
 /**
- * Parses a list of pattern started with a delimiter, separated and optionally
- * ended by the delimiter.
+ * Parses a list of pattern started with a delimiter, separated and optionally ended by the delimiter.
  * 
  * @author Ben Yu
  */

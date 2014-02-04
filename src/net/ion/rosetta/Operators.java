@@ -32,17 +32,11 @@ import net.ion.rosetta.util.Lists;
 final class Operators {
 
 	/**
-	 * Gets a {@link Lexicon} instance with {@link Tokens#reserved(String)} as
-	 * each operator's value and a lexer that strives to try the shortest
-	 * operator first.
+	 * Gets a {@link Lexicon} instance with {@link Tokens#reserved(String)} as each operator's value and a lexer that strives to try the shortest operator first.
 	 * 
 	 * <p>
-	 * Safely speaking, we can always start from the longest operator and falls
-	 * back to shorter ones. Yet shorter operators are more often used than
-	 * longer ones and the scanning of them is faster. However, scanning shorter
-	 * operators first has the chance that a "==" is mistakenly scanned as "="
-	 * followed by another "=". In order to avoid this, we analyze the prefix
-	 * relationship and make sure that prefixes are scanned after prefixees.
+	 * Safely speaking, we can always start from the longest operator and falls back to shorter ones. Yet shorter operators are more often used than longer ones and the scanning of them is faster. However, scanning shorter operators first has the chance that a "==" is mistakenly scanned as "=" followed by another "=". In order to avoid this, we analyze the prefix relationship and make sure that
+	 * prefixes are scanned after prefixees.
 	 */
 	static Lexicon lexicon(final String... operatorNames) {
 		final HashMap<String, Object> operators = new HashMap<String, Object>();
@@ -65,21 +59,16 @@ final class Operators {
 	};
 
 	/**
-	 * A suite is a list of overlapping operators, where some operators are
-	 * prefixes of other operators. If operator foo is a prefix of operator bar,
-	 * it is listed after bar.
+	 * A suite is a list of overlapping operators, where some operators are prefixes of other operators. If operator foo is a prefix of operator bar, it is listed after bar.
 	 * 
 	 * <p>
 	 * For example ["==", "="]. Empty strings are ignored.
 	 * 
 	 * <p>
-	 * Upon a new string is added, We scan from the end of the list until a
-	 * string is found to contain it, in which case, the new string is added
-	 * right after the position.
+	 * Upon a new string is added, We scan from the end of the list until a string is found to contain it, in which case, the new string is added right after the position.
 	 * 
 	 * <p>
-	 * With the critical requirement that longer strings are added before
-	 * shorter ones, prefixes are always inserted later than prefixees.
+	 * With the critical requirement that longer strings are added before shorter ones, prefixes are always inserted later than prefixees.
 	 */
 	private static final class Suite {
 		// containees are behined containers.
@@ -107,17 +96,13 @@ final class Operators {
 	}
 
 	/**
-	 * A list of suites in the reverse order of the suites. Suite a is defined
-	 * to be bigger than suite b if the first element of a is longer than that
-	 * of b.
+	 * A list of suites in the reverse order of the suites. Suite a is defined to be bigger than suite b if the first element of a is longer than that of b.
 	 */
 	private static final class Suites {
 		private final ArrayList<Suite> list = Lists.arrayList();
 
 		/**
-		 * Scans the list of suites by adding {@code v} to the first suite that
-		 * claims it as a prefix. If no suite claims it as prefix, it is added
-		 * as a standalone {@link Suite} at the end of the list.
+		 * Scans the list of suites by adding {@code v} to the first suite that claims it as a prefix. If no suite claims it as prefix, it is added as a standalone {@link Suite} at the end of the list.
 		 */
 		void add(String v) {
 			for (Suite suite : list) {
@@ -128,10 +113,7 @@ final class Operators {
 		}
 
 		/**
-		 * Collapes the names in each suite by traversing the suites in reverse
-		 * order, so that smaller suites are collapsed first and generally
-		 * shorter operators will be placed before longer ones unless it is
-		 * contained by a longer operator.
+		 * Collapes the names in each suite by traversing the suites in reverse order, so that smaller suites are collapsed first and generally shorter operators will be placed before longer ones unless it is contained by a longer operator.
 		 */
 		String[] toArray() {
 			ArrayList<String> result = Lists.arrayList();
@@ -146,9 +128,7 @@ final class Operators {
 	}
 
 	/**
-	 * Sorts {@code names} into a new array by putting short string first,
-	 * unless a shorter string is a prefix of a longer string, in which case,
-	 * the longer string is before the prefix string.
+	 * Sorts {@code names} into a new array by putting short string first, unless a shorter string is a prefix of a longer string, in which case, the longer string is before the prefix string.
 	 */
 	@Private
 	static String[] sort(String... names) {

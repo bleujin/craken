@@ -70,6 +70,36 @@ public abstract class WorkspaceConfig extends AbstractCacheStoreConfig  {
 			this.setProps(cbuilder.loaders().addStore()
 				.cacheStore(cloader).addProperty(Location, location())).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false) ;
 
+//			dm.defineConfiguration(wsName, new ConfigurationBuilder()
+//			.clustering().hash().numOwners(2).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable()
+//			.eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true)
+//			.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
+//			.loaders().preload(false).shared(false).passivation(false).addCacheLoader().cacheLoader(cloader).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async()
+//			.enabled(false).build());
+			
+//			cbuilder.loaders().addStore().addProperty(Location, location()) ;
+			
+			return cbuilder.clustering().hash().numOwners(2).clustering().cacheMode(CacheMode.DIST_SYNC)
+			.invocationBatching().enable().eviction().eviction().maxEntries(maxNodeEntry()).transaction().syncCommitPhase(true)
+			.syncRollbackPhase(true).locking().lockAcquisitionTimeout(lockTimeoutMs())
+			.loaders().preload(true).shared(false).passivation(false).build() ;
+		} catch (ClassNotFoundException ex) {
+			throw new IOException(ex);
+		} catch (InstantiationException ex) {
+			throw new IOException(ex);
+		} catch (IllegalAccessException ex) {
+			throw new IOException(ex);
+		}
+	}
+
+	public Configuration buildLocal() throws IOException {
+		try {
+			CacheStore cloader = (CacheStore) Class.forName(getCacheLoaderClassName()).newInstance();
+			ConfigurationBuilder cbuilder = new ConfigurationBuilder();
+			
+			this.setProps(cbuilder.loaders().addStore()
+				.cacheStore(cloader).addProperty(Location, location())).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false) ;
+
 //			cbuilder.loaders().addStore().addProperty(Location, location()) ;
 			
 			return cbuilder.clustering().cacheMode(CacheMode.LOCAL)
@@ -84,4 +114,5 @@ public abstract class WorkspaceConfig extends AbstractCacheStoreConfig  {
 			throw new IOException(ex);
 		}
 	}
+
 }

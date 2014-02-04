@@ -33,8 +33,8 @@ public class TestISearcherWorkspaceStore extends TestCase {
 	// 18sec per 20k(load, about 1k lower per sec)
 	// 65 sec(after mod)
 	public void testLuceneDirStore() throws Exception {
-		FileUtil.deleteDirectory(new File("./resource/local")) ;
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/local")) ;
+		FileUtil.deleteDirectory(new File("./resource/temp/local")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/local")) ;
 		
 		r.start() ;
 		
@@ -48,7 +48,7 @@ public class TestISearcherWorkspaceStore extends TestCase {
 	
 	public void testResetDirStore() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/local")) ;
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/local")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/local")) ;
 		
 		r.start() ;
 		
@@ -63,7 +63,7 @@ public class TestISearcherWorkspaceStore extends TestCase {
 	
 	
 	public void testFind() throws Exception {
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/local")) ;
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/local")) ;
 
 		r.start() ;
 		

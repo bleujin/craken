@@ -21,8 +21,7 @@ import net.ion.rosetta.functors.Map;
 import net.ion.rosetta.util.Strings;
 
 /**
- * A {@link Lexicon} is a group of lexical words that can be tokenized by a
- * single tokenizer.
+ * A {@link Lexicon} is a group of lexical words that can be tokenized by a single tokenizer.
  * 
  * @author Ben Yu
  */
@@ -45,8 +44,7 @@ class Lexicon {
 	}
 
 	/**
-	 * A {@link Parser} that recognizes a sequence of tokens identified by
-	 * {@code tokenNames}, as an atomic step.
+	 * A {@link Parser} that recognizes a sequence of tokens identified by {@code tokenNames}, as an atomic step.
 	 */
 	public Parser<?> phrase(String... tokenNames) {
 		Parser<?>[] wordParsers = new Parser<?>[tokenNames.length];
@@ -57,8 +55,7 @@ class Lexicon {
 	}
 
 	/**
-	 * A {@link Parser} that recognizes a token identified by any of
-	 * {@code tokenNames}.
+	 * A {@link Parser} that recognizes a token identified by any of {@code tokenNames}.
 	 */
 	public Parser<Token> token(String... tokenNames) {
 		if (tokenNames.length == 0)
@@ -72,16 +69,14 @@ class Lexicon {
 	}
 
 	/**
-	 * A {@link Parser} that recognizes the token identified by
-	 * {@code tokenName}.
+	 * A {@link Parser} that recognizes the token identified by {@code tokenName}.
 	 */
 	public Parser<Token> token(String tokenName) {
 		return Parsers.token(InternalFunctors.tokenWithSameValue(word(tokenName)));
 	}
 
 	/**
-	 * Gets the token value identified by the token text. This text is the
-	 * operator or the keyword.
+	 * Gets the token value identified by the token text. This text is the operator or the keyword.
 	 * 
 	 * @param name
 	 *            the token text.
@@ -97,8 +92,7 @@ class Lexicon {
 	}
 
 	/**
-	 * Returns a {@link Lexicon} instance that's a union of {@code this} and
-	 * {@code that}.
+	 * Returns a {@link Lexicon} instance that's a union of {@code this} and {@code that}.
 	 */
 	Lexicon union(Lexicon that) {
 		return new Lexicon(InternalFunctors.fallback(words, that.words), Parsers.plus(tokenizer, that.tokenizer));

@@ -34,8 +34,7 @@ final class ListFactories {
 	}
 
 	/**
-	 * Returns a {@link ListFactory} that creates an {@link ArrayList} instance
-	 * with {@code first} as the first element.
+	 * Returns a {@link ListFactory} that creates an {@link ArrayList} instance with {@code first} as the first element.
 	 */
 	public static <T> ListFactory<T> arrayListFactoryWithFirstElement(final T first) {
 		return new ListFactory<T>() {

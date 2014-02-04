@@ -42,9 +42,9 @@ public class RDBWorkspaceConfig extends WorkspaceConfig {
 	private int maxNodeEntry = 15000 ;
 	private LazyCentralConfig lazyConfig = new LazyCentralConfig() ;
 
-	private static final String JdbcURL = "jdbcURL";
-	private static final String UserId = "userId" ;
-	private static final String UserPwd = "userPwd";
+	private static final String JDBCURL = "jdbcURL";
+	private static final String JDBCUserId = "userId" ;
+	private static final String JDBCUserPwd = "userPwd";
 	
 
 	private String jdbcUrl ;
@@ -57,9 +57,9 @@ public class RDBWorkspaceConfig extends WorkspaceConfig {
 	
 	public static RDBWorkspaceConfig create(String jdbcURL, String userId, String userPwd) {
 		RDBWorkspaceConfig result = new RDBWorkspaceConfig();
-		result.otherProp(JdbcURL, jdbcURL) ;
-		result.otherProp(UserId, userId) ;
-		result.otherProp(UserPwd, userPwd) ;
+		result.otherProp(JDBCURL, jdbcURL) ;
+		result.otherProp(JDBCUserId, userId) ;
+		result.otherProp(JDBCUserPwd, userPwd) ;
 		return result ;
 	}
 	
@@ -135,8 +135,8 @@ public class RDBWorkspaceConfig extends WorkspaceConfig {
 		return result ;
 	}
 	
-	public IDBController buildDBController() {
-		return new DBController(new OracleDBManager(defaultValue(JdbcURL, jdbcUrl), defaultValue(UserId, userId), defaultValue(UserPwd, userPwd)));
+	public DBController buildDBController() {
+		return new DBController(new OracleDBManager(defaultValue(JDBCURL, jdbcUrl), defaultValue(JDBCUserId, userId), defaultValue(JDBCUserPwd, userPwd)));
 	}
 	
 	public CentralConfig centralConfig(){

@@ -106,6 +106,10 @@ public final class Patterns {
 	 */
 	public static final Pattern WORD = isChar(CharPredicates.IS_ALPHA_).next(isChar(CharPredicates.IS_ALPHA_NUMERIC_).many());
 
+	
+	public static final Pattern ARRAYWORD = isChar('[').next(isChar(CharPredicates.IS_ALPHA_NUMERIC_).many()).next(isChar(']')) ;
+	
+	
 	/**
 	 * A {@link Pattern} object that matches an octal integer that starts with a
 	 * {@code 0} and is followed by 0 or more {@code [0 - 7]} characters.

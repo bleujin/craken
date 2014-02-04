@@ -143,8 +143,7 @@ final class InternalFunctors {
 	}
 
 	/**
-	 * Returns a {@link Map} that delegates to {@code map} and falls back to
-	 * {@code defaultMap} for null return values.
+	 * Returns a {@link Map} that delegates to {@code map} and falls back to {@code defaultMap} for null return values.
 	 */
 	public static <F, T> Map<F, T> fallback(final Map<F, T> map, final Map<? super F, ? extends T> defaultMap) {
 		return new Map<F, T>() {

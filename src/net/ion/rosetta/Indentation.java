@@ -28,16 +28,14 @@ import net.ion.rosetta.util.Lists;
 import net.ion.rosetta.util.Objects;
 
 /**
- * Processes indentation based lexical structure according to the <a
- * href="http://en.wikipedia.org/wiki/Off-side_rule">Off-side rule</a>.
+ * Processes indentation based lexical structure according to the <a href="http://en.wikipedia.org/wiki/Off-side_rule">Off-side rule</a>.
  * 
  * @author Ben Yu
  */
 public final class Indentation {
 
 	/**
-	 * A {@link CharPredicate} that returns true only if the character isn't
-	 * line feed and {@link Character#isWhitespace(char)} returns true.
+	 * A {@link CharPredicate} that returns true only if the character isn't line feed and {@link Character#isWhitespace(char)} returns true.
 	 */
 	static final CharPredicate INLINE_WHITESPACE = new CharPredicate() {
 		public boolean isChar(char c) {
@@ -51,25 +49,17 @@ public final class Indentation {
 	};
 
 	/**
-	 * A {@link Pattern} object that matches a line continuation. i.e. a
-	 * backslash character ({@code '\'}) followed by some whitespaces and ended
-	 * by a line feed character ({@code '\n'}). Is useful if the line feed
-	 * character plays a role in the syntax (as in indentation-sensitive
-	 * languages) and line continuation is supported.
+	 * A {@link Pattern} object that matches a line continuation. i.e. a backslash character ({@code '\'}) followed by some whitespaces and ended by a line feed character ({@code '\n'}). Is useful if the line feed character plays a role in the syntax (as in indentation-sensitive languages) and line continuation is supported.
 	 */
 	static final Pattern LINE_CONTINUATION = Patterns.sequence(Patterns.isChar('\\'), Patterns.many(INLINE_WHITESPACE), Patterns.isChar('\n'));
 
 	/**
-	 * A {@link Pattern} object that matches one or more whitespace characters
-	 * or line continuations, where the line feed character ({@code '\n'}) is
-	 * escaped by the backslash character ({@code '\'}).
+	 * A {@link Pattern} object that matches one or more whitespace characters or line continuations, where the line feed character ({@code '\n'}) is escaped by the backslash character ({@code '\'}).
 	 */
 	static final Pattern INLINE_WHITESPACES = Patterns.many1(INLINE_WHITESPACE);
 
 	/**
-	 * A {@link Parser} that recognizes 1 or more whitespace characters on the
-	 * same line. Line continutation (escaped by a backslash character
-	 * {@code '\'}) is considered the same line.
+	 * A {@link Parser} that recognizes 1 or more whitespace characters on the same line. Line continutation (escaped by a backslash character {@code '\'}) is considered the same line.
 	 */
 	public static final Parser<Void> WHITESPACES = Scanners.pattern(INLINE_WHITESPACES.or(LINE_CONTINUATION).many1(), "whitespaces");
 
@@ -82,8 +72,7 @@ public final class Indentation {
 	private final Object outdent;
 
 	/**
-	 * Creates an {@link Indentation} object that uses {@code indent} and
-	 * {@code outdent} as the token values for indentation and outdentation.
+	 * Creates an {@link Indentation} object that uses {@code indent} and {@code outdent} as the token values for indentation and outdentation.
 	 */
 	public Indentation(Object indent, Object outdent) {
 		this.indent = indent;
@@ -91,8 +80,7 @@ public final class Indentation {
 	}
 
 	/**
-	 * Creates a {@link Indentation} object that generates default indent and
-	 * outdent tokens.
+	 * Creates a {@link Indentation} object that generates default indent and outdent tokens.
 	 */
 	public Indentation() {
 		this(Punctuation.INDENT, Punctuation.OUTDENT);
@@ -109,10 +97,7 @@ public final class Indentation {
 	}
 
 	/**
-	 * A {@link Parser} that greedily runs {@code tokenizer}, and translates
-	 * line feed characters ({@code '\n'}) to {@code indent} and {@code outdent}
-	 * tokens. Return values are wrapped in {@link Token} objects and collected
-	 * in a {@link List}. Patterns recognized by {@code delim} are ignored.
+	 * A {@link Parser} that greedily runs {@code tokenizer}, and translates line feed characters ({@code '\n'}) to {@code indent} and {@code outdent} tokens. Return values are wrapped in {@link Token} objects and collected in a {@link List}. Patterns recognized by {@code delim} are ignored.
 	 */
 	public Parser<List<Token>> lexer(Parser<?> tokenizer, Parser<?> delim) {
 		Parser<?> lf = Scanners.isChar('\n').retn(Punctuation.LF);
@@ -133,8 +118,7 @@ public final class Indentation {
 	}
 
 	/**
-	 * Analyzes indentation by looking at the first token after each {@code lf}
-	 * and inserting {@code indent} and {@code outdent} tokens properly.
+	 * Analyzes indentation by looking at the first token after each {@code lf} and inserting {@code indent} and {@code outdent} tokens properly.
 	 */
 	List<Token> analyzeIndentations(List<Token> tokens, Object lf) {
 		if (tokens.isEmpty()) {

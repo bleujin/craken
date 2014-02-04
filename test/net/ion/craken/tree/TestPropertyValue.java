@@ -1,4 +1,4 @@
-package net.ion.craken.node.crud.property;
+package net.ion.craken.tree;
 
 import java.util.Date;
 

@@ -71,7 +71,7 @@ public class TreeNode {
 	public JsonObject toValueJson(){
 		JsonObject result = new JsonObject();
 		for (Entry<PropertyId, PropertyValue> prop : props().entrySet()) {
-			result.add(prop.getKey().idString(), prop.getValue().asJsonArray()); 
+			result.add(prop.getKey().idString(), prop.getValue().json()); 
 		}
 		
 		return result ;

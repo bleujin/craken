@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import java.util.Date;
 
 import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.framework.parse.gson.JsonObject;
 
 import org.jgroups.util.Util;
@@ -14,7 +15,7 @@ import org.jgroups.util.Util;
 
 
 
-public class Metadata implements Externalizable {
+public class Metadata implements Externalizable, PropertyValue.ReplaceValue<String> {
 	public static final byte FILE = 1;
 	public static final byte DIR = 1 << 1;
 
@@ -96,19 +97,6 @@ public class Metadata implements Externalizable {
 		return "n/a";
 	}
 
-	public PropertyValue asPropertyValue() {
-		JsonObject result = new JsonObject();
-		result.addProperty("path", path);
-		result.addProperty("length", length);
-		result.addProperty("modificationTime", modificationTime);
-		result.addProperty("chunkSize", chunkSize);
-		result.addProperty("flags", flags);
-		result.addProperty("type", "blob");
-
-		return PropertyValue.createPrimitive(result.toString()) ;
-	}
-
-
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(length);
@@ -134,6 +122,23 @@ public class Metadata implements Externalizable {
 	public Metadata path(String path){
 		this.path = path ;
 		return this ;
+	}
+
+	@Override
+	public String replaceValue() {
+		JsonObject result = new JsonObject();
+		result.addProperty("path", path);
+		result.addProperty("length", length);
+		result.addProperty("modificationTime", modificationTime);
+		result.addProperty("chunkSize", chunkSize);
+		result.addProperty("flags", flags);
+		
+		return result.toString();
+	}
+
+	@Override
+	public VType vtype() {
+		return VType.BLOB;
 	}
 	
 }

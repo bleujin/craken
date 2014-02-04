@@ -1,6 +1,9 @@
 package net.ion.craken.expression;
 
+import java.util.Set;
+
 import net.ion.craken.node.NodeCommon;
+import net.ion.framework.util.SetUtil;
 
 public final class BetweenExpression extends ValueObject implements Expression {
 	public final Expression expression;
@@ -18,5 +21,6 @@ public final class BetweenExpression extends ValueObject implements Expression {
 	public Comparable value(NodeCommon node) {
 		return (Boolean)(Op.GE.compute(expression.value(node), from.value(node))) && (Boolean)(Op.LE.compute(expression.value(node), to.value(node))) ; 
 	}
+	
 }
 

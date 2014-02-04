@@ -1,8 +1,12 @@
 package net.ion.craken.expression;
 
+import static net.ion.craken.expression.ExpressionParser.NUMBER;
+import static net.ion.craken.expression.ExpressionParser.QUALIFIED_ARRAYNAME;
+import static net.ion.craken.expression.ExpressionParser.STRING;
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
+import net.ion.rosetta.Parsers;
 
 public class TestExpressionParser extends TestCase {
 
@@ -89,5 +93,11 @@ public class TestExpressionParser extends TestCase {
 		Debug.line(result) ;
 	}
 	
+	
+	public void testArray() throws Exception {
+		Parser<Expression> atom = ExpressionParser.expression();
+		Parser<Projection> parser = ExpressionParser.projection(atom) ;
+		Debug.line(TerminalParser.parse(parser, "parent.b.c.ddddd"));
+	}
 	
 }

@@ -269,7 +269,7 @@ class Output {
 	public void close() throws IOException {
 		writer.flush() ;
 		writer.close() ;
-		Debug.line(gb.getMetadata().asPropertyValue().toString()) ;
+		Debug.line(gb.getMetadata().toString()) ;
 	}
 	
 	

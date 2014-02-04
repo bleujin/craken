@@ -32,7 +32,8 @@ public class ChildQueryResponse {
 	private SearchResponse response;
 	private List<Fqn> found ;
 	private ReadSession session ;
-	
+	private static Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+
 //	private final ColumnParser cparser ;
 	
 	public ChildQueryResponse(ReadSession session, SearchResponse response) {
@@ -122,8 +123,8 @@ public class ChildQueryResponse {
 		return function.apply(this) ;
 	}
 
+	
 	public Rows toRows(String expr) throws SQLException {
-		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
 		SelectProjection sp = TerminalParser.parse(parser, expr);
 		return AdNodeRows.create(session, iterator(), sp);
 		

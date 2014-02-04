@@ -44,18 +44,18 @@ import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
 @Listener
-public class ISearchWorkspace extends Workspace {
+public class ISearcherWorkspace extends Workspace {
 
 	private ISearcherWorkspaceStore cstore;
 	private ISearcherWorkspaceConfig config;
 
-	private static final Log log = LogFactory.getLog(ISearchWorkspace.class);
+	private static final Log log = LogFactory.getLog(ISearcherWorkspace.class);
 
-	public ISearchWorkspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, ISearcherWorkspaceConfig config) {
+	public ISearcherWorkspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, ISearcherWorkspaceConfig config) {
 		this(repository, cache.getAdvancedCache(), wsName, config);
 	}
 
-	private ISearchWorkspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, ISearcherWorkspaceConfig config) {
+	private ISearcherWorkspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, ISearcherWorkspaceConfig config) {
 		super(repository, cache, wsName, config);
 
 		this.cstore = ((ISearcherWorkspaceStore) cache.getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore());
@@ -138,8 +138,9 @@ public class ISearchWorkspace extends Workspace {
 
 					if (propertyId.type() == PType.NORMAL) {
 						String propId = propertyId.getString();
-						JsonArray pvalue = entry.getValue().getAsJsonArray();
-						jso.add(propId, entry.getValue().getAsJsonArray());
+						JsonArray pvalue = entry.getValue().getAsJsonObject().asJsonArray("vals");
+						
+						jso.add(propertyId.idString(), entry.getValue());
 						for (JsonElement e : pvalue.toArray()) {
 							if (e == null)
 								continue;
@@ -148,8 +149,9 @@ public class ISearchWorkspace extends Workspace {
 						}
 					} else if (propertyId.type() == PType.REFER) {
 						final String propId = propertyId.getString();
-						JsonArray pvalue = entry.getValue().getAsJsonArray();
-						jso.add(propId, entry.getValue().getAsJsonArray()); // if type == refer, @
+						JsonArray pvalue = entry.getValue().getAsJsonObject().asJsonArray("vals");
+						
+						jso.add(propertyId.idString(), entry.getValue()); // if type == refer, @
 						for (JsonElement e : pvalue.toArray()) {
 							if (e == null)
 								continue;

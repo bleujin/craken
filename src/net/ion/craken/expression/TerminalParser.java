@@ -1,11 +1,13 @@
 package net.ion.craken.expression;
 
 import static net.ion.rosetta.Parsers.between;
+import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
 import net.ion.rosetta.Scanners;
 import net.ion.rosetta.Terminals;
 import net.ion.rosetta.Tokens.Tag;
+import net.ion.rosetta.functors.Map;
 import net.ion.rosetta.misc.Mapper;
 
 /**
@@ -13,21 +15,25 @@ import net.ion.rosetta.misc.Mapper;
  */
 public final class TerminalParser {
 
-	private static final String[] OPERATORS = {"+", "-", "*", "/", "%", ">", "<", "=", "==", ">=", "<=", "<>", ".", ",", "(", ")", "[", "]", "&&", "||"};
+	public static final String[] OPERATORS = {"+", "-", "*", "/", "%", ">", "<", "=", "==", ">=", "<=", "<>", ".", ",", "(", ")", "[", "]", "&&", "||"};
 
-	private static final String[] KEYWORDS = { "select", "distinct", "from", "as", "where", "group", "by", "having", "order", "asc", "desc", "and", "or", "not", "in", "exists", "between", "is",
+	public static final String[] KEYWORDS = { "select", "distinct", "from", "as", "where", "group", "by", "having", "order", "asc", "desc", "and", "or", "not", "in", "exists", "between", "is",
 			"null", "like", "escape", "inner", "outer", "left", "right", "full", "cross", "join", "on", "union", "all", "case", "when", "then", "else", "end" };
 
-	private static final Terminals TERMS = Terminals.caseInsensitive(OPERATORS, KEYWORDS);
+	public static final Terminals TERMS = Terminals.caseInsensitive(OPERATORS, KEYWORDS);
 
-	private static final Parser<?> TOKENIZER = Parsers.or(Terminals.DecimalLiteral.TOKENIZER, Terminals.StringLiteral.SINGLE_QUOTE_TOKENIZER, TERMS.tokenizer());
+	public static final Parser<?> TOKENIZER = Parsers.or(Terminals.DecimalLiteral.TOKENIZER, Terminals.StringLiteral.SINGLE_QUOTE_TOKENIZER, TERMS.tokenizer());
 
 	static final Parser<String> NUMBER = Terminals.DecimalLiteral.PARSER;
 	static final Parser<String> STRING = Terminals.StringLiteral.PARSER;
 
 	static final Parser<String> NAME = between(term("["), Terminals.fragment(Tag.RESERVED, Tag.IDENTIFIER), term("]")).or(Terminals.Identifier.PARSER);
 
+	static final Parser<String> ARRAYNAME = term("[").next(Terminals.Identifier.PARSER).followedBy(term("]")).source().or(Terminals.Identifier.PARSER) ;
+
 	static final Parser<QualifiedName> QUALIFIED_NAME = Mapper.curry(QualifiedName.class).sequence(NAME.sepBy1(term(".")));
+
+	static final Parser<QualifiedName> QUALIFIED_ARRAYNAME = Mapper.curry(QualifiedName.class).sequence(ARRAYNAME.sepBy1(term("."))) ;
 
 //	static final Parser<RelationName> RELATION_NAME = Mapper.curry(RelationName.class).sequence(NAME.sepBy1(term("@")));
 

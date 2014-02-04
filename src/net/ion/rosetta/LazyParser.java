@@ -20,8 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import net.ion.rosetta.util.Checks;
 
 /**
- * Delegates to the {@link Parser} object stored in a {@link AtomicReference}
- * dynamically when parsing.
+ * Delegates to the {@link Parser} object stored in a {@link AtomicReference} dynamically when parsing.
  * 
  * @author Ben Yu
  */

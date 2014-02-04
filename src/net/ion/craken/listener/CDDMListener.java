@@ -6,7 +6,9 @@ import java.util.Map;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -47,6 +49,26 @@ public class CDDMListener implements WorkspaceListener {
 	}
 	
 	
+	@CacheEntryRemoved
+	public void deleted(CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+		if (! event.isPre()) return ;
+		if (event.getKey().getType().isStructure()) return ;
+		if (! event.isOriginLocal()) return ;
+
+		Fqn fqn = event.getKey().getFqn();
+		for (CDDHandler listener : ls) {
+			String fqnPattern = listener.pathPattern() ;
+			if (! fqn.isPattern(fqnPattern)) continue ;
+			
+			Map<String, String> resolveMap = fqn.resolve(fqnPattern);
+			TransactionJob<Void> nextTran = listener.deleted(resolveMap, event);
+			if (nextTran == null || nextTran == TransactionJob.BLANK) continue ;
+			rsession.tran(nextTran) ;
+		}
+
+	}
+	
+	
 	@CacheEntryModified
 	public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
 		if (event.isPre()) return ;
@@ -59,7 +81,7 @@ public class CDDMListener implements WorkspaceListener {
 			if (! fqn.isPattern(fqnPattern)) continue ;
 			
 			Map<String, String> resolveMap = fqn.resolve(fqnPattern);
-			TransactionJob<Void> nextTran = listener.nextTran(resolveMap, event);
+			TransactionJob<Void> nextTran = listener.modified(resolveMap, event);
 			if (nextTran == null || nextTran == TransactionJob.BLANK) continue ;
 			rsession.tran(nextTran) ;
 		}

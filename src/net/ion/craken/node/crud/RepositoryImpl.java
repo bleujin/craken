@@ -204,8 +204,12 @@ public class RepositoryImpl implements Repository {
 		for (Workspace ws : workspaceCache.asMap().values()) {
 			ws.close();
 		}
+		workspaceCache.cleanUp(); 
+		configs.clear(); 
+		
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
 		executor.shutdown();
+		
 		dm.stop();
 		
 		log.info(memberId() +" shutdowned") ;
@@ -258,12 +262,7 @@ public class RepositoryImpl implements Repository {
 			configs.put(wsName, config);
 
 			CacheLoader cloader = (CacheLoader) Class.forName(config.getCacheLoaderClassName()).newInstance();
-			dm.defineConfiguration(wsName, new ConfigurationBuilder()
-					.clustering().hash().numOwners(2).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable()
-					.eviction().maxEntries(config.maxNodeEntry()).transaction().syncCommitPhase(true).syncRollbackPhase(true)
-					.locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-					.loaders().preload(false).shared(false).passivation(false).addCacheLoader().cacheLoader(cloader).addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async()
-					.enabled(false).build());
+			dm.defineConfiguration(wsName,config.build());
 
 			dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder()
 					.clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
@@ -290,7 +289,7 @@ public class RepositoryImpl implements Repository {
 			throw new IllegalStateException("already define workspace : " + wsName);
 		configs.put(wsName, config);
 
-		dm.defineConfiguration(wsName, config.build());
+		dm.defineConfiguration(wsName, config.buildLocal());
 
 		log.info("Workspace[" + wsName + ", LOCAL] defined");
 		return this;

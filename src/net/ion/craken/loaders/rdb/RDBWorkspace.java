@@ -31,6 +31,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.TreeNodeKey.Action;
+import net.ion.framework.db.DBController;
 import net.ion.framework.db.IDBController;
 import net.ion.framework.db.procedure.IUserCommandBatch;
 import net.ion.framework.db.procedure.IUserProcedures;
@@ -52,7 +53,7 @@ public class RDBWorkspace extends Workspace {
 
 	private RDBWorkspaceConfig config;
 	private RDBWorkspaceStore rstore;
-	private IDBController dc;
+	private DBController dc;
 
 	public RDBWorkspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, RDBWorkspaceConfig config) {
 		super(repository, cache, wsName, config) ;
@@ -167,8 +168,8 @@ public class RDBWorkspace extends Workspace {
 
 					if (propertyId.type() == PType.NORMAL) {
 						String propId = propertyId.getString();
-						JsonArray pvalue = entry.getValue().getAsJsonArray();
-						jso.add(propId, entry.getValue().getAsJsonArray());
+						JsonArray pvalue = entry.getValue().getAsJsonObject().asJsonArray("vals");
+						jso.add(propertyId.idString(), entry.getValue());
 						for (JsonElement e : pvalue.toArray()) {
 							if (e == null)
 								continue;
@@ -177,8 +178,8 @@ public class RDBWorkspace extends Workspace {
 						}
 					} else if (propertyId.type() == PType.REFER) {
 						final String propId = propertyId.getString();
-						JsonArray pvalue = entry.getValue().getAsJsonArray();
-						jso.add(propId, entry.getValue().getAsJsonArray()); // if type == refer, @
+						JsonArray pvalue = entry.getValue().getAsJsonObject().asJsonArray("vals");
+						jso.add(propertyId.idString(), entry.getValue()); // if type == refer, @
 						for (JsonElement e : pvalue.toArray()) {
 							if (e == null)
 								continue;
@@ -197,6 +198,12 @@ public class RDBWorkspace extends Workspace {
 	
 	public RDBWorkspaceStore store(){
 		return rstore ;
+	}
+	
+	public void close() {
+		super.close(); 
+		IOUtil.closeQuietly(dc);
+		dc.destroySelf();
 	}
 	
 }

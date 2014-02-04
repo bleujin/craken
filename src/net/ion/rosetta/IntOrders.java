@@ -23,8 +23,7 @@ package net.ion.rosetta;
 final class IntOrders {
 
 	/**
-	 * An {@link IntOrder} instance that determines if the first integer is less
-	 * than the second one.
+	 * An {@link IntOrder} instance that determines if the first integer is less than the second one.
 	 * 
 	 * <p>
 	 * {@code LT.compare(1, 2) == true}.
@@ -41,8 +40,7 @@ final class IntOrders {
 	};
 
 	/**
-	 * An {@link IntOrder} instance that determines if the first integer is
-	 * smaller than the second one.
+	 * An {@link IntOrder} instance that determines if the first integer is smaller than the second one.
 	 * 
 	 * <p>
 	 * {@code GT.compare(2, 1) == true}.
