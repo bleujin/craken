@@ -78,7 +78,7 @@ public class NodeEntry extends ImmortalCacheEntry implements Serializable{
 				jarray.adds(obj) ;
 				if (i == 0) json.addProperty("vtype", PropertyValue.VType.findType(obj).name()) ;
 			}
-			nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(json));
+			nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(nodeKey, pkey, json));
 		}
 
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey) ;

@@ -12,6 +12,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 
@@ -37,7 +38,6 @@ public class TestBlobProperty extends TestCase  {
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/local")) ;
 		r.start() ;
 		
-		
 		session = r.login("test") ;
 		
 		final InputStream input = new ByteArrayInputStream("HelloWorld".getBytes()) ;
@@ -51,7 +51,10 @@ public class TestBlobProperty extends TestCase  {
 		}) ;
 		
 		
-		GridBlob blob = session.pathBy("/bleujin").property("img").asBlob();
+		PropertyValue pvalue = session.pathBy("/bleujin").property("img");
+		assertEquals(true, pvalue.isBlob());
+		GridBlob blob = pvalue.asBlob();
+		
 		Debug.line(blob);
 		
 		// session.workspace().gfs().gridBlob("/bleujin/img", metadata)
@@ -61,7 +64,6 @@ public class TestBlobProperty extends TestCase  {
 	public void testRead() throws Exception {
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/local")) ;
 		r.start() ;
-		
 		
 		session = r.login("test") ;
 		GridBlob blob = session.pathBy("/bleujin").property("img").asBlob();

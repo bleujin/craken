@@ -28,10 +28,10 @@ public class TestInsertSpeed extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		FileUtil.deleteDirectory(new File("./resource/insert")) ;
+		FileUtil.deleteDirectory(new File("./resource/temp/insert")) ;
 		
 		this.r = RepositoryImpl.create();
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/insert"));
+		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/insert"));
 		r.start();
 		this.session = r.login("test");
 	}
@@ -43,8 +43,7 @@ public class TestInsertSpeed extends TestCase {
 	}
 
 	public void testReset() throws Exception {
-		int loopCount = 20000 ;
-		long start = System.currentTimeMillis();
+		int loopCount = 200000 ;
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
@@ -52,7 +51,8 @@ public class TestInsertSpeed extends TestCase {
 				return null;
 			}
 		}) ;
-		session.tranSync(new SampleInsertJob("/bleujin/", loopCount));
+		long start = System.currentTimeMillis();
+		session.tranSync(new SampleInsertJob("/bleujin/", loopCount, Action.RESET));
 		Debug.line(System.currentTimeMillis() - start) ;
 		session.pathBy("/bleujin").children().offset(10).debugPrint() ;
 	}
@@ -140,6 +140,7 @@ class SampleInsertJob implements TransactionJob<Void> {
 		reader.setFieldDelimiter('\t') ;
 		String[] headers = reader.readLine();
 		String[] line = reader.readLine() ;
+		
 		
 		while(line != null && line.length > 0 && max-- > 0 ){
 //			if (headers.length != line.length ) continue ;

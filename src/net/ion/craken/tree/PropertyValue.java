@@ -123,9 +123,12 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return new PropertyValue(Values.create(value)) ;
 	}
 	
-	public static PropertyValue loadFrom(JsonObject jso){
+	public static PropertyValue loadFrom(TreeNodeKey nodeKey, String pkey, JsonObject jso){
 		PropertyValue propValue = new PropertyValue(Values.fromJson(jso)) ;
-		
+		if (propValue.isBlob()) {
+			((Metadata) propValue.value()).path(nodeKey.idString() + "/" + pkey) ;
+		}
+			
 		return propValue ;
 	}
 	
@@ -202,6 +205,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 			throw new NodeIOException("this value not accessable");
 		if (gfs == null)
 			throw new NodeIOException("this value not accessable[gfs is null]");
+		if (value instanceof Metadata) {
+			Metadata meta = ((Metadata) value) ;
+			return gfs.gridBlob(meta.path(), meta) ;
+		}
 		if (value instanceof String) {
 			try {
 				final JsonObject json = JsonObject.fromString((String) value);
@@ -211,14 +218,12 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 			}
 			// return BlobValue.create(gfs, ) ;
 		}
-		throw new NodeIOException("this value is not blob type");
+		throw new NodeIOException("this value is not blob type : " + value);
 	}
 	
-	// @Todo
-	@Deprecated
+
 	public boolean isBlob() {
-		
-		return Metadata.isValid(value()) ;
+		return VType.BLOB == type() ;
 	}	
 
 	public int size() {
@@ -292,6 +297,10 @@ class Values implements Serializable, Iterable {
 			ReplaceValue rvalue = (ReplaceValue)value;
 			Values created = create(rvalue.replaceValue());
 			created.selfType = rvalue.vtype() ;
+			return created ;
+		} else if (Metadata.class.isInstance(value)) {
+			Values created = new Values(SetUtil.create(value)) ;
+			created.selfType = VType.BLOB ;
 			return created ;
 		} else {
 			Values created = new Values(SetUtil.create(value)) ;

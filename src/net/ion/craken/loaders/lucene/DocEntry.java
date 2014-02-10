@@ -77,7 +77,7 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 		for (Entry<String, JsonElement> entry : props.entrySet()) {
 			String pkey = entry.getKey();
 			JsonElement pvalue = entry.getValue();
-			nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(pvalue.getAsJsonObject()));
+			nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(nodeKey, pkey, pvalue.getAsJsonObject()));
 		}
 
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey) ;

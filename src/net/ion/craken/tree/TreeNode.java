@@ -154,12 +154,6 @@ public class TreeNode {
 		props().putAll(map);
 	}
 
-	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
-		Map<PropertyId, PropertyValue> data = props();
-		data.clear();
-		data.putAll(map);
-	}
-
 	public PropertyValue get(PropertyId key) {
 		return props().get(key);
 	}

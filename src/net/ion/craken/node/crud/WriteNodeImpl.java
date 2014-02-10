@@ -18,6 +18,7 @@ import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -179,24 +180,36 @@ public class WriteNodeImpl implements WriteNode{
 	public WriteNode unset(String key, Object... values){
 		touch(Touch.MODIFY) ;
 		final PropertyId propId = createNormalId(key);
+		PropertyValue pvalue = tree().remove(propId) ;
 		
-			PropertyValue pvalue = tree().remove(propId) ;
-		if (values.length > 0){
+		if (values != null && values.length > 0){
 			pvalue.remove(values) ;
 			property(propId, pvalue) ;
 		}
 		
-//		if (pvalue.isBlob()) {
-//		// @Todo
-//	}
+		if (pvalue.isBlob()) {
+			gfs().remove(pvalue.asBlob());
+		}
 		return this ;
 	}
 
 	
 	public WriteNode clear(){
 		touch(Touch.MODIFY) ;
+		
+		removeBlobIfExist();
 		tree().clearData() ;
 		return this ;
+	}
+	
+	
+	private void removeBlobIfExist(){
+		for(PropertyId pid : keys()){
+			PropertyValue pvalue = propertyId(pid);
+			if (pvalue.isBlob()){
+				gfs().remove(pvalue.asBlob());
+			}
+		}
 	}
 	
 	
@@ -217,7 +230,7 @@ public class WriteNodeImpl implements WriteNode{
 				meta = Metadata.create(path) ;
 			} else {
 				// @Todo
-				meta = Metadata.loadFromJsonString(pvalue.stringValue()) ;
+				meta = (Metadata) pvalue.value() ;
 				gfs().getWritableGridBlob(path, meta).delete() ;
 			}
 
@@ -261,6 +274,10 @@ public class WriteNodeImpl implements WriteNode{
 	public boolean removeChild(String childPath){
 		final Fqn target = Fqn.fromRelativeFqn(fqn(), Fqn.fromString(childPath));
 		touch(Touch.REMOVE, target) ;
+		
+//		WriteNodeImpl found = (WriteNodeImpl) wsession.pathBy(target) ;
+//		found.removeBlobIfExist(); 
+		
 		return tree().removeChild(target) ;
 	}
 	
@@ -307,6 +324,11 @@ public class WriteNodeImpl implements WriteNode{
 			@Override
 			public WriteNode next() {
 				return wsession.pathBy(iter.next());
+			}
+			
+			@Override
+			public Iterator<WriteNode> iterator() {
+				return this;
 			}
 		};
 	}

@@ -152,6 +152,11 @@ public class ChildQueryResponse {
 			public ReadNode next() {
 				return session.pathBy(iter.next());
 			}
+
+			@Override
+			public Iterator<ReadNode> iterator() {
+				return this;
+			}
 		};
 	}
 

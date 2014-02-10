@@ -45,7 +45,7 @@ public class RowEntry {
 
 		JsonObject jsonProps = JsonObject.fromString(currRow.getString("props"));
 		for (Entry<String, JsonElement> entry : jsonProps.entrySet()) {
-			PropertyValue pvalue = PropertyValue.loadFrom(entry.getValue().getAsJsonObject());
+			PropertyValue pvalue = PropertyValue.loadFrom(nodeKey, entry.getKey(), entry.getValue().getAsJsonObject());
 			nodeValue.put(PropertyId.fromIdString(entry.getKey()), pvalue);
 		}
 		return new ImmortalCacheValue(nodeValue).toInternalCacheEntry(nodeKey);

@@ -140,11 +140,10 @@ public class GridBlob implements Comparable<GridBlob> {
 	}
 
 
-	protected boolean delete(Metadata meta) {
-		return delete(meta, false); // asynchronous delete by default
+	public boolean delete(boolean synchronous) {
+		return delete(metadata, synchronous); // asynchronous delete by default
 	}
 
-	@Deprecated
 	protected boolean delete(Metadata meta, boolean synchronous) {
 		if (!exists())
 			return false;

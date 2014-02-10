@@ -68,7 +68,7 @@ public abstract class WorkspaceConfig extends AbstractCacheStoreConfig  {
 			ConfigurationBuilder cbuilder = new ConfigurationBuilder();
 			
 			this.setProps(cbuilder.loaders().addStore()
-				.cacheStore(cloader).addProperty(Location, location())).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false) ;
+				.cacheStore(cloader).addProperty(Location, location())).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(false).async().enabled(false) ;
 
 //			dm.defineConfiguration(wsName, new ConfigurationBuilder()
 //			.clustering().hash().numOwners(2).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable()

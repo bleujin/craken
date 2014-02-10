@@ -77,6 +77,10 @@ public class GridFilesystem {
 	WritableGridFileChannel getWritableChannel(GridBlob gblob, boolean append) throws IOException {
 		return new WritableGridFileChannel(gblob, data, append);
 	}
+	
+	public void remove(GridBlob blob){
+		remove(blob.getAbsolutePath(), blob.getMetadata(), false) ;
+	}
 
 	void remove(String absolutePath, Metadata md, boolean synchronous) {
 		if (absolutePath == null)

@@ -31,7 +31,7 @@ public class TestWorkspace extends TestCase {
 		ISearcherWorkspaceConfig config = (ISearcherWorkspaceConfig)session.workspace().config();
 		
 		assertEquals(true, session.workspace().config() == config) ;
-		assertEquals("./resource/local", config.location()) ;
+		assertEquals("./resource/isearch", config.location()) ;
 		r.shutdown() ;
 	}
 	

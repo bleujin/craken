@@ -259,6 +259,12 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 			public ReadNode next() {
 				return session.ghostBy(iter.next());
 			}
+
+			@Override
+			public Iterator<ReadNode> iterator() {
+				return this;
+			}
+			
 		};
 	}
 	
@@ -458,11 +464,6 @@ class GhostTreeNode extends TreeNode {
 
 	@Override
 	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue) {
-		throw new UnsupportedOperationException("current node is empty node") ;
-	}
-
-	@Override
-	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
 		throw new UnsupportedOperationException("current node is empty node") ;
 	}
 
