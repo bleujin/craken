@@ -90,14 +90,17 @@ public class TranLogManager {
 		}
 	}
 
-	public String[] readAll() throws IOException {
+	public String[] readAll() {
 		List<String> result = ListUtil.newList() ;
-		final BufferedReader reader = readSelfHistory() ;
+		BufferedReader reader = null ;
 		try {
+			reader = readSelfHistory() ;
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				result.add(line);
 			}
+		} catch(IOException ex){
+			workspace.log("no applied log : " + ex.getMessage());
 		} finally {
 			IOUtil.closeQuietly(reader);
 		}

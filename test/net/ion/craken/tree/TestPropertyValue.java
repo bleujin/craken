@@ -29,8 +29,7 @@ public class TestPropertyValue extends TestBaseCrud{
 		}) ;
 		
 		final PropertyValue property = session.pathBy("/bleujin").property("double");
-		Debug.line(property.intValue(0)) ;
-		
+		assertEquals(2000, property.intValue(0));
 	}
 	
 	
@@ -106,7 +105,27 @@ public class TestPropertyValue extends TestBaseCrud{
 	}
 	
 	
-	
+	public void testDefaultValueWhenNotExist() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+				return null;
+			}
+		}) ;
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").stringValue()) ;
+		
+		assertEquals(20, session.pathBy("/bleujin").property("age").intValue(20)) ;
+		assertEquals(20, session.ghostBy("/bleujin").property("age").intValue(20)) ;
+		assertEquals("not", session.pathBy("/bleujin").property("notfound").defaultValue("not")) ;
+		assertEquals(new Integer(2), session.pathBy("/bleujin").property("notfound").defaultValue(2)) ;
+		
+		
+		// when not exist
+		assertEquals(20, session.ghostBy("/hero").property("age").intValue(20)) ;
+		assertEquals("20", session.ghostBy("/hero").property("age").defaultValue("20")) ;
+		assertEquals(new Integer(20), session.ghostBy("/hero").property("age").defaultValue(20)) ;
+	}
 	
 	
 	

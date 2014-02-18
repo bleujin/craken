@@ -22,6 +22,7 @@ import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.JsonSyntaxException;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 
@@ -183,6 +184,12 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return ObjectUtil.toString(value());
 	}
 
+	
+	public <T> T defaultValue(T defaultValue) {
+		return (T) ObjectUtil.coalesce(value(), defaultValue);
+	}
+
+
 	public int intValue(int dftValue) {
 		try {
 			return (int)Double.parseDouble(stringValue());
@@ -260,6 +267,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public VType type() {
 		return values.type();
 	}
+
 
 }
 

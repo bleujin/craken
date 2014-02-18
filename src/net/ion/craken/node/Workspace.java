@@ -83,7 +83,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	private Engine parseEngine = Engine.createDefaultEngine();
 	private CDDMListener cddmListener;
 
-	private static final Log log = LogFactory.getLog(Workspace.class);
+	private final Log log = LogFactory.getLog(Workspace.class);
 
 	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, WorkspaceConfig config) {
 		this(repository, cache.getAdvancedCache(), wsName, config);
@@ -526,6 +526,9 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		return cddmListener;
 	}
 
+	public void log(String msg){
+		log.info(msg);
+	}
 
 
 

@@ -35,7 +35,7 @@ public class TestDistBlob extends TestCase {
 
 	
 	public void testServer1() throws Exception {
-//		FileUtil.deleteDirectory(new File("./resource/temp/s1"));
+		FileUtil.deleteDirectory(new File("./resource/temp/s1"));
 		
 		final RepositoryImpl r = RepositoryImpl.create("s1") ;
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/s1")) ;
