@@ -4,6 +4,7 @@ import java.util.Set;
 
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.crud.Filters;
+import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.SetUtil;
 
 import org.apache.lucene.search.Filter;
@@ -20,6 +21,10 @@ public final class StringExpression extends ValueObject implements Expression, C
 		return string;
 	}
 
+	public Object constantValue(){
+		return string ;
+	}
+	
 	@Override
 	public Filter filter(Op operand, QualifiedNameExpression qne) {
 		String field = qne.lastName();

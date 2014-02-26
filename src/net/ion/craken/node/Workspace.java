@@ -205,14 +205,10 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 					endTran(wsession);
 
 					return result;
-				} catch (Throwable ex) {
-					// ex.printStackTrace() ;
+				} catch (Exception ex) {
 					batchContainer.endBatch(true, false);
 					if (ehandler == null)
-						if (ex instanceof Exception)
-							throw (Exception) ex;
-						else
-							throw new Exception(ex);
+						throw (Exception) ex;
 
 					ehandler.handle(wsession, ex);
 					return null;
@@ -271,10 +267,13 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		try {
 			input = logContent.gridBlob(logPath, meta).toInputStream();
 			count = storeData(input);
+			log.info(logPath + " writed") ;
+		} catch(Exception ex){
+			log.warn(logPath + " failed");
+			throw new IOException(ex) ;
 		} finally {
 			input.close() ;
 //			IOUtil.closeQuietly(input);
-			log.info(logPath + " writed") ;
 		}
 
 		rsession.attribute(TranResult.class.getCanonicalName(), TranResult.create(count, System.currentTimeMillis() - startTime));

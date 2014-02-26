@@ -42,7 +42,7 @@ public class TestFilters extends TestCase {
 
 	public void testIn() throws Exception {
 		Filter filter = Filters.where("ta in (3, 4)");
-		Debug.line(filter) ;
+		Debug.line(filter, Filters.in("ta", new String[]{"3", "4"})) ;
 	}
 
 }

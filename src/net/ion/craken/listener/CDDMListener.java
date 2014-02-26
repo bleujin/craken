@@ -2,6 +2,8 @@ package net.ion.craken.listener;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.notifications.Listener;
@@ -13,10 +15,14 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.TreeNodeKey;
+import net.ion.framework.schedule.IExecutor;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 @Listener
@@ -24,10 +30,12 @@ public class CDDMListener implements WorkspaceListener {
 
 	private List<CDDHandler> ls = ListUtil.newList() ;
 	private ReadSession rsession ;
+	private IExecutor executor;
 	
 
 	public CDDMListener(ReadSession rsession) {
 		this.rsession = rsession ;
+		this.executor = rsession.workspace().repository().executor() ;
 	}
 
 	@Override
@@ -50,41 +58,77 @@ public class CDDMListener implements WorkspaceListener {
 	
 	
 	@CacheEntryRemoved
-	public void deleted(CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+	public void deleted(final CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) throws Exception{
 		if (! event.isPre()) return ;
 		if (event.getKey().getType().isStructure()) return ;
 		if (! event.isOriginLocal()) return ;
 
-		Fqn fqn = event.getKey().getFqn();
-		for (CDDHandler listener : ls) {
+		final Fqn fqn = event.getKey().getFqn();
+		for (final CDDHandler listener : ls) {
 			String fqnPattern = listener.pathPattern() ;
 			if (! fqn.isPattern(fqnPattern)) continue ;
-			
-			Map<String, String> resolveMap = fqn.resolve(fqnPattern);
-			TransactionJob<Void> nextTran = listener.deleted(resolveMap, event);
-			if (nextTran == null || nextTran == TransactionJob.BLANK) continue ;
-			rsession.tran(nextTran) ;
+			final Map<String, String> resolveMap = fqn.resolve(fqnPattern);
+		
+			if (AsyncCDDHandler.class.isInstance(listener)){
+				this.executor.submitTask(new Callable<Void>(){
+					@Override
+					public Void call() throws Exception {
+						applyDelete(resolveMap, listener, event);
+						return null;
+					}
+				}) ;
+			} else {
+				applyDelete(resolveMap, listener, event);
+			}
 		}
-
+	}
+	
+	private void applyDelete(Map<String, String> resolveMap, CDDHandler listener, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+		TransactionJob<Void> nextTran = listener.deleted(resolveMap, event);
+		if (nextTran == null || nextTran == TransactionJob.BLANK) return ;
+		rsession.tran(nextTran) ;
 	}
 	
 	
 	@CacheEntryModified
-	public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+	public void modified(final CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) throws Exception{
+		
 		if (event.isPre()) return ;
 		if (event.getKey().getType().isStructure()) return ;
 		if (! event.isOriginLocal()) return ;
-		
-		Fqn fqn = event.getKey().getFqn();
-		for (CDDHandler listener : ls) {
-			String fqnPattern = listener.pathPattern() ;
-			if (! fqn.isPattern(fqnPattern)) continue ;
+
+		final Fqn fqn = event.getKey().getFqn();
+		for (final CDDHandler listener : ls) {
+
+			final String fqnPattern = listener.pathPattern() ;
+			if (! fqn.isPattern(fqnPattern)) continue;
+			final Map<String, String> resolveMap = fqn.resolve(fqnPattern);
+
+			if (AsyncCDDHandler.class.isInstance(listener)){
+				this.executor.submitTask(new Callable<Void>() {
+					@Override
+					public Void call() throws Exception {
+						applyModify(resolveMap, listener, event) ;
+						return null;
+					}
+				}) ;
+			} else {
+				applyModify(resolveMap, listener, event) ;
+			}
 			
-			Map<String, String> resolveMap = fqn.resolve(fqnPattern);
-			TransactionJob<Void> nextTran = listener.modified(resolveMap, event);
-			if (nextTran == null || nextTran == TransactionJob.BLANK) continue ;
-			rsession.tran(nextTran) ;
+//			rsession.tranSync(nextTran);
 		}
+	}
+	
+	private void applyModify(Map<String, String> resolveMap, CDDHandler listener, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+		TransactionJob<Void> nextTran = listener.modified(resolveMap, event);
+		if (nextTran == null || nextTran == TransactionJob.BLANK) return ;
+		
+//		WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
+//		rsession.workspace().tran(tsession, nextTran);
+		
+		rsession.tran(nextTran) ;
+		
 	}
 
 }

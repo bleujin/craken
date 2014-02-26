@@ -29,11 +29,14 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	ChildQueryRequest childQuery(Query query) throws ParseException, IOException;
 
+	ChildQueryRequest childQuery(Query query, boolean includeAllTree) throws ParseException, IOException;
+
 	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException;
 
 	void template(String propId, Writer writer) throws IOException;
 
 	JsonObject toValueJson();
 
+	boolean isGhost() ;
 
 }

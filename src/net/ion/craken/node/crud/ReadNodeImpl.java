@@ -299,6 +299,17 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return ChildQueryRequest.create(session, session.newSearcher(), query);
 	}
 
+
+	public ChildQueryRequest childQuery(Query query, boolean includeDecentTree) throws ParseException, IOException {
+		if (! includeDecentTree) return childQuery(query) ;
+		
+		Analyzer analyzer = session().queryAnalyzer() ;
+		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), query);
+		result.filter(new QueryWrapperFilter(this.fqn().childrenQuery())) ;
+		
+		return result;
+	}
+
 	
 	@Override
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException {
@@ -327,6 +338,11 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return tnode.toValueJson() ;
 	}
 	
+	public boolean isGhost(){
+		return false ;
+	}
+
+	
 }
 
 class GhostReadNode extends ReadNodeImpl {
@@ -339,6 +355,10 @@ class GhostReadNode extends ReadNodeImpl {
 	@Override
 	public <T> T toBean(Class<T> clz){
 		return null;
+	}
+	
+	public boolean isGhost(){
+		return true ;
 	}
 	
 	@Override

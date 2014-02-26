@@ -18,7 +18,10 @@ public class SetComparable implements Comparable<SetComparable>{
 		return values.toString() ;
 	}
 
-	public Object[] asSet() {
+	public Set<Object> asSet() {
+		return values;
+	}
+	public Object[] asArray() {
 		return values.toArray();
 	}
 }

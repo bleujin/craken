@@ -30,6 +30,10 @@ public class TupleExpression extends ValueObject implements Expression {
 
 		return result;
 	}
+	
+	public List<Expression> expressions(){
+		return expressions ;
+	}
 
 
 }

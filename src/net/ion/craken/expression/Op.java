@@ -2,6 +2,7 @@ package net.ion.craken.expression;
 
 import java.math.BigDecimal;
 
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 
 
@@ -72,11 +73,14 @@ public enum Op {
 	}, CONTAIN{
 		@Override
 		public Boolean compute(Comparable left, Comparable right) {
+			
 			return isNotNull(left, right) && left.equals(right) ;
 		}
 	}, EQ{
 		@Override
 		public Boolean compute(Comparable left, Comparable right) {
+			
+			
 			return isNotNull(left, right) && left.equals(right) ;
 		}
 	}, GT {

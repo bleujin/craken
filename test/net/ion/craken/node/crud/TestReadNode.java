@@ -92,6 +92,11 @@ public class TestReadNode extends TestBaseCrud {
 
 	}
 	
+	public void testGhost() throws Exception {
+		assertEquals(false, session.ghostBy("/bleujin").isGhost()) ;
+		assertEquals(true, session.ghostBy("/notfound").isGhost()) ;
+	}
+	
 	
 	
 	

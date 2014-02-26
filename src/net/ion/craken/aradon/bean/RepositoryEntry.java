@@ -33,6 +33,10 @@ public class RepositoryEntry implements OnEventObject {
 		}
 	}
 
+	public void shutdown() {
+		r.shutdown() ;
+	}
+
 	
 	
 	

@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import net.ion.craken.expression.BinaryExpression;
@@ -12,12 +13,15 @@ import net.ion.nsearcher.config.SearchConfig;
 import net.ion.nsearcher.search.filter.BooleanFilter;
 import net.ion.nsearcher.search.filter.FilterUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
+import net.ion.radon.util.ReflectionUtil;
 import net.ion.rosetta.Parser;
 
+import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.FilterClause;
 import org.apache.lucene.queries.TermsFilter;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.FieldValueFilter;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.QueryWrapperFilter;
@@ -25,6 +29,8 @@ import org.apache.lucene.search.TermRangeFilter;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.util.BytesRef;
+
+import com.google.common.reflect.Reflection;
 
 public class Filters {
 
@@ -95,19 +101,34 @@ public class Filters {
 	public static Filter between(String field, String minTerm, String maxTerm) {
 		return FilterUtil.and(TermRangeFilter.Less(field, new BytesRef(maxTerm)), TermRangeFilter.More(field, new BytesRef(minTerm))) ;
 	}
+	
+	public static Filter exists(String field){
+		return new FieldValueFilter(field) ;
+	}
 
 
 	public static Filter where(String fnString) {
-//		if (true) throw new UnsupportedOperationException("currently not supported") ;
 		Parser<Expression> parser = ExpressionParser.expression();
 		Expression result = TerminalParser.parse(parser, fnString);
 		
-		if (! (result instanceof BinaryExpression)) throw new IllegalArgumentException("can't make filter : " + fnString) ;
-		BinaryExpression bexpression = (BinaryExpression) result ;
-		
-		return bexpression.filter() ;
+		try {
+			return (Filter) MethodUtils.invokeMethod(result, "filter", new Object[0]) ;
+		} catch (NoSuchMethodException e) {
+			throw new IllegalArgumentException("can't make filter : " + fnString) ;
+		} catch (IllegalAccessException e) {
+			throw new IllegalArgumentException("can't make filter : " + fnString) ;
+		} catch (InvocationTargetException e) {
+			throw new IllegalArgumentException("can't make filter : " + fnString) ;
+		}
 	}
 
+	
+	public static Filter not(Filter filter){
+		BooleanFilter result = new BooleanFilter();
+		result.add(new FilterClause(filter, Occur.MUST_NOT)) ;
+		return result ;
+	}
+	
 	
 	public static Filter and(Filter... filters){
 		return FilterUtil.and(filters) ;
