@@ -17,7 +17,7 @@ public class TestToFlatBean extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10).property("created", new Date()) ;
+				wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10).property("created", new Date()) ;
 				return null ;
 			}
 		}).get() ;

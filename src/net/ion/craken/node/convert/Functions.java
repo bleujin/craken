@@ -10,6 +10,7 @@ import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.NodeCommon;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.convert.rows.AdNodeRows;
 import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.tree.PropertyId;
@@ -17,6 +18,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.rosetta.Parser;
@@ -74,6 +76,28 @@ public class Functions {
 		} ;
 	}
 	
+	public static final Function<ReadNode, Map<String, Object>> READ_TOFLATMAP = new Function<ReadNode, Map<String, Object>>(){
+		@Override
+		public Map<String, Object> apply(ReadNode target) {
+			Map<String, Object> result = MapUtil.newMap() ;
+			for(PropertyId pid : target.normalKeys()){
+				result.put(pid.idString(), target.propertyId(pid).value()) ;
+			}
+			return result;
+		}
+	} ;
+	
+
+	public static final Function<WriteNode, Map<String, Object>> WRITE_TOFLATMAP =  new Function<WriteNode, Map<String, Object>>(){
+		@Override
+		public Map<String, Object> apply(WriteNode target) {
+			Map<String, Object> result = MapUtil.newMap() ;
+			for(PropertyId pid : target.normalKeys()){
+				result.put(pid.idString(), target.propertyId(pid).value()) ;
+			}
+			return result;
+		}
+	} ;
 
 
 	public static Function<ReadNode, JsonObject> toJson() {
@@ -125,7 +149,13 @@ public class Functions {
 		} ;
 	}
 	
-
+	public final static Function<ReadNode, Void> READ_DEBUGPRINT = new Function<ReadNode, Void>() {
+		@Override
+		public Void apply(ReadNode target) {
+			Debug.debug(target);;
+			return null ;
+		}
+	};
 
 
 }

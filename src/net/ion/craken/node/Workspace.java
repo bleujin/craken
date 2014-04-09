@@ -9,21 +9,16 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
-import net.ion.craken.io.GridOutputStream;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
-import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.loaders.WorkspaceConfig;
@@ -31,30 +26,24 @@ import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.AbstractWriteSession.LogRow;
 import net.ion.craken.node.crud.ReadSessionImpl;
+import net.ion.craken.node.crud.TreeNode;
+import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.TreeStructureSupport;
 import net.ion.craken.node.crud.WriteNodeImpl;
+import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNode;
-import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeStructureSupport;
-import net.ion.craken.tree.TreeNodeKey.Action;
-import net.ion.framework.logging.LogBroker;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonWriter;
 import net.ion.framework.schedule.IExecutor;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectId;
-import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.config.Central;
 
-import org.apache.commons.lang.SystemUtils;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
@@ -63,10 +52,8 @@ import org.infinispan.batch.BatchContainer;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
-import org.infinispan.loaders.AbstractCacheStoreConfig;
 import org.infinispan.notifications.Listener;
-import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.util.concurrent.WithinThreadExecutor;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
@@ -84,6 +71,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	private CDDMListener cddmListener;
 
 	private final Log log = LogFactory.getLog(Workspace.class);
+	private ExecutorService es = new WithinThreadExecutor();
 
 	public Workspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, WorkspaceConfig config) {
 		this(repository, cache.getAdvancedCache(), wsName, config);
@@ -110,6 +98,13 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		return wsName;
 	}
 
+	
+	public Workspace executorService(ExecutorService es){
+		this.es = es ;
+		return this ;
+	}
+	
+	
 	public Workspace start() {
 		this.cache.start();
 		this.logManager.start();
@@ -119,6 +114,8 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		
 		return this;
 	}
+	
+
 
 	public void close() {
 		final Object[] listeners = cache.getListeners().toArray(new Object[0]);
@@ -137,7 +134,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		if (log.isTraceEnabled())
 			log.tracef("Created node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn));
+		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn));
 	}
 
 	protected WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
@@ -148,7 +145,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		if (log.isTraceEnabled())
 			log.tracef("Reset node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn));
+		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn));
 	}
 
 	private void createAncestor(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn parent, Fqn fqn) {
@@ -163,7 +160,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			// super.props(fqn) ;
 			cache.put(fqn.dataKey().createKey(Action.CREATE), new AtomicHashMap<PropertyId, PropertyValue>());
 			// cache.put(fqn.struKey().createKey(Action.CREATE), new AtomicHashMap()) ;
-			WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn), Touch.MODIFY);
+			WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn), Touch.MODIFY);
 		}
 
 		if (parent.isRoot())
@@ -176,7 +173,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		if (log.isTraceEnabled())
 			log.tracef("Merged node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, new TreeNode(this, fqn), Touch.MODIFY);
+		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn), Touch.MODIFY);
 		// return exists(fqn) ? WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, false)) : WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, true), Touch.MODIFY);
 
 		// mergeAncestor(fqn) ;
@@ -185,7 +182,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	}
 
 	protected TreeNode readNode(Fqn fqn) {
-		return new TreeNode(this, fqn);
+		return TreeNode.create(this, fqn);
 	}
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
@@ -193,7 +190,11 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	}
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler ehandler) {
-		return repository.executor().submitTask(new Callable<T>() {
+		return tran(executor(), wsession, tjob, ehandler) ;
+	}
+	
+	public <T> Future<T> tran(ExecutorService exec, final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler ehandler) {
+		return exec.submit(new Callable<T>() {
 
 			@Override
 			public T call() throws Exception {
@@ -317,8 +318,8 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 	public abstract WorkspaceConfig config();
 
-	public IExecutor executor() {
-		return repository.executor();
+	public ExecutorService executor() {
+		return es;
 	}
 
 	public Engine parseEngine() {
@@ -399,13 +400,10 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		private JsonWriter jwriter;
 
-		// private Metadata metadata;
-
 		public InstantLogWriter(Workspace wspace, WriteSession wsession, ReadSession rsession) throws IOException {
 			this.wspace = wspace;
 			this.wsession = wsession;
 			this.rsession = rsession;
-			// this.metadata = Metadata.create(wsession.tranId());
 			GridBlob gridBlob = wspace.logContent.newGridBlob(wsession.tranId());
 			OutputStream output = wspace.logContent.getOutput(gridBlob, false);
 
@@ -528,6 +526,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	public void log(String msg){
 		log.info(msg);
 	}
+
 
 
 

@@ -11,7 +11,7 @@ public class TestRestore extends TestBaseCrud {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul").property("postcode", 100) ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).child("address").property("city", "seoul").property("postcode", 100) ;
 				wsession.pathBy("/hero").property("name", "hero").property("age", 30).refTo("friend", "/bleujin") ;
 				wsession.pathBy("/jin").property("name", "jin").property("age", 30).refTo("friend", "/bleujin") ;
 				return null;

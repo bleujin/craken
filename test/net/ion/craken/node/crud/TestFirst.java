@@ -3,10 +3,12 @@ package net.ion.craken.node.crud;
 import java.util.Set;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.tree.PropertyId;
 
 public class TestFirst extends TestBaseCrud {
-
 
 	public void testLoad() throws Exception {
 		ReadNode node = session.pathBy("/") ;
@@ -25,6 +27,19 @@ public class TestFirst extends TestBaseCrud {
 		
 		assertEquals(true, session.exists("/")) ;
 		assertEquals(false, session.exists("/test")) ;
+	}
+	
+	public void testWrite() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals("bleujin", session.pathBy("/bleujin").property("name").asString()) ;
+
 	}
 	
 	

@@ -21,7 +21,6 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.logging.LogBroker;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.schedule.IExecutor;
@@ -295,45 +294,4 @@ public class RepositoryImpl implements Repository {
 		return this;
 	}
 
-}
-
-class TransactionBean {
-
-	public static TransactionBean BLANK = createBlank();
-	private long time;
-	private String config;
-	private Set<String> tlogs;
-
-	public long time() {
-		return time;
-	}
-
-	private static TransactionBean createBlank() {
-		TransactionBean result = new TransactionBean();
-		result.time = 0L;
-		result.config = IndexWriteConfig.Default.toJson().toString();
-		result.tlogs = SetUtil.EMPTY;
-		return result;
-	}
-
-	public IndexWriteConfig iwconfig() {
-		return JsonObject.fromString(config).getAsObject(IndexWriteConfig.class);
-	}
-
-	public Set<String> tlogs() {
-		return tlogs;
-	}
-
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
-	public static TransactionBean test(long time, Set<String> tlogs) {
-		TransactionBean result = new TransactionBean();
-		result.time = time;
-		result.tlogs = tlogs;
-		result.config = IndexWriteConfig.Default.toJson().toString();
-
-		return result;
-	}
 }

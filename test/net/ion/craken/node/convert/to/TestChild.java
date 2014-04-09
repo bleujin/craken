@@ -12,8 +12,8 @@ public class TestChild extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.pathBy("/dept/dev").property("deptno", 20).property("name", "dev")
-					.addChild("manager").property("name", "bleujin").property("age", 20).parent() 
-					.addChild("address").property("city", "seoul").property("bun", 0) ;
+					.child("manager").property("name", "bleujin").property("age", 20).parent() 
+					.child("address").property("city", "seoul").property("bun", 0) ;
 				return null;
 			}
 		}).get() ;
@@ -34,9 +34,9 @@ public class TestChild extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.pathBy("/dept/dev").property("deptno", 20).property("name", "dev")
-					.addChild("address").property("city", "seoul").property("bun", 0).parent()
-					.addChild("manager").property("name", "bleujin").property("age", 20)
-						.addChild("pair").property("name", "hero").property("age", 30) ;
+					.child("address").property("city", "seoul").property("bun", 0).parent()
+					.child("manager").property("name", "bleujin").property("age", 20)
+						.child("pair").property("name", "hero").property("age", 30) ;
 				return null;
 			}
 		}).get() ;

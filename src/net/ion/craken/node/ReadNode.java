@@ -21,7 +21,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	Map<String, Object> toPropertyMap(int descendantDepth);
 
-	public ReadChildren children();
+	ReadChildren children();
 	
 	Rows toRows(String expr);
 
@@ -38,5 +38,9 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	JsonObject toValueJson();
 
 	boolean isGhost() ;
+
+	void debugPrint();
+
+	ReadChildren refChildren(String string);
 
 }

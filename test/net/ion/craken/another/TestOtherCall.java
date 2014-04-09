@@ -1,8 +1,8 @@
 package net.ion.craken.another;
 
 import junit.framework.TestCase;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.TreeNodeKey;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.DefaultCacheManager;

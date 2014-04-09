@@ -7,9 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;

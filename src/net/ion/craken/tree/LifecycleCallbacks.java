@@ -3,6 +3,8 @@ package net.ion.craken.tree;
 
 import java.util.Map;
 
+import net.ion.craken.node.crud.TreeNodeKey;
+
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.factories.GlobalComponentRegistry;
 import org.infinispan.lifecycle.AbstractModuleLifecycle;

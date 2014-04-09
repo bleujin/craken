@@ -6,7 +6,6 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
@@ -54,7 +53,7 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").addChild("novision").property("name", "novision") ;
+				wsession.pathBy("/bleujin").child("novision").property("name", "novision") ;
 				return null;
 			}
 		}).get() ;
@@ -75,7 +74,7 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").addChild("novision").property("name", "novision") ;
+				wsession.pathBy("/bleujin").child("novision").property("name", "novision") ;
 				return null;
 			}
 		}).get() ;
@@ -109,8 +108,8 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
-				wsession.root().addChild("/1/2/3/4/5/6").property("name", "line") ;
+				wsession.root().child("/a/b/c/d/e/f").property("name", "line") ;
+				wsession.root().child("/1/2/3/4/5/6").property("name", "line") ;
 				return null;
 			}
 		}).get() ;
@@ -162,7 +161,7 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
+				wsession.root().child("/a/b/c/d/e/f").property("name", "line") ;
 				wsession.pathBy("/a/b/c").property("name", "c") ;
 				return null;
 			}
@@ -199,7 +198,7 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
+				wsession.root().child("/a/b/c/d/e/f").property("name", "line") ;
 				return null;
 			}
 		}).get() ;
@@ -220,7 +219,7 @@ public class TestPathBy extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
+				wsession.root().child("/a/b/c/d/e/f").property("name", "line") ;
 				wsession.pathBy("/a/b/c").property("name", "c") ;
 				return null;
 			}

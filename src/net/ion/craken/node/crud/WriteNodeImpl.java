@@ -10,15 +10,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.IteratorList;
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -26,16 +25,14 @@ import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.PropertyValue.VType;
-import net.ion.craken.tree.TreeNode;
-import net.ion.craken.tree.PropertyId.PType;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
@@ -182,6 +179,8 @@ public class WriteNodeImpl implements WriteNode{
 		final PropertyId propId = createNormalId(key);
 		PropertyValue pvalue = tree().remove(propId) ;
 		
+		if (pvalue == null) return this ;
+		
 		if (values != null && values.length > 0){
 			pvalue.remove(values) ;
 			property(propId, pvalue) ;
@@ -291,11 +290,15 @@ public class WriteNodeImpl implements WriteNode{
 	}
 
 	public WriteNode ref(String refName) {
+//		PropertyValue findProp = propertyId(PropertyId.refer(refName)) ;
+//		if (findProp == PropertyValue.NotFound) throw new IllegalArgumentException("not found ref :" + refName) ;
+//		return session().pathBy(Fqn.fromString(findProp.stringValue()));
+		
 		PropertyId referId = createReferId(refName);
 		if (hasProperty(referId)) {
-			Object val = propertyId(referId).value() ;
-			if (val == null) new IllegalArgumentException("not found ref :" + refName) ;
-			return wsession.pathBy(val.toString()) ;
+			String refPath = propertyId(referId).stringValue() ;
+			if (StringUtil.isBlank(refPath)) throw new IllegalArgumentException("not found ref :" + refName) ;
+			return wsession.pathBy(refPath) ;
 		} else {
 			throw new IllegalArgumentException("not found ref :" + refName) ;
 		}
@@ -333,6 +336,27 @@ public class WriteNodeImpl implements WriteNode{
 		};
 	}
 	
+	public WriteChildren refChildren(String refName){
+		final Iterator<String> refIter = propertyId(PropertyId.refer(refName)).asSet().iterator();
+		Iterator<TreeNode> titer = new Iterator<TreeNode>(){
+			@Override
+			public boolean hasNext() {
+				return refIter.hasNext();
+			}
+			@Override
+			public TreeNode next() {
+				return TreeNode.create(session().workspace(), Fqn.fromString(refIter.next()));
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("readonly") ;
+			}
+		} ;
+		
+		return new WriteChildren(session(), tnode, titer) ;
+	}
+	
 	public WriteNode fromJson(JsonObject json){
 		for (Entry<String, JsonElement> entry : json.entrySet()) {
 			append(this, entry.getKey(), entry.getValue()) ;
@@ -356,7 +380,7 @@ public class WriteNodeImpl implements WriteNode{
 			}
 		} else if (json.isJsonObject()){
 			for (Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-				append(that.addChild(propId), entry.getKey(), entry.getValue()) ;
+				append(that.child(propId), entry.getKey(), entry.getValue()) ;
 			}
 		}
 	}
@@ -501,7 +525,7 @@ public class WriteNodeImpl implements WriteNode{
 
 	public WriteChildren children(){
 		final Iterator<TreeNode> iter = tree().getChildren().iterator();
-		return new WriteChildren(session(), iter) ;
+		return new WriteChildren(session(), tnode, iter) ;
 	}
 	
 	private void touch(Touch touch) {

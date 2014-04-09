@@ -11,10 +11,9 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TreeNodeKey.Type;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.IOUtil;
 
@@ -61,7 +60,7 @@ public class TestHelloWord extends TestCase {
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20) ;
 				wsession.pathBy("/emps/hero").property("name", "hero").property("age", 21)
-					.addChild("address").property("city", "seoul") ;
+					.child("address").property("city", "seoul") ;
 				return null;
 			}
 		}) ;
@@ -110,7 +109,7 @@ public class TestHelloWord extends TestCase {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin");
+				wsession.root().child("bleujin").property("name", "bleujin");
 				return null ;
 			}
 		}).get() ;

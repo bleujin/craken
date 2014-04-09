@@ -14,7 +14,7 @@ public class TestTreeModel extends TestBaseCrud {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").property("name", "bleujin").addChild("address").property("city", "seoul") ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").child("address").property("city", "seoul") ;
 				wsession.pathBy("/hero").property("name", "hero") ;
 				return null;
 			}

@@ -88,13 +88,13 @@ public class TestProperty extends TestBaseCrud {
 				wsession.pathBy("/tran")
 					.property("time", 3L)
 					.property("config", IndexWriteConfig.Default.toJson().toString())
-					.addChild("1231")
+					.child("1231")
 						.property("id", "1231").property("path", "/bleujin").property("touch", Touch.MODIFY.name()).property("val", "{\"properties\":{\"/name/last\":[\"3\"],\"/name/first\":[\"1\",\"2\"]},\"references\":{\"__transaction\":[\"/__transactions/52315bc4198e2b58945d759c\"]}}").parent()
-					.addChild("1232")
+					.child("1232")
 						.property("id", "1232").property("path", "/bleujin/hero").property("touch", Touch.MODIFY.name()).property("val", "{\"properties\":{\"/name/last\":[\"3\"],\"/name/first\":[\"1\",\"2\"]},\"references\":{\"__transaction\":[\"/__transactions/52315bc4198e2b58945d759c\"]}}").parent()
-					.addChild("1233")
+					.child("1233")
 						.property("id", "1233").property("path", "/bleujin/hero").property("touch", Touch.REMOVECHILDREN.name()).parent()
-					.addChild("1234")
+					.child("1234")
 						.property("id", "1234").property("path", "/bleujin/hero").property("touch", Touch.REMOVE.name()).parent()
 					;
 				return null;

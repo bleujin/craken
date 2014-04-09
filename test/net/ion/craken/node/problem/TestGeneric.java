@@ -6,7 +6,7 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.tree.TreeNodeKey;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.atomic.AtomicHashMap;
@@ -23,7 +23,7 @@ public class TestGeneric extends TestBaseCrud implements WorkspaceListener {
 		WriteNode node = session.tran(new TransactionJob<WriteNode>() {
 			@Override
 			public WriteNode handle(WriteSession wsession) {
-				return wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10) ;
+				return wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10) ;
 			}
 		}).get() ;
 		

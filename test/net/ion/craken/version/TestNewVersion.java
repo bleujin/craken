@@ -45,7 +45,7 @@ public class TestNewVersion extends TestCase {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin");
+				wsession.root().child("bleujin").property("name", "bleujin");
 				return null ;
 			}
 		}).get() ;
@@ -82,8 +82,8 @@ public class TestNewVersion extends TestCase {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/a/b/c/d/e/f").property("name", "line") ;
-				wsession.root().addChild("/1/2/3/4/5/6").property("name", "line") ;
+				wsession.root().child("/a/b/c/d/e/f").property("name", "line") ;
+				wsession.root().child("/1/2/3/4/5/6").property("name", "line") ;
 				return null;
 			}
 		}).get() ;

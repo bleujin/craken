@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.StringUtil;
 
 
 public enum Op {
@@ -73,8 +74,7 @@ public enum Op {
 	}, CONTAIN{
 		@Override
 		public Boolean compute(Comparable left, Comparable right) {
-			
-			return isNotNull(left, right) && left.equals(right) ;
+			return isNotNull(left, right) && StringUtil.indexOf(left.toString(), right.toString()) > -1 ;
 		}
 	}, EQ{
 		@Override

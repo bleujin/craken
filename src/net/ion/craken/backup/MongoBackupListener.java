@@ -12,10 +12,10 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.TreeNodeKey.Type;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 

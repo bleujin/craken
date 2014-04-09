@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedureBatch;
 
-public class TestUserProcedureBatch extends TestBaseProcedure {
+public class TestUserProcedureBatch extends TestBaseFnManager {
 
 	
 	public void testCreateUserProcedures() throws Exception {
@@ -45,6 +45,7 @@ public class TestUserProcedureBatch extends TestBaseProcedure {
 		} catch(SQLException expect){
 			
 		}
+	
 		
 	}
 

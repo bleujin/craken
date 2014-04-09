@@ -14,7 +14,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul") ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).child("address").property("city", "seoul") ;
 				wsession.pathBy("/hero").property("name", "hero").property("age", 30L) ;
 				return null;
 			}
@@ -58,7 +58,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("city", "seoul") ;
+				wsession.root().child("/bleujin").property("city", "seoul") ;
 				return null;
 			}
 		}).get() ;
@@ -102,7 +102,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "mod").property("new", 20) ;
+				wsession.root().child("bleujin").property("name", "mod").property("new", 20) ;
 				return null;
 			}
 		}).get() ;
@@ -117,7 +117,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				PropertyValue beforeValue = wsession.root().addChild("bleujin").replace("name", "mod") ;
+				PropertyValue beforeValue = wsession.root().child("bleujin").replace("name", "mod") ;
 				assertEquals("bleujin", beforeValue.value()) ;
 				return null;
 			}
@@ -130,7 +130,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsentEnd("key", "value") ;
+				PropertyValue beforeValue = wsession.root().child("absent").propertyIfAbsentEnd("key", "value") ;
 				assertEquals(true, beforeValue.value() == null) ;
 				return null;
 			}
@@ -141,7 +141,7 @@ public class TestWriteNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				PropertyValue beforeValue = wsession.root().addChild("absent").propertyIfAbsentEnd("key", "mod") ; // not modified
+				PropertyValue beforeValue = wsession.root().child("absent").propertyIfAbsentEnd("key", "mod") ; // not modified
 				assertEquals("value", beforeValue.value()) ;
 				return null;
 			}

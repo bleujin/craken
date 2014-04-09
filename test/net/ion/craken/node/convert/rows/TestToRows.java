@@ -20,11 +20,11 @@ public class TestToRows extends TestBaseSearch {
 			@Override
 			public Void handle(WriteSession wsession) {
 				for (int i : ListUtil.rangeNum(50)) {
-					wsession.root().addChild("/board1/" +  i).property("index", i).property("name", "board1").property("writer",  "hijin").addChild("address").property("city", "seoul")
-					.parent().refTos("register", "/users/bleujin").root().addChild("/board1").property("name", "free") ;
+					wsession.root().child("/board1/" +  i).property("index", i).property("name", "board1").property("writer",  "hijin").child("address").property("city", "seoul")
+					.parent().refTos("register", "/users/bleujin").root().child("/board1").property("name", "free") ;
 				}
 				for (int i : ListUtil.rangeNum(50)) {
-					wsession.root().addChild("/board2/" +  i).property("index", i).property("name", "board2").property("writer", "hero") ;
+					wsession.root().child("/board2/" +  i).property("index", i).property("name", "board2").property("writer", "hero") ;
 				}
 				return null;
 			}

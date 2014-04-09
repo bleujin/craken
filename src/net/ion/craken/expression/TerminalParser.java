@@ -21,7 +21,7 @@ public final class TerminalParser {
 			"null", "like", "escape", "inner", "outer", "left", "right", "full", "cross", "join", "on", "union", "all", "case", "when", "then", "else", "end" };
 
 	public static final Terminals TERMS = Terminals.caseInsensitive(OPERATORS, KEYWORDS);
-
+	
 	public static final Parser<?> TOKENIZER = Parsers.or(Terminals.DecimalLiteral.TOKENIZER, Terminals.StringLiteral.SINGLE_QUOTE_TOKENIZER, TERMS.tokenizer());
 
 	static final Parser<String> NUMBER = Terminals.DecimalLiteral.PARSER;
@@ -48,4 +48,6 @@ public final class TerminalParser {
 	public static Parser<?> phrase(String phrase) {
 		return Mapper._(TERMS.phrase(phrase.split("\\s")));
 	}
+
+
 }

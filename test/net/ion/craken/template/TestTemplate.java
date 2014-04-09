@@ -41,7 +41,7 @@ public class TestTemplate extends TestBaseCrud{
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").property("template", "${foreach self.children child ,}\n${child}${end}") ;
+				wsession.pathBy("/bleujin").property("html", "${foreach self.children child ,}\n${child}${end}") ;
 				return null;
 			}
 		}) ;
@@ -51,7 +51,7 @@ public class TestTemplate extends TestBaseCrud{
 		ReadNode found = session.pathBy("/bleujin");
 		// found.children().ascending("dummy") ;
 		Writer writer = new StringWriter();
-		found.template("template", writer) ;
+		found.template("html", writer) ;
 		
 		Debug.line(writer) ;
 	}

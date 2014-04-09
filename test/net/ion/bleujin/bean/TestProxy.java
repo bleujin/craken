@@ -43,7 +43,7 @@ public class TestProxy extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev")
-					.addChild("manager").property("name", "bleujin").property("age", 20).property("created", new Date()) ;
+					.child("manager").property("name", "bleujin").property("age", 20).property("created", new Date()) ;
 				return null;
 			}
 		}).get() ;

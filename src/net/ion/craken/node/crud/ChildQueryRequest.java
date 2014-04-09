@@ -1,35 +1,45 @@
 package net.ion.craken.node.crud;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.Page;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
 import net.ion.nsearcher.search.filter.FilterUtil;
+import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
 import net.ion.nsearcher.search.filter.TermFilter;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.ecs.xml.XML;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
+import org.neo4j.helpers.collection.Iterables;
+
+import com.google.common.base.Splitter;
 
 public class ChildQueryRequest {
 
 	private ReadSession session ;
 	private Searcher searcher ;
 	private SearchRequest request ;
+	private Iterable<String> sorts;
 	
 	private ChildQueryRequest(ReadSession session, Query query, Searcher searcher) {
 		this.session = session ;
 		this.searcher = searcher ;
 		this.request = searcher.createRequest(query).selections(IKeywordField.ISKey) ;
+		this.sorts =  Iterables.empty() ;
 	}
 
 	public static ChildQueryRequest create(ReadSession session, Searcher searcher, Query query) {
@@ -170,6 +180,7 @@ public class ChildQueryRequest {
 	
 
 	public ChildQueryRequest where(String fnString) {
+		if (StringUtil.isBlank(fnString)) return filter(new MatchAllDocsFilter()) ;
 		filter(Filters.where(fnString)) ;
 		return this ;
 	}
@@ -253,7 +264,20 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryResponse find() throws IOException, ParseException{
+		// field=asc && field2=desc...
 		request.selections(IKeywordField.ISKey) ;
+		
+		Iterator<String> iter = sorts.iterator();
+		while(iter.hasNext()){
+			String[] exp = StringUtil.split(iter.next(), '=') ;
+			if (exp.length != 1 && exp.length != 2) throw new IllegalArgumentException("illegal sort expression : "  + exp.toString()) ;
+			if (exp.length == 1){
+				request.ascending(exp[0]) ;
+			} else if (exp.length == 2){
+				request = ("desc".equalsIgnoreCase(exp[1])) ? request.descending(exp[0]) : request.ascending(exp[0]) ;
+			}
+		}
+		
 		
 		final SearchResponse response = searcher.search(request);
 		return ChildQueryResponse.create(session, response) ;
@@ -270,6 +294,11 @@ public class ChildQueryRequest {
 
 	public String toString() {
 		return request.toString() ;
+	}
+
+	public ChildQueryRequest sort(String sexpression) {
+		this.sorts = Splitter.on('&').trimResults().omitEmptyStrings().split(sexpression) ;
+		return this;
 	}
 
 }

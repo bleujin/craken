@@ -16,7 +16,7 @@ public class TestSearch extends TestBaseSearch {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("age", 20).property("name", "bleujin") ;
+				wsession.root().child("bleujin").property("age", 20).property("name", "bleujin") ;
 				return null;
 			}
 		}) ;
@@ -53,7 +53,7 @@ public class TestSearch extends TestBaseSearch {
 			@Override
 			public Void handle(WriteSession wsession) {
 				for (int i : ListUtil.rangeNum(500)) {
-					wsession.root().addChild("" +  i).property("index", i).property("name", "group") ;
+					wsession.root().child("" +  i).property("index", i).property("name", "group") ;
 				}
 				return null;
 			}
@@ -69,8 +69,8 @@ public class TestSearch extends TestBaseSearch {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/emp/bleujin").property("name", "bleujin").property("job", "dev") ;
-				wsession.root().addChild("/emp/hero").property("name", "hero") ;
+				wsession.root().child("/emp/bleujin").property("name", "bleujin").property("job", "dev") ;
+				wsession.root().child("/emp/hero").property("name", "hero") ;
 				return null;
 			}
 		}) ;

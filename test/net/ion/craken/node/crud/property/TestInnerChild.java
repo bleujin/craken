@@ -11,7 +11,7 @@ public class TestInnerChild extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").addChild("address").property("city", "busan").parent().property("name", "bleujin");
+				wsession.root().child("/bleujin").child("address").property("city", "busan").parent().property("name", "bleujin");
 				return null;
 			}
 		}).get();

@@ -15,13 +15,13 @@ public class TestToRefBean extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/dev").property("name", "dev").property("deptno", 20)
-					.addChild("manager").property("name", "bleujin").property("created", new Date()).parent()
+				wsession.root().child("/dev").property("name", "dev").property("deptno", 20)
+					.child("manager").property("name", "bleujin").property("created", new Date()).parent()
 					.refTos("emps", "/emps/jin")
 					.refTos("emps", "/emps/hero") ;
 				
-				wsession.root().addChild("/emps/jin").property("name", "jin") ;
-				wsession.root().addChild("/emps/hero").property("name", "hero") ;
+				wsession.root().child("/emps/jin").property("name", "jin") ;
+				wsession.root().child("/emps/hero").property("name", "hero") ;
 				
 				return null ;
 			}

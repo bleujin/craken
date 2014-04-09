@@ -6,12 +6,20 @@ import net.ion.framework.util.ListUtil;
 
 public class TransactionJobs {
 
+	public static final TransactionJob<Void> HelloBleujin = new TransactionJob<Void>() {
+		@Override
+		public Void handle(WriteSession wsession) throws Exception {
+			wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
+			return null;
+		}
+	};
+
 	public final static TransactionJob<Void> dummy(final String prefixFqn, final int count){
 		return new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
 				for (int i : ListUtil.rangeNum(count)) {
-					wsession.root().addChild(prefixFqn).property("prefix", prefixFqn).addChild("" + i).property("name", "bleujin").property("dummy", i) ;
+					wsession.root().child(prefixFqn).property("prefix", prefixFqn).child("" + i).property("name", "bleujin").property("dummy", i) ;
 				}
 				return null;
 			}

@@ -33,7 +33,7 @@ public interface NodeCommon<T extends NodeCommon<T>> {
 
 	public Set<String> childrenNames();
 
-	public IteratorList<T> children();
+	public Iterable<T> children();
 
 	public Set<PropertyId> keys();
 	

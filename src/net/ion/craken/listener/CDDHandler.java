@@ -9,9 +9,9 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
 
 public interface CDDHandler {
 

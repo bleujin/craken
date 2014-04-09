@@ -10,9 +10,9 @@ public class TestSearchChild extends TestBaseSearch {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin")
-					.addChild("hero").property("name", "hero")
-						.addChild("jin").property("name", "jin");
+				wsession.root().child("bleujin").property("name", "bleujin")
+					.child("hero").property("name", "hero")
+						.child("jin").property("name", "jin");
 				return null;
 			}
 		}) ;

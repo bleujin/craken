@@ -2,7 +2,7 @@ package net.ion.craken.db;
 
 import net.ion.framework.db.Rows;
 
-public class TestUserProcedure extends TestBaseProcedure{
+public class TestUserProcedure extends TestBaseFnManager{
 
 
 

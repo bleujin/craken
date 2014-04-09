@@ -17,7 +17,7 @@ public class TestToPropertyMap extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10) ;
+				wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10) ;
 				return null ;
 			}
 		}).get() ;
@@ -35,7 +35,7 @@ public class TestToPropertyMap extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20) ;
+				wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20) ;
 				return null ;
 			}
 		}).get() ;
@@ -56,9 +56,9 @@ public class TestToPropertyMap extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
-					.addChild("address").property("city", "seoul")
-						.addChild("grandchild") ;
+				wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
+					.child("address").property("city", "seoul")
+						.child("grandchild") ;
 				return null ;
 			}
 		}).get() ;
@@ -76,9 +76,9 @@ public class TestToPropertyMap extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
-					.addChild("address").property("city", "seoul").parent()
-					.addChild("pic").property("name", "bleujin.jpg") ;
+				wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
+					.child("address").property("city", "seoul").parent()
+					.child("pic").property("name", "bleujin.jpg") ;
 				return null ;
 			}
 		}).get() ;
@@ -97,13 +97,13 @@ public class TestToPropertyMap extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
+				wsession.root().child("/bleujin").property("name", "bleujin").property("age", 10).append("age", 20)
 					.refTos("friends", "/hero")
 					.refTos("friends", "/jin")
 					.refTos("friends", "/notfound");
 				
-				wsession.root().addChild("/hero").property("name", "hero") ;
-				wsession.root().addChild("/jin").property("name", "jin") ;
+				wsession.root().child("/hero").property("name", "hero") ;
+				wsession.root().child("/jin").property("name", "jin") ;
 				
 				return null ;
 			}

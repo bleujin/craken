@@ -14,8 +14,8 @@ public class TestToChildBean extends TestBaseCrud{
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/dev").property("name", "dev").property("deptno", 20)
-					.addChild("manager").property("name", "bleujin").property("created", new Date()) ;
+				wsession.root().child("/dev").property("name", "dev").property("deptno", 20)
+					.child("manager").property("name", "bleujin").property("created", new Date()) ;
 				return null ;
 			}
 		}).get() ;

@@ -24,7 +24,7 @@ public class TestIndex extends TestBaseSearch {
 					r.login("test").tran(new TransactionJob<Void>() {
 						@Override
 						public Void handle(WriteSession wsession) {
-							wsession.root().addChild("/" + RandomUtil.nextInt(3)).property("name", new String[] { "jin", "bleujin", "hero" }[RandomUtil.nextInt(3)]);
+							wsession.root().child("/" + RandomUtil.nextInt(3)).property("name", new String[] { "jin", "bleujin", "hero" }[RandomUtil.nextInt(3)]);
 							return null;
 						}
 					}).get();
@@ -50,9 +50,9 @@ public class TestIndex extends TestBaseSearch {
 					session.tranSync(new TransactionJob<Void>() {
 						@Override
 						public Void handle(WriteSession wsession) {
-							wsession.root().addChild("/bleujin").property("name", "bleujin").property("age", RandomUtil.nextInt(50));
-							wsession.root().addChild("/hero").property("name", "hero").property("age", 25);
-							wsession.root().addChild("/jin").property("name", "jin").property("age", 30);
+							wsession.root().child("/bleujin").property("name", "bleujin").property("age", RandomUtil.nextInt(50));
+							wsession.root().child("/hero").property("name", "hero").property("age", 25);
+							wsession.root().child("/jin").property("name", "jin").property("age", 30);
 							return null;
 						}
 					});

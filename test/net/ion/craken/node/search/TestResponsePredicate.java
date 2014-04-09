@@ -17,10 +17,10 @@ public class TestResponsePredicate extends TestBaseSearch {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/emp/bleujin").property("name", "bleujin").property("job", "dev") ;
-				wsession.root().addChild("/emp/hero").property("name", "hero") ;
-				wsession.root().addChild("/dept/dev").property("name", "dev") ;
-				wsession.root().addChild("/emp/jin").property("name", "jin").property("job", "dev") ;
+				wsession.root().child("/emp/bleujin").property("name", "bleujin").property("job", "dev") ;
+				wsession.root().child("/emp/hero").property("name", "hero") ;
+				wsession.root().child("/dept/dev").property("name", "dev") ;
+				wsession.root().child("/emp/jin").property("name", "jin").property("job", "dev") ;
 				return null;
 			}
 		}) ;
@@ -39,10 +39,10 @@ public class TestResponsePredicate extends TestBaseSearch {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/emp/bleujin").property("name", "bleujin").property("job", "dev").property("age", 20) ;
-				wsession.root().addChild("/emp/hero").property("name", "hero").property("age", 21) ;
-				wsession.root().addChild("/dept/dev").property("name", "dev").property("age", 22) ;
-				wsession.root().addChild("/emp/jin").property("name", "jin").property("job", "dev").property("age", 23) ;
+				wsession.root().child("/emp/bleujin").property("name", "bleujin").property("job", "dev").property("age", 20) ;
+				wsession.root().child("/emp/hero").property("name", "hero").property("age", 21) ;
+				wsession.root().child("/dept/dev").property("name", "dev").property("age", 22) ;
+				wsession.root().child("/emp/jin").property("name", "jin").property("job", "dev").property("age", 23) ;
 				return null;
 			}
 		}) ;

@@ -10,7 +10,7 @@ import net.ion.framework.util.ListUtil;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
-public abstract class AbstractChildren<T extends NodeCommon<T>, C extends AbstractChildren> extends IteratorList<T>{
+public abstract class AbstractChildren<T extends NodeCommon<T>, C extends AbstractChildren> {
 
 
 	public abstract C filter(Predicate<T> equalValue)  ;
@@ -104,32 +104,14 @@ public abstract class AbstractChildren<T extends NodeCommon<T>, C extends Abstra
 		return filter(Predicates.<T>not(components));
 	}
 
-	
 
-	
-
-	public Iterator<T> iterator(){
-		return toList().iterator() ;
-	}
-	
-	public List<T> toList(){
-		List<T> result = ListUtil.newList() ;
-		while(hasNext()){
-			result.add(next()) ;
-		}
-		return result ;
-	}
-	
 	public <F> F transform(Function<Iterator<T>, F> fn){
 		return fn.apply(iterator()) ;
 	}
 
-	public void debugPrint() {
-		while(hasNext()){
-			T node = next();
-			node.session().credential().tracer().println(node) ;
-		}
-	}
+	public abstract Iterator<T> iterator() ;
+	public abstract List<T> toList() ;
+	public abstract void debugPrint()  ;
 	
 }
 

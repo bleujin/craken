@@ -12,7 +12,7 @@ public class TestQualifiedName extends TestBaseCrud{
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).addChild("address").property("city", "seoul") ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20).child("address").property("city", "seoul") ;
 				wsession.pathBy("/bleujin").refTo("dev", "/dept/dev").refTo("friend", "/hero") ;
 				
 				wsession.pathBy("/dept/dev").property("name", "dev") ;

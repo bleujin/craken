@@ -15,7 +15,7 @@ public class TestBasicType extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("type")
+				wsession.root().child("type")
 					.property("boolean", true)
 					.property("int", 1)
 					.property("long", 2L)
@@ -35,7 +35,7 @@ public class TestBasicType extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("type")
+				wsession.root().child("type")
 					.property("float", 2.3f)
 					.property("double", 2.3d);
 				return null;

@@ -13,13 +13,13 @@ import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
+import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.TreeNodeKey.Action;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
@@ -177,5 +177,11 @@ public class ISearcherWorkspace extends Workspace {
 		return config;
 	}
 
+	
+	@Override 
+	public void close(){
+		IOUtil.closeQuietly(central()); 
+		super.close();
+	}
 
 }

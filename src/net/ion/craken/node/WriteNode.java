@@ -35,7 +35,7 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	
 	public WriteNode clear() ;
 	
-	public WriteNode addChild(String relativeFqn) ;
+	public WriteNode child(String relativeFqn) ;
 	
 	public boolean removeChild(String fqn) ;
 	
@@ -56,6 +56,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public ChildQueryRequest childQuery(String query) throws IOException, ParseException  ;
 	
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;
+
+	public WriteChildren refChildren(String refName);
 
 
 

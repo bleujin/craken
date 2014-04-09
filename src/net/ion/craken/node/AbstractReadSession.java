@@ -111,7 +111,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	
 	public <Ri, Rv, V> Future<V> mapReduce(final NodeMapReduce<Ri, Rv> mapper, final Function<Map<Ri, Rv>, V> function){
-		return workspace().executor().submitTask(new Callable<V>() {
+		return workspace().executor().submit(new Callable<V>() {
 			@Override
 			public V call() throws Exception {
 				Future<Map<Ri, Rv>> future = asyncMapReduce(mapper);

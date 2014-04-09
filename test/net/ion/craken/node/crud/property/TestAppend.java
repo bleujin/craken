@@ -15,7 +15,7 @@ public class TestAppend extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").append("no", 1, 2, 3);
+				wsession.root().child("/bleujin").append("no", 1, 2, 3);
 				return null;
 			}
 		}).get();
@@ -36,7 +36,7 @@ public class TestAppend extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("no", 1).append("no", 2, 3);
+				wsession.root().child("/bleujin").property("no", 1).append("no", 2, 3);
 				return null;
 			}
 		}).get();
@@ -57,7 +57,7 @@ public class TestAppend extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").append("no", 2, 3).property("no", 1);
+				wsession.root().child("/bleujin").append("no", 2, 3).property("no", 1);
 				return null;
 			}
 		}).get();
@@ -74,7 +74,7 @@ public class TestAppend extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").property("no", new int[] { 1, 2, 3 }).property("str", new String[] { "bleu", "jin" });
+				wsession.root().child("/bleujin").property("no", new int[] { 1, 2, 3 }).property("str", new String[] { "bleu", "jin" });
 				return null;
 			}
 		}).get();
@@ -92,7 +92,7 @@ public class TestAppend extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/bleujin").append("no", "1", 2);
+				wsession.root().child("/bleujin").append("no", "1", 2);
 				return null;
 			}
 		}, new TranExceptionHandler() {

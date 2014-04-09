@@ -2,6 +2,8 @@ package net.ion.craken.node.where;
 
 import java.util.List;
 
+import org.apache.lucene.search.Sort;
+
 import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
@@ -52,7 +54,11 @@ public class TestWhere extends TestBaseCrud{
 	}
 	
 	public void testComposite() throws Exception {
-		session.root().childQuery("").filter(Filters.where("not(num >= 2 && num < 5)  && exist = num")).find().debugPrint();
+		session.root().childQuery("").filter(Filters.where("not(num >= 2 && num < 5)  && exist = num"))
+			.offset(5).skip(2).find().debugPrint();
+		
+		Sort sort = session.root().childQuery("").filter(Filters.where("not(num >= 2 && num < 5)  && exist = num")).sort() ;
+		Debug.line(sort);
 	}
 	
 	

@@ -52,7 +52,7 @@ public class TestConcurrent extends TestBaseCrud {
 				session.tran(new TransactionJob<Void>() {
 					@Override
 					public Void handle(WriteSession wsession) {
-						WriteNode bleujin = wsession.root().addChild("/bleujin").property("name", "bleujin") ;
+						WriteNode bleujin = wsession.root().child("/bleujin").property("name", "bleujin") ;
 						Debug.debug(bleujin.id(), bleujin.parent().id(), wsession.root().id()) ;
 						return null;
 					}
@@ -75,7 +75,7 @@ public class TestConcurrent extends TestBaseCrud {
 				session.tran(new TransactionJob<Void>() {
 					@Override
 					public Void handle(WriteSession wsession) {
-						WriteNode bleujin = wsession.pathBy("/bleujin").addChild(new ObjectId().toString()).property("name", "bleujin") ;
+						WriteNode bleujin = wsession.pathBy("/bleujin").child(new ObjectId().toString()).property("name", "bleujin") ;
 						return null;
 					}
 				}) ;

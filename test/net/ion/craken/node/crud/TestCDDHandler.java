@@ -16,7 +16,6 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
@@ -135,6 +134,8 @@ public class TestCDDHandler extends TestCase {
 		}
 		
 	}
+	
+
 }
 
 
@@ -191,7 +192,7 @@ class ToNotiHandler implements CDDHandler{
 				WriteChildren members = wsession.pathBy("/rooms/"+ roomId+"/members").children() ;
 
 				for(WriteNode member : members){
-					member.addChild("notify/"+msgId).refTo("message", "/rooms/" +  roomId + "/messages/" +  msgId);
+					member.child("notify/"+msgId).refTo("message", "/rooms/" +  roomId + "/messages/" +  msgId);
 				}
 				return null;
 			}

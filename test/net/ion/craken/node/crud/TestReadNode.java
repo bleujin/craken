@@ -14,8 +14,8 @@ public class TestReadNode extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin").property("age", 20) ;
-				wsession.root().addChild("hero").property("name", "hero").property("age", 30L) ;
+				wsession.root().child("bleujin").property("name", "bleujin").property("age", 20) ;
+				wsession.root().child("hero").property("name", "hero").property("age", 30L) ;
 				return null;
 			}
 		}).get() ;

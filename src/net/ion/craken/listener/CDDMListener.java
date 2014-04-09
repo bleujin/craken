@@ -13,14 +13,15 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -124,10 +125,17 @@ public class CDDMListener implements WorkspaceListener {
 		TransactionJob<Void> nextTran = listener.modified(resolveMap, event);
 		if (nextTran == null || nextTran == TransactionJob.BLANK) return ;
 		
-//		WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
-//		rsession.workspace().tran(tsession, nextTran);
+		WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
+		IExecutor exec = rsession.workspace().repository().executor() ;
+		rsession.workspace().tran(exec.getService(), tsession, nextTran, new TranExceptionHandler(){
+			@Override
+			public void handle(WriteSession tsession, Throwable ex) {
+				Debug.warn(ex);
+			}
+			
+		});
 		
-		rsession.tran(nextTran) ;
+//		rsession.tran(nextTran) ;
 		
 	}
 

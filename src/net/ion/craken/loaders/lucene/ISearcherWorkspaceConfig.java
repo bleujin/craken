@@ -2,13 +2,19 @@ package net.ion.craken.loaders.lucene;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import net.ion.craken.loaders.WorkspaceConfig;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
+import net.ion.framework.logging.LogBroker;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
@@ -58,11 +64,6 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 		return this;
 	}
 
-	public ISearcherWorkspaceConfig location(String path) {
-		setLocation(path);
-		return this;
-	}
-
 	public String location() {
 		return location;
 	}
@@ -73,6 +74,11 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 
 	public int lockTimeoutMs() {
 		return lockTimeoutMs;
+	}
+
+	public ISearcherWorkspaceConfig location(String path) {
+		setLocation(path);
+		return this;
 	}
 
 	public ISearcherWorkspaceConfig maxNodeEntry(int maxNodeEntry) {
@@ -95,7 +101,16 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 				file.mkdirs();
 			dir = FSDirectory.open(file);
 		}
-		final Central result = lazyConfig.dir(dir).indexConfigBuilder().indexAnalyzer(new MyKoreanAnalyzer()).parent().searchConfigBuilder().queryAnalyzer(new MyKoreanAnalyzer()).build();
+		ThreadPoolExecutor dftIndexExecutor = new ThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new RejectedExecutionHandler() {
+					@Override
+					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+						Debug.line(r + " indexJob rejected(" + Thread.currentThread().getName() + ")");
+					}
+				}) ;
+		
+		final Central result = lazyConfig.dir(dir).indexConfigBuilder().indexAnalyzer(new MyKoreanAnalyzer()).setExecutorService(dftIndexExecutor).parent().searchConfigBuilder().queryAnalyzer(new MyKoreanAnalyzer()).build();
 
 		// Debug.line('i', this.hashCode(), this) ;
 

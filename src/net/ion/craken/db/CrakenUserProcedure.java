@@ -46,21 +46,7 @@ public class CrakenUserProcedure extends UserProcedure implements QueryParam {
 	public Rows myQuery(Connection conn) throws SQLException {
 		try {
 			return manager.queryBy(this) ;
-		} catch (IllegalArgumentException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (IllegalAccessException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (InvocationTargetException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (NoSuchMethodException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (SecurityException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (NoSuchFieldException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (CorruptIndexException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
 		} 	
 	}
@@ -73,22 +59,8 @@ public class CrakenUserProcedure extends UserProcedure implements QueryParam {
 	public int myUpdate(Connection conn) throws SQLException {
 		try {
 			return manager.updateWith(this) ;
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			throw new SQLException(e) ;
-		} catch (IllegalAccessException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (InvocationTargetException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (NoSuchMethodException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (SecurityException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (NoSuchFieldException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (CorruptIndexException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (IOException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
 		} 
 	}
 

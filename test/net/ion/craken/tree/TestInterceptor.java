@@ -1,6 +1,7 @@
 package net.ion.craken.tree;
 
 import net.ion.craken.node.Repository;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;

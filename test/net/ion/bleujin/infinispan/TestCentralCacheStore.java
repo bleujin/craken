@@ -90,7 +90,7 @@ public class TestCentralCacheStore extends TestCase {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("/a/b/c").property("name", "line") ;
+				wsession.root().child("/a/b/c").property("name", "line") ;
 				wsession.pathBy("/a/b").property("name", "c") ;
 				return null;
 			}

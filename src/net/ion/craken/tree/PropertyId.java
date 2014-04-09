@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;

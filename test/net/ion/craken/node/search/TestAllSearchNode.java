@@ -1,13 +1,15 @@
 package net.ion.craken.node.search;
 
+import net.ion.craken.node.crud.TestFieldIndexConfig;
 import junit.framework.TestSuite;
 
 public class TestAllSearchNode extends TestSuite {
 
 	public static TestSuite suite(){
 		TestSuite suite = new TestSuite("Test All Node Search") ;
-		suite.addTestSuite(TestFirst.class) ;
+		suite.addTestSuite(TestFirstSearch.class) ;
 
+		suite.addTestSuite(TestFieldIndexConfig.class) ;
 		suite.addTestSuite(TestFilter.class) ;
 //		suite.addTestSuite(TestIndex.class) ;
 		suite.addTestSuite(TestResponsePredicate.class) ;

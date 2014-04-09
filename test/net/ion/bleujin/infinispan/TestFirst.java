@@ -29,7 +29,7 @@ public class TestFirst extends TestCase {
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/dept/dev").property("name", "developer") ;
 				
-				wsession.pathBy("/dev/bleujin").property("name", "bleujin").property("age", 20).property("text", "태극기가 바람에 펄럼입니다.").addChild("address").property("num", 1).property("juso", "seoul") ;
+				wsession.pathBy("/dev/bleujin").property("name", "bleujin").property("age", 20).property("text", "태극기가 바람에 펄럼입니다.").child("address").property("num", 1).property("juso", "seoul") ;
 				wsession.pathBy("/dev/ryunhee").property("name", "ryunhee").property("age", 20).refTo("dept", "/dept/dev") ;
 				return null;
 			}

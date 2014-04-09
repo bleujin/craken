@@ -1,5 +1,7 @@
 package net.ion.craken.node.problem;
 
+import java.util.Iterator;
+
 import junit.framework.TestCase;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
@@ -27,14 +29,14 @@ public class TestMany extends TestCase {
 			public Void handle(WriteSession wsession) {
 				WriteNode root = wsession.root();
 				for (int i : ListUtil.rangeNum(100000)) {
-					root.addChild("" + i).property("property", RandomUtil.nextRandomString(10)) ;
+					root.child("" + i).property("property", RandomUtil.nextRandomString(10)) ;
 				}
 				return null;
 			}
 		}).get() ;
 
 		int i = 0 ;
-		final IteratorList<ReadNode> children = session.root().children();
+		final Iterator<ReadNode> children = session.root().children().iterator();
 		while(children.hasNext()) {
 			i++ ;
 			children.next() ;
@@ -54,14 +56,14 @@ public class TestMany extends TestCase {
 			public Void handle(WriteSession wsession) {
 				WriteNode root = wsession.root();
 				for (int i : ListUtil.rangeNum(100000)) {
-					root.addChild("" + i).property("property", RandomUtil.nextRandomString(10)) ;
+					root.child("" + i).property("property", RandomUtil.nextRandomString(10)) ;
 				}
 				return null;
 			}
 		}).get() ;
 
 		int i = 0 ;
-		final IteratorList<ReadNode> children = session.root().children();
+		final Iterator<ReadNode> children = session.root().children().iterator();
 		while(children.hasNext()) {
 			i++ ;
 			children.next() ;

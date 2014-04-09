@@ -31,23 +31,7 @@ public class CrakenUserProcedureBatch extends UserProcedureBatch {
 	public int myUpdate(Connection conn) throws SQLException {
 		try {
 			return manager.updateWith(this);
-		} catch (ExecutionException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (IllegalArgumentException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (IllegalAccessException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (InvocationTargetException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (NoSuchMethodException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (SecurityException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (NoSuchFieldException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (CorruptIndexException e) {
-			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new SQLException(ObjectUtil.coalesce(e.getCause(), e)) ;
 		} 
 	}

@@ -17,7 +17,6 @@ public class TestBaseCrud extends TestCase {
 //		r.defineWorkspace("test", ISearcherWorkspaceConfig.create()) ;
 //		r.defineWorkspace("test2", NeoWorkspaceConfig.create()) ;
 		
-		
 		r.start() ;
 		this.session = r.login("test") ;
 	}

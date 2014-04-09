@@ -6,10 +6,9 @@ import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TreeNodeKey.Type;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.TreeNodeKey;
-import net.ion.craken.tree.TreeNodeKey.Type;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.atomic.AtomicHashMap;
@@ -34,7 +33,7 @@ public class TestWorkspaceListener extends TestBaseCrud {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().addChild("bleujin").property("name", "bleujin");
+				wsession.root().child("bleujin").property("name", "bleujin");
 				return null ;
 			}
 		}).get() ;

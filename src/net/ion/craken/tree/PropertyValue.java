@@ -11,6 +11,7 @@ import java.util.Set;
 import net.ion.craken.io.GridBlob;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.Metadata;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
 import net.ion.craken.tree.PropertyValue.ReplaceValue;
@@ -266,6 +267,18 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public VType type() {
 		return values.type();
+	}
+
+	public int asInt() {
+		return intValue(0);
+	}
+	
+	public String asString(){
+		return stringValue() ;
+	}
+	
+	public Object asObject(){
+		return value() ;
 	}
 
 
