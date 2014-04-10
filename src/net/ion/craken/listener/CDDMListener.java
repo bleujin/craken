@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.notifications.Listener;
@@ -32,6 +33,7 @@ public class CDDMListener implements WorkspaceListener {
 	private List<CDDHandler> ls = ListUtil.newList() ;
 	private ReadSession rsession ;
 	private IExecutor executor;
+	private Future<Void> lastFuture;
 	
 
 	public CDDMListener(ReadSession rsession) {
@@ -57,6 +59,9 @@ public class CDDMListener implements WorkspaceListener {
 		ls.remove(listener) ;
 	}
 	
+	public void await() throws InterruptedException, ExecutionException{
+		if(lastFuture != null) lastFuture.get() ;
+	}
 	
 	@CacheEntryRemoved
 	public void deleted(final CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) throws Exception{
@@ -127,7 +132,7 @@ public class CDDMListener implements WorkspaceListener {
 		
 		WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
 		IExecutor exec = rsession.workspace().repository().executor() ;
-		rsession.workspace().tran(exec.getService(), tsession, nextTran, new TranExceptionHandler(){
+		this.lastFuture = rsession.workspace().tran(exec.getService(), tsession, nextTran, new TranExceptionHandler(){
 			@Override
 			public void handle(WriteSession tsession, Throwable ex) {
 //				Debug.line(ex);

@@ -61,7 +61,7 @@ public class TestCDDHandler extends TestCase {
 			}
 		}) ;
 
-		Thread.sleep(1000);
+		session.workspace().cddm().await(); 
 		
 		assertEquals(true, session.exists("/rooms/123/members/bleujin/notify/abcdefg"));
 		assertEquals(true, session.exists("/rooms/123/members/ryun/notify/abcdefg"));
@@ -105,11 +105,45 @@ public class TestCDDHandler extends TestCase {
 			}
 		}) ;
 		
-		Thread.sleep(500);
+		session.workspace().cddm().await(); 
 		
 		assertEquals("hello", session.pathBy(path).property("message").stringValue()) ;
 	}
 
+	
+	
+	public <T> void testAwaitListener() throws Exception {
+		session.workspace().cddm().add(new AsyncCDDHandler() {
+			@Override
+			public String pathPattern() {
+				return "/{name}";
+			}
+			
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						Thread.sleep(1000);
+						wsession.pathBy("/bleujin").property("awaited", true) ;
+						return null;
+					}
+				};
+			}
+			
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+				return null;
+			}
+		});
+		
+		
+		session.tran(TransactionJobs.HelloBleujin) ;
+		session.workspace().cddm().await(); 
+		assertEquals(Boolean.TRUE, session.pathBy("/bleujin").property("awaited").asBoolean());
+	}
+	
+	
 
 	public class SelfModifyHandler implements AsyncCDDHandler {
 		@Override

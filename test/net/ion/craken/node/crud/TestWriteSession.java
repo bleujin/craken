@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -133,6 +134,21 @@ public class TestWriteSession extends TestBaseCrud {
 	}
 	
 	
+	public void testExceptionHandler() throws Exception {
+		final boolean fail = false ;
+		int count = session.tranSync(new TransactionJob<Integer>(){
+			@Override
+			public Integer handle(WriteSession wsession) {
+				if (fail) throw new IllegalArgumentException("fail") ;
+				return 1;
+			}
+		}, new TranExceptionHandler() {
+			@Override
+			public void handle(WriteSession tsession, Throwable ex) {
+				
+			}
+		}) ;
+	}
 
 	
 }

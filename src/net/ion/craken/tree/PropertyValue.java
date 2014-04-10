@@ -281,6 +281,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return value() ;
 	}
 
+	public Boolean asBoolean() {
+		return Boolean.valueOf(asString());
+	}
+
 
 }
 
