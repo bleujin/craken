@@ -42,6 +42,22 @@ public class TestSync extends TestBaseCrud {
 
 	}
 
+	public void testIndex() throws Exception {
+		session.workspace().cddm().add(new ToNotiHandler());
+
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/rooms/123/members/bleujin").property("name", "bleujin");
+				wsession.pathBy("/rooms/123/members/ryun").property("name", "ryunhee");
+				wsession.pathBy("/rooms/123/members/hero").property("name", "hero");
+
+				wsession.pathBy("/rooms/123/messages/abcdefg").property("content", "hello! everyone");
+				return null;
+			}
+		});
+	}
+	
 	public void testTranSync() throws Exception {
 		session.workspace().cddm().add(new ToNotiHandler());
 

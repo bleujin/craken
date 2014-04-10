@@ -130,9 +130,8 @@ public class CDDMListener implements WorkspaceListener {
 		rsession.workspace().tran(exec.getService(), tsession, nextTran, new TranExceptionHandler(){
 			@Override
 			public void handle(WriteSession tsession, Throwable ex) {
-				Debug.warn(ex);
+//				Debug.line(ex);
 			}
-			
 		});
 		
 //		rsession.tran(nextTran) ;

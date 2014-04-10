@@ -24,17 +24,21 @@ import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonReader;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.index.IndexExceptionHandler;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
+import net.ion.nsearcher.index.Indexer;
 
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
@@ -49,7 +53,7 @@ public class ISearcherWorkspace extends Workspace {
 	private ISearcherWorkspaceStore cstore;
 	private ISearcherWorkspaceConfig config;
 
-	private static final Log log = LogFactory.getLog(ISearcherWorkspace.class);
+	private final Log log = LogFactory.getLog(ISearcherWorkspace.class);
 
 	public ISearcherWorkspace(Repository repository, Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, ISearcherWorkspaceConfig config) {
 		this(repository, cache.getAdvancedCache(), wsName, config);
@@ -61,7 +65,6 @@ public class ISearcherWorkspace extends Workspace {
 		this.cstore = ((ISearcherWorkspaceStore) cache.getAdvancedCache().getComponentRegistry().getComponent(CacheLoaderManager.class).getCacheStore());
 		this.config = config;
 	}
-
 
 	protected int storeData(InputStream input) throws IOException {
 
@@ -75,57 +78,71 @@ public class ISearcherWorkspace extends Workspace {
 
 		// Debug.line(config, wsession.tranId(), meta) ;
 
-		int count = central().newIndexer().index(new IndexJob<Integer>() {
+		Indexer indexer = central().newIndexer();
+		indexer.onExceptionHander(new IndexExceptionHandler<Void>() {
+			@Override
+			public Void onException(IndexJob indexJob, Throwable ex) {
+				Debug.warn(indexJob, ex.getMessage());
+				return null;
+			}
+		}) ;
+		
+		int count = indexer.index(new IndexJob<Integer>() {
 			public Integer handle(IndexSession isession) throws Exception {
 
 				isession.setIgnoreBody(config.asBoolean("ignoreBody"));
-				
+
 				reader.beginArray();
 				final int count = config.asInt("count");
-				for (int i = 0; i < count; i++) {
-					JsonObject tlog = reader.nextJsonObject();
-					String path = tlog.asString("path");
-					Touch touch = Touch.valueOf(tlog.asString("touch"));
-					Action action = Action.valueOf(tlog.asString("action"));
-					// Debug.line(path, touch) ;
-					switch (touch) {
-					case TOUCH:
-						break;
-					case MODIFY:
-						JsonObject val = tlog.asJsonObject("val");
-						if ("/".equals(path) && val.childSize() == 0) continue ;
-						
-						WriteDocument propDoc = isession.newDocument(path);
-						propDoc.keyword(EntryKey.PARENT, Fqn.fromString(path).getParent().toString());
-						propDoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
-						
-						JsonObject jobj = new JsonObject();
-						jobj.addProperty(EntryKey.ID, path);
-						jobj.addProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis());
-						jobj.add(EntryKey.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
-						
-						propDoc.add(MyField.manual(EntryKey.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED).ignoreBody());
 
-						if (action == Action.CREATE)
-							isession.insertDocument(propDoc);
-						else
-							isession.updateDocument(propDoc);
-						// isession.updateDocument(propDoc) ;
+				try {
+					for (int i = 0; i < count; i++) {
+						JsonObject tlog = reader.nextJsonObject();
+						String path = tlog.asString("path");
+						Touch touch = Touch.valueOf(tlog.asString("touch"));
+						Action action = Action.valueOf(tlog.asString("action"));
+						// Debug.line(path, touch) ;
+						switch (touch) {
+						case TOUCH:
+							break;
+						case MODIFY:
+							JsonObject val = tlog.asJsonObject("val");
+							if ("/".equals(path) && val.childSize() == 0)
+								continue;
 
-						break;
-					case REMOVE:
-						isession.deleteTerm(new Term(IKeywordField.ISKey, path));
-						break;
-					case REMOVECHILDREN:
-						isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));
-						break;
-					default:
-						throw new IllegalArgumentException("Unknown modification type " + touch);
+							WriteDocument propDoc = isession.newDocument(path);
+							propDoc.keyword(EntryKey.PARENT, Fqn.fromString(path).getParent().toString());
+							propDoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+
+							JsonObject jobj = new JsonObject();
+							jobj.addProperty(EntryKey.ID, path);
+							jobj.addProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+							jobj.add(EntryKey.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
+
+							propDoc.add(MyField.manual(EntryKey.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED).ignoreBody());
+
+							if (action == Action.CREATE)
+								isession.insertDocument(propDoc);
+							else
+								isession.updateDocument(propDoc);
+							// isession.updateDocument(propDoc) ;
+
+							break;
+						case REMOVE:
+							isession.deleteTerm(new Term(IKeywordField.ISKey, path));
+							break;
+						case REMOVECHILDREN:
+							isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));
+							break;
+						default:
+							throw new IllegalArgumentException("Unknown modification type " + touch);
+						}
 					}
+					reader.endArray();
+					reader.endObject();
+				} catch (AlreadyClosedException ignore) {
+//					ignore.printStackTrace();
 				}
-				
-				reader.endArray(); 
-				reader.endObject(); 
 
 				return count;
 			}
@@ -139,7 +156,7 @@ public class ISearcherWorkspace extends Workspace {
 					if (propertyId.type() == PType.NORMAL) {
 						String propId = propertyId.getString();
 						JsonArray pvalue = entry.getValue().getAsJsonObject().asJsonArray("vals");
-						
+
 						jso.add(propertyId.idString(), entry.getValue());
 						for (JsonElement e : pvalue.toArray()) {
 							if (e == null)
@@ -150,7 +167,7 @@ public class ISearcherWorkspace extends Workspace {
 					} else if (propertyId.type() == PType.REFER) {
 						final String propId = propertyId.getString();
 						JsonArray pvalue = entry.getValue().getAsJsonObject().asJsonArray("vals");
-						
+
 						jso.add(propertyId.idString(), entry.getValue()); // if type == refer, @
 						for (JsonElement e : pvalue.toArray()) {
 							if (e == null)
@@ -168,7 +185,6 @@ public class ISearcherWorkspace extends Workspace {
 		return count;
 	}
 
-	
 	public Central central() {
 		return cstore.central();
 	}
@@ -177,10 +193,9 @@ public class ISearcherWorkspace extends Workspace {
 		return config;
 	}
 
-	
-	@Override 
-	public void close(){
-		IOUtil.closeQuietly(central()); 
+	@Override
+	public void close() {
+		IOUtil.closeQuietly(central());
 		super.close();
 	}
 
