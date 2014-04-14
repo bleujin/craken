@@ -294,4 +294,8 @@ public class RepositoryImpl implements Repository {
 		return this;
 	}
 
+	public boolean isStarted() {
+		return this.started ;
+	}
+
 }

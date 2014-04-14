@@ -76,23 +76,11 @@ public class CDDMListener implements WorkspaceListener {
 			final Map<String, String> resolveMap = fqn.resolve(fqnPattern);
 		
 			if (AsyncCDDHandler.class.isInstance(listener)){
-				this.executor.submitTask(new Callable<Void>(){
-					@Override
-					public Void call() throws Exception {
-						applyDelete(resolveMap, listener, event);
-						return null;
-					}
-				}) ;
+				this.lastFuture = executor.submitTask(applyDelete(resolveMap, listener, event)) ;
 			} else {
-				applyDelete(resolveMap, listener, event);
+				applyDelete(resolveMap, listener, event).call();
 			}
 		}
-	}
-	
-	private void applyDelete(Map<String, String> resolveMap, CDDHandler listener, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
-		TransactionJob<Void> nextTran = listener.deleted(resolveMap, event);
-		if (nextTran == null || nextTran == TransactionJob.BLANK) return ;
-		rsession.tran(nextTran) ;
 	}
 	
 	
@@ -111,36 +99,54 @@ public class CDDMListener implements WorkspaceListener {
 			final Map<String, String> resolveMap = fqn.resolve(fqnPattern);
 
 			if (AsyncCDDHandler.class.isInstance(listener)){
-				this.executor.submitTask(new Callable<Void>() {
-					@Override
-					public Void call() throws Exception {
-						applyModify(resolveMap, listener, event) ;
-						return null;
-					}
-				}) ;
+				this.lastFuture = executor.submitTask(applyModify(resolveMap, listener, event)) ;
 			} else {
-				applyModify(resolveMap, listener, event) ;
+				applyModify(resolveMap, listener, event).call() ;
 			}
 			
 //			rsession.tranSync(nextTran);
 		}
 	}
-	
-	private void applyModify(Map<String, String> resolveMap, CDDHandler listener, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
-		TransactionJob<Void> nextTran = listener.modified(resolveMap, event);
-		if (nextTran == null || nextTran == TransactionJob.BLANK) return ;
-		
-		WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
-		IExecutor exec = rsession.workspace().repository().executor() ;
-		this.lastFuture = rsession.workspace().tran(exec.getService(), tsession, nextTran, new TranExceptionHandler(){
+
+	private Callable<Void> applyDelete(final Map<String, String> resolveMap, final CDDHandler listener, final CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+		return new Callable<Void>(){
 			@Override
-			public void handle(WriteSession tsession, Throwable ex) {
-//				Debug.line(ex);
+			public Void call() throws Exception {
+				TransactionJob<Void> nextTran = listener.deleted(resolveMap, event);
+				if (nextTran == null || nextTran == TransactionJob.BLANK) return null ;
+				
+				WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
+				rsession.workspace().tran(executor.getService(), tsession, nextTran, new TranExceptionHandler() {
+					@Override
+					public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
+						Debug.line(tjob);
+						ex.printStackTrace(); 
+					}
+				}).get() ;
+				return null;
 			}
-		});
-		
-//		rsession.tran(nextTran) ;
-		
+		} ;
+	}
+	
+	
+	private Callable<Void> applyModify(final Map<String, String> resolveMap, final CDDHandler chandler, final CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event){
+		return new Callable<Void>(){
+			@Override
+			public Void call() throws Exception {
+				TransactionJob<Void> nextTran = chandler.modified(resolveMap, event);
+				if (nextTran == null || nextTran == TransactionJob.BLANK) return null ;
+				
+				WriteSession tsession = new WriteSessionImpl(rsession, rsession.workspace());
+				rsession.workspace().tran(executor.getService(), tsession, nextTran, new TranExceptionHandler(){
+					@Override
+					public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
+						Debug.line(tjob);
+						ex.printStackTrace(); 
+					}
+				}).get();
+				return null ;
+			}
+		} ;
 	}
 
 }

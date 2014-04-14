@@ -47,7 +47,34 @@ public class TestCDDHandler extends TestCase {
 	
 	
 	public void testFirst() throws Exception {
-		session.workspace().cddm().add(new ToNotiHandler()) ;
+		session.workspace().cddm().add(new AsyncCDDHandler() {
+			@Override
+			public String pathPattern() {
+				return "/rooms/{roomId}/messages/{msgId}";
+			}
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+				final String roomId = resolveMap.get("roomId");
+				final String msgId = resolveMap.get("msgId");
+				
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						WriteChildren members = wsession.pathBy("/rooms/"+ roomId+"/members").children() ;
+
+						for(WriteNode member : members){
+							member.child("notify/"+msgId).refTo("message", "/rooms/" +  roomId + "/messages/" +  msgId);
+						}
+						return null;
+					}
+				} ;
+			}
+
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+				return null;
+			}
+		}) ;
 		
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
@@ -90,28 +117,6 @@ public class TestCDDHandler extends TestCase {
 		assertEquals("hello! everyone", session.pathBy("/message").property("msg").defaultValue("empty")) ;
 	}
 	
-	private static final String prefix = "/newpath" ;
-	private static final String path = prefix + "/ryun" ;
-	
-	public void testSelfModify() throws Exception {
-		session.workspace().cddm().add(new SelfModifyHandler());
-		
-		session.tranSync(new TransactionJob<Void>(){
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/connections/usersn").property("message", "hello");
-				wsession.pathBy(path).property("message", "hello") ;
-				return null;
-			}
-		}) ;
-		
-		session.workspace().cddm().await(); 
-		
-		assertEquals("hello", session.pathBy(path).property("message").stringValue()) ;
-	}
-
-	
-	
 	public <T> void testAwaitListener() throws Exception {
 		session.workspace().cddm().add(new AsyncCDDHandler() {
 			@Override
@@ -125,10 +130,16 @@ public class TestCDDHandler extends TestCase {
 					@Override
 					public Void handle(WriteSession wsession) throws Exception {
 						Thread.sleep(1000);
-						wsession.pathBy("/bleujin").property("awaited", true) ;
+						wsession.pathBy("/bleujin/modified").property("awaited", true) ;
 						return null;
 					}
+					
+					public String toString(){
+						return "CDDJob[pattern:" + pathPattern() ; 
+					}
 				};
+				
+				
 			}
 			
 			@Override
@@ -137,37 +148,50 @@ public class TestCDDHandler extends TestCase {
 			}
 		});
 		
-		
 		session.tran(TransactionJobs.HelloBleujin) ;
 		session.workspace().cddm().await(); 
-		assertEquals(Boolean.TRUE, session.pathBy("/bleujin").property("awaited").asBoolean());
+		assertEquals(Boolean.TRUE, session.pathBy("/bleujin/modified").property("awaited").asBoolean());
 	}
 	
 	
+	
+	public void testWhenSelfModify() throws Exception {
+		session.workspace().cddm().add(new AsyncCDDHandler() {
+			
+			@Override
+			public String pathPattern() {
+				return "/{username}";
+			}
 
-	public class SelfModifyHandler implements AsyncCDDHandler {
-		@Override
-		public String pathPattern() {
-			return prefix + "/{node}";
-		}
-
-		@Override
-		public TransactionJob<Void> modified(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
-			return new TransactionJob<Void>() {
-				@Override
-				public Void handle(WriteSession wsession) throws Exception {
-					String name = wsession.pathBy(path).property("message").stringValue() ;
-					return null;
-				}
-			};
-		}
-
-		@Override
-		public TransactionJob<Void> deleted(Map<String, String> resolveMap, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
-			return null;
-		}
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						wsession.pathBy("/bleujin").property("name", "modified") ;
+						return null;
+					}
+				};
+			}
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+				return null;
+			}
+		});
 		
+		session.tranSync(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "bleujin");
+				return null;
+			}
+		}) ;
+		
+		session.workspace().cddm().await(); 
+		assertEquals("modified", session.pathBy("/bleujin").property("name").stringValue()) ;
 	}
+
+	
 	
 
 }

@@ -17,4 +17,13 @@ public class TestDefineWorkspace extends TestCase {
 		r.shutdown();
 
 	}
+	
+	public void testNotStarted() throws Exception {
+		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
+		ReadSession session = r.login("test") ;
+		
+		assertEquals(true, r.isStarted()) ;
+		r.shutdown() ;
+		assertEquals(false, r.isStarted()) ;
+	}
 }

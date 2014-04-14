@@ -52,7 +52,7 @@ public class TestTransaction  extends TestBaseCrud {
 			}
 		}, new DefaultTranExceptionHandler() {
 			@Override
-			public void handle(WriteSession tsession, Throwable ex) {
+			public void handle(WriteSession tsession, TransactionJob tjob,  Throwable ex) {
 				latch.countDown();
 			}
 		}).get() ;
@@ -70,7 +70,7 @@ public class TestTransaction  extends TestBaseCrud {
 			}
 		}, new DefaultTranExceptionHandler() {
 			@Override
-			public void handle(WriteSession tsession, Throwable ex) {
+			public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
 				// 
 			}
 		}).get() ;
@@ -88,7 +88,7 @@ public class TestTransaction  extends TestBaseCrud {
 			}
 		}, new DefaultTranExceptionHandler() {
 			@Override
-			public void handle(WriteSession tsession, Throwable ex) {
+			public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
 				// 
 			}
 		}).get() ;

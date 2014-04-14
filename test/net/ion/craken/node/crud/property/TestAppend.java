@@ -97,7 +97,7 @@ public class TestAppend extends TestBaseCrud {
 			}
 		}, new TranExceptionHandler() {
 			@Override
-			public void handle(WriteSession tsession, Throwable ex) {
+			public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
 				latch.countDown() ;
 			}
 		});

@@ -211,7 +211,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 					if (ehandler == null)
 						throw (Exception) ex;
 
-					ehandler.handle(wsession, ex);
+					ehandler.handle(wsession, tjob, ex);
 					return null;
 				} finally {
 				}
