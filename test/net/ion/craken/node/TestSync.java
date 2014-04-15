@@ -2,24 +2,19 @@ package net.ion.craken.node;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import net.ion.craken.listener.CDDHandler;
+import net.ion.craken.listener.CDDModifiedEvent;
+import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.WriteChildren;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
-
-import org.infinispan.atomic.AtomicMap;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 public class TestSync extends TestBaseCrud {
 
@@ -73,7 +68,6 @@ public class TestSync extends TestBaseCrud {
 			}
 		});
 
-		Thread.sleep(1000);
 
 		assertEquals(true, session.exists("/rooms/123/members/bleujin/notify/abcdefg"));
 		assertEquals(true, session.exists("/rooms/123/members/ryun/notify/abcdefg"));
@@ -93,7 +87,7 @@ public class TestSync extends TestBaseCrud {
 		}
 
 		@Override
-		public TransactionJob<Void> modified(Map<String, String> resolveMap, CacheEntryModifiedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+		public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
 			final String roomId = resolveMap.get("roomId");
 			final String msgId = resolveMap.get("msgId");
 
@@ -111,7 +105,7 @@ public class TestSync extends TestBaseCrud {
 		}
 
 		@Override
-		public TransactionJob<Void> deleted(Map<String, String> resolveMap, CacheEntryRemovedEvent<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> event) {
+		public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
 			return null;
 		}
 	}

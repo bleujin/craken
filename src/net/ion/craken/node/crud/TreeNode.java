@@ -13,6 +13,7 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
@@ -100,23 +101,26 @@ public class TreeNode {
 	}
 
 
-	public boolean removeChild(Fqn f) {
-		return removeChild(f.getLastElement());
-	}
+//	public Map<String, Fqn> removeChild(Fqn f) {
+//		return removeChild(f.getLastElement());
+//	}
 
-	public boolean removeChild(Object childName) {
+	public Map<String, Fqn> removeChild(String childName) {
 		Map<String, Fqn> s = strus();
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
+			Map<String, Fqn> result = MapUtil.newMap() ;
+			result.put(childFqn.toString(), childFqn) ;
+			
 			TreeNode child = new TreeNode(workspace, childFqn);
-			child.removeChildren();
+			result.putAll(child.removeChildren());
 			child.clearData(); // this is necessary in case we have a remove and then an add on the same node, in the same tx.
 			workspace.remove(childFqn);
 			
-			return true;
+			return result;
 		}
 
-		return false;
+		return MapUtil.EMPTY;
 	}
 	
 	public TreeNode getChild(Fqn f) {
@@ -190,10 +194,18 @@ public class TreeNode {
 		return strus().containsKey(o);
 	}
 
-	public void removeChildren() {
+	public Map<String, Fqn> removeChildren() {
+		Map<String, Fqn> result = MapUtil.newMap() ;
+
 		Map<String, Fqn> s = strus();
+		for (Fqn rfqn : s.values()) {
+			result.put(rfqn.toString(), rfqn) ;
+		}
+		
 		for (String o : Immutables.immutableSetCopy(s.keySet()))
-			removeChild(o);
+			result.putAll(removeChild(o));
+		
+		return result ;
 	}
 
 	

@@ -7,6 +7,7 @@ import java.util.Map;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteChildren;
+import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
@@ -37,9 +38,11 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	
 	public WriteNode child(String relativeFqn) ;
 	
-	public boolean removeChild(String fqn) ;
+	public boolean removeChild(String childName) ;
+
+	public boolean removeSelf();
 	
-	public void removeChildren() ;
+	public boolean removeChildren() ;
 
 	public WriteNode refTo(String refName, String fqn);
 	
@@ -48,8 +51,6 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteNode unRefTos(String refName, String... fqn);
 	
 	public WriteNode fromJson(JsonObject json);
-
-	public boolean removeSelf();
 
 	public WriteNode blob(String key, InputStream input);
 

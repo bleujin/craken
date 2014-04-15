@@ -110,6 +110,7 @@ public class TestCentralCacheStore extends TestCase {
 		}).get() ;
 		
 		assertEquals(false, session.exists("/a/b")) ; // exist child
+		assertEquals(false, session.exists("/a/b/c")) ; // exist child
 //		assertEquals("c", session.pathBy("/a/b/c").property("name").value()) ;
 	}
 

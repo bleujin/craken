@@ -13,142 +13,145 @@ import net.ion.craken.tree.Fqn;
 
 public class TestWriteSession extends TestBaseCrud {
 
-	
 	public void testTran() throws Exception {
-		assertEquals(false, session.exists("/test")) ;
-		
+		assertEquals(false, session.exists("/test"));
+
 		Future<Void> future = session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession tsession) {
-				WriteNode node = tsession.pathBy("/test") ;
-				node.property("name", "bleujin") ;
-				
+				WriteNode node = tsession.pathBy("/test");
+				node.property("name", "bleujin");
+
 				return null;
 			}
 		});
-		future.get() ;
-		
-		assertEquals(true, session.exists("/test")) ;
+		future.get();
+
+		assertEquals(true, session.exists("/test"));
 		ReadNode found = session.pathBy("/test");
-		assertEquals("bleujin", found.property("name").value()) ;
+		assertEquals("bleujin", found.property("name").value());
 	}
-	
-	
-	
+
 	public void testPathByInTran() throws Exception {
 
-		assertEquals(false, session.root().hasChild("/bleujin")) ;
+		assertEquals(false, session.root().hasChild("/bleujin"));
 		try {
-			assertEquals(true, session.pathBy("/bleujin") != null) ;  
-		} catch(IllegalArgumentException expect){}
-//		assertEquals(true, session.root().child("/bleujin") != null) ;
+			assertEquals(true, session.pathBy("/bleujin") != null);
+		} catch (IllegalArgumentException expect) {
+		}
+		// assertEquals(true, session.root().child("/bleujin") != null) ;
 
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession tsession) {
-				assertEquals(false, tsession.root().hasChild("/bleujin")) ; // create 
-				assertEquals(true, tsession.pathBy("/bleujin") != null) ;
-				assertEquals(true, tsession.root().hasChild("/bleujin")) ; // created
-				assertEquals(true, tsession.root().child("/bleujin") != null) ;
+				assertEquals(false, tsession.root().hasChild("/bleujin")); // create
+				assertEquals(true, tsession.pathBy("/bleujin") != null);
+				assertEquals(true, tsession.root().hasChild("/bleujin")); // created
+				assertEquals(true, tsession.root().child("/bleujin") != null);
 
 				return null;
 			}
 		}).get();
-		
+
 	}
-	
-	
+
 	public void testContinueUnit() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				for (int i = 0 ; i < 10 ; i++) {
-					wsession.pathBy("/bleujin/" + i).property("name", "bleujin").property("index", i) ;
+				for (int i = 0; i < 10; i++) {
+					wsession.pathBy("/bleujin/" + i).property("name", "bleujin").property("index", i);
 					if ((i % 2) == 0) {
-						wsession.continueUnit() ;
+						wsession.continueUnit();
 					}
 				}
 				return null;
 			}
-		}) ;
-		
-		session.ghostBy("/bleujin").children().debugPrint() ;
-		Thread.sleep(1000) ;
-		session.ghostBy("/bleujin").children().debugPrint() ;
-		
+		});
+
+		session.ghostBy("/bleujin").children().debugPrint();
+		Thread.sleep(1000);
+		session.ghostBy("/bleujin").children().debugPrint();
+
 	}
 
-	
-	
 	public void testIgnoreIndex() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/index/0").property("index", 0).property("name", "bleujin") ;
+				wsession.pathBy("/index/0").property("index", 0).property("name", "bleujin");
 				return null;
 			}
-		}).get() ;
+		}).get();
 
-		assertEquals(1, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
-
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/index/1").property("index", 1).property("name", "bleujin") ;
-				return null;
-			}
-		}).get() ;
-		
-		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
+		assertEquals(1, session.pathBy("/index").childQuery("name:bleujin").find().toList().size());
 
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.iwconfig().ignore("name") ;
-				wsession.pathBy("/index/2").property("index", 2).property("name", "hero") ;
+				wsession.pathBy("/index/1").property("index", 1).property("name", "bleujin");
 				return null;
 			}
-		}).get() ;
-		
-		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size()) ;
-		
-		assertEquals("hero", session.pathBy("/index/2").property("name").stringValue()) ;
+		}).get();
+
+		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size());
+
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.iwconfig().ignore("name");
+				wsession.pathBy("/index/2").property("index", 2).property("name", "hero");
+				return null;
+			}
+		}).get();
+
+		assertEquals(2, session.pathBy("/index").childQuery("name:bleujin").find().toList().size());
+
+		assertEquals("hero", session.pathBy("/index/2").property("name").stringValue());
 
 	}
-	
+
 	public void testQuery() throws Exception {
-		session.tranSync(TransactionJobs.dummy("/bleujin", 10)) ;
-		session.tranSync(new TransactionJob<Void>(){
+		session.tranSync(TransactionJobs.dummy("/bleujin", 10));
+		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				List<Fqn> list = wsession.queryRequest("").find().toFqns();
-				int i = 0 ;
-				for(Fqn fqn : list){
-					wsession.pathBy(fqn).property("new", 3) ;
+				int i = 0;
+				for (Fqn fqn : list) {
+					wsession.pathBy(fqn).property("new", 3);
 				}
 				return null;
 			}
-		}) ;
-		
- 		assertEquals(3, session.pathBy("/bleujin/1").property("new").intValue(0)) ;
+		});
+
+		assertEquals(3, session.pathBy("/bleujin/1").property("new").intValue(0));
 	}
-	
-	
+
 	public void testExceptionHandler() throws Exception {
-		final boolean fail = false ;
-		int count = session.tranSync(new TransactionJob<Integer>(){
+		final boolean fail = true;
+		session.tranSync(new TransactionJob<Integer>() {
 			@Override
 			public Integer handle(WriteSession wsession) {
-				if (fail) throw new IllegalArgumentException("fail") ;
+				if (fail)
+					throw new IllegalArgumentException("fail");
 				return 1;
 			}
 		}, new TranExceptionHandler() {
 			@Override
 			public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
-				
+
 			}
-		}) ;
+		});
 	}
 
-	
+	public void testOnExecption() throws Exception {
+		session.tranSync(new TransactionJob<Integer>() {
+			@Override
+			public Integer handle(WriteSession wsession) {
+				throw new IllegalArgumentException("fail");
+			}
+		});
+	}
+
 }

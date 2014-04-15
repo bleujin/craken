@@ -24,13 +24,12 @@ import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.loaders.WorkspaceConfig;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
-import net.ion.craken.node.AbstractWriteSession.LogRow;
 import net.ion.craken.node.crud.ReadSessionImpl;
 import net.ion.craken.node.crud.TreeNode;
 import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.TreeStructureSupport;
 import net.ion.craken.node.crud.WriteNodeImpl;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.exception.NodeNotExistsException;
 import net.ion.craken.tree.Fqn;
@@ -39,7 +38,6 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonWriter;
-import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.config.Central;
@@ -110,7 +108,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		this.logManager.start();
 
 		this.cddmListener = new CDDMListener(new ReadSessionImpl(Credential.EMANON, this, central().searchConfig().queryAnalyzer()));
-		this.addListener(cddmListener) ;
+//		this.addListener(cddmListener) ;
 		
 		return this;
 	}
@@ -194,6 +192,11 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	}
 	
 	public <T> Future<T> tran(ExecutorService exec, final WriteSession wsession, final TransactionJob<T> tjob, final TranExceptionHandler ehandler) {
+		
+		wsession.attribute(TransactionJob.class, tjob) ;
+		wsession.attribute(TranExceptionHandler.class, ehandler) ;
+		wsession.attribute(CDDMListener.class, cddm()) ;
+		
 		return exec.submit(new Callable<T>() {
 
 			@Override
@@ -213,6 +216,11 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 					ehandler.handle(wsession, tjob, ex);
 					return null;
+				} catch(Error ex) {
+					batchContainer.endBatch(true, false);
+					ehandler.handle(wsession, tjob, ex);
+					return null;
+					
 				} finally {
 				}
 
@@ -411,7 +419,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			this.jwriter = new JsonWriter(swriter);
 		}
 
-		public InstantLogWriter beginLog(Set<LogRow> logRows) throws IOException {
+		public InstantLogWriter beginLog(Set<TouchedRow> logRows) throws IOException {
 			final long thisTime = System.currentTimeMillis();
 
 			jwriter.beginObject();
@@ -427,7 +435,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			return this;
 		}
 
-		public void writeLog(LogRow row) throws IOException {
+		public void writeLog(TouchedRow row) throws IOException {
 			Fqn target = row.target();
 			Touch touch = row.touch();
 

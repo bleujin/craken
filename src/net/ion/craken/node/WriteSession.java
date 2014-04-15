@@ -1,7 +1,10 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
+import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
@@ -36,7 +39,7 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public Workspace workspace() ;
 
-	public void notifyTouch(WriteNode source, Fqn fqn, Touch touch);
+	public void notifyTouch(WriteNode source, Fqn fqn, Touch touch, Map<String, Fqn> affected);
 
 	public void continueUnit() throws IOException;
 
@@ -54,6 +57,12 @@ public interface WriteSession extends ISession<WriteNode> {
 
 	public IndexWriteConfig iwconfig();
 
+	public WriteSession attribute(Class clz, Object value) ;
 
+	public <T> T attribute(Class<T> clz) ;
+
+	@Deprecated
+	public List<TouchedRow> touched(Touch touch);
 	
+
 }

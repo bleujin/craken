@@ -492,17 +492,12 @@ class GhostTreeNode extends TreeNode {
 
 
 	@Override
-	public boolean removeChild(Fqn f) {
+	public Map<String, Fqn> removeChild(String childName) {
 		throw new UnsupportedOperationException("current node is ghost node") ;
 	}
 
 	@Override
-	public boolean removeChild(Object childName) {
-		throw new UnsupportedOperationException("current node is ghost node") ;
-	}
-
-	@Override
-	public void removeChildren() {
+	public Map<String, Fqn> removeChildren() {
 		throw new UnsupportedOperationException("current node is ghost node") ;
 	}
 

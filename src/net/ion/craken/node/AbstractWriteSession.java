@@ -1,30 +1,41 @@
 package net.ion.craken.node;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
+import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.node.Workspace.InstantLogWriter;
 import net.ion.craken.node.crud.ChildQueryRequest;
+import net.ion.craken.node.crud.WriteChildrenEach;
+import net.ion.craken.node.crud.WriteChildrenIterator;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.queryparser.classic.ParseException;
 
+import com.google.common.collect.Lists;
+
 public abstract class AbstractWriteSession implements WriteSession {
 
 	private ReadSession rsession;
 	private IndexWriteConfig iwconfig = new IndexWriteConfig();
 
-	private Set<LogRow> logRows = ListOrderedSet.decorate(ListUtil.newList());
+	private Set<TouchedRow> logRows = ListOrderedSet.decorate(ListUtil.newList());
 	private String tranId;
 
 	private Set<Fqn> ancestorsFqn = SetUtil.newSet();
 	private Mode mode = Mode.NORMAL;
-
+	private Map<String, Object> attrs = MapUtil.newMap() ;
+	
 	private enum Mode {
 		NORMAL, RESTORE, OVERWRITE
 	}
@@ -34,7 +45,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	public WriteNode createBy(String fqn) {
-		return createBy(Fqn.fromString(fqn)) ;
+		return createBy(Fqn.fromString(fqn));
 	}
 
 	public WriteNode createBy(Fqn fqn) {
@@ -42,7 +53,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	public WriteNode resetBy(String fqn) {
-		return resetBy(Fqn.fromString(fqn)) ;
+		return resetBy(Fqn.fromString(fqn));
 	}
 
 	public WriteNode resetBy(Fqn fqn) {
@@ -58,9 +69,8 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		return workspace().writeNode(this, this.ancestorsFqn, fqn) ;
+		return workspace().writeNode(this, this.ancestorsFqn, fqn);
 	}
-
 
 	public WriteNode root() {
 		return pathBy("/");
@@ -85,36 +95,84 @@ public abstract class AbstractWriteSession implements WriteSession {
 	public void restoreOverwrite() {
 		this.mode = Mode.OVERWRITE;
 	}
+	
+	public WriteSession attribute(Class clz, Object value){
+		attrs.put(clz.getCanonicalName(),  value) ;
+		return this ;
+	}
+	
+	public <T> T attribute(Class<T> clz){
+		return clz.cast(attrs.get(clz.getCanonicalName())) ;
+	}
+	
+	
+	public List<TouchedRow> touched(Touch touch){
+		List<TouchedRow> result = ListUtil.newList() ;
+		for (TouchedRow row : logRows) {
+			if (row.touch() == touch){
+				result.add(row);
+			} 
+		}
+		return result ;
+	}
+	
 
 	@Override
 	public void endCommit() throws IOException {
+		CDDMListener cddm = attribute(CDDMListener.class) ;
+		TransactionJob tjob = attribute(TransactionJob.class) ;
+		TranExceptionHandler ehandler = attribute(TranExceptionHandler.class) ;
+		
 		InstantLogWriter logWriter = rsession.workspace().createLogWriter(this, rsession);
 
-//		for (Fqn parentFqn : ancestorsFqn) { // create parent node
-//			workspace().pathNode(parentFqn, true);
-//			logRows.add(LogRow.create(pathBy(parentFqn), Touch.MODIFY, parentFqn));
-//		}
+		// for (Fqn parentFqn : ancestorsFqn) { // create parent node
+		// workspace().pathNode(parentFqn, true);
+		// logRows.add(LogRow.create(pathBy(parentFqn), Touch.MODIFY, parentFqn));
+		// }
+
+		// Debug.debug(logRows.size(), logRows) ;
 
 		
-//		Debug.debug(logRows.size(), logRows) ;
-		
+//		TouchedRow[] touchedRows = logRows.toArray(new TouchedRow[0]);
+//		final List<TouchedRow> affectedRow = ListUtil.newList() ;
+//		for (TouchedRow r : touchedRows) {
+//			if (r.touch() == Touch.REMOVECHILDREN){
+//				pathBy(r.target()).children().debugPrint(); 
+//				pathBy(r.target()).children().eachNode(new WriteChildrenEach<Void>() {
+//					@Override
+//					public Void handle(WriteChildrenIterator citer) {
+//						while(citer.hasNext()){ 
+//							WriteNode wnode = citer.next();
+//							affectedRow.add(new TouchedRow(wnode, Touch.REMOVE, wnode.fqn())) ; 
+//						}
+//						return null;
+//					}
+//				}) ;
+//				
+//			} else {
+//				affectedRow.add(r) ;
+//			}
+//		}
+//		cddm.fireRow(affectedRow.toArray(new TouchedRow[0]), this, tjob, ehandler);
+		cddm.fireRow(logRows.toArray(new TouchedRow[0]), this, tjob, ehandler);
+
 		logWriter.beginLog(logRows);
-		for (LogRow row : logRows) {
+		for (TouchedRow row : logRows) {
 			logWriter.writeLog(row);
 		}
 		logWriter.endLog();
 		logRows.clear();
 
-		//		
-		//		
+		//
+		//
 		// if (this.mode != Mode.NORMAL) { // restore mode
 		// // workspace().getCache().cache().clear() ;
 		// return ;
 		// }
-		//		
+		//
 		// logWriter.beginLog(this) ; // user will define tranId & config after..
-		//		
-		//		
+		//
+		//
 		// for (Fqn parentFqn : ancestorsFqn) { // create parent node
 		// workspace().pathNode(parentFqn, true) ;
 		// logRows.add(LogRow.create(Touch.MODIFY, parentFqn, pathBy(parentFqn))) ;
@@ -133,10 +191,10 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	@Override
-	public void notifyTouch(WriteNode source, Fqn targetFqn, Touch touch) {
+	public void notifyTouch(WriteNode source, Fqn targetFqn, Touch touch, Map<String, Fqn> affected) {
 		if ((touch == Touch.TOUCH) || (targetFqn.isRoot() && touch == Touch.TOUCH))
 			return;
-		logRows.add(LogRow.create(source, touch, targetFqn));
+		logRows.add(TouchedRow.create(source, touch, targetFqn, affected));
 	}
 
 	public IndexWriteConfig iwconfig() {
@@ -168,53 +226,6 @@ public abstract class AbstractWriteSession implements WriteSession {
 	@Override
 	public ChildQueryRequest queryRequest(String query) throws IOException, ParseException {
 		return root().childQuery(query, true);
-	}
-
-	static class LogRow {
-
-		private WriteNode source;
-		private Touch touch;
-		private Fqn target;
-
-		LogRow(WriteNode source, Touch touch, Fqn target) {
-			this.source = source;
-			this.touch = touch;
-			this.target = target;
-		}
-
-		final static LogRow create(WriteNode source, Touch touch, Fqn target) {
-			return new LogRow(source, touch, target);
-		}
-
-		public Touch touch() {
-			return touch;
-		}
-
-		public Fqn target() {
-			return target;
-		}
-
-		public WriteNode source() {
-			return source;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (!LogRow.class.isInstance(obj))
-				return false;
-
-			LogRow that = (LogRow) obj;
-			return this.touch == that.touch && this.target.equals(that.target);
-		}
-
-		@Override
-		public int hashCode() {
-			return target.hashCode() + touch.ordinal();
-		}
-
-		public String toString() {
-			return target + ", " + touch;
-		}
 	}
 
 }

@@ -87,6 +87,8 @@ public class ISearcherWorkspace extends Workspace {
 			}
 		}) ;
 		
+		
+		
 		int count = indexer.index(new IndexJob<Integer>() {
 			public Integer handle(IndexSession isession) throws Exception {
 

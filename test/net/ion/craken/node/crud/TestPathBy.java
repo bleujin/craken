@@ -176,7 +176,6 @@ public class TestPathBy extends TestBaseCrud {
 //				assertEquals(true, wsession.pathBy("/a/b/c/d/e/").removeChild("f")) ;
 
 				assertEquals(true, wsession.pathBy("/a/b/c").removeChild("d")) ;
-				
 				return null;
 			}
 		}).get() ;
