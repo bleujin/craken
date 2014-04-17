@@ -8,8 +8,10 @@ import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.tree.Fqn;
+import net.ion.framework.util.Debug;
 
 public class TestWriteSession extends TestBaseCrud {
 
@@ -146,12 +148,55 @@ public class TestWriteSession extends TestBaseCrud {
 	}
 
 	public void testOnExecption() throws Exception {
-		session.tranSync(new TransactionJob<Integer>() {
+		session.tran(new TransactionJob<Integer>() {
 			@Override
 			public Integer handle(WriteSession wsession) {
-				throw new IllegalArgumentException("fail");
+				throw new IllegalArgumentException("fail test");
+			}
+		}, new TranExceptionHandler() {
+			@Override
+			public void handle(WriteSession tsession, TransactionJob tjob, Throwable ex) {
+				
 			}
 		});
 	}
 
+	
+	public void testMakeSequence() throws Exception {
+		TransactionJob<Long> nextVal = new TransactionJob<Long>() {
+			@Override
+			public Long handle(WriteSession wsession) throws Exception {
+				long current = wsession.pathBy("/article").increase("sequence").asLong(0) ;
+				return current;
+			}
+		};
+		
+		assertEquals(1, session.tranSync(nextVal).longValue());
+		assertEquals(2, session.tranSync(nextVal).longValue());
+		assertEquals(3, session.tranSync(nextVal).longValue());
+		assertEquals(4, session.tranSync(nextVal).longValue());
+		assertEquals(5, session.tranSync(nextVal).longValue());
+	}
+	
+	public void testBatchInBatch() throws Exception {
+		TransactionJob<Void> tran = new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").increase("sequence") ;
+				session.tran(new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						wsession.pathBy("/bleujin").property("name", "bleujin").increase("sequence") ;
+						return null;
+					}
+				}) ;
+				return null;
+			}
+		};
+
+		session.tranSync(tran) ;
+		Debug.line(session.pathBy("/bleujin").transformer(Functions.toJson())) ; 
+	}
+	
+	
 }

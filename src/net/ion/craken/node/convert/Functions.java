@@ -152,7 +152,7 @@ public class Functions {
 	public final static Function<ReadNode, Void> READ_DEBUGPRINT = new Function<ReadNode, Void>() {
 		@Override
 		public Void apply(ReadNode target) {
-			Debug.debug(target);;
+			Debug.debug(target, target.keys());;
 			return null ;
 		}
 	};

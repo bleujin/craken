@@ -137,26 +137,31 @@ public class TestPredicate extends TestBaseCrud{
 		assertEquals(0, session.root().children().gt("ddd", "bleuji").toList().size()) ;
 	}
 
-	public void testNin() throws Exception {
-		assertEquals(1, session.root().children().nin("int", 19).toList().size()) ;
-		assertEquals(0, session.root().children().nin("int", 20).toList().size()) ;
-		assertEquals(1, session.root().children().nin("int", 21).toList().size()) ;
+	public void testNotAll() throws Exception {
+		assertEquals(1, session.root().children().notAll("int", 19).toList().size()) ;
+		assertEquals(0, session.root().children().notAll("int", 20).toList().size()) ;
+		assertEquals(1, session.root().children().notAll("int", 21).toList().size()) ;
 
 		
-		assertEquals(1, session.root().children().nin("arrayi", 0).toList().size()) ;
-		assertEquals(0, session.root().children().nin("arrayi", 1).toList().size()) ;
-		assertEquals(1, session.root().children().nin("arrayi", 4).toList().size()) ;
+		assertEquals(1, session.root().children().notAll("arrayi", 0).toList().size()) ;
+		assertEquals(0, session.root().children().notAll("arrayi", 1).toList().size()) ;
+		assertEquals(1, session.root().children().notAll("arrayi", 4).toList().size()) ;
 	}
 
 	public void testIn() throws Exception {
-		assertEquals(0, session.root().children().in("int", 19).toList().size()) ;
-		assertEquals(1, session.root().children().in("int", 20).toList().size()) ;
-		assertEquals(0, session.root().children().in("int", 21).toList().size()) ;
+		assertEquals(0, session.root().children().in("string", "hero", "jin").toList().size()) ;
+		assertEquals(1, session.root().children().in("string", "hero", "jin", "bleujin").toList().size()) ;
+	}
+	
+	public void testAny() throws Exception {
+		assertEquals(0, session.root().children().any("int", 19).toList().size()) ;
+		assertEquals(1, session.root().children().any("int", 20).toList().size()) ;
+		assertEquals(0, session.root().children().any("int", 21).toList().size()) ;
 
 
-		assertEquals(0, session.root().children().in("arrayi", 0).toList().size()) ;
-		assertEquals(1, session.root().children().in("arrayi", 1).toList().size()) ;
-		assertEquals(0, session.root().children().in("arrayi", 4).toList().size()) ;
+		assertEquals(0, session.root().children().any("arrayi", 0).toList().size()) ;
+		assertEquals(1, session.root().children().any("arrayi", 1).toList().size()) ;
+		assertEquals(0, session.root().children().any("arrayi", 4).toList().size()) ;
 	}
 
 

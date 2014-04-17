@@ -71,7 +71,7 @@ public class TestCloudStore extends TestCase {
 	
 	private Configuration makeConfig() {
 		String accessKey = "AKIAIVKXQXFRBCJJRLPQ";
-		String accessPwd = "Fof2dm0CzKiZ4alyjiyvcABMUUGhEFhROwwOyG9S" ; // "Fof2dm0CzKiZ4alyjiyvcABMUUGhEFhROwwOyG9S";
+		String accessPwd = "Fof2dm0CzKiZ4alyjiyvcABMUUGhEFhROwwOyG9S" ; // ;
 		String bucket = "bleujins3bucket" ; // "bleujins3bucket";
 
 		CloudCacheStore cacheStore = new CloudCacheStore() ;

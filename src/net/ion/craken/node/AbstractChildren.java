@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.ion.craken.node.convert.Predicates;
+import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.ListUtil;
 
@@ -44,8 +45,8 @@ public abstract class AbstractChildren<T extends NodeCommon<T>, C extends Abstra
 	}
 
 
-	public C nin(String propId, Object value) {
-		return filter(Predicates.<T>ninValue(propId, value));
+	public C notAll(String propId, Object value) {
+		return filter(Predicates.<T>notAllValue(propId, value));
 	}
 
 	public C eq(String propId, Object value) {
@@ -60,10 +61,21 @@ public abstract class AbstractChildren<T extends NodeCommon<T>, C extends Abstra
 		return filter(Predicates.<T>hasRelation(refName, target)) ;
 	}
 
-	public C in(String propId, Object value) {
-		return filter(Predicates.<T>inValue(propId, value));
+	public C any(String propId, Object value) {
+		return filter(Predicates.<T>anyValue(propId, value));
 	}
 
+	public C in(String propId, Object... values) {
+		return filter(Predicates.<T>inValue(propId, values));
+	}
+
+	public C startsWith(String propId, String value) {
+		return filter(Predicates.<T>startsWith(propId, value));
+	}
+
+	public C endsWith(String propId, String value) {
+		return filter(Predicates.<T>endsWith(propId, value));
+	}
 
 	
 	

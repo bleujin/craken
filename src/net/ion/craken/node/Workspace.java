@@ -171,7 +171,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 
 		if (log.isTraceEnabled())
 			log.tracef("Merged node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn), Touch.MODIFY);
+		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn), exists(fqn) ? Touch.TOUCH : Touch.MODIFY);
 		// return exists(fqn) ? WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, false)) : WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, true), Touch.MODIFY);
 
 		// mergeAncestor(fqn) ;

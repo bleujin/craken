@@ -86,8 +86,6 @@ public class TreeNode {
 	}
 	
 
-	
-	
 	public Set<TreeNode> getChildren() {
 		Set<TreeNode> result = SetUtil.newOrdereddSet();
 		for (Fqn f : strus().values()) {
@@ -100,6 +98,20 @@ public class TreeNode {
 		return Immutables.immutableSetCopy(strus().keySet());
 	}
 
+	
+	public Set<TreeNode> getReferences(String refName){
+		PropertyValue pvalue = this.get(PropertyId.refer(refName)) ;
+		if (pvalue == null) return SetUtil.EMPTY ;
+		
+		Set<TreeNode> result = SetUtil.newOrdereddSet();
+		String[] refs = pvalue.asStrings() ;
+		for (String refPath : refs) {
+			Fqn refFqn = Fqn.fromString(refPath) ;
+			if (! workspace.exists(refFqn)) continue ;
+			result.add(new TreeNode(workspace, refFqn));
+		}
+		return Immutables.immutableSetWrap(result);
+	}
 
 //	public Map<String, Fqn> removeChild(Fqn f) {
 //		return removeChild(f.getLastElement());

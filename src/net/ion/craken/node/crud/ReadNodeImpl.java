@@ -272,32 +272,21 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 
 	public ReadChildren refChildren(String refName){
-		final Iterator<String> refIter = propertyId(PropertyId.refer(refName)).asSet().iterator();
-		Iterator<TreeNode> titer = new Iterator<TreeNode>(){
-			@Override
-			public boolean hasNext() {
-				return refIter.hasNext();
-			}
-			@Override
-			public TreeNode next() {
-				return TreeNode.create(session().workspace(), Fqn.fromString(refIter.next()));
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("readonly") ;
-			}
-		} ;
-		
+		Iterator<TreeNode> titer = tnode.getReferences(refName).iterator() ;
 		return new ReadChildren(session, tnode, titer) ;
 	}
+
+	public TreeRefReadChildren refTreeChildren(String refName){
+		return new TreeRefReadChildren(session, tnode, refName, tnode.getReferences(refName).iterator()) ;
+	}
 	
+	public TreeReadChildren treeChildren(){
+		return new TreeReadChildren(session, tnode, tnode.getChildren().iterator());
+	}
 	
 	public <T> T toBean(Class<T> clz){
 		return transformer(Functions.beanCGIFunction(clz)) ;
-//		return ToBeanStrategy.EasyByJson.toBean(this, clz) ;
 	}
-	
 	
 	public Rows toRows(String expr){
 		return transformer(Functions.rowsFunction(session, expr)) ;

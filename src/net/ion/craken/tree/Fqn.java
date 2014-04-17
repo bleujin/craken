@@ -355,6 +355,10 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	public boolean isPattern(String fqnPattern) {
 		return new URIPattern(fqnPattern).match(this.toString());
 	}
+	
+	public boolean isPattern(URIPattern uriPattern) {
+		return uriPattern.match(this.toString());
+	}
 	public Map<String, String> resolve(String fqnPattern){
 		URIResolveResult resolver = new URIResolver(toString()).resolve(new URIPattern(fqnPattern));
 		Map<String, String> result = MapUtil.newMap() ;

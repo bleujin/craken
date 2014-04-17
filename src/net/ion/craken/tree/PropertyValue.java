@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import net.ion.craken.io.GridBlob;
@@ -21,6 +22,7 @@ import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.JsonSyntaxException;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
@@ -283,6 +285,22 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public Boolean asBoolean() {
 		return Boolean.valueOf(asString());
+	}
+
+	public long asLong(int dftValue) {
+		return longValue(dftValue) ;
+	}
+
+	public String[] asStrings() {
+		List<String> result = ListUtil.newList() ;
+		for (Object o : asSet()) {
+			result.add(ObjectUtil.toString(o)) ;
+		}
+		return result.toArray(new String[0]);
+	}
+
+	public boolean isBlank() {
+		return StringUtil.isBlank(asString());
 	}
 
 

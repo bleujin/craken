@@ -35,17 +35,19 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 
 	private int skip = 0;
 	private int offset = 1000;
-	private List<SortElement> sorts = ListUtil.newList();
-	private List<Predicate<ReadNode>> filters = ListUtil.newList();
+	private List<SortElement> sorts ;
+	private List<Predicate<ReadNode>> filters ;
 
 	private final ReadSession session;
 	private TreeNode source; // parent or refsource
-	private Iterator<TreeNode> children ;
+	private Iterator<TreeNode> treeNodes ;
 
-	ReadChildren(ReadSession session, TreeNode source, Iterator<TreeNode> children) {
+	ReadChildren(ReadSession session, TreeNode source, Iterator<TreeNode> treeNodes) {
 		this.session = session;
 		this.source = source ;
-		this.children = children ;
+		this.treeNodes = treeNodes ;
+		this.sorts = ListUtil.newList();
+		this.filters = ListUtil.newList();
 	}
 
 	public ReadChildren skip(int skip) {
@@ -58,6 +60,31 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return this;
 	}
 	
+	protected TreeNode source(){
+		return source ;
+	}
+	
+	protected ReadSession session(){
+		return session ;
+	}
+	
+	protected Iterator<TreeNode> treeNodes(){
+		return treeNodes ;
+	}
+	
+	protected int skip(){
+		return skip ;
+	}
+	protected int offset(){
+		return offset ;
+	}
+	protected List<SortElement> sorts(){
+		return sorts ;
+	}
+	protected List<Predicate<ReadNode>> filters(){
+		return filters ;
+	}
+	
 	
 	public <T> T eachNode(ReadChildrenEach<T> reach){
 		List<ReadNode> targets = readChildren();
@@ -66,12 +93,16 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return result ;
 	}
 	
-	private List<ReadNode> readChildren() {
+	
+	
+	protected List<ReadNode> readChildren() {
 		
 		List<ReadNode> listNode = ListUtil.newList() ;
-		Predicate<ReadNode> andFilters = Predicates.and(filters) ;
-		while(children.hasNext()){
-			TreeNode tn = children.next() ;
+		
+		Predicate<ReadNode> andFilters = Predicates.and(filters) ; 
+
+		while(treeNodes.hasNext()){
+			TreeNode tn = treeNodes.next() ;
 			ReadNode read = ReadNodeImpl.load(session, tn);
 			if (andFilters.apply(read)) listNode.add(read) ; // apply filter
 		}
@@ -174,5 +205,13 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 	public int count() {
 		return eachNode(ReadChildrenEachs.COUNT);
 	}
+
+	public TreeReadChildren asTreeChildren() {
+		return (TreeReadChildren)this;
+	}
+
+
+
 }
+
 

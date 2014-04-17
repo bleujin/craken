@@ -4,6 +4,8 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.StringUtil;
 
 public class TestWriteNode extends TestBaseCrud {
 
@@ -85,6 +87,24 @@ public class TestWriteNode extends TestBaseCrud {
 		assertEquals(true, session.pathBy("/bleujin").property("age").value() != null) ;
 	}
 	
+	
+	public void testDefaultProperty() throws Exception {
+		final String name = null ;
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/jin").property("name", name) ;
+				return null;
+			}
+		}) ;
+		
+		ReadNode jin = session.pathBy("/jin");
+		jin.debugPrint();
+		
+		assertEquals("", jin.property("name").asString()) ;
+		assertEquals(true, jin.property("name").asObject() == null) ;
+		
+	}
 	
 	public void testClear() throws Exception {
 		session.tran(new TransactionJob<Void>() {

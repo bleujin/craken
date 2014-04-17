@@ -34,124 +34,141 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.MapUtil;
+import net.ion.radon.util.uriparser.URIPattern;
 
 public class CDDMListener implements WorkspaceListener {
 
-	private List<CDDHandler> ls = ListUtil.newList() ;
-	private ReadSession rsession ;
+	private Map<CDDHandler, URIPattern> chandlers = MapUtil.newMap();
+	private ReadSession rsession;
 	private IExecutor executor;
 	private Future<Void> lastFuture;
-	
 
 	public CDDMListener(ReadSession rsession) {
-		this.rsession = rsession ;
-		this.executor = rsession.workspace().repository().executor() ;
+		this.rsession = rsession;
+		this.executor = rsession.workspace().repository().executor();
 	}
 
 	@Override
 	public void registered(Workspace workspace) {
-		
+
 	}
 
 	@Override
 	public void unRegistered(Workspace workspace) {
-		
+
 	}
-	
-	public void add(CDDHandler listener){
-		ls.add(listener) ;
+
+	public void add(CDDHandler listener) {
+		chandlers.put(listener, new URIPattern(listener.pathPattern()));
 	}
-	
-	public void remove(CDDHandler listener){
-		ls.remove(listener) ;
+
+	public void remove(CDDHandler listener) {
+		chandlers.remove(listener);
 	}
-	
-	public void await() throws InterruptedException, ExecutionException{
-		if(lastFuture != null) lastFuture.get() ;
+
+	public void await() throws InterruptedException, ExecutionException {
+		if (lastFuture != null) {
+			lastFuture.get();
+		}
 	}
-	
-	public void fireRow(TouchedRow[] touchedRows, final AbstractWriteSession wsession, TransactionJob tjob, TranExceptionHandler ehandler) {
-		
-		final JobList syncJob = JobList.create() ;
-		final JobList asyncJob = JobList.create() ;
-		
-		final CDDHandler[] handlers = ls.toArray(new CDDHandler[0]) ;
+
+	public void fireRow(final AbstractWriteSession wsession, TransactionJob tjob, TranExceptionHandler ehandler) {
+
+		TouchedRow[] touchedRows = wsession.logRows().toArray(new TouchedRow[0]);
+
+		final JobList syncJob = JobList.create();
+		final JobList asyncJob = JobList.create();
+
+		final CDDHandler[] handlers = chandlers.keySet().toArray(new CDDHandler[0]);
 		for (TouchedRow row : touchedRows) {
-			if (row.touch() == Touch.MODIFY){
-				applyModify(syncJob, asyncJob, handlers, row.target(), row, wsession) ;
-			} else if (row.touch() == Touch.REMOVE){
-				applyDeleted(syncJob, asyncJob, handlers, row.target(), row, wsession) ;
+			if (row.touch() == Touch.MODIFY) {
+				applyModify(syncJob, asyncJob, handlers, row.target(), row, wsession);
+			} else if (row.touch() == Touch.REMOVE) {
+				applyDeleted(syncJob, asyncJob, handlers, row.target(), row, wsession);
 			} else if (row.touch() == Touch.REMOVECHILDREN) {
-				Map<String, Fqn> affected = row.affected() ;
-				for(Fqn fqn : affected.values()){
-					applyDeleted(syncJob, asyncJob, handlers, fqn, row, wsession) ;
+				Map<String, Fqn> affected = row.affected();
+				for (Fqn fqn : affected.values()) {
+					applyDeleted(syncJob, asyncJob, handlers, fqn, row, wsession);
 				}
 			}
-			
 		}
-		
 		try {
-			new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					for (TransactionJob<Void> job : syncJob) {
-						job.handle(wsession) ;
-					}
 
-					CDDMListener.this.lastFuture = executor.submitTask(new Callable<Void>() {
-						@Override
-						public Void call() throws Exception {
-							for (TransactionJob<Void> job : asyncJob) {
-								job.handle(wsession) ;
-							}
-							return null;
+			final WriteSessionImpl newSession = new WriteSessionImpl(wsession.readSession(), wsession.workspace());
+			if (syncJob.size() > 0) {
+				wsession.workspace().tran(newSession, new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						for (TransactionJob<Void> job : syncJob) {
+							job.handle(newSession);
 						}
-					}) ;
-					return null;
-				}
-			}.call();
-		} catch (Exception e) {
-			if (ehandler != null) ehandler.handle(wsession, tjob, e);
-		}
-	}
-	
-	
-	private void applyModify(JobList syncJob, JobList asyncJob, CDDHandler[] handlers,  final Fqn targetFqn, TouchedRow row, final WriteSession wsession) {
-		for (final CDDHandler handler : handlers) {
-			if (targetFqn.isPattern(handler.pathPattern())){
-				final Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern()) ;
-				 if (AsyncCDDHandler.class.isInstance(handler)) asyncJob.add(handler.modified(resolveMap, row.modifyEvent())) ; 
-				 else syncJob.add(handler.modified(resolveMap, row.modifyEvent()))  ;
-			} 
-		}
-	}
-	
+						return null;
+					}
+				}, ehandler).get();
+			}
 
-	private void applyDeleted(JobList syncJob, JobList asyncJob, CDDHandler[] handlers,  final Fqn targetFqn, TouchedRow row, final WriteSession wsession) {
+			if (asyncJob.size() > 0) {
+				this.lastFuture = wsession.workspace().tran(newSession.workspace().repository().executor().getService(), newSession, new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						for (TransactionJob<Void> job : asyncJob) {
+							job.handle(newSession);
+						}
+						return null;
+					}
+				}, ehandler);
+			}
+
+		} catch (Exception e) {
+			if (ehandler != null)
+				ehandler.handle(wsession, tjob, e);
+		}
+	}
+
+	private void applyModify(JobList syncJob, JobList asyncJob, CDDHandler[] handlers, final Fqn targetFqn, TouchedRow row, final WriteSession wsession) {
 		for (final CDDHandler handler : handlers) {
-			if (targetFqn.isPattern(handler.pathPattern())){
-				final Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern()) ;
-				 if (AsyncCDDHandler.class.isInstance(handler)) asyncJob.add(handler.deleted(resolveMap, row.deleteEvent())) ; 
-				 else syncJob.add(handler.deleted(resolveMap, row.deleteEvent()))  ;
-			} 
+			if (targetFqn.isPattern(chandlers.get(handler))) {
+				final Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());
+				if (AsyncCDDHandler.class.isInstance(handler))
+					asyncJob.add(handler.modified(resolveMap, row.modifyEvent()));
+				else
+					syncJob.add(handler.modified(resolveMap, row.modifyEvent()));
+			}
+		}
+	}
+
+	private void applyDeleted(JobList syncJob, JobList asyncJob, CDDHandler[] handlers, final Fqn targetFqn, TouchedRow row, final WriteSession wsession) {
+		for (final CDDHandler handler : handlers) {
+			if (targetFqn.isPattern(chandlers.get(handler))) {
+				final Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());
+				if (AsyncCDDHandler.class.isInstance(handler))
+					asyncJob.add(handler.deleted(resolveMap, row.deleteEvent()));
+				else
+					syncJob.add(handler.deleted(resolveMap, row.deleteEvent()));
+			}
 		}
 	}
 }
 
+class JobList implements Iterable<TransactionJob<Void>> {
+	List<TransactionJob<Void>> list = ListUtil.newList();
 
-class JobList implements Iterable<TransactionJob<Void>>{
-	List<TransactionJob<Void>> list = ListUtil.newList() ;
-	
-	public JobList add(TransactionJob<Void> job){
-		if (job != null) list.add(job) ;
-		return this ;
+	public JobList add(TransactionJob<Void> job) {
+		if (job != null)
+			list.add(job);
+		return this;
 	}
-	
+
+	public int size() {
+		return list.size();
+	}
+
 	public static JobList create() {
 		return new JobList();
 	}
 
-	public List<TransactionJob<Void>> toList(){
+	public List<TransactionJob<Void>> toList() {
 		return list;
 	}
 
@@ -159,5 +176,5 @@ class JobList implements Iterable<TransactionJob<Void>>{
 	public Iterator<TransactionJob<Void>> iterator() {
 		return toList().iterator();
 	}
-	
+
 }

@@ -5,8 +5,10 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.ion.craken.listener.AsyncCDDHandler;
+import net.ion.craken.listener.AsyncCDDModifyHandler;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
+import net.ion.craken.listener.CDDModifyHandler;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -42,12 +44,7 @@ public class TestCDDHandler extends TestCase {
 	}
 
 	public void testFirst() throws Exception {
-		session.workspace().cddm().add(new AsyncCDDHandler() {
-			@Override
-			public String pathPattern() {
-				return "/rooms/{roomId}/messages/{msgId}";
-			}
-
+		session.workspace().cddm().add(new CDDModifyHandler("/rooms/{roomId}/messages/{msgId}") {
 			@Override
 			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
 				final String roomId = resolveMap.get("roomId");
@@ -64,11 +61,6 @@ public class TestCDDHandler extends TestCase {
 						return null;
 					}
 				};
-			}
-
-			@Override
-			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-				return null;
 			}
 		});
 
@@ -98,23 +90,12 @@ public class TestCDDHandler extends TestCase {
 
 	
 	public void testModifiedEvent() throws Exception {
-		session.workspace().cddm().add(new CDDHandler() {
-			@Override
-			public String pathPattern() {
-				return "/{name}";
-			}
-			
+		session.workspace().cddm().add(new CDDModifyHandler("/{name}") {
 			@Override
 			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
 				assertEquals("bleujin", resolveMap.get("name"));
 				assertEquals("/bleujin", event.getKey().fqnString());
 				assertEquals(2, event.getValue().size());
-				return null;
-			}
-			
-			@Override
-			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});
@@ -124,7 +105,20 @@ public class TestCDDHandler extends TestCase {
 	
 	
 	public void testSequenceSyncJob() throws Exception {
-		session.workspace().cddm().add(new NextHandler());
+		session.workspace().cddm().add(new CDDModifyHandler("/{userId}") {
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
+				final String userId = resolveMap.get("userId");
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						String content = wsession.pathBy("/" + userId).property("content").stringValue();
+						wsession.pathBy("/messages" + "/" + userId).property("msg", content);
+						return null;
+					}
+				};
+			}
+		});
 
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
@@ -135,16 +129,11 @@ public class TestCDDHandler extends TestCase {
 		});
 
 		// assertEquals(true, session.exists("/rooms/123/members/bleujin/notify/abcdefg"));
-		assertEquals("hello! everyone", session.pathBy("/message").property("msg").defaultValue("empty"));
+		assertEquals("hello! everyone", session.pathBy("/messages/bleujin").property("msg").defaultValue("empty"));
 	}
 
 	public <T> void testAwaitListener() throws Exception {
-		session.workspace().cddm().add(new AsyncCDDHandler() {
-			@Override
-			public String pathPattern() {
-				return "/{name}";
-			}
-
+		session.workspace().cddm().add(new AsyncCDDModifyHandler("/{name}") {
 			@Override
 			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
 				return new TransactionJob<Void>() {
@@ -161,11 +150,6 @@ public class TestCDDHandler extends TestCase {
 				};
 
 			}
-
-			@Override
-			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-				return null;
-			}
 		});
 
 		session.tran(TransactionJobs.HelloBleujin);
@@ -174,27 +158,17 @@ public class TestCDDHandler extends TestCase {
 	}
 
 	public void testWhenSelfModify() throws Exception {
-		session.workspace().cddm().add(new AsyncCDDHandler() {
-
-			@Override
-			public String pathPattern() {
-				return "/{username}";
-			}
-
+		session.workspace().cddm().add(new CDDModifyHandler("/{username}") {
 			@Override
 			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
 				return new TransactionJob<Void>() {
 					@Override
 					public Void handle(WriteSession wsession) throws Exception {
-						wsession.pathBy("/bleujin").property("name", "modified");
+						WriteNode bleujin = wsession.pathBy("/bleujin") ;
+						if ("bleujin".equals(bleujin.property("name").asString())) bleujin.property("name", "modified");
 						return null;
 					}
 				};
-			}
-
-			@Override
-			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-				return null;
 			}
 		});
 
@@ -274,60 +248,3 @@ public class TestCDDHandler extends TestCase {
 	}
 }
 
-class NextHandler implements CDDHandler {
-
-	@Override
-	public String pathPattern() {
-		return "/{userId}";
-	}
-
-	@Override
-	public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
-		final String userId = resolveMap.get("userId");
-		return new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				String content = wsession.pathBy("/" + userId).property("content").stringValue();
-				wsession.pathBy("/message").property("msg", content);
-				return null;
-			}
-		};
-	}
-
-	@Override
-	public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-		return null;
-	}
-
-}
-
-class ToNotiHandler implements CDDHandler {
-
-	@Override
-	public String pathPattern() {
-		return "/rooms/{roomId}/messages/{msgId}";
-	}
-
-	@Override
-	public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
-		final String roomId = resolveMap.get("roomId");
-		final String msgId = resolveMap.get("msgId");
-
-		return new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				WriteChildren members = wsession.pathBy("/rooms/" + roomId + "/members").children();
-
-				for (WriteNode member : members) {
-					member.child("notify/" + msgId).refTo("message", "/rooms/" + roomId + "/messages/" + msgId);
-				}
-				return null;
-			}
-		};
-	}
-
-	@Override
-	public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-		return null;
-	}
-}

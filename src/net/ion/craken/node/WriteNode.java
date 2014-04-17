@@ -17,7 +17,9 @@ import org.apache.lucene.queryparser.classic.ParseException;
 public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteChildren children();
-	
+
+	public PropertyValue increase(String key);
+
 	public WriteNode property(String key, Object value) ;
 	
 	public WriteNode property(PropertyId key, PropertyValue value) ;
@@ -59,6 +61,7 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;
 
 	public WriteChildren refChildren(String refName);
+
 
 
 

@@ -488,7 +488,12 @@ public class WriteNodeImpl implements WriteNode{
 	public PropertyValue property(String key) {
 		return propertyId(createNormalId(key));
 	}
-
+	
+	public PropertyValue increase(String key){
+		property(key, property(key).asLong(0) + 1) ;
+		return property(key) ;
+	}
+	
 	public PropertyValue extendProperty(String propPath) {
 		return ExtendPropertyId.create(propPath).propValue(this) ;
 	}

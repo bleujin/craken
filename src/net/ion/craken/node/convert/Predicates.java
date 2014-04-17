@@ -9,6 +9,7 @@ import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.framework.util.ArrayUtil;
@@ -58,7 +59,7 @@ public class Predicates {
 		};
 	}
 
-	public final static <T extends NodeCommon> Predicate<T> inValue(final String propId, final Object value) {
+	public final static <T extends NodeCommon> Predicate<T> anyValue(final String propId, final Object value) {
 		return new Predicate<T>() {
 			@Override
 			public boolean apply(T node) {
@@ -68,6 +69,19 @@ public class Predicates {
 		};
 	}
 
+
+	public final static <T extends NodeCommon> Predicate<T> inValue(final String propId, final Object... values) {
+		return new Predicate<T>() {
+			@Override
+			public boolean apply(T node) {
+				if (node.property(propId).value() == null || values == null) return false ;
+				return ArrayUtil.contains(values, node.property(propId).value());
+			}
+		};
+	}
+
+
+	
 	public static <T extends NodeCommon> Predicate<T> containsValue(final String propId, final String value) {
 		return new Predicate<T>() {
 			@Override
@@ -156,7 +170,7 @@ public class Predicates {
 		};
 	}
 	
-	public static <T extends NodeCommon> Predicate<T> ninValue(final String propId, final Object value) {
+	public static <T extends NodeCommon> Predicate<T> notAllValue(final String propId, final Object value) {
 		return new Predicate<T>() {
 			@Override
 			public boolean apply(T node) {
@@ -166,7 +180,26 @@ public class Predicates {
 		};
 	}
 	
+
+	public static <T extends NodeCommon> Predicate<T> startsWith(final String propId, final String value) {
+		return new Predicate<T>() {
+			@Override
+			public boolean apply(T node) {
+				if (node.property(propId).value() == null || value == null) return false ;
+				return node.property(propId).asString().startsWith(value) ;
+			}
+		};
+	}
 	
+	public static <T extends NodeCommon> Predicate<T> endsWith(final String propId, final String value) {
+		return new Predicate<T>() {
+			@Override
+			public boolean apply(T node) {
+				if (node.property(propId).value() == null || value == null) return false ;
+				return node.property(propId).asString().endsWith(value) ;
+			}
+		};
+	}
 	
 	
 	// Element
@@ -339,6 +372,11 @@ public class Predicates {
 		}
 
 	}
+
+	public static Predicate<ReadNode> and(List<Predicate<ReadNode>> filters) {
+		return com.google.common.base.Predicates.and(filters);
+	}
+
 
 
 

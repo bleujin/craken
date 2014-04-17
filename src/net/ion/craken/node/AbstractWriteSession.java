@@ -116,6 +116,10 @@ public abstract class AbstractWriteSession implements WriteSession {
 		return result ;
 	}
 	
+	
+	public Set<TouchedRow> logRows(){
+		return logRows ;
+	}
 
 	@Override
 	public void endCommit() throws IOException {
@@ -154,7 +158,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 //			}
 //		}
 //		cddm.fireRow(affectedRow.toArray(new TouchedRow[0]), this, tjob, ehandler);
-		cddm.fireRow(logRows.toArray(new TouchedRow[0]), this, tjob, ehandler);
+		cddm.fireRow(this, tjob, ehandler);
 
 		logWriter.beginLog(logRows);
 		for (TouchedRow row : logRows) {

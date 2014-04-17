@@ -6,9 +6,11 @@ import junit.framework.TestCase;
 import net.ion.craken.listener.AsyncCDDHandler;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
+import net.ion.craken.listener.CDDModifyHandler;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
@@ -192,6 +194,48 @@ public class TestCDDMListener extends TestCase {
 		assertEquals(10, session.pathBy("removed").children().count()) ;
 	}
 	
+	
+	public void testChain() throws Exception {
+		session.workspace().cddm().add(new CDDModifyHandler("/{userId}") {
+			@Override
+			public TransactionJob<Void> modified(final Map<String, String> resolveMap, CDDModifiedEvent event) {
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						String userId = resolveMap.get("userId") ;
+						wsession.pathBy("/" + userId + "/address") ;
+						return null;
+					}
+				};
+			}
+		});
+		session.workspace().cddm().add(new CDDModifyHandler("/{userId}/{address}") {
+			@Override
+			public TransactionJob<Void> modified(final Map<String, String> resolveMap, CDDModifiedEvent event) {
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						String userId = resolveMap.get("userId") ;
+						WriteNode address = wsession.pathBy("/" + userId + "/address");
+						if (address.property("city").isBlank()) address.property("city", "seoul") ;
+						return null;
+					}
+				};
+			}
+		});
+		
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+				return null;
+			}
+		}) ;
+		
+		session.pathBy("/bleujin").children().debugPrint();
+		Debug.line(session.pathBy("/bleujin/address").toMap());
+		
+	}
 	
 	
 }

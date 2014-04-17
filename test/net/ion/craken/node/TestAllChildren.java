@@ -4,6 +4,8 @@ import junit.framework.TestSuite;
 import net.ion.craken.node.crud.TestReadChildren;
 import net.ion.craken.node.crud.TestReadChildrenEach;
 import net.ion.craken.node.crud.TestReadNodeChild;
+import net.ion.craken.node.crud.TestRefTreeReadChildren;
+import net.ion.craken.node.crud.TestTreeReadChildren;
 import net.ion.craken.node.crud.TestRefChildren;
 import net.ion.craken.node.crud.TestWriteChildren;
 import net.ion.craken.node.crud.property.TestInnerChild;
@@ -23,6 +25,11 @@ public class TestAllChildren extends TestSuite {
 		
 		
 		suite.addTestSuite(TestRefChildren.class) ;
+		
+		suite.addTestSuite(TestTreeReadChildren.class);
+		suite.addTestSuite(TestRefTreeReadChildren.class);
+		
+		
 	
 		return suite ;
 	}
