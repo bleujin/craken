@@ -1,11 +1,21 @@
 package net.ion.craken.node.search;
 
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.xa.XAResource;
+
+import org.infinispan.context.TransactionalInvocationContextContainer;
+
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 
 public class TestSearchChild extends TestBaseSearch {
 	
-	public void testQuery() throws Exception {
+	public void testQueryOperator() throws Exception {
 		
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
@@ -27,6 +37,7 @@ public class TestSearchChild extends TestBaseSearch {
 		assertEquals(1, session.root().childQuery("jin", true).find().size()) ;
 	
 	}
+	
 	
 
 }
