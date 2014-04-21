@@ -276,12 +276,12 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return new ReadChildren(session, tnode, titer) ;
 	}
 
-	public TreeRefReadChildren refTreeChildren(String refName){
-		return new TreeRefReadChildren(session, tnode, refName, tnode.getReferences(refName).iterator()) ;
+	public WalkRefChildren walkRefChildren(String refName){
+		return new WalkRefChildren(session, tnode, refName, tnode.getReferences(refName).iterator()) ;
 	}
 	
-	public TreeReadChildren treeChildren(){
-		return new TreeReadChildren(session, tnode, tnode.getChildren().iterator());
+	public WalkReadChildren walkChildren(){
+		return new WalkReadChildren(session, tnode, tnode.getChildren().iterator());
 	}
 	
 	public <T> T toBean(Class<T> clz){

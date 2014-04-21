@@ -7,23 +7,23 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.framework.util.ListUtil;
 
-public class TreeReadChildrenIterator implements Iterable<TreeReadNode>, Iterator<TreeReadNode> {
+public class WalkChildrenIterator implements Iterable<WalkReadNode>, Iterator<WalkReadNode> {
 
 	private ReadSession session;
-	private List<TreeReadNode> list;
+	private List<WalkReadNode> list;
 	private int index = 0 ;
 
-	TreeReadChildrenIterator(ReadSession session, List<TreeReadNode> list) {
+	WalkChildrenIterator(ReadSession session, List<WalkReadNode> list) {
 		this.session = session ;
 		this.list = list ;
 	}
 	
-	final static TreeReadChildrenIterator create(ReadSession session, List<TreeReadNode> list){
-		return new TreeReadChildrenIterator(session, list) ;
+	final static WalkChildrenIterator create(ReadSession session, List<WalkReadNode> list){
+		return new WalkChildrenIterator(session, list) ;
 	}
 	
 	@Override
-	public Iterator<TreeReadNode> iterator() {
+	public Iterator<WalkReadNode> iterator() {
 		return this;
 	}
 
@@ -37,7 +37,7 @@ public class TreeReadChildrenIterator implements Iterable<TreeReadNode>, Iterato
 	}
 
 	@Override
-	public TreeReadNode next() {
+	public WalkReadNode next() {
 		return list.get(index++);
 	}
 
@@ -52,7 +52,7 @@ public class TreeReadChildrenIterator implements Iterable<TreeReadNode>, Iterato
 
 	public ReadChildren toReadChildren() {
 		List<TreeNode> tnodes = ListUtil.newList() ;
-		for (TreeReadNode trn : list) {
+		for (WalkReadNode trn : list) {
 			tnodes.add(trn.treeNode()) ;
 		}
 		return new ReadChildren(session, null, tnodes.iterator());

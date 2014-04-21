@@ -18,30 +18,22 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
+public class WalkReadChildren extends ReadChildren{
 
-public class TreeRefReadChildren extends ReadChildren {
 
 	private TraversalStrategy strategy = TraversalStrategy.BreadthFirst ;
 	private boolean includeSelf = false;
 	private Predicate<ReadNode> andFilters;
-	private final String refName;
-	private int loopLimit;
 	
-	TreeRefReadChildren(ReadSession session, TreeNode source, String refName, Iterator<TreeNode> refchildren) {
-		super(session, source, refchildren) ;
-		this.refName = refName ;
-		this.loopLimit = 5 ;
+	
+	WalkReadChildren(ReadSession session, TreeNode source, Iterator<TreeNode> children) {
+		super(session, source, children) ;
 	}
 	
-	public TreeRefReadChildren loopLimit(int loopLimit){
-		this.loopLimit = loopLimit ;
-		
-		return this;
-	}
-
+	
 	protected List<ReadNode> readChildren() {
 		LinkedList<ReadNode> result = new LinkedList<ReadNode>();
-		if (includeSelf) result.add(TreeReadNode.create(session(), source(), 0)) ;
+		if (includeSelf) result.add(WalkReadNode.create(session(), source(), 0)) ;
 		
 		this.andFilters = Predicates.and(filters()) ; 
 		
@@ -53,34 +45,34 @@ public class TreeRefReadChildren extends ReadChildren {
 	}
 	
 	
-	private List<TreeReadNode> readTreeChildren(){
-		List<TreeReadNode> result = ListUtil.newList() ;
+	private List<WalkReadNode> readTreeChildren(){
+		List<WalkReadNode> result = ListUtil.newList() ;
 		for(ReadNode rnode : readChildren()){
-			result.add((TreeReadNode)rnode) ;
+			result.add((WalkReadNode)rnode) ;
 		}
 		
 		return result ;
 	}
 	
 
-	public <T> T eachTreeNode(TreeReadChildrenEach<T> trcEach) {
-		TreeReadChildrenIterator trcIterable = TreeReadChildrenIterator.create(session(), readTreeChildren()) ; 
+	public <T> T eachTreeNode(WalkChildrenEach<T> trcEach) {
+		WalkChildrenIterator trcIterable = WalkChildrenIterator.create(session(), readTreeChildren()) ; 
 		return trcEach.handle(trcIterable) ;
 	}
 
+	
 	private List<TreeNode> buildDepthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
-		if (loopLimit-- <= 0) return ListUtil.EMPTY ;
 		if (!children.hasNext()) return ListUtil.EMPTY ;
 		
 		Iterator<TreeNode> sortedChildren = sort(children) ;
 		List<TreeNode> inner = ListUtil.newList() ;
 		while(sortedChildren.hasNext()){
 			TreeNode child = sortedChildren.next();
-        	TreeReadNode target = TreeReadNode.create(session(), child, level);
+        	WalkReadNode target = WalkReadNode.create(session(), child, level);
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
-			inner.addAll(child.getReferences(refName)) ;
+			inner.addAll(child.getChildren()) ;
 		}
 
 		return buildDepthList(list, inner.iterator(), level++) ;
@@ -88,16 +80,14 @@ public class TreeRefReadChildren extends ReadChildren {
 
 
 	private void buildBreadthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
-		if (loopLimit-- <= 0) return ;
-		
 		Iterator<TreeNode> sortedChildren = sort(children) ;
         while(sortedChildren.hasNext()){
         	TreeNode child = sortedChildren.next();
-        	TreeReadNode target = TreeReadNode.create(session(), child, level);
+        	WalkReadNode target = WalkReadNode.create(session(), child, level);
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
-			this.buildBreadthList(list, child.getReferences(refName).iterator(), level++) ;
+			this.buildBreadthList(list, child.getChildren().iterator(), level++) ;
         }
     }
 
@@ -130,15 +120,19 @@ public class TreeRefReadChildren extends ReadChildren {
 	}
 
 
-	public TreeRefReadChildren strategy(TraversalStrategy strategy) {
+	public WalkReadChildren strategy(TraversalStrategy strategy) {
 		this.strategy = strategy ;
 		
 		return this;
 	}
 
-	public TreeRefReadChildren includeSelf(boolean includeSelf){
+	public WalkReadChildren includeSelf(boolean includeSelf){
 		this.includeSelf = includeSelf ;
 		return this ;
 	}
 	
+	
+	
 }
+
+

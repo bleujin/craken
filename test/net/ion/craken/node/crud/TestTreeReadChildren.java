@@ -34,7 +34,7 @@ public class TestTreeReadChildren extends TestBaseCrud{
 	}
 	
 	public void testBreadthFirst() throws Exception {
-		List<ReadNode> list = session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(true).toList() ; 
+		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(true).toList() ; 
 		assertEquals(9, list.size());
 		assertEquals("gparent", list.get(0).property("name").asString());
 		assertEquals("child1", list.get(8).property("name").asString());
@@ -43,7 +43,7 @@ public class TestTreeReadChildren extends TestBaseCrud{
 
 	public void testDepthFirst() throws Exception {
 		long start = System.currentTimeMillis() ;
-		List<ReadNode> list = session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.DepthFirst).includeSelf(true).toList() ;
+		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.DepthFirst).includeSelf(true).toList() ;
 		assertEquals(9, list.size());
 		assertEquals("gparent", list.get(0).property("name").asString());
 		assertEquals("gchild", list.get(8).property("name").asString());
@@ -51,23 +51,23 @@ public class TestTreeReadChildren extends TestBaseCrud{
 	}
 	
 	public void testConnectWithFilter() throws Exception {
-		List<ReadNode> list = session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").toList() ;
+		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").toList() ;
 		
 		assertEquals(4, list.size());
 	}
 	
 	
 	public void testSort() throws Exception {
-		session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).descending("order").debugPrint();
+		session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).descending("order").debugPrint();
 	}
 
 	
 	public void testEachNode() throws Exception {
-		session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).eq("name", "gchild").eachNode(new ReadChildrenEach<Void>() {
+		session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).eq("name", "gchild").eachNode(new ReadChildrenEach<Void>() {
 			@Override
 			public Void handle(ReadChildrenIterator citer) {
 				while(citer.hasNext()){
-					Debug.line((TreeReadNode)citer.next());
+					Debug.line((WalkReadNode)citer.next());
 				}
 				return null;
 			}
@@ -75,10 +75,10 @@ public class TestTreeReadChildren extends TestBaseCrud{
 	}
 	
 	public void testEachTreeNode() throws Exception {
-		session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").asTreeChildren().eachTreeNode(new TreeReadChildrenEach<Void>() {
+		session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").asTreeChildren().eachTreeNode(new WalkChildrenEach<Void>() {
 			@Override
-			public Void handle(TreeReadChildrenIterator trc) {
-				for(TreeReadNode tnode :  trc){
+			public Void handle(WalkChildrenIterator trc) {
+				for(WalkReadNode tnode :  trc){
 					Debug.line(tnode);
 				}
 				return null;
@@ -87,9 +87,9 @@ public class TestTreeReadChildren extends TestBaseCrud{
 	}
 	
 	public void testReadChildrenIterator2ReadChildren() throws Exception {
-		session.pathBy("/gparent").treeChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").asTreeChildren().eachTreeNode(new TreeReadChildrenEach<Void>() {
+		session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").asTreeChildren().eachTreeNode(new WalkChildrenEach<Void>() {
 			@Override
-			public Void handle(TreeReadChildrenIterator trc) {
+			public Void handle(WalkChildrenIterator trc) {
 				ReadChildren rc = trc.toReadChildren().startsWith("name", "child");
 				for(ReadNode tnode :  rc){
 					Debug.line(tnode);

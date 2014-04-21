@@ -206,8 +206,8 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return eachNode(ReadChildrenEachs.COUNT);
 	}
 
-	public TreeReadChildren asTreeChildren() {
-		return (TreeReadChildren)this;
+	public WalkReadChildren asTreeChildren() {
+		return (WalkReadChildren)this;
 	}
 
 
