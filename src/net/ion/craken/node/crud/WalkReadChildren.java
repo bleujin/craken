@@ -104,8 +104,9 @@ public class WalkReadChildren extends ReadChildren{
 						PropertyValue leftProperty = left.get(spid);
 						PropertyValue rightProperty = right.get(spid);
 
-						if (leftProperty == null || rightProperty == null)
-							return 0;
+						if (leftProperty == null && rightProperty == null) return 0;
+						if (leftProperty == null) return -1 * (sele.ascending() ? 1 : -1);
+						if (rightProperty == null) return 1 * (sele.ascending() ? 1 : -1);
 
 						int result = leftProperty.compareTo(rightProperty) * (sele.ascending() ? 1 : -1);
 						if (result != 0) return result ;

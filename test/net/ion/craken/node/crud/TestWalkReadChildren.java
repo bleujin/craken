@@ -8,7 +8,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TraversalStrategy;
 import net.ion.framework.util.Debug;
 
-public class TestTreeReadChildren extends TestBaseCrud{
+public class TestWalkReadChildren extends TestBaseCrud{
 
 	@Override
 	protected void setUp() throws Exception {

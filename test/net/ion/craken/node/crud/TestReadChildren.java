@@ -4,6 +4,8 @@ import java.sql.ResultSetMetaData;
 import java.util.List;
 
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.db.Page;
 import net.ion.framework.db.Rows;
@@ -43,6 +45,23 @@ public class TestReadChildren extends TestBaseCrud {
 		assertEquals(2, list.size()) ;
 		assertEquals(5, list.get(0).property("dummy").value()) ;
 		assertEquals(6, list.get(1).property("dummy").value()) ;
+	}
+	
+	public void testNullSorting() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/dept/dev").property("name", "dev") ;
+				wsession.pathBy("/dept/sol") ;
+				wsession.pathBy("/dept/ran") ;
+				return null;
+			}
+		}) ;
+		
+		
+		session.pathBy("/dept").children().ascending("name").debugPrint(); 
+		session.pathBy("/dept").children().descending("name").debugPrint(); 
+		
 	}
 	
 	public void testFilterWithSort() throws Exception {
