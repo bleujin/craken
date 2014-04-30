@@ -474,8 +474,30 @@ new function () {
     	});
     }
     
-	// TODO
+	// FIXME - Check whether surely working or not
     this.delNotExistExamWith = function(catId) {
+		return session.tranSync(function(wsession) {
+			var nodes = session.pathBy("/category_afield_exams/" + catId).children().iterator();
+			var count = 0;
+
+			while(nodes.hasNext()) {
+				var node = nodes.next();
+				var refs = session.pathBy("/category_afields/" + catId + "/rels/").children().iterator();
+
+				while(refs.hasNext()) {
+					var ref = refs.next();
+					var lowerId = ref.property("afieldid").asString();
+					var afieldRels = session.pathBy("/afield_rels").childQuery("", true).eq("upperid", "ROOT").eq("lowerid", lowerId).findOne();
+
+					if (afieldRels === null) {
+						wsession.pathBy(node.fqn()).removeSelf();
+						count++;
+						break;
+					}
+				}
+			}
+			return count;
+		});
     	
     }
 
@@ -671,8 +693,9 @@ new function () {
 		}
     }
     
+    // TODO
     this.isExist = function(catId, afieldId) {
-    	// maybe unused
+    	
     }
     
     this.afieldListBy = function() {

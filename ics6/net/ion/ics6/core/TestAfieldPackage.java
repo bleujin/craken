@@ -448,7 +448,18 @@ public class TestAfieldPackage extends TestBasePackage {
 	}
 
 	public void testDelNotExistExamWith() throws Exception {
+		// given
 		final String catId = "16942";
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/category_afields/16942/rels/year").property("afieldid", "year").property("catid", "16942").property("orderlnno", 2);
+				wsession.pathBy("/category_afields/16942/rels/month").property("afieldid", "month").property("catid", "16942").property("orderlnno", 2);
+				return null;
+			}
+		});
+		
+		// when
 		int count = session.tranSync(new TransactionJob<Integer>() {
 			@Override
 			public Integer handle(WriteSession wsession) throws Exception {
@@ -460,10 +471,10 @@ public class TestAfieldPackage extends TestBasePackage {
 
 					for (ReadNode ref : refs) {
 						String lowerId = ref.property("afieldid").asString();
-
 						ReadNode afieldRels = session.pathBy("/afield_rels").childQuery("", true).eq("upperid", "ROOT").eq("lowerid", lowerId).findOne();
 
 						if (afieldRels == null) {
+							Debug.line(node.fqn());
 							wsession.pathBy(node.fqn()).removeSelf();
 							count++;
 						}
@@ -472,8 +483,33 @@ public class TestAfieldPackage extends TestBasePackage {
 				return count;
 			}
 		});
-		
+//		int count = cs.execUpdate("afield@delNotExistExamWith", catId);
 		Debug.line(count);
+	}
+	
+	public void testUsedTestCategoryBy() throws IOException, ParseException, SQLException {
+		String lowerId = "ch_summary";
+		IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", lowerId).find().iterator();
+		
+		List<String> afieldRelsView = ListUtil.newList();
+		
+		while(iterator.hasNext()) {
+			ReadNode node = iterator.next();
+			do {
+				afieldRelsView.add(node.property("lowerid").asString());
+				node = node.parent();
+			} while(!node.fqn().toString().equals("/afield_rels"));
+		}
+		
+		ListBuilder builder = JsonBuilder.instance().newEmptyInlist();
+		List<Map<String, String>> table = ListUtil.newList();
+		
+		for(String afieldId : afieldRelsView) {
+			IteratorList<ReadNode> innerVw = session.pathBy("/category_afields").childQuery("", true).eq("afieldid", afieldId).find().iterator();
+			
+		}
+		
+		Debug.line(afieldRelsView);
 	}
 
 	public void testAddGroupWith() throws Exception {
@@ -603,6 +639,12 @@ public class TestAfieldPackage extends TestBasePackage {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
+				// category
+				wsession.pathBy("/category/categoryA");
+				wsession.pathBy("/category/categoryA/categoryB");
+				wsession.pathBy("/category/categoryA/categoryB/categoryC");
+				
+				
 				// afield_rels
 				wsession.pathBy("/afield_rels");
 				wsession.pathBy("/afield_rels/mq_ev_pdate").property("upperid", "ROOT").property("lowerid", "mq_ev_pdate").property("orderno", 1);
@@ -619,12 +661,14 @@ public class TestAfieldPackage extends TestBasePackage {
 				wsession.pathBy("/afield_rels/ch_summary").property("upperid", "ROOT").property("lowerid", "ch_summary").property("orderno", 1);
 
 				// category_article_tblc
-				wsession.pathBy("/category_afields/categoryA/rels/number").property("afieldid", "number").property("catid", "categoryA").property("orderlnno", 1).refTo("mapping", "/afields/number");
-				wsession.pathBy("/category_afields/categoryA/rels/point").property("afieldid", "point").property("catid", "categoryA").property("orderlnno", 2).refTo("mapping", "/afields/point");
-				wsession.pathBy("/category_afields/categoryA/rels/price").property("afieldid", "price").property("catid", "categoryA").property("orderlnno", 3).refTo("mapping", "/afields/price");
-				wsession.pathBy("/category_afields/categoryB/rels/release_date").property("afieldid", "release_date").property("catid", "categoryB").property("orderlnno", 1).refTo("mapping", "/afields/release_date");
-				wsession.pathBy("/category_afields/categoryC/rels/seller").property("afieldid", "seller").property("catid", "categoryC").property("orderlnno", 1).refTo("mapping", "/afields/seller");
-				wsession.pathBy("/category_afields/categoryC/rels/seller").property("afieldid", "seller").property("catid", "categoryC").property("orderlnno", 2).refTo("mapping", "/afields/seller");
+				wsession.pathBy("/category_afields/categoryA/rels/number").property("afieldid", "number").property("catid", "categoryA").property("orderlnno", 1).refTo("mapping", "/afields/number").refTo("category", "/category/categoryA");
+				wsession.pathBy("/category_afields/categoryA/rels/point").property("afieldid", "point").property("catid", "categoryA").property("orderlnno", 2).refTo("mapping", "/afields/point").refTo("category", "/category/categoryA");
+				wsession.pathBy("/category_afields/categoryA/rels/price").property("afieldid", "price").property("catid", "categoryA").property("orderlnno", 3).refTo("mapping", "/afields/price").refTo("category", "/category/categoryA");
+				wsession.pathBy("/category_afields/categoryB/rels/release_date").property("afieldid", "release_date").property("catid", "categoryB").property("orderlnno", 1).refTo("mapping", "/afields/release_date").refTo("category", "/category/categoryA/categoryB");
+				wsession.pathBy("/category_afields/categoryC/rels/seller").property("afieldid", "seller").property("catid", "categoryC").property("orderlnno", 1).refTo("mapping", "/afields/seller").refTo("category", "/category/categoryA/categoryB/categoryC");
+				wsession.pathBy("/category_afields/16942/rels/year").property("afieldid", "year").property("catid", "16942").property("orderlnno", 1).refTo("mapping", "/afields/year");
+				wsession.pathBy("/category_afields/16942/rels/month").property("afieldid", "month").property("catid", "16942").property("orderlnno", 2).refTo("mapping", "/afields/month");
+				
 
 				// example_tblc
 				wsession.pathBy("/examples/1").property("examid", 1).property("examnm", "AB").property("expression", "expression1");
@@ -685,6 +729,8 @@ public class TestAfieldPackage extends TestBasePackage {
 				wsession.pathBy("/afields/seller").property("afieldid", "seller").property("afieldnm", "판매자").property("afieldexp", "상품판매자이름").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134705").property("examid", 0);
 				wsession.pathBy("/afields/spec").property("afieldid", "spec").property("afieldnm", "사양").property("afieldexp", "").property("typecd", "Summary").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
 				wsession.pathBy("/afields/mq_ev_pdate").property("afieldid", "mq_ev_pdate").property("afieldnm", "날짜").property("afieldexp", "").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/year").property("afieldid", "year").property("afieldnm", "년도").property("afieldexp", "").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/month").property("afieldid", "month").property("afieldnm", "월").property("afieldexp", "").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
 
 				wsession.pathBy("/codes/afield_grp/afg_ishop").refTo("afield_grp_member", "/afields/number");
 				wsession.pathBy("/codes/afield_grp/afg_ishop").refTo("afield_grp_member", "/afields/point");
