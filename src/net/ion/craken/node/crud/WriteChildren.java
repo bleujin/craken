@@ -96,8 +96,9 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> i
 						PropertyValue leftProperty = left.property(sele.propid());
 						PropertyValue rightProperty = right.property(sele.propid());
 
-						if (leftProperty == PropertyValue.NotFound || rightProperty == PropertyValue.NotFound)
-							return 0;
+						if (leftProperty == PropertyValue.NotFound && rightProperty == PropertyValue.NotFound) return 0;
+						if (leftProperty == PropertyValue.NotFound) return -1 * (sele.ascending() ? 1 : -1);
+						if (rightProperty == PropertyValue.NotFound) return 1 * (sele.ascending() ? 1 : -1);
 
 						int result = leftProperty.compareTo(rightProperty) * (sele.ascending() ? 1 : -1);
 						if (result != 0) return result ;

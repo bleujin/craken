@@ -6,8 +6,8 @@ import java.util.Map;
 
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.ReadChildren;
-import net.ion.craken.node.crud.TreeReadChildren;
-import net.ion.craken.node.crud.TreeRefReadChildren;
+import net.ion.craken.node.crud.WalkReadChildren;
+import net.ion.craken.node.crud.WalkRefChildren;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 
@@ -45,8 +45,8 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	ReadChildren refChildren(String refName);
 
-	TreeReadChildren treeChildren();
+	WalkReadChildren walkChildren();
 
-	TreeRefReadChildren refTreeChildren(String refName);
+	WalkRefChildren walkRefChildren(String refName);
 
 }

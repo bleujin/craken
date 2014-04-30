@@ -19,7 +19,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 
-public class TreeRefReadChildren extends ReadChildren {
+public class WalkRefChildren extends ReadChildren {
 
 	private TraversalStrategy strategy = TraversalStrategy.BreadthFirst ;
 	private boolean includeSelf = false;
@@ -27,13 +27,13 @@ public class TreeRefReadChildren extends ReadChildren {
 	private final String refName;
 	private int loopLimit;
 	
-	TreeRefReadChildren(ReadSession session, TreeNode source, String refName, Iterator<TreeNode> refchildren) {
+	WalkRefChildren(ReadSession session, TreeNode source, String refName, Iterator<TreeNode> refchildren) {
 		super(session, source, refchildren) ;
 		this.refName = refName ;
 		this.loopLimit = 5 ;
 	}
 	
-	public TreeRefReadChildren loopLimit(int loopLimit){
+	public WalkRefChildren loopLimit(int loopLimit){
 		this.loopLimit = loopLimit ;
 		
 		return this;
@@ -41,7 +41,7 @@ public class TreeRefReadChildren extends ReadChildren {
 
 	protected List<ReadNode> readChildren() {
 		LinkedList<ReadNode> result = new LinkedList<ReadNode>();
-		if (includeSelf) result.add(TreeReadNode.create(session(), source(), 0)) ;
+		if (includeSelf) result.add(WalkReadNode.create(session(), source(), 0)) ;
 		
 		this.andFilters = Predicates.and(filters()) ; 
 		
@@ -53,18 +53,18 @@ public class TreeRefReadChildren extends ReadChildren {
 	}
 	
 	
-	private List<TreeReadNode> readTreeChildren(){
-		List<TreeReadNode> result = ListUtil.newList() ;
+	private List<WalkReadNode> readTreeChildren(){
+		List<WalkReadNode> result = ListUtil.newList() ;
 		for(ReadNode rnode : readChildren()){
-			result.add((TreeReadNode)rnode) ;
+			result.add((WalkReadNode)rnode) ;
 		}
 		
 		return result ;
 	}
 	
 
-	public <T> T eachTreeNode(TreeReadChildrenEach<T> trcEach) {
-		TreeReadChildrenIterator trcIterable = TreeReadChildrenIterator.create(session(), readTreeChildren()) ; 
+	public <T> T eachTreeNode(WalkChildrenEach<T> trcEach) {
+		WalkChildrenIterator trcIterable = WalkChildrenIterator.create(session(), readTreeChildren()) ; 
 		return trcEach.handle(trcIterable) ;
 	}
 
@@ -76,7 +76,7 @@ public class TreeRefReadChildren extends ReadChildren {
 		List<TreeNode> inner = ListUtil.newList() ;
 		while(sortedChildren.hasNext()){
 			TreeNode child = sortedChildren.next();
-        	TreeReadNode target = TreeReadNode.create(session(), child, level);
+        	WalkReadNode target = WalkReadNode.create(session(), child, level);
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
@@ -93,7 +93,7 @@ public class TreeRefReadChildren extends ReadChildren {
 		Iterator<TreeNode> sortedChildren = sort(children) ;
         while(sortedChildren.hasNext()){
         	TreeNode child = sortedChildren.next();
-        	TreeReadNode target = TreeReadNode.create(session(), child, level);
+        	WalkReadNode target = WalkReadNode.create(session(), child, level);
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
@@ -130,13 +130,13 @@ public class TreeRefReadChildren extends ReadChildren {
 	}
 
 
-	public TreeRefReadChildren strategy(TraversalStrategy strategy) {
+	public WalkRefChildren strategy(TraversalStrategy strategy) {
 		this.strategy = strategy ;
 		
 		return this;
 	}
 
-	public TreeRefReadChildren includeSelf(boolean includeSelf){
+	public WalkRefChildren includeSelf(boolean includeSelf){
 		this.includeSelf = includeSelf ;
 		return this ;
 	}

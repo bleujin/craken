@@ -18,15 +18,14 @@ import net.ion.nsearcher.search.filter.FilterUtil;
 import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
 import net.ion.nsearcher.search.filter.TermFilter;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.ecs.xml.XML;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
-import org.neo4j.helpers.collection.Iterables;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 public class ChildQueryRequest {
 
@@ -39,7 +38,7 @@ public class ChildQueryRequest {
 		this.session = session ;
 		this.searcher = searcher ;
 		this.request = searcher.createRequest(query).selections(IKeywordField.ISKey) ;
-		this.sorts =  Iterables.empty() ;
+		this.sorts =  ListUtil.EMPTY ;
 	}
 
 	public static ChildQueryRequest create(ReadSession session, Searcher searcher, Query query) {

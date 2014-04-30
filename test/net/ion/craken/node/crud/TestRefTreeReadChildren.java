@@ -20,7 +20,7 @@ public class TestRefTreeReadChildren extends TestBaseCrud {
 		}) ;
 		
 		
-		assertEquals(6, session.pathBy("/bleujin").refTreeChildren("friend").includeSelf(true).count()) ; 
+		assertEquals(6, session.pathBy("/bleujin").walkRefChildren("friend").includeSelf(true).count()) ; 
 	}
 	
 	
@@ -34,7 +34,7 @@ public class TestRefTreeReadChildren extends TestBaseCrud {
 			}
 		}) ;
 		
-		assertEquals(4, session.pathBy("/bleujin").refTreeChildren("friend").loopLimit(3).includeSelf(true).count()) ;
+		assertEquals(4, session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).count()) ;
 	}
 	
 	
