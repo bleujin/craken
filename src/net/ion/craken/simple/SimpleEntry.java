@@ -28,20 +28,20 @@ public class SimpleEntry extends AbstractEntry{
 		return this;
 	}
 
-	public <RET> RET rawField(String fname){
+	public <T> T rawField(String fname){
 		if (fname == null || fname.length() == 0)
             return null;
 
-		return (RET)data.get(fname) ;
+		return (T)data.get(fname) ;
 	}
 	
-	public <RET> RET field(final String fname){
-		RET value = this.<RET> rawField(fname);
+	public <T> T field(final String fname){
+		T value = this.<T> rawField(fname);
 		return value ;
 	}
 	
 	public int fieldAsInt(String fname){
-		return field(fname) ;
+		return Integer.parseInt(String.valueOf(field(fname))) ;
 	}
 
 	public String fieldAsString(String fname){

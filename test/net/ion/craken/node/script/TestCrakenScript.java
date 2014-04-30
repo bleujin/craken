@@ -1,6 +1,8 @@
 package net.ion.craken.node.script;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.Executors;
 
 import net.ion.craken.node.ReadSession;
@@ -85,6 +87,12 @@ public class TestCrakenScript extends TestCase {
 		}
 		
 	}
+
+    public void testDBFunction() throws IOException, SQLException {
+        cs.readDir(new File("./test/net/ion/airkjh/script"), false);
+
+
+    }
 	
 	
 	

@@ -14,6 +14,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -43,7 +44,7 @@ public class CrakenScript {
 		this.sengine = manager.getEngineByName("JavaScript");
 		sengine.put("session", rsession);
 		sengine.put("jbuilder", JsonBuilder.instance()) ;
-		
+        sengine.put("func", new DBFunction());
 	}
 
 	public static CrakenScript create(ReadSession rsession, ScheduledExecutorService ses) {

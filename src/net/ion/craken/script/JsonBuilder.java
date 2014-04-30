@@ -23,6 +23,10 @@ public class JsonBuilder {
     public ListBuilder newInlist(){
         return new ListBuilder(null).next();
     }
+    
+    public ListBuilder newEmptyInlist() {
+    	return new ListBuilder(null);
+    }
 
 	public AbstractBuilder newInlist(Iterable<ReadNode> nodes, String values) {
 		ListBuilder created = new ListBuilder(null);
