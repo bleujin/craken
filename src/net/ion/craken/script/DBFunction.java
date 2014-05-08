@@ -18,6 +18,10 @@ public class DBFunction {
 
         return value;
     }
+    
+    public Integer asInt(Double value) {
+    	return value.intValue();
+    }
 
     public Integer asInt(PropertyValue value) {
         return Integer.valueOf(value.asInt());

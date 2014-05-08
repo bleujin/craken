@@ -2,6 +2,7 @@ package net.ion.ics6.core;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.craken.node.crud.Filters;
+import net.ion.craken.node.crud.ReadChildren;
+import net.ion.craken.node.crud.WalkReadChildren;
 import net.ion.craken.node.exception.NotFoundPath;
 import net.ion.craken.script.DBFunction;
 import net.ion.craken.script.JsonBuilder;
@@ -20,8 +23,8 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.StringUtil;
 
-import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
 
@@ -458,7 +461,7 @@ public class TestAfieldPackage extends TestBasePackage {
 				return null;
 			}
 		});
-		
+
 		// when
 		int count = session.tranSync(new TransactionJob<Integer>() {
 			@Override
@@ -483,33 +486,218 @@ public class TestAfieldPackage extends TestBasePackage {
 				return count;
 			}
 		});
-//		int count = cs.execUpdate("afield@delNotExistExamWith", catId);
+		// int count = cs.execUpdate("afield@delNotExistExamWith", catId);
 		Debug.line(count);
 	}
-	
-	public void testUsedTestCategoryBy() throws IOException, ParseException, SQLException {
-		String lowerId = "ch_summary";
-		IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", lowerId).find().iterator();
-		
-		List<String> afieldRelsView = ListUtil.newList();
-		
-		while(iterator.hasNext()) {
-			ReadNode node = iterator.next();
-			do {
-				afieldRelsView.add(node.property("lowerid").asString());
-				node = node.parent();
-			} while(!node.fqn().toString().equals("/afield_rels"));
-		}
-		
-		ListBuilder builder = JsonBuilder.instance().newEmptyInlist();
-		List<Map<String, String>> table = ListUtil.newList();
-		
-		for(String afieldId : afieldRelsView) {
-			IteratorList<ReadNode> innerVw = session.pathBy("/category_afields").childQuery("", true).eq("afieldid", afieldId).find().iterator();
-			
-		}
-		
-		Debug.line(afieldRelsView);
+
+	private String pathByCatNmWithTrash(ReadNode node, String div) {
+		List<String> names = ListUtil.newList();
+		do {
+			names.add(node.property("catnm").asString());
+			node = node.parent();
+
+		} while (!"/category/scat".equals(node.fqn().toString()) && !"/category/acat".equals(node.fqn().toString()) && !"/category/pcat".equals(node.fqn().toString()));
+
+		Collections.reverse(names);
+		return StringUtil.join(names.toArray(new String[0]), div);
+	}
+
+	public void testUsedCategoryBy() throws IOException, ParseException, SQLException {
+		String lowerId = "ch_set";
+		// IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", lowerId).find().iterator();
+		//
+		// List<ReadNode> afieldRelsView = ListUtil.newList();
+		//
+		// while(iterator.hasNext()) {
+		// ReadNode node = iterator.next();
+		// do {
+		// afieldRelsView.add(node);
+		// node = node.parent();
+		// } while(!node.fqn().toString().equals("/afield_rels"));
+		// }
+		//
+		// ListBuilder builder = JsonBuilder.instance().newEmptyInlist();
+		//
+		// for(ReadNode node : afieldRelsView) {
+		// IteratorList<ReadNode> categoryAfields = node.refs("category_mapping");
+		// while(categoryAfields.hasNext()) {
+		// ReadNode children = categoryAfields.next();
+		// ReadNode category = children.ref("category");
+		// String catId = children.property("catid").asString();
+		// String catNm = category.property("catnm").asString();
+		// boolean isSiteCat = category.property("isscat").asBoolean();
+		// String fullPath = pathByCatNmWithTrash(category, ">");
+		//
+		// builder.next().property("catId", catId).property("catNm", catNm).property("isContentCategory", !isSiteCat).property("fullPath", fullPath);
+		// }
+		// }
+		// Debug.line(builder.buildRows());
+		Rows rows = cs.execQuery("afield@usedCategoryBy", lowerId);
+		Debug.debug(rows);
+	}
+
+	public void testIsExist() throws ParseException, IOException, SQLException {
+		String afieldId = "ch_set";
+		String catId = "categoryC";
+
+		// IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", afieldId).find().iterator();
+		// while (iterator.hasNext()) {
+		// ReadNode node = iterator.next();
+		// do {
+		// IteratorList<ReadNode> refs = node.refs("category_mapping");
+		// while(refs.hasNext()) {
+		// if(catId.equals(refs.next().property("catid").asString())) {
+		// Debug.line("Found!!");
+		// return;
+		// }
+		// }
+		// node = node.parent();
+		// } while (!node.fqn().toString().equals("/afield_rels"));
+		// }
+		// Debug.line("False");
+
+		Object result = cs.callFn("afield@isExist", catId, afieldId);
+
+		Debug.line(result);
+	}
+
+	public void testUpperListBy() throws IOException, ParseException, SQLException {
+		String afieldId = "ch_summary";
+		Rows rows = cs.execQuery("afield@upperListBy", afieldId);
+
+		rows.debugPrint();
+		// IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", afieldId).find().iterator();
+		//
+		// List<ReadNode> afieldRelsView = ListUtil.newList();
+		//
+		// while(iterator.hasNext()) {
+		// ReadNode node = iterator.next();
+		// do {
+		// afieldRelsView.add(node);
+		// node = node.parent();
+		// } while(!node.fqn().toString().equals("/afield_rels"));
+		// }
+		//
+		// ListBuilder builder = JsonBuilder.instance().newEmptyInlist();
+		//
+		// int rnum = 0;
+		//
+		// ReadNode afield = session.pathBy("/afields/" + afieldId);
+		// String afieldNm = afield.property("afieldnm").asString();
+		// String grpCd = afield.property("grpcd").asString();
+		// String typeCd = afield.property("typecd").asString();
+		//
+		// builder.next()
+		// .property("rnum", 0)
+		// .property("afieldId", afieldId)
+		// .property("lvl", 0)
+		// .property("afieldIdExpr", afieldId)
+		// .property("upperId", -1)
+		// .property("loopCheck", " ")
+		// .property("afieldNm", afieldNm)
+		// .property("typeCd", typeCd)
+		// .property("grpCd", grpCd);
+		//
+		//
+		// for(ReadNode child: afieldRelsView) {
+		//
+		// String lowerId = child.property("lowerid").asString();
+		// Debug.line(child.fqn(), lowerId);
+		// String upperId = child.property("upperid").asString();
+		//
+		// int level = StringUtil.split(child.fqn().toString(), "/").length - 2;
+		// String afieldIdExpr = StringUtil.leftPad("--", level * 2, "--");
+		// String loopCheck = "<font color=red><b>[Afield Relation Loop Error]</b></font>";
+		//
+		// if(!upperId.equals(afieldId)) {
+		// loopCheck = " ";
+		// }
+		//
+		// if(!"ROOT".equals(upperId)) {
+		// afield = session.pathBy("/afields/" + upperId);
+		// afieldNm = afield.property("afieldnm").asString();
+		// grpCd = afield.property("grpcd").asString();
+		// typeCd = afield.property("typecd").asString();
+		//
+		// builder.next()
+		// .property("rnum", rnum++)
+		// .property("afieldId", lowerId)
+		// .property("lvl", level)
+		// .property("afieldIdExpr", afieldIdExpr + upperId)
+		// .property("upperId", child.parent().property("afieldid").asString())
+		// .property("loopCheck", loopCheck)
+		// .property("afieldNm", afieldNm)
+		// .property("typeCd", typeCd)
+		// .property("grpCd", grpCd);
+		// }
+		// }
+
+		// builder.buildRows().debugPrint();
+	}
+
+	public void testLowerListBy() throws SQLException {
+		String afieldId = "ch_set";
+		Rows rows = cs.execQuery("afield@lowerListBy", afieldId);
+		rows.debugPrint();
+		// WalkReadChildren walkChildren = session.pathBy("/afield_rels/" + afieldId).walkChildren();
+		//
+		// ListBuilder builder = JsonBuilder.instance().newEmptyInlist();
+		//
+		// IteratorList<ReadNode> iterator = walkChildren.iterator();
+		// int rnum = 0;
+		//
+		// ReadNode afield = session.pathBy("/afields/" + afieldId);
+		// String afieldNm = afield.property("afieldnm").asString();
+		// String grpCd = afield.property("grpcd").asString();
+		// String typeCd = afield.property("typecd").asString();
+		//
+		// builder.next()
+		// .property("rnum", 0)
+		// .property("afieldId", afieldId)
+		// .property("lvl", 0)
+		// .property("afieldIdExpr", afieldId)
+		// .property("upperId", -1)
+		// .property("loopCheck", " ")
+		// .property("afieldNm", afieldNm)
+		// .property("typeCd", typeCd)
+		// .property("grpCd", grpCd);
+		//
+		//
+		// while(iterator.hasNext()) {
+		// ReadNode child = iterator.next();
+		//
+		// Debug.line(child.fqn());
+		//
+		// String lowerId = child.property("lowerid").asString();
+		// int level = StringUtil.split(child.fqn().toString(), "/").length - 2;
+		// String afieldIdExpr = StringUtil.leftPad("--", level * 2, "--");
+		// String loopCheck = "<font color=red><b>[Afield Relation Loop Error]</b></font>";
+		//
+		// if(!lowerId.equals(afieldId)) {
+		// loopCheck = " ";
+		// }
+		//
+		// afield = session.pathBy("/afields/" + lowerId);
+		// afieldNm = afield.property("afieldnm").asString();
+		// grpCd = afield.property("grpcd").asString();
+		// typeCd = afield.property("typecd").asString();
+		//
+		// builder.next()
+		// .property("rnum", rnum++)
+		// .property("afieldId", lowerId)
+		// .property("lvl", level)
+		// .property("afieldIdExpr", afieldIdExpr + lowerId)
+		// .property("upperId", child.parent().property("afieldid").asString())
+		// .property("loopCheck", loopCheck)
+		// .property("afieldNm", afieldNm)
+		// .property("typeCd", typeCd)
+		// .property("grpCd", grpCd);
+		//
+		//
+		// // Debug.line(iterator.next().fqn().toString());
+		// }
+		// Debug.line(builder.buildJson());
+
 	}
 
 	public void testAddGroupWith() throws Exception {
@@ -629,22 +817,55 @@ public class TestAfieldPackage extends TestBasePackage {
 
 		rows.debugPrint();
 	}
+	
+	public void testTransformer() throws SQLException {
+		cs.execQuery("afield@transformer", "categoryA");
+	}
 
-	// public void testMakeTemporaryCategoryAfield() {
-	// String catId = "categoryA";
-	// session.pathBy("/category_afields/" + catId + "/rels").children();
-	// }
+	public void testMakeTemporaryCategoryAfield() throws ParseException, IOException {
+		String catId = "categoryA";
+		
+		String[] afields = session.pathBy("/category_afields/" + catId + "/rels").children().transform(new Function<Iterator<ReadNode>, String[]>() {
+			@Override
+			public String[] apply(Iterator<ReadNode> iterator) {
+				List<String> afields = ListUtil.newList();
+				while (iterator.hasNext()) {
+					String afieldId = iterator.next().property("afieldid").asString();
+					afields.add(afieldId);
+				}
+				return afields.toArray(new String[0]);
+			}
+		});
+
+		IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).in("lowerid", afields).eq("upperid", "ROOT").find().iterator();
+		int rownum = 1;
+		
+		while (iterator.hasNext()) {
+			ReadNode child = iterator.next();
+			WalkReadChildren walkChildren = (WalkReadChildren) session.pathBy("/afield_rels/" + child.property("").asString()).walkChildren().ascending("orderno");
+
+			for (ReadNode walkChild : walkChildren) {
+				String fqn = walkChild.fqn().toString();
+				String topId = StringUtil.split(fqn, "/")[1];
+				String upperId = walkChild.property("upperid").asString();
+				String lowerId = walkChild.property("lowerid").asString();
+				int level = StringUtil.split(fqn, "/").length - 2;
+				rownum++;
+			}
+		}
+		
+		
+	}
 
 	private void prepareAFieldData() throws Exception {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				// category
-				wsession.pathBy("/category/categoryA");
-				wsession.pathBy("/category/categoryA/categoryB");
-				wsession.pathBy("/category/categoryA/categoryB/categoryC");
-				
-				
+				wsession.pathBy("/category/scat/categoryA").property("catid", "categoryA").property("catnm", "Category A").property("isscat", true);
+				wsession.pathBy("/category/scat/categoryA/categoryB").property("catid", "categoryB").property("catnm", "Category B").property("isscat", true);
+				wsession.pathBy("/category/scat/categoryA/categoryB/categoryC").property("catid", "categoryC").property("catnm", "Category C").property("isscat", true);
+
 				// afield_rels
 				wsession.pathBy("/afield_rels");
 				wsession.pathBy("/afield_rels/mq_ev_pdate").property("upperid", "ROOT").property("lowerid", "mq_ev_pdate").property("orderno", 1);
@@ -661,14 +882,22 @@ public class TestAfieldPackage extends TestBasePackage {
 				wsession.pathBy("/afield_rels/ch_summary").property("upperid", "ROOT").property("lowerid", "ch_summary").property("orderno", 1);
 
 				// category_article_tblc
-				wsession.pathBy("/category_afields/categoryA/rels/number").property("afieldid", "number").property("catid", "categoryA").property("orderlnno", 1).refTo("mapping", "/afields/number").refTo("category", "/category/categoryA");
-				wsession.pathBy("/category_afields/categoryA/rels/point").property("afieldid", "point").property("catid", "categoryA").property("orderlnno", 2).refTo("mapping", "/afields/point").refTo("category", "/category/categoryA");
-				wsession.pathBy("/category_afields/categoryA/rels/price").property("afieldid", "price").property("catid", "categoryA").property("orderlnno", 3).refTo("mapping", "/afields/price").refTo("category", "/category/categoryA");
-				wsession.pathBy("/category_afields/categoryB/rels/release_date").property("afieldid", "release_date").property("catid", "categoryB").property("orderlnno", 1).refTo("mapping", "/afields/release_date").refTo("category", "/category/categoryA/categoryB");
-				wsession.pathBy("/category_afields/categoryC/rels/seller").property("afieldid", "seller").property("catid", "categoryC").property("orderlnno", 1).refTo("mapping", "/afields/seller").refTo("category", "/category/categoryA/categoryB/categoryC");
+				wsession.pathBy("/category_afields/categoryA/rels/number").property("afieldid", "number").property("catid", "categoryA").property("orderlnno", 1).refTo("mapping", "/afields/number").refTo("category", "/category/scat/categoryA");
+				wsession.pathBy("/category_afields/categoryA/rels/point").property("afieldid", "point").property("catid", "categoryA").property("orderlnno", 2).refTo("mapping", "/afields/point").refTo("category", "/category/scat/categoryA");
+				wsession.pathBy("/category_afields/categoryA/rels/price").property("afieldid", "price").property("catid", "categoryA").property("orderlnno", 3).refTo("mapping", "/afields/price").refTo("category", "/category/scat/categoryA");
+				wsession.pathBy("/category_afields/categoryB/rels/release_date").property("afieldid", "release_date").property("catid", "categoryB").property("orderlnno", 1).refTo("mapping", "/afields/release_date").refTo("category", "/category/scat/categoryA/categoryB");
+				wsession.pathBy("/category_afields/categoryC/rels/seller").property("afieldid", "seller").property("catid", "categoryC").property("orderlnno", 1).refTo("mapping", "/afields/seller").refTo("category", "/category/scat/categoryA/categoryB/categoryC");
 				wsession.pathBy("/category_afields/16942/rels/year").property("afieldid", "year").property("catid", "16942").property("orderlnno", 1).refTo("mapping", "/afields/year");
 				wsession.pathBy("/category_afields/16942/rels/month").property("afieldid", "month").property("catid", "16942").property("orderlnno", 2).refTo("mapping", "/afields/month");
-				
+				wsession.pathBy("/category_afields/categoryA/rels/ch_set").property("afieldid", "ch_set").property("catid", "categoryA").property("orderlnno", 1).refTo("mapping", "/afields/ch_set").refTo("category", "/category/scat/categoryA");
+				wsession.pathBy("/category_afields/categoryA/rels/ch_set/ch_summary").property("afieldid", "ch_summary").property("catid", "categoryA").property("orderlnno", 1).refTo("mapping", "/afields/ch_summary").refTo("category", "/category/scat/categoryA");
+				wsession.pathBy("/category_afields/categoryB/rels/ch_summary").property("afieldid", "ch_summary").property("catid", "categoryB").property("orderlnno", 1).refTo("mapping", "/afields/ch_summary").refTo("category", "/category/scat/categoryA/categoryB");
+				wsession.pathBy("/category_afields/categoryC/rels/ch_set").property("afieldid", "ch_set").property("catid", "categoryC").property("orderlnno", 1).refTo("mapping", "/afields/ch_set").refTo("category", "/category/scat/categoryA/categoryB/categoryC");
+
+				wsession.pathBy("/afield_rels/ch_set").refTos("category_mapping", "/category_afields/categoryA/rels/ch_set");
+				wsession.pathBy("/afield_rels/ch_set").refTos("category_mapping", "/category_afields/categoryC/rels/ch_set");
+				wsession.pathBy("/afield_rels/ch_set/ch_summary").refTo("category_mapping", "/category_afields/categoryA/rels/ch_set/ch_summary");
+				wsession.pathBy("/afield_rels/ch_summary").refTo("category_mapping", "/category_afields/categoryB/rels/ch_summary");
 
 				// example_tblc
 				wsession.pathBy("/examples/1").property("examid", 1).property("examnm", "AB").property("expression", "expression1");
@@ -731,6 +960,12 @@ public class TestAfieldPackage extends TestBasePackage {
 				wsession.pathBy("/afields/mq_ev_pdate").property("afieldid", "mq_ev_pdate").property("afieldnm", "날짜").property("afieldexp", "").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
 				wsession.pathBy("/afields/year").property("afieldid", "year").property("afieldnm", "년도").property("afieldexp", "").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
 				wsession.pathBy("/afields/month").property("afieldid", "month").property("afieldnm", "월").property("afieldexp", "").property("typecd", "String").property("grpcd", "afg_ishop").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/ch_set").property("afieldid", "ch_set").property("afieldnm", "ContentHube_Set").property("afieldexp", "").property("typecd", "Set").property("grpcd", "ch_set").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/ch_string").property("afieldid", "ch_string").property("afieldnm", "StringType").property("afieldexp", "").property("typecd", "String").property("grpcd", "ch_set").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/ch_image").property("afieldid", "ch_image").property("afieldnm", "ImageType").property("afieldexp", "").property("typecd", "Image").property("grpcd", "ch_set").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/ch_boolean").property("afieldid", "ch_boolean").property("afieldnm", "BooleanType").property("afieldexp", "").property("typecd", "Boolean").property("grpcd", "ch_set").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/ch_file").property("afieldid", "ch_file").property("afieldnm", "FileType").property("afieldexp", "").property("typecd", "File").property("grpcd", "ch_set").property("regdate", "20140422-134706");
+				wsession.pathBy("/afields/ch_summary").property("afieldid", "ch_summary").property("afieldnm", "SummaryType").property("afieldexp", "").property("typecd", "Summary").property("grpcd", "ch_set").property("regdate", "20140422-134706");
 
 				wsession.pathBy("/codes/afield_grp/afg_ishop").refTo("afield_grp_member", "/afields/number");
 				wsession.pathBy("/codes/afield_grp/afg_ishop").refTo("afield_grp_member", "/afields/point");

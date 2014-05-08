@@ -1,6 +1,7 @@
 new function () {
 
     var prefix = "/afields/";
+    var sysout = java.lang.System.out;
     
     var nodeName = function(path) {
     	var names = path.split('/');
@@ -262,10 +263,130 @@ new function () {
     this.ableLowerListBy = function(selfId, groupCd, typeCd, searchKey, listNum, pageNo) {
     	
     }
+    
+    this.upperListBy = function(afieldId) {
+		var iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", afieldId).find().iterator();
+		var afieldRelsView = [];
+		
+		while(iterator.hasNext()) {
+			var node = iterator.next();
+			do {
+				afieldRelsView.push(node);
+				node = node.parent();
+			} while(!node.fqn().toString().equals("/afield_rels"));
+		}
+		
+		var builder = jbuilder.newEmptyInlist();
 
-    // TODO
-    this.lowerlistBy = function(afieldId) {
-    	
+		var afield = session.pathBy("/afields/" + afieldId);
+		var afieldNm = afield.property("afieldnm").asString();
+		var grpCd = afield.property("grpcd").asString();
+		var typeCd = afield.property("typecd").asString();
+		
+		builder.next()
+			.property("rnum", func.asInt(0))
+			.property("afieldId", afieldId)
+			.property("lvl", func.asInt(0))
+			.property("afieldIdExpr", afieldId)
+			.property("lowerId", func.asInt(-1))
+			.property("loopCheck", " ")
+			.property("afieldNm", afieldNm)
+			.property("typeCd", typeCd)
+			.property("grpCd", grpCd);
+			
+		
+		for(var i = 0; i < afieldRelsView.length; i++) {
+			var child = afieldRelsView[i];
+			
+			var lowerId = child.property("lowerid").asString();
+			var upperId = child.property("upperid").asString();
+			var fqn = child.fqn().toString();
+			var level = func.asInt(fqn.split("/").length - 3);
+			var afieldIdExpr = lpad("--", level * 2, "--");
+			var loopCheck = "<font color=red><b>[Afield Relation Loop Error]</b></font>";
+			
+			if(!upperId.equals(afieldId)) {
+				loopCheck = " ";
+			}
+			
+			if(!"ROOT".equals(upperId)) {
+				afield = session.pathBy("/afields/" + upperId);
+				afieldNm = afield.property("afieldnm").asString();
+				grpCd = afield.property("grpcd").asString();
+				typeCd = afield.property("typecd").asString();
+				
+				builder.next()
+					.property("rnum", func.asInt(i + 1))
+					.property("afieldId", upperId)
+					.property("lvl", level)
+					.property("afieldIdExpr", afieldIdExpr + upperId)
+					.property("lowerId", child.parent().property("lowerid").asString())
+					.property("loopCheck", loopCheck)
+					.property("afieldNm", afieldNm)
+					.property("typeCd", typeCd)
+					.property("grpCd", grpCd);				
+			}
+		}
+		
+		return builder.buildRows();
+    }
+
+    this.lowerListBy = function(afieldId) {
+		var walkChildren = session.pathBy("/afield_rels/" + afieldId).walkChildren();
+		var builder = jbuilder.newEmptyInlist();
+		
+		var iterator = walkChildren.iterator();
+		var rnum = 0;
+
+		var afield = session.pathBy("/afields/" + afieldId);
+		var afieldNm = afield.property("afieldnm").asString();
+		var grpCd = afield.property("grpcd").asString();
+		var typeCd = afield.property("typecd").asString();
+		
+		builder.next()
+			.property("rnum", func.asInt(0))
+			.property("afieldId", afieldId)
+			.property("afieldIdExpr", afieldId)
+			.property("lvl", func.asInt(0))
+			.property("upperId", func.asInt(-1))
+			.property("loopCheck", " ")
+			.property("afieldNm", afieldNm)
+			.property("typeCd", typeCd)
+			.property("grpCd", grpCd);
+			
+		
+		while(iterator.hasNext()) {
+			var child = iterator.next();
+			
+			var lowerId = child.property("lowerid").asString();
+			var loopCheck = "<font color=red><b>[Afield Relation Loop Error]</b></font>";
+			
+			var fqn = child.fqn().toString();
+			var level = func.asInt(fqn.split("/").length - 3);
+			var afieldIdExpr = lpad('--', level * 2, '--') + lowerId;
+			
+			if(!lowerId.equals(afieldId)) {
+				loopCheck = " ";
+			}
+			
+			afield = session.pathBy("/afields/" + lowerId);
+			afieldNm = afield.property("afieldnm").asString();
+			grpCd = afield.property("grpcd").asString();
+			typeCd = afield.property("typecd").asString();
+			
+			builder.next()
+				.property("rnum", func.asInt(rnum++))
+				.property("afieldId", lowerId)
+				.property("afieldIdExpr", afieldIdExpr)
+				.property("lvl", level)
+				.property("upperId", child.parent().property("lowerid").asString())
+				.property("loopCheck", loopCheck)
+				.property("afieldNm", afieldNm)
+				.property("typeCd", typeCd)
+				.property("grpCd", grpCd);
+		}
+		
+		return builder.buildRows();
     }
     
     var codeFunc = function(iterator) {
@@ -500,10 +621,101 @@ new function () {
 		});
     	
     }
+    
+    var pathByCatNmWithTrash = function(node, div) {
+		var names = [];
+		
+		do {
+			names.push(node.property("catnm").asString());
+			node = node.parent();
+		} while(!"/category/scat".equals(node.fqn().toString()) && !"/category/acat".equals(node.fqn().toString()) && !"/category/pcat".equals(node.fqn().toString()));
+		
+		return names.reverse().join(div);
+    }
+    
+    var firstBy = (function() {
+        /* mixin for the `thenBy` property */
+        function extend(f) {
+            f.thenBy = tb;
+            return f;
+        }
+        /*
+		 * adds a secondary compare function to the target function (`this`
+		 * context) which is applied in case the first one returns 0 (equal)
+		 * returns a new compare function, which has a `thenBy` method as well
+		 */
+        function tb(y) {
+            var x = this;
+            return extend(function(a, b) {
+                return x(a,b) || y(a,b);
+            });
+        }
+        return extend;
+    })();
+    
+    Array.prototype.indexOf = function(item) {
+        var i = this.length;
+        while (i--) {
+           if (this[i] === item) return i;
+        }
+    	return -1;  
+	}
 
-    // TODO
     this.usedCategoryBy = function(afieldId) {
-    	
+		var iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", afieldId).find().iterator();
+		
+		var afieldRelsView = [];
+		
+		while(iterator.hasNext()) {
+			var node = iterator.next();
+			
+			do {
+				afieldRelsView.push(node);
+				node = node.parent();
+			} while(!node.fqn().toString().equals("/afield_rels"));
+		}
+		
+		var elements = [], keys = [];
+		
+		for(var i = 0; i < afieldRelsView.length; i++) {
+			var node = afieldRelsView[i];
+			var categoryAfields = node.refs("category_mapping");
+			
+			while(categoryAfields.hasNext()) {
+				var children = categoryAfields.next();
+				var category = children.ref("category");
+				
+				var catId = children.property("catid").asString();
+				var catNm = category.property("catnm").asString();
+				var isSiteCat = category.property("isscat").asBoolean();
+				var fullPath = pathByCatNmWithTrash(category, ">");
+				
+				if(keys.indexOf(catId) === -1) {
+					keys.push(catId);
+					elements.push({
+						'catId': catId,
+						'catNm': catNm,
+						'isContentCategory': !isSiteCat,
+						'fullPath': fullPath
+					});
+				}
+			}
+		}
+		
+		elements.sort(
+			firstBy(function(a, b) {return a.isContentCategory === b.isContentCategory ? 0 : a.isContentCategory > b.isContentCategory ? 1 : -1;})
+			.thenBy(function(a, b) {return a.fullPath === b.fullPath ? 0 : a.fullPath > b.fullPath ? 1 : -1 ;})
+		);
+
+		var builder = jbuilder.newEmptyInlist();
+		
+		for(var i = 0; i < elements.length; i++) {
+			var rowEl = elements[i];
+			java.lang.System.out.println(rowEl.fullPath);
+			builder.next().property("catId", rowEl.catId).property("catNm", rowEl.catNm).property("isContentCategory", rowEl.isContentCategory).property("fullPath", rowEl.fullPath);
+		}
+		
+		return builder.buildRows();
     }
     
     this.examListBy = function() {
@@ -693,9 +905,22 @@ new function () {
 		}
     }
     
-    // TODO
+    // Used at dynamic query
     this.isExist = function(catId, afieldId) {
-    	
+		var iterator = session.pathBy("/afield_rels").childQuery("", true).eq("lowerid", afieldId).find().iterator();
+		while (iterator.hasNext()) {
+			var node = iterator.next();
+			do {
+				var refs = node.refs("category_mapping");
+				while(refs.hasNext()) {
+					if(catId.equals(refs.next().property("catid").asString())) {
+						return true;
+					}
+				}
+				node = node.parent();
+			} while (!node.fqn().toString().equals("/afield_rels"));
+		}
+		return false;
     }
     
     this.afieldListBy = function() {
@@ -711,5 +936,18 @@ new function () {
     	
     }
     
+//    this.transformer = function(catId) {
+//		var afields = session.pathBy("/category_afields/" + catId + "/rels").children().transform(function(iterator) {
+//			var afields = [];
+//			while (iterator.hasNext()) {
+//				var afieldId = iterator.next().property("afieldid").asString();
+//				afields.push(afieldId);
+//			}
+//			return afields;
+//		});
+//		for(var i = 0; i < afields.length; i++) {
+//			sysout.println(afields[i]);
+//		}
+//    }
     
 }

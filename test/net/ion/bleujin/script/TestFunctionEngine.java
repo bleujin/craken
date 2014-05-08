@@ -1,27 +1,18 @@
 package net.ion.bleujin.script;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
-import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
-import org.omg.CORBA.DynAnyPackage.Invalid;
-
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
-import junit.framework.TestCase;
 
 public class TestFunctionEngine extends TestCase {
 
@@ -81,15 +72,4 @@ public class TestFunctionEngine extends TestCase {
 		Object result = inv.invokeMethod(afield, "listBy", 0, 2) ;
 		Debug.debug(result, result.getClass());
 	}
-	
-	public void testGuavaFunction() throws ScriptException, IOException, NoSuchMethodException {
-		
-		Object test = engine.eval(new FileReader("./test/net/ion/airkjh/script/test.js"));
-		
-		Invocable invoker = (Invocable)engine;
-		Object result = invoker.invokeMethod(test, "fn", ListUtil.toList("a", "b", "c").iterator());
-		
-		Debug.debug(result);
-	}
-	
 }

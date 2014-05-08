@@ -147,7 +147,7 @@ public class CrakenScript {
 		throw new IllegalStateException("illegal return type");
 	}
 
-	private Object callFn(String uptName, Object... params) throws SQLException{
+	public Object callFn(String uptName, Object... params) throws SQLException{
 		try {
 			String packName = StringUtil.substringBefore(uptName, "@");
 			String fnName = StringUtil.substringAfter(uptName, "@");
