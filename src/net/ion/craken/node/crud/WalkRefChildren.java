@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,8 +13,6 @@ import net.ion.craken.node.crud.util.TraversalStrategy;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -30,7 +29,7 @@ public class WalkRefChildren extends ReadChildren {
 	WalkRefChildren(ReadSession session, TreeNode source, String refName, Iterator<TreeNode> refchildren) {
 		super(session, source, refchildren) ;
 		this.refName = refName ;
-		this.loopLimit = 5 ;
+		this.loopLimit = 10 ;
 	}
 	
 	public WalkRefChildren loopLimit(int loopLimit){
@@ -114,8 +113,9 @@ public class WalkRefChildren extends ReadChildren {
 						PropertyValue leftProperty = left.get(spid);
 						PropertyValue rightProperty = right.get(spid);
 
-						if (leftProperty == null || rightProperty == null)
-							return 0;
+						if (leftProperty == null && rightProperty == null) return 0;
+						if (leftProperty == null) return -1 * (sele.ascending() ? 1 : -1);
+						if (rightProperty == null) return 1 * (sele.ascending() ? 1 : -1);
 
 						int result = leftProperty.compareTo(rightProperty) * (sele.ascending() ? 1 : -1);
 						if (result != 0) return result ;

@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
@@ -26,7 +27,7 @@ public class RhinoEngine  {
 	private ScriptableObject sharedScope;
 	private PrintStream outPrint = System.out;
 	private List<PreCompiledScript> preScripts = ListUtil.newList();
-	private boolean isStarted = false;
+	private AtomicReference<Boolean> isStarted = new AtomicReference<Boolean>(Boolean.FALSE);
 	private ExecutorService bossThread = Executors.newSingleThreadExecutor();
 	
 	static {
@@ -51,7 +52,7 @@ public class RhinoEngine  {
 	}
 
 	public RhinoEngine preDefineScript(String name, String script) {
-		if (isStarted)
+		if (isStarted.get())
 			throw new IllegalStateException("cannt define prescript, cause already started. ");
 		RhinoScript pscript = newScript(name).defineScript(script);
 		try {
@@ -77,7 +78,7 @@ public class RhinoEngine  {
 		return bossThread.submit(new Callable<RhinoEngine>() {
 			@Override
 			public RhinoEngine call() throws Exception {
-				if (isStarted)
+				if (isStarted.get())
 					return RhinoEngine.this;
 
 				Context engineContext = Context.enter();
@@ -100,7 +101,7 @@ public class RhinoEngine  {
 					}
 					preScript.exec(engineContext, sharedScope);
 				}
-				RhinoEngine.this.isStarted = true;
+				RhinoEngine.this.isStarted.set(Boolean.TRUE);
 
 				return RhinoEngine.this;
 			}
@@ -108,7 +109,7 @@ public class RhinoEngine  {
 	}
 
 	public <T> T run(RhinoScript script, ResponseHandler<T> rhandler) {
-		if (!isStarted)
+		if (!isStarted.get())
 			throw new IllegalStateException("not started");
 
 		long start = System.currentTimeMillis();

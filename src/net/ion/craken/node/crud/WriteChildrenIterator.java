@@ -22,6 +22,10 @@ public class WriteChildrenIterator implements Iterable<WriteNode>, Iterator<Writ
 		return new WriteChildrenIterator(session, list) ;
 	}
 	
+	public List<WriteNode> list(){
+		return list ;
+	}
+	
 	@Override
 	public Iterator<WriteNode> iterator() {
 		return this;

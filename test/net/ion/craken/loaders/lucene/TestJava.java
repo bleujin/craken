@@ -11,6 +11,7 @@ import net.ion.framework.util.InfinityThread;
 
 public class TestJava extends TestCase {
 
+
 	public void testBlockingQueue() throws Exception {
 		ExecutorService ex = Executors.newCachedThreadPool();
 

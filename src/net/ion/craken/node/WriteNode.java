@@ -28,6 +28,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public PropertyValue propertyIfAbsentEnd(String key, Object value) ;
 
+	public WriteNode append(String key, Object value) ;
+	
 	public WriteNode append(String key, Object... value);
 
 	public PropertyValue replace(String key, Object value) ;
@@ -35,7 +37,9 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public boolean replace(String key, Object oldValue, Object newValue) ;
 	
 	public WriteNode unset(String key, Object... values) ;
-	
+
+	public WriteNode unset(String key, Object value) ;
+
 	public WriteNode clear() ;
 	
 	public WriteNode child(String relativeFqn) ;
@@ -48,10 +52,14 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteNode refTo(String refName, String fqn);
 	
-	public WriteNode refTos(String refName, String... fqn);
+	public WriteNode refTos(String refName, String... fqns);
 
-	public WriteNode unRefTos(String refName, String... fqn);
+	public WriteNode refTos(String refName, String fqn);
+
+	public WriteNode unRefTos(String refName, String... fqns);
 	
+	public WriteNode unRefTos(String refName, String fqn);
+
 	public WriteNode fromJson(JsonObject json);
 
 	public WriteNode blob(String key, InputStream input);

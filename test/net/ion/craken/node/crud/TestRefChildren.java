@@ -47,8 +47,6 @@ public class TestRefChildren extends TestBaseCrud {
 		assertEquals(3, session.pathBy("/bleujin").refChildren("dept").count()) ;
 	}
 	
-	
-	
 	public void testRefWriteChildren() throws Exception {
 		int count = session.tran(new TransactionJob<Integer>(){
 			@Override
@@ -57,6 +55,8 @@ public class TestRefChildren extends TestBaseCrud {
 			}
 			
 		}).get() ;
+		
+		
 		
 		assertEquals(3, count);
 	}
@@ -76,4 +76,10 @@ public class TestRefChildren extends TestBaseCrud {
 			assertEquals("refed", node.property("ref").asString());
 		}
 	}
+	
+	
+	public void testEach() throws Exception {
+		
+	}
+	
 }

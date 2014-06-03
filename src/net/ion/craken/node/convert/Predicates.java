@@ -207,7 +207,7 @@ public class Predicates {
 		return new Predicate<T>() {
 			@Override
 			public boolean apply(T node) {
-				return node.hasProperty(PropertyId.normal(propId)) ;
+				return node.hasPropertyId(PropertyId.normal(propId)) ;
 			}
 		} ;
 	}

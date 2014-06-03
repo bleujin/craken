@@ -50,6 +50,8 @@
 	<target name="copy" depends="publish">
 		<echo>Copy to ToonServer</echo>
 		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../talkserver/lib/ref/" />
+		<echo>Copy to ICS6Craken</echo>
+		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../ics6withcraken/lib/ref/" />
 	</target>
 
 </project>

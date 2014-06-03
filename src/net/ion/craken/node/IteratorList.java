@@ -17,4 +17,6 @@ public abstract class IteratorList<T> implements Iterator<T>, Iterable<T>{
 	public <R>  R transform(Function<Iterator<T>, R> fn) {
 		return fn.apply(this) ;
 	}
+	
+	public abstract int count() ;
 }

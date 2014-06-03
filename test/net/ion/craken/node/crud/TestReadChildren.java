@@ -6,6 +6,7 @@ import java.util.List;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.db.Page;
 import net.ion.framework.db.Rows;
@@ -26,6 +27,13 @@ public class TestReadChildren extends TestBaseCrud {
 	public void testSkip() throws Exception {
 		assertEquals(3, session.pathBy("/bleujin").children().skip(5).offset(3).toList().size()) ;
 	}
+	
+	public void testSkipNOffset() throws Exception {
+		session.tran(TransactionJobs.dummy("/hero", 1)).get() ;
+		
+		assertEquals(0, session.pathBy("/hero").children().skip(5).offset(3).toList().size()) ;
+	}
+	
 	
 	public void testFilter() throws Exception {
 		List<ReadNode> list = session.pathBy("/bleujin").children().gt("dummy", 3).toList();
@@ -104,4 +112,8 @@ public class TestReadChildren extends TestBaseCrud {
 		
 	}
 	
+	
+	public void testChildrenTransform() throws Exception {
+		session.pathBy("/bleujin").children().offset(10).transform(Functions.CHILDLIST) ;
+	}
 }

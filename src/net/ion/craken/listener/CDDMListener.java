@@ -1,38 +1,21 @@
 package net.ion.craken.listener;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.infinispan.atomic.AtomicMap;
-import org.infinispan.notifications.Listener;
-import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
-import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
-
 import net.ion.craken.node.AbstractWriteSession;
-import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TouchedRow;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
-import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.convert.rows.function.TocharFunction;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.WriteChildrenEach;
-import net.ion.craken.node.crud.WriteChildrenIterator;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.framework.schedule.IExecutor;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.radon.util.uriparser.URIPattern;
@@ -40,13 +23,9 @@ import net.ion.radon.util.uriparser.URIPattern;
 public class CDDMListener implements WorkspaceListener {
 
 	private Map<CDDHandler, URIPattern> chandlers = MapUtil.newMap();
-	private ReadSession rsession;
-	private IExecutor executor;
 	private Future<Void> lastFuture;
 
-	public CDDMListener(ReadSession rsession) {
-		this.rsession = rsession;
-		this.executor = rsession.workspace().repository().executor();
+	public CDDMListener() {
 	}
 
 	@Override
@@ -59,13 +38,19 @@ public class CDDMListener implements WorkspaceListener {
 
 	}
 
-	public void add(CDDHandler listener) {
+	public CDDMListener add(CDDHandler listener) {
 		chandlers.put(listener, new URIPattern(listener.pathPattern()));
+		return this ;
 	}
 
 	public void remove(CDDHandler listener) {
 		chandlers.remove(listener);
 	}
+	
+	public Map<CDDHandler, URIPattern> handlers(){
+		return Collections.unmodifiableMap(chandlers) ;
+	}
+	
 
 	public void await() throws InterruptedException, ExecutionException {
 		if (lastFuture != null) {

@@ -39,7 +39,7 @@ class DefaultTypeStrategy implements TypeStrategy {
 
 
 	public boolean supported(Field field, ReadNode node){
-		return node.hasProperty(PropertyId.normal(field.getName())) || node.hasChild(field.getName()) || node.hasProperty(PropertyId.refer(field.getName()));
+		return node.hasPropertyId(PropertyId.normal(field.getName())) || node.hasChild(field.getName()) || node.hasPropertyId(PropertyId.refer(field.getName()));
 	}
 
 	@Override
@@ -53,7 +53,7 @@ class DefaultTypeStrategy implements TypeStrategy {
 	
 	private TypeAdaptor findAdaptor(Field field, ReadNode node) {
 		
-		if (node.hasProperty(PropertyId.normal(field.getName()))){
+		if (node.hasPropertyId(PropertyId.normal(field.getName()))){
 			if (PRIMITIVE_TYPE.containsKey(field.getType())) {
 				return primitivePropertyAdaptor;
 			} else if (PRIMITIVE_TYPE.containsValue(field.getType())) {

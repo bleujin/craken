@@ -24,6 +24,8 @@ public interface ReadSession extends ISession<ReadNode> {
 
 	public ReadNode ghostBy(Fqn fqn);
 
+	public ReadNode ghostBy(String fqn);
+
 	public ReadNode pathBy(String fqn0, String... fqns);
 
 	public boolean exists(Fqn fqn);

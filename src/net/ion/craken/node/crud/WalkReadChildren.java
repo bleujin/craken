@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,8 +13,6 @@ import net.ion.craken.node.crud.util.TraversalStrategy;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;

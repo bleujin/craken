@@ -1,11 +1,10 @@
 package net.ion.craken.node.crud;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
@@ -128,6 +127,8 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 			};
 			Collections.sort(listNode, mycomparator); // apply sort
 		}
+		
+		if (listNode.size() < skip) return ListUtil.EMPTY ;
 		
 		List<ReadNode> result = listNode.subList(skip, Math.min(skip + offset, listNode.size())) ; // apply skip & offset
 		return result ;

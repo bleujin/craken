@@ -79,11 +79,11 @@ public class WriteChildrenEachs {
 				
 				@Override
 				public List<WriteNode> toList() {
-					List<WriteNode> result = ListUtil.newList() ;
-					while(hasNext()){
-						result.add(citer.next()) ;
-					}
-					return result;
+					return citer.list();
+				}
+				
+				public int count(){
+					return citer.count() ;
 				}
 			};
 		}

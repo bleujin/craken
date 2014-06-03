@@ -22,6 +22,10 @@ public class ReadChildrenIterator implements Iterable<ReadNode>, Iterator<ReadNo
 		return new ReadChildrenIterator(session, list) ;
 	}
 	
+	public List<ReadNode> list(){
+		return list ;
+	}
+	
 	@Override
 	public Iterator<ReadNode> iterator() {
 		return this;

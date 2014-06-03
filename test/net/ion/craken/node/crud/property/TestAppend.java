@@ -3,11 +3,15 @@ package net.ion.craken.node.crud.property;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.util.Debug;
 
 public class TestAppend extends TestBaseCrud {
 
@@ -69,6 +73,24 @@ public class TestAppend extends TestBaseCrud {
 
 		assertEquals(1, set.size());
 	}
+	
+	public void testContains() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().child("/bleujin").append("receiver", "jin", "hero").property("no", 1);
+				return null;
+			}
+		}).get();
+		
+		
+
+		ReadNode bleujin = session.pathBy("/bleujin");
+		
+		assertTrue(bleujin.property("receiver").asSet().contains("jin")) ;
+		assertTrue(bleujin.property("receiver").asSet().contains("hero")) ;
+		assertFalse(bleujin.property("receiver").asSet().contains("bleujin")) ;
+	}
 
 	public void testSetArray() throws Exception {
 		session.tran(new TransactionJob<Void>() {
@@ -103,6 +125,29 @@ public class TestAppend extends TestBaseCrud {
 		});
 		
 		latch.await() ;
+	}
+	
+	public void testAppendMethod() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/hero").append("name", "bleujin").append("age", 20, 30) ;
+				wsession.pathBy("/bleujin").append("name", new Object[]{"bleujin"}).append("age", new Object[]{20, 30}) ;
+				return null;
+			}
+		}) ;
+		
+		
+		print(session.pathBy("/bleujin").property("name"));
+		print(session.pathBy("/bleujin").property("age"));
+		print(session.pathBy("/hero").property("name"));
+		print(session.pathBy("/hero").property("age"));
+
+	}
+	
+	private void print(PropertyValue prop){
+		Debug.debug(prop.stringValue()) ;
+		Debug.debug(prop.asSet(), prop.asSet().size()) ;
 	}
 
 }

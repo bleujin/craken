@@ -23,7 +23,9 @@ public interface NodeCommon<T extends NodeCommon<T>> {
 
 	public boolean hasChild(String fqn);
 	
-	public boolean hasProperty(PropertyId pid) ;
+	public boolean hasProperty(String pid) ;
+	
+	public boolean hasPropertyId(PropertyId pid) ;
 
 	PropertyValue extendProperty(String propPath);
 

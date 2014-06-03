@@ -1,28 +1,22 @@
 package net.ion.craken.node.crud;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
-
-import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.AbstractChildren;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.util.ReadChildrenEachs;
-import net.ion.craken.node.crud.util.SortUtil;
 import net.ion.craken.node.crud.util.WriteChildrenEachs;
-import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Iterators;
 
 public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> implements Iterable<WriteNode> {
 
@@ -88,9 +82,9 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> i
 		}
 		
 		if (sorts.size() > 0) {
-			Comparator<ReadNode> mycomparator = new Comparator<ReadNode>() {
+			Comparator<WriteNode> mycomparator = new Comparator<WriteNode>() {
 				@Override
-				public int compare(ReadNode left, ReadNode right) {
+				public int compare(WriteNode left, WriteNode right) {
 
 					for (SortElement sele : sorts) {
 						PropertyValue leftProperty = left.property(sele.propid());

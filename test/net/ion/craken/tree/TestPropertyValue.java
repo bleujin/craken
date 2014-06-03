@@ -128,7 +128,18 @@ public class TestPropertyValue extends TestBaseCrud{
 	}
 	
 	
+	public void testRef() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "bleujin").refTo("self", "/bleujin") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals("/bleujin", session.pathBy("/bleujin").propertyId(PropertyId.refer("self")).asString()) ;
+	}
 	
-	
+
 	
 }

@@ -1,6 +1,7 @@
 package net.ion.craken.loaders;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -21,7 +22,6 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.LegacyStoreConfigurationBuilder;
 import org.infinispan.loaders.AbstractCacheStoreConfig;
 import org.infinispan.loaders.CacheStore;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 public abstract class WorkspaceConfig extends AbstractCacheStoreConfig  {
 

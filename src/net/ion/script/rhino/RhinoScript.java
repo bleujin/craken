@@ -2,12 +2,11 @@ package net.ion.script.rhino;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.Map;
 
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 public class RhinoScript {
 

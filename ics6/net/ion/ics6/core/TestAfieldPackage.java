@@ -147,7 +147,19 @@ public class TestAfieldPackage extends TestBasePackage {
 		Rows rows = cs.execQuery("afield@selLowerAfieldBy", upperId);
 
 		rows.debugPrint();
+	}
 
+	public void testSelLowerAFieldBy2() throws IOException, ParseException, SQLException {
+		String upperId = "ch_set";
+		session.pathBy("/afield_rels").childQuery("", true).eq("upperid", upperId).ascending("orderno").find().toRows("lowerid, upperid, ").debugPrint(); 
+
+//		for (ReadNode node : nodes) {
+//			String afieldId = node.property("lowerid").asString();
+//			String afieldNm = session.ghostBy("/afields/" + afieldId).property("afieldnm").asString();
+//
+//			builder.next().property("lowerId", afieldId).property("afieldNm", afieldNm);
+//		}
+//		builder.buildRows().debugPrint();
 	}
 
 	public void testRetrieveWith() throws SQLException {
@@ -817,14 +829,14 @@ public class TestAfieldPackage extends TestBasePackage {
 
 		rows.debugPrint();
 	}
-	
+
 	public void testTransformer() throws SQLException {
 		cs.execQuery("afield@transformer", "categoryA");
 	}
 
 	public void testMakeTemporaryCategoryAfield() throws ParseException, IOException {
 		String catId = "categoryA";
-		
+
 		String[] afields = session.pathBy("/category_afields/" + catId + "/rels").children().transform(new Function<Iterator<ReadNode>, String[]>() {
 			@Override
 			public String[] apply(Iterator<ReadNode> iterator) {
@@ -839,7 +851,7 @@ public class TestAfieldPackage extends TestBasePackage {
 
 		IteratorList<ReadNode> iterator = session.pathBy("/afield_rels").childQuery("", true).in("lowerid", afields).eq("upperid", "ROOT").find().iterator();
 		int rownum = 1;
-		
+
 		while (iterator.hasNext()) {
 			ReadNode child = iterator.next();
 			WalkReadChildren walkChildren = (WalkReadChildren) session.pathBy("/afield_rels/" + child.property("").asString()).walkChildren().ascending("orderno");
@@ -853,8 +865,7 @@ public class TestAfieldPackage extends TestBasePackage {
 				rownum++;
 			}
 		}
-		
-		
+
 	}
 
 	private void prepareAFieldData() throws Exception {

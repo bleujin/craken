@@ -28,6 +28,10 @@ public abstract class AbstractReadSession implements ReadSession {
 		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/'))) ;
 	}
 
+	public ReadNode ghostBy(String fqn){
+		return pathBy(Fqn.fromString((fqn.startsWith("/") ? fqn : "/" + fqn)), true) ;
+	}
+	
 	public ReadNode ghostBy(String fqn0, String... fqns) {
 		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')), true) ;
 	}

@@ -162,7 +162,11 @@ public class WriteNodeImpl implements WriteNode{
 		touch(Touch.MODIFY) ;
 		return tree().replace(createNormalId(key), PropertyValue.createPrimitive(oldValue), PropertyValue.createPrimitive(newValue)) ;
 	}
-	
+
+	public WriteNode append(String key, Object value){
+		return append(key, new Object[]{value}) ;
+	}
+
 	public WriteNode append(String key, Object... value){
 		touch(Touch.MODIFY) ;
 		PropertyValue findValue = property(key) ;
@@ -174,6 +178,21 @@ public class WriteNodeImpl implements WriteNode{
 		return this ;
 	}
 	
+
+	@Override
+	public WriteNode unset(String key, Object value) {
+		return unset(key, new Object[]{value});
+	}
+
+	@Override
+	public WriteNode refTos(String refName, String fqn) {
+		return refTos(refName, new String[]{fqn});
+	}
+
+	@Override
+	public WriteNode unRefTos(String refName, String fqn) {
+		return unRefTos(refName, new String[]{fqn});
+	}
 	
 	public WriteNode unset(String key, Object... values){
 		touch(Touch.MODIFY) ;
@@ -276,9 +295,11 @@ public class WriteNodeImpl implements WriteNode{
 		return removed.size() > 0 ;
 	}
 	
+	public boolean hasProperty(String pid) {
+		return hasPropertyId(PropertyId.fromIdString(pid)) ;
+	}
 	
-	
-	public boolean hasProperty(PropertyId pid){
+	public boolean hasPropertyId(PropertyId pid){
 		return keys().contains(pid) ;
 	}
 
@@ -289,7 +310,7 @@ public class WriteNodeImpl implements WriteNode{
 //		return session().pathBy(Fqn.fromString(findProp.stringValue()));
 		
 		PropertyId referId = createReferId(refName);
-		if (hasProperty(referId)) {
+		if (hasPropertyId(referId)) {
 			String refPath = propertyId(referId).stringValue() ;
 			if (StringUtil.isBlank(refPath)) throw new IllegalArgumentException("not found ref :" + refName) ;
 			return wsession.pathBy(refPath) ;
@@ -301,7 +322,8 @@ public class WriteNodeImpl implements WriteNode{
 	public IteratorList<WriteNode> refs(String refName){
 		
 		PropertyId referId = createReferId(refName);
-		final Iterator<String> iter = hasProperty(referId) ? propertyId(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		final Set values = hasPropertyId(referId) ? propertyId(referId).asSet() : SetUtil.EMPTY ;
+		final Iterator<String> iter = values.iterator() ;
 		
 		return new IteratorList<WriteNode>() {
 			@Override
@@ -326,6 +348,10 @@ public class WriteNodeImpl implements WriteNode{
 			@Override
 			public Iterator<WriteNode> iterator() {
 				return this;
+			}
+			
+			public int count(){
+				return values.size() ;
 			}
 		};
 	}
@@ -559,5 +585,6 @@ public class WriteNodeImpl implements WriteNode{
 		
 		return result;
 	}
+
 	
 }

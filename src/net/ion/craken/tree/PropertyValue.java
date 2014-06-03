@@ -274,7 +274,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public int asInt() {
 		return intValue(0);
 	}
-	
+
 	public String asString(){
 		return stringValue() ;
 	}
@@ -418,5 +418,9 @@ class Values implements Serializable, Iterable {
 			return false;
 		Values that = (Values) obj;
 		return this.values.equals(that.values);
+	}
+	
+	public String toString(){
+		return values.toString() ;
 	}
 }

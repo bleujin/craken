@@ -132,13 +132,14 @@ public class ChildQueryResponse {
 	}
 
 	public IteratorList<ReadNode> iterator() {
-		final Iterator<Fqn> iter = found().iterator();
+		final List<Fqn> fqns = found();
+		final Iterator<Fqn> iter = fqns.iterator();
 		return new IteratorList<ReadNode>() {
 			@Override
 			public List<ReadNode> toList() {
 				List<ReadNode> result = ListUtil.newList() ;
-				while(iter.hasNext()) {
-					result.add(session.pathBy(iter.next())) ;
+				for(Fqn fqn : fqns) {
+					result.add(session.pathBy(fqn)) ;
 				}
 				return Collections.unmodifiableList(result);
 			}
@@ -156,6 +157,10 @@ public class ChildQueryResponse {
 			@Override
 			public Iterator<ReadNode> iterator() {
 				return this;
+			}
+			
+			public int count() {
+				return fqns.size() ;
 			}
 		};
 	}

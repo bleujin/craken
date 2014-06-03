@@ -99,7 +99,7 @@ public class TestToAdRow extends TestBaseCrud {
 			}
 		}) ;
 		
-		Rows rows = session.pathBy("/emps").children().toAdRows("this.dept.manager.name managerName");
+		Rows rows = session.pathBy("/emps").children().toAdRows("dept.manager.name managerName");
 		rows.debugPrint() ;
 		
 		session.pathBy("/emps/bleujin").toRows("this.dept.manager.name managerName") ;

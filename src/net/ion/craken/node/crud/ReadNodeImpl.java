@@ -210,7 +210,11 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return tnode.fqn() ;
 	}
 	
-	public boolean hasProperty(PropertyId pid){
+	public boolean hasProperty(String pid){
+		return hasPropertyId(PropertyId.fromIdString(pid)) ;
+	}
+	
+	public boolean hasPropertyId(PropertyId pid){
 		return keys().contains(pid) ;
 	}
 	
@@ -228,7 +232,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 //		return session().pathBy(Fqn.fromString(findProp.stringValue()));
 		
 		PropertyId referId = PropertyId.refer(refName);
-		if (hasProperty(referId)) {
+		if (hasPropertyId(referId)) {
 			String refPath = propertyId(referId).stringValue() ;
 			if (StringUtil.isBlank(refPath)) throw new NodeNotExistsException("not found ref :" + refName) ;
 
@@ -240,7 +244,8 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	
 	public IteratorList<ReadNode> refs(String refName){
 		PropertyId referId = PropertyId.refer(refName);
-		final Iterator<String> iter = hasProperty(referId) ? propertyId(referId).asSet().iterator() : IteratorUtils.EMPTY_ITERATOR;
+		final Set values = hasPropertyId(referId) ? propertyId(referId).asSet() : SetUtil.EMPTY_SET ;
+		final Iterator<String> iter = values.iterator() ;
 		
 		return new IteratorList<ReadNode>() {
 			@Override
@@ -267,6 +272,9 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 				return this;
 			}
 			
+			public int count(){
+				return values.size() ;
+			}
 		};
 	}
 	

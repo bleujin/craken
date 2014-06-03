@@ -107,7 +107,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 		this.cache.start();
 		this.logManager.start();
 
-		this.cddmListener = new CDDMListener(new ReadSessionImpl(Credential.EMANON, this, central().searchConfig().queryAnalyzer()));
+		this.cddmListener = new CDDMListener();
 //		this.addListener(cddmListener) ;
 		
 		return this;

@@ -1,5 +1,6 @@
 package net.ion.craken.node.convert;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -16,6 +17,7 @@ import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.db.Rows;
+import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
 import net.ion.framework.util.Debug;
@@ -27,6 +29,7 @@ import com.google.common.base.Function;
 
 public class Functions {
 
+	
 	public final static Function<ReadNode, Rows> rowsFunction(final ReadSession session, final String expr){
 		return new Function<ReadNode, Rows>(){
 			@Override
@@ -155,6 +158,21 @@ public class Functions {
 			Debug.debug(target, target.keys());;
 			return null ;
 		}
+	};
+
+
+	public static final Function<Iterator<ReadNode>, JsonObject> CHILDLIST = new Function<Iterator<ReadNode>, JsonObject>(){
+		@Override
+		public JsonObject apply(Iterator<ReadNode> iter) {
+			JsonObject result = new JsonObject() ;
+			
+			while(iter.hasNext()){
+				ReadNode next = iter.next() ;
+				result.add(next.fqn().name(), next.toValueJson());
+			}
+			return result;
+		}
+		
 	};
 
 

@@ -57,6 +57,53 @@ public class TestReference extends TestBaseCrud {
 		
 	}
 	
+	public void testWhenRemoved() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev");
+				return null ;
+			}
+		}) ;
+
+		assertTrue(session.pathBy("/depts/dev").hasRef("manager") == false) ; // confirm exists
+
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev").refTos("manager", "/emps/bleujin", "/emps/hero") ;
+				return null ;
+			}
+		}) ;
+		
+		assertTrue(session.pathBy("/depts/dev").hasRef("manager") == true) ; // confirm exists
+		
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev").unRefTos("manager", "/emps/bleujin") ;
+				return null ;
+			}
+		}) ;
+
+		assertTrue(session.pathBy("/depts/dev").hasRef("manager") == true) ; // confirm exists
+		
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/depts/dev").property("deptno", 20).property("name", "dev").unRefTos("manager", "/emps/hero") ;
+				return null ;
+			}
+		}) ;
+
+		assertTrue(session.pathBy("/depts/dev").hasRef("manager") == false) ; // confirm exists
+
+	}
+	
+	
 	public void testRefIsOverwrite() throws Exception {
 		session.tran(new TransactionJob<Void>() {
 			@Override
