@@ -4,6 +4,7 @@ import java.io.StringReader;
 
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.MapUtil;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -73,6 +74,23 @@ public class TestFirst extends TestCase {
 		rhiner.define("script", new StringReader(script)) ;
 		String actual = rhiner.callFn("script.hi", String.class, "hi", "bleujin") ;
 		assertEquals("hi bleujin", actual);
+	}
+	
+	public void testBinding() throws Exception {
+		final Rhiner rhiner = Rhiner.create().start() ;
+		rhiner.bind("map", MapUtil.create("name", "hero")) ;
+
+		String script = "new function(){"
+				+ " this.hello = function(name) {return 'Hello ' + name; }, "
+				+ " this.hi = function(greeting, name) {"
+				+ "	print(greeting) ;"
+				+ "	return greeting + ' ' + name + ' ' + map.get('name'); } "
+				+ "} ;" ;
+		
+		rhiner.define("script", new StringReader(script)) ;
+		String actual = rhiner.callFn("script.hi", String.class, "hi", "bleujin") ;
+		assertEquals("hi bleujin hero", actual);
+		rhiner.shutdown();
 	}
 	
 	

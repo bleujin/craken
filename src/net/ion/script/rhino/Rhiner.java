@@ -2,12 +2,7 @@ package net.ion.script.rhino;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
@@ -17,64 +12,44 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.tools.shell.Global;
 
 public class Rhiner {
 
-	private ExecutorService bossThread = Executors.newSingleThreadExecutor() ;
 	private Context rootContext;
 	private Map<String, Scriptable> packs = MapUtil.newMap();
+	private ScriptableObject sharedScope;
 	
 	public static Rhiner create() {
 		return new Rhiner();
 	}
 
 	public Rhiner start() {
-		try {
-			this.rootContext = bossThread.submit(new Callable<Context>(){
-				@Override
-				public Context call() throws Exception {
-					Context context = Context.enter();
-					return context;
-				}
-			}).get() ;
-			
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e) ;
-		} catch (ExecutionException e) {
-			throw new IllegalStateException(e) ;
-		}
+		Context context = Context.enter();
+		Global global = new Global(context);
+
+		global.setOut(System.out);
+		global.setErr(System.err);
 		
+		Rhiner.this.sharedScope = context.initStandardObjects();
+		sharedScope.setPrototype(global);
+					
+		
+		this.rootContext = context ;
 		return this;
 	}
 	
 	public Rhiner shutdown(){
-		try {
-			bossThread.submit(new Callable<Void>(){
-				@Override
-				public Void call() throws Exception {
-					Context.exit();
-					return null;
-				}
-			}).get() ;
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e) ;
-		} catch (ExecutionException e) {
-			throw new IllegalStateException(e) ;
-		}
-		
-		bossThread.shutdown(); 
+		Context.exit();
+
 		return this ;
 	}
 
-	public Rhiner define(String name, String content) {
-		Context context = Context.enter() ;
-		try {
-			ScriptableObject scope = context.initStandardObjects();
-			Scriptable scriptable = (Scriptable) context.evaluateString(scope, content, name, 1, null);
-			packs.put(name, scriptable) ;
-		} finally {
-			Context.exit(); 
-		}
+	public Rhiner define(final String name, final String content) {
+		Scriptable scope = rootContext.newObject(sharedScope);
+		Scriptable scriptable = (Scriptable) rootContext.evaluateString(scope, content, name, 1, null);
+		packs.put(name, scriptable) ;
+
 		return this ;
 	}
 	
@@ -99,17 +74,22 @@ public class Rhiner {
 
 	
 	public <T> T callFn(String fullName, RhinerHandler<T> rhinerHandler, Object... params) {
-		ScriptableObject scope = rootContext.initStandardObjects();
-		
+		Scriptable fnScope = rootContext.initStandardObjects() ;
+
 		String[] names = StringUtil.split(fullName, '.') ;
 		Scriptable scriptable = packs.get(names[0]) ;
 		if (scriptable == null) rhinerHandler.onFail(new IllegalArgumentException("not found : " + fullName)) ;
-		
-		Object prop = scriptable.get(names[1], null) ;
+
+
+		Object prop = scriptable.get(names[1], scriptable) ;
 		if (prop == null) rhinerHandler.onFail(new IllegalArgumentException("not found : " + fullName)) ;
 		
-		Object result = ((Function)prop).call(rootContext, scriptable, scope, params)  ;
+		Object result = ((Function)prop).call(rootContext, scriptable, fnScope, params)  ;
 		return rhinerHandler.onSuccess(result) ;
+	}
+
+	public void bind(String name, Object value) {
+		sharedScope.put(name, sharedScope, value);
 	}
 
 }
