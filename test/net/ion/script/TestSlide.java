@@ -22,7 +22,8 @@ import net.ion.nradon.ajax.BroadEchoWebSocket;
 import net.ion.nradon.config.RadonConfiguration;
 import net.ion.nradon.handler.SimpleStaticFileHandler;
 import net.ion.script.rhino.MyOutput;
-import net.ion.script.rhino.RhinoEngine;
+import net.ion.script.rhino.Scripter;
+import net.ion.script.rhino.RhinoResponse;
 
 public class TestSlide extends TestCase {
 	
@@ -30,8 +31,8 @@ public class TestSlide extends TestCase {
 		ExecutorService webThread = Executors.newSingleThreadExecutor();
 		final Pusher pusher = new Pusher();
 		
-		RhinoEngine manager = RhinoEngine.create().start().get();
-		manager.start() ;
+		Scripter rhiner = Scripter.create().start() ;
+		rhiner.start() ;
 		
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
 		r.start() ;
@@ -39,7 +40,7 @@ public class TestSlide extends TestCase {
 		
 		Radon radon = RadonConfiguration.newBuilder(9000)
 			.add("/websocket/{id}", new BroadEchoWebSocket())
-			.add("/script/{id}", new ScriptWebSocket(manager, r)) 
+			.add("/script/{id}", new ScriptWebSocket(rhiner, r)) 
 			.add("/events/{id}", new EventSourceHandler() {
                 public void onOpen(EventSourceConnection conn) throws Exception {
                     pusher.addConnection(conn);
@@ -60,11 +61,11 @@ public class TestSlide extends TestCase {
 
 	private static class ScriptWebSocket implements WebSocketHandler {
 		private List<WebSocketConnection> connections = new CopyOnWriteArrayList<WebSocketConnection>() ;
-		private final RhinoEngine engine;
+		private final Scripter engine;
 		private final RepositoryImpl r;
 		
-		public ScriptWebSocket(RhinoEngine manager, RepositoryImpl r) {
-			this.engine = manager ;
+		public ScriptWebSocket(Scripter engine, RepositoryImpl r) {
+			this.engine = engine ;
 			this.r = r ;
 		}
 
@@ -78,7 +79,8 @@ public class TestSlide extends TestCase {
 			ReadSession session = r.login("test");
 			final MyOutput output = new MyOutput();
 			session.credential().tracer(output) ;
-			engine.newScript(wconn.getString("id")).bind("session", session).defineScript(script).exec() ;
+			engine.directCall(wconn.getString("id"), script) ;
+					
 			wconn.send(output.readOut()) ;
 		}
 

@@ -44,7 +44,7 @@ public class TestRefChildren extends TestBaseCrud {
 			}
 		}) ;
 		
-		assertEquals(3, session.pathBy("/bleujin").refChildren("dept").count()) ;
+		assertEquals(2, session.pathBy("/bleujin").refChildren("dept").count()) ;
 	}
 	
 	public void testRefWriteChildren() throws Exception {

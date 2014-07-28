@@ -49,7 +49,6 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
 
 public class NeoWorkspace extends Workspace {
 
@@ -346,7 +345,7 @@ public class NeoWorkspace extends Workspace {
 			public Void apply(Iterator<Node> iter) {
 				while (iter.hasNext()) {
 					final Node next = iter.next();
-					Debug.line(next, Iterators.toString(next.getPropertyKeys().iterator()), Iterators.toString(next.getPropertyValues().iterator()));
+					Debug.line(next);
 				}
 				return null;
 			}

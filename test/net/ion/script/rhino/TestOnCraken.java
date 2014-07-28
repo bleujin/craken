@@ -1,5 +1,6 @@
 package net.ion.script.rhino;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -8,7 +9,7 @@ import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
-public class TestOnCraken extends TestBaseScript{
+public class TestOnCraken extends TestCase {
 
 	public void testEngine() throws Exception {
 		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
@@ -43,8 +44,16 @@ public class TestOnCraken extends TestBaseScript{
 		
 		final MyOutput output = new MyOutput();
 		session.credential().tracer(output) ;
-		RhinoResponse response = rengine.newScript("test").bind("session", session).defineScript("session.root().children().debugPrint()").exec();
 		
+		Scripter rh = Scripter.create() ;
+		rh.bind("session", session) ;
+		
+		rh.define("sample", "new function() {"
+				+ " this.exec = function(){ session.root().children().debugPrint() ; }"
+				+ "}") ;
+		
+		rh.callFn("sample.exec", RhinoResponse.ReturnNative) ;
+
 		Debug.line(output.readOut()) ;
 		r.shutdown() ;
 	}

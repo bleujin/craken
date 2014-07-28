@@ -104,6 +104,8 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public static RepositoryImpl inmemoryCreateWithTest() throws CorruptIndexException, IOException {
+		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
+		
 		RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(), "emanon");
 		result.resyncListener(new ResyncListener(result)) ;
 		return result.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().location(""));

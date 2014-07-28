@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.script.ScriptException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,7 +25,7 @@ import net.ion.nradon.Radon;
 import net.ion.nradon.config.RadonConfiguration;
 import net.ion.radon.core.ContextParam;
 import net.ion.radon.core.let.PathHandler;
-import net.ion.script.rhino.RhinoEngine;
+import net.ion.script.rhino.Scripter;
 import net.ion.script.rhino.RhinoResponse;
 
 import org.apache.commons.fileupload.FileItem;
@@ -44,7 +45,7 @@ public class TestDist extends TestCase{
 	private void runServer(String targetDir, int port) throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/" + targetDir)) ;
 		
-		RhinoEngine rengine = RhinoEngine.create().start().get() ;
+		Scripter rengine = Scripter.create() ;
 		
 		RepositoryImpl repository = RepositoryImpl.create();
 		repository.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/" + targetDir)) ;
@@ -81,12 +82,16 @@ class ScriptLet {
 
 	@Path("/{name")
 	@POST
-	public String runScript(@ContextParam("repository") RepositoryImpl r, @ContextParam("scriptm") RhinoEngine rengine, @PathParam("name") String name, @FormParam("script") String script) throws IOException{
+	public String runScript(@ContextParam("repository") RepositoryImpl r, @ContextParam("scriptm") Scripter rengine, @PathParam("name") String name, @FormParam("script") String script) throws IOException, ScriptException{
 		
 		ReadSession session = r.login("test");
-		RhinoResponse response = rengine.newScript(name).bind("session", session).defineScript(script).exec();
+		String pcontent = "new function(){"
+			+ " this.call = function(){ " + script + " }"
+			+ "} " ;
 		
-		return ObjectUtil.toString(response.getReturn(Object.class)) ;
+		Object result = rengine.define(name, pcontent).bind("session", session).callFn(name + ".call", RhinoResponse.ReturnNative) ;
+		
+		return ObjectUtil.toString(result) ;
 	}
 } 
 

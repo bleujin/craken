@@ -9,6 +9,7 @@ import net.ion.craken.tree.PropertyValue;
 
 import com.google.common.base.Function;
 
+
 public interface NodeCommon<T extends NodeCommon<T>> {
 	
 	final static String NameProp = "__name";

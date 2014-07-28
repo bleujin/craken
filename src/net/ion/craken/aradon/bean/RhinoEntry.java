@@ -5,33 +5,28 @@ import java.io.IOException;
 import net.ion.nradon.Radon;
 import net.ion.nradon.config.OnEventObject;
 import net.ion.nradon.handler.event.ServerEvent.EventType;
-import net.ion.script.rhino.RhinoEngine;
-import net.ion.script.rhino.RhinoScript;
+import net.ion.script.rhino.Scripter;
 
 public class RhinoEntry implements OnEventObject {
 
-	private RhinoEngine rengine;
+	private Scripter rhiner;
 	public final static String EntryName = "rengine";
 
-	private RhinoEntry(RhinoEngine rengine) {
-		this.rengine = rengine;
+	private RhinoEntry(Scripter rengine) {
+		this.rhiner = rengine;
 	}
 
 	public final static RhinoEntry test() throws IOException {
-		return new RhinoEntry(RhinoEngine.create());
+		return new RhinoEntry(Scripter.create());
 	}
 
 	@Override
 	public void onEvent(EventType event, Radon service) {
 		if (event == EventType.START) {
-			rengine.start();
+			rhiner.start();
 		} else if (event == EventType.STOP) {
-			rengine.shutdown();
+			rhiner.shutdown();
 		}
-	}
-
-	public RhinoScript newScript(String sname) {
-		return rengine.newScript(sname);
 	}
 
 }

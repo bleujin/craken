@@ -3,8 +3,6 @@ package net.ion.craken.node.crud.property;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
-
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
