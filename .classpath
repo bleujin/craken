@@ -6,7 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/netty-3.4.6.Final.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/infinispan521_fat.jar"/>
