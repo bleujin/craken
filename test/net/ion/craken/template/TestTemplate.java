@@ -41,7 +41,7 @@ public class TestTemplate extends TestBaseCrud{
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").property("html", "${foreach self.children child ,}\n${child}${end}") ;
+				wsession.pathBy("/bleujin").property("html", "${foreach self.children child ,}\n${child.property(dummy).asInt()}${end}") ;
 				return null;
 			}
 		}) ;

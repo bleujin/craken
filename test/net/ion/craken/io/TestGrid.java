@@ -2,6 +2,7 @@ package net.ion.craken.io;
 
 import java.io.ByteArrayInputStream;
 
+import junit.framework.TestCase;
 import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
@@ -9,10 +10,6 @@ import net.ion.framework.util.IOUtil;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.manager.DefaultCacheManager;
-
-import com.lowagie.text.Meta;
-
-import junit.framework.TestCase;
 
 public class TestGrid extends TestCase {
 

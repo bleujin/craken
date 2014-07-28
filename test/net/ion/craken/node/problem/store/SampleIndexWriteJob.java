@@ -7,7 +7,7 @@ import java.io.FileReader;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
-import net.ion.radon.impl.util.CsvReader;
+import net.ion.radon.util.csv.CsvReader;
 
 public class SampleIndexWriteJob implements IndexJob<Void> {
 

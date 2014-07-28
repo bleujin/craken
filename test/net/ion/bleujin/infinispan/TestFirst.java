@@ -8,12 +8,9 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 
-import org.testng.annotations.Test;
-
 public class TestFirst extends TestCase {
 
 
-	@Test
 	public void testCreate() throws Exception {
 		RepositoryImpl r = RepositoryImpl.create();
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("")) ;

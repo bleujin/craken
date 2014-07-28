@@ -19,6 +19,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
@@ -66,8 +67,7 @@ public class TestNodeIo extends TestCase {
 	public void testHello() throws Exception {
 		 session.tranSync(new TransactionJob<Void>() {
 			 public Void handle(WriteSession wsession) throws Exception {
-				 wsession.pathBy("/blobtest").property("name", "korea").blob("text", 
-						 new com.amazonaws.util.StringInputStream("Long Long String")) ;
+				 wsession.pathBy("/blobtest").property("name", "korea").blob("text", new StringInputStream("Long Long String")) ;
 				 return null;
 			 }
 		 });

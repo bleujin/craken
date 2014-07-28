@@ -18,7 +18,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
-import net.ion.radon.impl.util.CsvReader;
+import net.ion.radon.util.csv.CsvReader;
 
 public class TestInsertSpeed extends TestCase {
 

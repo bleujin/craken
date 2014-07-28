@@ -1,10 +1,12 @@
 package net.ion.bleujin;
 
+import java.util.concurrent.Future;
+
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
-import net.ion.radon.core.Aradon;
-import net.ion.radon.core.config.InstanceAttributeValue;
+import net.ion.nradon.Radon;
+import net.ion.nradon.config.RadonConfiguration;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -40,11 +42,11 @@ public class TestAradonContext extends TestCase {
 	}
 	
 	public void testLoad() throws Exception {
-		Aradon aradon = Aradon.create() ;
 		dftManager.getCache("myjob").addListener(new SampleListener()) ;
-		aradon.getConfig().attributes().put("dftmanager", InstanceAttributeValue.create(dftManager)) ;
 		
-		aradon.startServer(9000) ;
+		Future<Radon> radon = RadonConfiguration.newBuilder(9000).rootContext("dftmanager", dftManager).start() ;
+		radon.get() ;
+		
 		new InfinityThread().startNJoin() ;
 	}
 	

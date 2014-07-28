@@ -4,8 +4,9 @@ import java.io.IOException;
 
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.radon.core.IService;
-import net.ion.radon.core.context.OnEventObject;
+import net.ion.nradon.Radon;
+import net.ion.nradon.config.OnEventObject;
+import net.ion.nradon.handler.event.ServerEvent.EventType;
 
 public class RepositoryEntry implements OnEventObject {
 
@@ -25,10 +26,10 @@ public class RepositoryEntry implements OnEventObject {
 	}
 
 	@Override
-	public void onEvent(AradonEvent event, IService service) {
-		if (event == AradonEvent.START){
+	public void onEvent(EventType event, Radon service) {
+		if (event == EventType.START){
 			r.start() ;
-		} else if (event == AradonEvent.STOP){
+		} else if (event == EventType.STOP){
 			r.shutdown() ;
 		}
 	}

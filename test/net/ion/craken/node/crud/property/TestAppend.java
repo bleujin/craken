@@ -145,6 +145,30 @@ public class TestAppend extends TestBaseCrud {
 
 	}
 	
+	public void testBlankAfterUnsetAll() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/hero").append("name", "bleujin").append("age", 20, 30) ;
+				return null;
+			}
+		}) ;
+
+		assertEquals(true, session.pathBy("/hero").hasProperty("age")) ;
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/hero").unset("age", 20) ;
+				wsession.pathBy("/hero").unset("age", 30) ;
+				return null;
+			}
+		}) ;
+		
+		session.pathBy("/hero").debugPrint();
+		Debug.line(false, session.pathBy("/hero").property("age").asSet().size()) ;
+	}
+	
+	
 	private void print(PropertyValue prop){
 		Debug.debug(prop.stringValue()) ;
 		Debug.debug(prop.asSet(), prop.asSet().size()) ;

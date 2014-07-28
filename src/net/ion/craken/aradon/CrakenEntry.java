@@ -1,10 +1,11 @@
 package net.ion.craken.aradon;
 
 import net.ion.craken.Craken;
+import net.ion.nradon.Radon;
+import net.ion.nradon.config.OnEventObject;
+import net.ion.nradon.handler.event.ServerEvent.EventType;
 import net.ion.radon.core.IService;
-import net.ion.radon.core.context.OnEventObject;
 
-@Deprecated
 public class CrakenEntry implements OnEventObject{
 
 	private Craken craken ;
@@ -19,10 +20,10 @@ public class CrakenEntry implements OnEventObject{
 	}
 
 	@Override
-	public void onEvent(AradonEvent ae, IService service) {
-		if (ae == AradonEvent.START){
+	public void onEvent(EventType ae, Radon service) {
+		if (ae == EventType.START){
 			craken.start() ;
-		} else if (ae == AradonEvent.STOP){
+		} else if (ae == EventType.STOP){
 			craken.stop() ;
 		}
 	}

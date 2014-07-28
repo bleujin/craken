@@ -6,19 +6,13 @@ import java.io.FileReader;
 
 import junit.framework.TestCase;
 import net.ion.craken.loaders.S3CacheStore;
-import net.ion.craken.loaders.S3CacheStoreConfig;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.StringUtil;
-import net.ion.radon.impl.util.CsvReader;
+import net.ion.radon.util.csv.CsvReader;
 
-import org.bson.types.ObjectId;
 import org.infinispan.Cache;
-import org.infinispan.configuration.cache.Configuration;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.cache.LoaderConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.loaders.cloud.CloudCacheStore;
 import org.infinispan.manager.DefaultCacheManager;
 
 public class TestS3CacheStore extends TestCase {

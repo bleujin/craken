@@ -16,7 +16,7 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
-import net.ion.radon.impl.util.CsvReader;
+import net.ion.radon.util.csv.CsvReader;
 
 import org.apache.lucene.store.FSDirectory;
 import org.infinispan.Cache;

@@ -27,20 +27,8 @@ public class TestToAdRow extends TestBaseCrud {
 	public void testPage2() throws Exception {
 		session.tranSync(TransactionJobs.dummy("/bleujin", 120)) ;
 
-		session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 2, 10), "this.name b, dummy, this.age").debugPrint(); 
-		
-	}
-
-	public void testPage10() throws Exception {
-		session.tranSync(TransactionJobs.dummy("/bleujin", 120)) ;
-
-//		Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 1, 10), "this.name b, dummy, this.age");
-//		rows.debugPrint(); 
-//		
-//		
-//		Debug.line(); 
-
-		session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 10, 10), "this.name b, dummy, this.age").debugPrint(); 
+		assertEquals(10, session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 2, 10), "this.name b, dummy, this.age").firstRow().getInt("dummy")) ; 
+		assertEquals(90, session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 10, 10), "this.name b, dummy, this.age").firstRow().getInt("dummy")) ;
 		
 	}
 

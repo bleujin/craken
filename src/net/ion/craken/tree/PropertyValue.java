@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.JsonSyntaxException;
+import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
@@ -289,6 +291,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public long asLong(int dftValue) {
 		return longValue(dftValue) ;
+	}
+	
+	public String asDateFmt(String fmt){
+		return DateUtil.dateToString(new Date(asLong(0)), fmt) ;
 	}
 
 	public String[] asStrings() {

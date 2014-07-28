@@ -4,6 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
 import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
@@ -16,19 +22,12 @@ import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.nradon.Radon;
 import net.ion.nradon.config.RadonConfiguration;
-import net.ion.nradon.handler.aradon.AradonHandler;
-import net.ion.nradon.let.IServiceLet;
-import net.ion.radon.core.Aradon;
-import net.ion.radon.core.annotation.ContextParam;
-import net.ion.radon.core.annotation.FormParam;
-import net.ion.radon.core.annotation.PathParam;
-import net.ion.radon.util.AradonTester;
+import net.ion.radon.core.ContextParam;
+import net.ion.radon.core.let.PathHandler;
 import net.ion.script.rhino.RhinoEngine;
 import net.ion.script.rhino.RhinoResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
 
 public class TestDist extends TestCase{
 
@@ -51,15 +50,9 @@ public class TestDist extends TestCase{
 		repository.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/" + targetDir)) ;
 		repository.start() ;
 		
-		Aradon aradon = AradonTester.create()
-			.putAttribute("repository", repository)
-			.putAttribute("scriptm", rengine)
-			.register("upload", "/{action}", UploadLet.class)
-			.register("script", "/{name}", ScriptLet.class)
-			.getAradon() ;
-
-		Radon radon = RadonConfiguration.newBuilder(port)
-			.add("/*", AradonHandler.create(aradon)).start().get();
+		Radon radon = RadonConfiguration.newBuilder(port).add(new PathHandler(UploadLet.class, ScriptLet.class))
+					.rootContext("repository", repository).rootContext("scriptm", rengine)
+					.start().get();
 		
 		new InfinityThread().startNJoin() ;
 	}
@@ -83,12 +76,13 @@ public class TestDist extends TestCase{
 
 }
 
-class ScriptLet implements IServiceLet {
+@Path("/script")
+class ScriptLet {
 
-	@Post
-	public String runScript(@ContextParam("repository") RepositoryImpl r,
-				@ContextParam("scriptm") RhinoEngine rengine,
-				@PathParam("name") String name, @FormParam("script") String script) throws IOException{
+	@Path("/{name")
+	@POST
+	public String runScript(@ContextParam("repository") RepositoryImpl r, @ContextParam("scriptm") RhinoEngine rengine, @PathParam("name") String name, @FormParam("script") String script) throws IOException{
+		
 		ReadSession session = r.login("test");
 		RhinoResponse response = rengine.newScript(name).bind("session", session).defineScript(script).exec();
 		
@@ -97,9 +91,11 @@ class ScriptLet implements IServiceLet {
 } 
 
 
-class UploadLet implements IServiceLet {
+@Path("/upload")
+class UploadLet {
 	
-	@Get
+	@GET
+	@Path("/{action}")
 	public String hello(@ContextParam("repository") RepositoryImpl r, @PathParam("action") String fileName) throws IOException{
 		ReadSession session = r.login("test") ;
 		InputStream input = session.pathBy("/bleujin").property(fileName).asBlob().toInputStream();
@@ -109,7 +105,7 @@ class UploadLet implements IServiceLet {
 	}
 	
 	
-	@Post
+	@POST
 	public String upload(@ContextParam("repository") RepositoryImpl r, @PathParam("action") final String fileName, @FormParam("myfile") FileItem fitem) throws Exception {
 		
 		final InputStream input = fitem.getInputStream();

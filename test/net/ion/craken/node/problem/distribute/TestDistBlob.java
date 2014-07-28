@@ -1,35 +1,28 @@
 package net.ion.craken.node.problem.distribute;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
+import java.util.concurrent.Future;
 
-import org.apache.commons.io.IOUtils;
-import org.restlet.resource.Get;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
-import net.ion.craken.io.GridBlob;
+import junit.framework.TestCase;
 import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.InfinityThread;
-import net.ion.framework.util.StringUtil;
 import net.ion.nradon.Radon;
-import net.ion.nradon.let.IServiceLet;
-import net.ion.radon.core.Aradon;
-import net.ion.radon.core.annotation.ContextParam;
-import net.ion.radon.core.annotation.PathParam;
-import net.ion.radon.util.AradonTester;
-import junit.framework.TestCase;
+import net.ion.nradon.config.RadonConfiguration;
+import net.ion.radon.core.ContextParam;
+import net.ion.radon.core.let.PathHandler;
 
 public class TestDistBlob extends TestCase {
 
@@ -41,17 +34,14 @@ public class TestDistBlob extends TestCase {
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/s1")) ;
 		r.start() ;
 		
-		Aradon aradon = AradonTester.create()
-					.register("test", "/{action}", TestLet.class).getAradon() ;
-		aradon.getServiceContext().putAttribute("r", r) ;
-		
+		Future<Radon> future = RadonConfiguration.newBuilder(9000).rootContext("r", r).add(new PathHandler(TestLet.class)).start() ;
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;
 			}
 		});
 
-		Radon radon = aradon.toRadon(9000).start().get() ;
+		future.get() ;
 		
 		new InfinityThread().startNJoin(); 
 	}
@@ -63,27 +53,26 @@ public class TestDistBlob extends TestCase {
 		final RepositoryImpl r = RepositoryImpl.create("s2") ;
 		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().location("./resource/temp/s2")) ;
 		r.start() ;
-		
-		Aradon aradon = AradonTester.create()
-					.register("test", "/{action}", TestLet.class).getAradon() ;
-		aradon.getServiceContext().putAttribute("r", r) ;
-		
+
+		Future<Radon> future = RadonConfiguration.newBuilder(9010).rootContext("r", r).add(new PathHandler(TestLet.class)).start() ;
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;
 			}
 		});
+		future.get() ;
 
-		Radon radon = aradon.toRadon(9010).start().get() ;
 		new InfinityThread().startNJoin(); 
 	}
 
 }
 
-class TestLet implements IServiceLet {
+@Path("/test")
+class TestLet {
 	
 	
-	@Get   // 
+	@Path("/{action}")
+	@GET   // 
 	public String action(@ContextParam("r") RepositoryImpl r, @PathParam("action") String action) throws Exception{
 
 		ReadSession session = r.login("test") ;

@@ -2,8 +2,9 @@ package net.ion.craken.aradon.bean;
 
 import java.io.IOException;
 
-import net.ion.radon.core.IService;
-import net.ion.radon.core.context.OnEventObject;
+import net.ion.nradon.Radon;
+import net.ion.nradon.config.OnEventObject;
+import net.ion.nradon.handler.event.ServerEvent.EventType;
 import net.ion.script.rhino.RhinoEngine;
 import net.ion.script.rhino.RhinoScript;
 
@@ -21,10 +22,10 @@ public class RhinoEntry implements OnEventObject {
 	}
 
 	@Override
-	public void onEvent(AradonEvent event, IService service) {
-		if (event == AradonEvent.START) {
+	public void onEvent(EventType event, Radon service) {
+		if (event == EventType.START) {
 			rengine.start();
-		} else if (event == AradonEvent.STOP) {
+		} else if (event == EventType.STOP) {
 			rengine.shutdown();
 		}
 	}

@@ -77,6 +77,7 @@ public class Craken {
 		return result ;
 	}
 
+	@Deprecated
 	public <E extends AbstractEntry> LegContainer<E> defineLeg(Class<E> clz) {
 		if (preDefinedConfig.containsKey(clz.getCanonicalName())){
 			Configuration config = preDefinedConfig.get(clz.getCanonicalName()) ;
@@ -105,6 +106,7 @@ public class Craken {
 		return myInfo ;
 	}
 
+	@Deprecated
 	public <E extends AbstractEntry> Craken preDefineConfig(Class<E> clz, Configuration config) {
 		preDefinedConfig.put(clz.getCanonicalName(), config) ;
 		return this ;
