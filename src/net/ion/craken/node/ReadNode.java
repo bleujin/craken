@@ -17,7 +17,7 @@ import org.apache.lucene.search.Query;
 
 public interface ReadNode extends NodeCommon<ReadNode> {
 
-	
+	ReadSession session() ;
 	
 	<T> T toBean(Class<T> clz);
 

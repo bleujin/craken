@@ -16,6 +16,8 @@ import org.apache.lucene.queryparser.classic.ParseException;
 
 public interface WriteNode extends NodeCommon<WriteNode> {
 
+	public WriteSession session() ;
+	
 	public WriteChildren children();
 
 	public PropertyValue increase(String key);
