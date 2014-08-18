@@ -77,6 +77,12 @@ public class RepositoryImpl implements Repository {
 		return create(gconfig);
 	}
 	
+	public static RepositoryImpl test(DefaultCacheManager dcm, String repoId){
+		RepositoryImpl result = new RepositoryImpl(dcm, "emanon");
+		result.resyncListener(new ResyncListener(result)) ;
+		return result ;
+	}
+	
 	public static RepositoryImpl create(String repoId) {
 		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder()
 			.transport().clusterName("craken").nodeName(repoId)
@@ -90,7 +96,10 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public static RepositoryImpl create(GlobalConfiguration gconfig, String repoId) {
+		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
+		
 		Configuration config = new ConfigurationBuilder().locking().lockAcquisitionTimeout(20000).concurrencyLevel(5000).useLockStriping(false).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build(); // not indexable : indexing().enable().
+		
 		final RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(gconfig, config), repoId);
 
 		result.resyncListener(new ResyncListener(result)) ;

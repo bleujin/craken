@@ -8,8 +8,10 @@ import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.SetUtil;
 
 public class TestAppend extends TestBaseCrud {
 
@@ -104,9 +106,25 @@ public class TestAppend extends TestBaseCrud {
 
 		assertEquals("bleu", session.pathBy("/bleujin").property("str").value());
 		assertEquals(2, session.pathBy("/bleujin").property("str").asSet().size());
-
 	}
 
+	public void testSetBlankArray() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().child("/bleujin").property("str", new String[] {});
+				return null;
+			}
+		}).get();
+
+		assertEquals(true, session.pathBy("/bleujin").hasProperty("str")) ;
+		
+		assertEquals("", session.pathBy("/bleujin").property("str").asString());
+		assertEquals(0, session.pathBy("/bleujin").property("str").asSet().size());
+	}
+
+	
+	
 	public void testDisAllowDiffType() throws Exception {
 		final CountDownLatch latch = new CountDownLatch(1) ;
 		session.tran(new TransactionJob<Void>() {
@@ -165,6 +183,28 @@ public class TestAppend extends TestBaseCrud {
 		session.pathBy("/hero").debugPrint();
 		Debug.line(false, session.pathBy("/hero").property("age").asSet().size()) ;
 	}
+	
+	
+	public void testArrayAtProperty() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/hero").property("name", new String[]{"jin", "hero"}) ;
+				return null;
+			}
+		}) ;
+		Debug.line(session.pathBy("/hero").property("name").asSet()) ;
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/hero").property("name", new String[]{"bleu"}) ;
+				return null;
+			}
+		}) ;
+		Debug.line(session.pathBy("/hero").property("name").value(), session.pathBy("/hero").property("name").asSet()) ;
+	}
+	
 	
 	
 	private void print(PropertyValue prop){

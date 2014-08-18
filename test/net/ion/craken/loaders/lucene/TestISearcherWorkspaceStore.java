@@ -2,6 +2,8 @@ package net.ion.craken.loaders.lucene;
 
 import java.io.File;
 
+import org.infinispan.manager.DefaultCacheManager;
+
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.RepositoryImpl;

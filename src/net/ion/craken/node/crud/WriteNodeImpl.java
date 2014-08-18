@@ -120,12 +120,13 @@ public class WriteNodeImpl implements WriteNode{
 		if (value instanceof PropertyValue) {
 			return property(createNormalId(key), (PropertyValue)value) ;
 		} else if (value != null && value.getClass().isArray()) {
+			
 			int length = Array.getLength(value);
-			List list = ListUtil.newList() ;
+			Set set = SetUtil.newSet() ;
 			for (int i = 0; i < length; i++) {
-	            list.add(Array.get(value, i));
+	            set.add(Array.get(value, i));
 	        }
-			return append(key, list.toArray()) ;
+			return property(PropertyId.normal(key), PropertyValue.createPrimitive(set)) ;
 		}
 		return property(createNormalId(key), PropertyValue.createPrimitive(value)) ;
 	}

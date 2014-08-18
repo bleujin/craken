@@ -53,7 +53,7 @@
 		<echo>Copy to ICS6Craken</echo>
 		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../ics6withcraken/lib/ref/" />
 		<echo>Copy to NISS</echo>
-		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../niss/NISS/lib/ref/" />
-			</target>
+		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../niss/lib/ref/" />
+	</target>
 
 </project>
