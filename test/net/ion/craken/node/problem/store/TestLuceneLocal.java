@@ -45,7 +45,7 @@ public class TestLuceneLocal extends TestCase {
 	public void testLoadCentral() throws Exception {
 		Searcher searcher = central.newSearcher();
 //		searcher.createRequest("name:bleujin").find().debugPrint();
-		Debug.line(searcher.createRequest(SearchConstant.ISKey + ":/try2/*").find().totalCount()) ;
+		Debug.line(searcher.createRequest(SearchConstant.DocKey + ":/try2/*").find().totalCount()) ;
 	}
 	
 	// 416 sec per 10k(25 per sec)

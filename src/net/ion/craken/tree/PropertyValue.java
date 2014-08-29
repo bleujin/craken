@@ -293,6 +293,23 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return longValue(dftValue) ;
 	}
 	
+	public float asFloat(float dftValue){
+		try {
+			return (float)Float.parseFloat(stringValue());
+		} catch (NumberFormatException e) {
+			return dftValue;
+		}
+	}
+
+	public double asDouble(double dftValue){
+		try {
+			return (double)Double.parseDouble(stringValue());
+		} catch (NumberFormatException e) {
+			return dftValue;
+		}
+	}
+
+	
 	public String asDateFmt(String fmt){
 		return DateUtil.dateToString(new Date(asLong(0)), fmt) ;
 	}

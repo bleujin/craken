@@ -100,7 +100,7 @@ public class ISearcherWorkspaceStore extends WorkspaceStore {
 				if (keys != null && !keys.isEmpty()) {
 					for (Object _key : keys) {
 						TreeNodeKey key = (TreeNodeKey) _key;
-						isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
+						isession.deleteTerm(new Term(IKeywordField.DocKey, key.idString()));
 					}
 				}
 				return null;
@@ -119,7 +119,7 @@ public class ISearcherWorkspaceStore extends WorkspaceStore {
 		return central.newIndexer().index(new IndexJob<Boolean>() {
 			@Override
 			public Boolean handle(IndexSession isession) throws Exception {
-				isession.deleteTerm(new Term(IKeywordField.ISKey, key.idString()));
+				isession.deleteTerm(new Term(IKeywordField.DocKey, key.idString()));
 
 				return Boolean.TRUE;
 			}
@@ -153,10 +153,10 @@ public class ISearcherWorkspaceStore extends WorkspaceStore {
 				return null; // if log, return
 
 			if (key.getType().isStructure()) {
-				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(EntryKey.PARENT, key.fqnString()))).selections(IKeywordField.ISKey).offset(1000000).find().getDocument();
+				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(EntryKey.PARENT, key.fqnString()))).selections(IKeywordField.DocKey).offset(1000000).find().getDocument();
 				return DocEntry.create(key, docs);
 			}
-			ReadDocument findDoc = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, key.idString()))).selections(EntryKey.VALUE).findOne();
+			ReadDocument findDoc = central.newSearcher().createRequest(new TermQuery(new Term(IKeywordField.DocKey, key.idString()))).selections(EntryKey.VALUE).findOne();
 			
 			if (findDoc == null) {
 				return null;
@@ -220,7 +220,7 @@ public class ISearcherWorkspaceStore extends WorkspaceStore {
 			for (ReadDocument readDocument : docs) {
 				TreeNodeKey key = readDocument.transformer(new Function<ReadDocument, TreeNodeKey>() {
 					public TreeNodeKey apply(ReadDocument readDoc) {
-						String idString = JsonObject.fromString(readDoc.get(EntryKey.VALUE)).asString(EntryKey.ID);
+						String idString = JsonObject.fromString(readDoc.asString(EntryKey.VALUE)).asString(EntryKey.ID);
 						return TreeNodeKey.fromString(idString);
 					}
 				});

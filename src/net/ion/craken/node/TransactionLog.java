@@ -128,7 +128,7 @@ public class TransactionLog{
 		// jobj.addProperty(DocEntry.LASTMODIFIED, System.currentTimeMillis());
 		jobj.add(EntryKey.PROPS, fromMapToJson(propDoc, config));
 
-		propDoc.add(MyField.manual(EntryKey.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED));
+		propDoc.add(MyField.noIndex(EntryKey.VALUE, jobj.toString()));
 		
 		if (action() == Action.CREATE) 
 			isession.insertDocument(propDoc) ; 

@@ -49,7 +49,7 @@ public class ChildQueryResponse {
 			try {
 				
 				for (ReadDocument doc : response.getDocument()){
-					found.add(Fqn.fromString(doc.reserved(IKeywordField.ISKey))) ;
+					found.add(Fqn.fromString(doc.reserved(IKeywordField.DocKey))) ;
 				};
 			} catch(IOException ex){
 				throw new IllegalStateException(ex); 

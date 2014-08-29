@@ -5,6 +5,7 @@ import junit.framework.TestSuite;
 import net.ion.craken.node.convert.from.TestFromJson;
 import net.ion.craken.node.convert.map.TestToPropertyMap;
 import net.ion.craken.node.convert.rows.TestToRows;
+import net.ion.craken.node.convert.rows.TestToRowsSort;
 import net.ion.craken.node.convert.to.TestChild;
 import net.ion.craken.node.convert.to.TestToChildBean;
 import net.ion.craken.node.convert.to.TestToFlatBean;
@@ -22,7 +23,7 @@ public class TestAllConvert extends TestCase{
 		suite.addTestSuite(TestFromJson.class) ;
 		suite.addTestSuite(TestToPropertyMap.class) ;
 		suite.addTestSuite(TestToRows.class) ;
-		
+		suite.addTestSuite(TestToRowsSort.class) ;
 		// to
 		suite.addTestSuite(TestPrimitiveProperty.class) ;
 		suite.addTestSuite(TestReference.class) ;

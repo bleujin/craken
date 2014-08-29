@@ -40,7 +40,7 @@ public class TestLogLob extends TestCase {
 	public void testFindLob() throws Exception {
 		testWrite() ;
 		
-		session.workspace().central().newSearcher().createRequest(new TermQuery(new Term(IKeywordField.ISKey, "/__transactions/abcd"))).find().debugPrint() ;
+		session.workspace().central().newSearcher().createRequest(new TermQuery(new Term(IKeywordField.DocKey, "/__transactions/abcd"))).find().debugPrint() ;
 		final Set<PropertyId> propKeys = session.pathBy("/__transactions/abcd").keys();
 		assertEquals(3, propKeys.size()) ;
 		

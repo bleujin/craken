@@ -6,6 +6,7 @@ import net.ion.craken.node.TouchedRow;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.util.ObjectUtil;
 
 public class CDDModifiedEvent {
 
@@ -27,5 +28,10 @@ public class CDDModifiedEvent {
 	
 	public Map<PropertyId, PropertyValue> getValue(){
 		return value ;
+	}
+	
+	public PropertyValue property(String propId){
+		PropertyValue result = value.get(PropertyId.normal(propId)) ;
+		return ObjectUtil.coalesce(result, PropertyValue.NotFound) ;
 	}
 }

@@ -21,7 +21,7 @@ public class TestFunctionFilter extends TestCase{
 
 	
 	public void testLuceneFilter() throws Exception {
-		Query query = new QueryParser(Version.LUCENE_CURRENT, IKeywordField.ISBody, new StandardAnalyzer(Version.LUCENE_CURRENT)).parse("dummy < 20");
+		Query query = new QueryParser(Version.LUCENE_CURRENT, IKeywordField.BodyHash, new StandardAnalyzer(Version.LUCENE_CURRENT)).parse("dummy < 20");
 		
 		Debug.line(query) ;
 	}

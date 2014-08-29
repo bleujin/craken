@@ -44,74 +44,7 @@ public class TestToRows extends TestBaseSearch {
 
 		rows.debugPrint() ;
 	}
-	
-	public void testChildProperty() throws Exception {
-		long start = System.currentTimeMillis() ;
-		final ChildQueryResponse find = session.pathBy("/board1").childQuery("").descending("index").skip(10).offset(2).find();
-		long mid = System.currentTimeMillis() ;
-		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, parent.name boardname") ;
-		
-		assertEquals(2, rows.getRowCount()) ;
-		
-		Row first = rows.firstRow();
-		assertEquals(39, first.getInt("index")) ;
-		assertEquals("board1", first.getString("name")) ;
-		assertEquals("jin", first.getString("writer")) ;
-		assertEquals("seoul", first.getString("acity")) ;
-		assertEquals("free", first.getString("boardname")) ;
-		
-		Debug.line(System.currentTimeMillis() - start, System.currentTimeMillis() - mid) ;
-	}
-	
-	
-	public void testRefProperty() throws Exception {
-		session.tranSync(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/users/bleujin").property("age", 20) ;
-				return null;
-			}
-		}) ;
-		
-		final ChildQueryResponse find = session.pathBy("/board1").childQuery("").descending("index").skip(10).offset(2).find();
-		Rows rows = find.toRows("name, substring(writer, 2) writer, index, address.city acity, register.age age") ;
-		
-		Row first = rows.firstRow();
-		assertEquals(39, first.getInt("index")) ;
-		assertEquals("board1", first.getString("name")) ;
-		assertEquals("jin", first.getString("writer")) ;
-		assertEquals("seoul", first.getString("acity")) ;
-		assertEquals(20, first.getInt("age")) ;
-	}
-	
-	
 
-	
-	public void testRefTo() throws Exception {
-//		session.queryRequest("").ascending("index").skip(10).offset(2).refTo("register", Fqn.fromString("/users/bleujin")).find().debugPrint() ;
-		
-		Rows rows = session.queryRequest("").descending("index").skip(10).offset(2)
-			.refTo("register", Fqn.fromString("/users/bleujin")).find().toRows("name, substring(this.writer, 2) writer, index, address.city acity, address.city, register.age age") ;
-		
-		Row first = rows.firstRow();
-		assertEquals(39, first.getInt("index")) ;
-		assertEquals("board1", first.getString("name")) ;
-		assertEquals("jin", first.getString("writer")) ;
-		assertEquals("seoul", first.getString("acity")) ;
-		assertEquals("seoul", first.getString("city")) ;
-		assertEquals(true, first.getObject("age") == null) ;
-	}
-	
-	
-	
-	
 
-	
-	public void xtestLoop() throws Exception {
-		for (int i = 0; i < 20; i++) {
-			testChildProperty() ;
-		}
-	}
-	
 	
 }

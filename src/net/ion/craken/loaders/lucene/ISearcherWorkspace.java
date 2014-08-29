@@ -4,22 +4,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.WorkspaceConfig;
 import net.ion.craken.node.IndexWriteConfig;
+import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
-import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.PropertyId.PType;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
@@ -35,7 +35,6 @@ import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.index.Indexer;
 
-import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.AlreadyClosedException;
@@ -121,7 +120,7 @@ public class ISearcherWorkspace extends Workspace {
 							jobj.addProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis());
 							jobj.add(EntryKey.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
 
-							propDoc.add(MyField.manual(EntryKey.VALUE, jobj.toString(), org.apache.lucene.document.Field.Store.YES, Index.NOT_ANALYZED).ignoreBody());
+							propDoc.add(MyField.noIndex(EntryKey.VALUE, jobj.toString()).ignoreBody(true));
 
 							if (action == Action.CREATE)
 								isession.insertDocument(propDoc);
@@ -131,7 +130,7 @@ public class ISearcherWorkspace extends Workspace {
 
 							break;
 						case REMOVE:
-							isession.deleteTerm(new Term(IKeywordField.ISKey, path));
+							isession.deleteTerm(new Term(IKeywordField.DocKey, path));
 							break;
 						case REMOVECHILDREN:
 							isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));

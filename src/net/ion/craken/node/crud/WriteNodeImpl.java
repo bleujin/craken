@@ -122,7 +122,7 @@ public class WriteNodeImpl implements WriteNode{
 		} else if (value != null && value.getClass().isArray()) {
 			
 			int length = Array.getLength(value);
-			Set set = SetUtil.newSet() ;
+			Set set = SetUtil.newOrdereddSet() ;
 			for (int i = 0; i < length; i++) {
 	            set.add(Array.get(value, i));
 	        }

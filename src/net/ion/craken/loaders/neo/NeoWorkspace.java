@@ -143,7 +143,7 @@ public class NeoWorkspace extends Workspace {
 								break;
 							case REMOVE:
 								deleteNode(graphDB, action, path);
-								isession.deleteTerm(new Term(IKeywordField.ISKey, path));
+								isession.deleteTerm(new Term(IKeywordField.DocKey, path));
 								break;
 							case REMOVECHILDREN:
 								deleteChildren(graphDB, action, findNode(graphDB, action, StringUtil.split(path, "/")));

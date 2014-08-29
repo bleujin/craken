@@ -25,7 +25,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 
 public class ChildQueryRequest {
 
@@ -37,7 +36,7 @@ public class ChildQueryRequest {
 	private ChildQueryRequest(ReadSession session, Query query, Searcher searcher) {
 		this.session = session ;
 		this.searcher = searcher ;
-		this.request = searcher.createRequest(query).selections(IKeywordField.ISKey) ;
+		this.request = searcher.createRequest(query).selections(IKeywordField.DocKey) ;
 		this.sorts =  ListUtil.EMPTY ;
 	}
 
@@ -243,6 +242,16 @@ public class ChildQueryRequest {
 		return this ;
 	}
 
+	public ChildQueryRequest ascendingNum(String field) {
+		request.ascending(field + " _number") ;
+		return this ;
+	}
+
+	public ChildQueryRequest descendingNum(String field) {
+		request.descending(field + " _number") ;
+		return this ;
+	}
+
 
 	public void setParam(String key, Object value) {
 		request.setParam(key, value);
@@ -264,7 +273,7 @@ public class ChildQueryRequest {
 
 	public ChildQueryResponse find() throws IOException, ParseException{
 		// field=asc && field2=desc...
-		request.selections(IKeywordField.ISKey) ;
+		request.selections(IKeywordField.DocKey) ;
 		
 		Iterator<String> iter = sorts.iterator();
 		while(iter.hasNext()){

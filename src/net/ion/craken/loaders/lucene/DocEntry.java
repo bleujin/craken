@@ -42,7 +42,7 @@ public class DocEntry extends ImmortalCacheEntry implements Serializable{
 
 	
 	public static InternalCacheEntry create(ReadDocument findDoc) {
-		final String jsonString = findDoc.get(EntryKey.VALUE);
+		final String jsonString = findDoc.asString(EntryKey.VALUE);
 		if (StringUtil.isBlank(jsonString)) {
 			
 			return null ;

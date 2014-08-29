@@ -8,6 +8,7 @@ import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -82,7 +83,7 @@ public class PropertyId implements Serializable {
 					doc.text(idString(), e.toString()) ;
 					break ;
 				case DATETIME :
-					doc.date(idString(), NumberUtil.toInt(StringUtil.substringBefore(e.toString(), "-")), NumberUtil.toInt(StringUtil.substringAfter(e.toString(), "-"))) ;
+					doc.add(MyField.date(idString(), NumberUtil.toInt(StringUtil.substringBefore(e.toString(), "-")), NumberUtil.toInt(StringUtil.substringAfter(e.toString(), "-")))) ;
 					break ;
 				case KEYWORD :
 					doc.keyword(idString(), ObjectUtil.toString(e)) ;

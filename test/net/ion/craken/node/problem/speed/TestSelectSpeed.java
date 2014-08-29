@@ -6,31 +6,19 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
-import net.ion.craken.loaders.lucene.DocEntry;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.craken.node.crud.Filters;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.problem.store.SampleWriteJob;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.ReadDocument;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralConfig;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.SearchResponse;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.TermQuery;
-import org.infinispan.container.entries.InternalCacheEntry;
-
-import com.google.common.base.Function;
 
 public class TestSelectSpeed extends TestCase {
 
@@ -116,7 +104,7 @@ public class TestSelectSpeed extends TestCase {
 	
 	public void testSearchTest() throws Exception {
 		Searcher searcher = session.workspace().central().newSearcher();
-		final SearchResponse response = searcher.createRequest(new TermQuery(new Term(EntryKey.PARENT, "/"))).selections(IKeywordField.ISKey).offset(1000000).find();
+		final SearchResponse response = searcher.createRequest(new TermQuery(new Term(EntryKey.PARENT, "/"))).selections(IKeywordField.DocKey).offset(1000000).find();
 		List<ReadDocument> docs = response.getDocument();
 		Debug.line(docs.size()) ;
 	}

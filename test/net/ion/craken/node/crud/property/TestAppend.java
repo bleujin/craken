@@ -104,8 +104,8 @@ public class TestAppend extends TestBaseCrud {
 		assertEquals(1, session.pathBy("/bleujin").property("no").value());
 		assertEquals(3, session.pathBy("/bleujin").property("no").asSet().size());
 
-		assertEquals("bleu", session.pathBy("/bleujin").property("str").value());
 		assertEquals(2, session.pathBy("/bleujin").property("str").asSet().size());
+		assertEquals("bleu", session.pathBy("/bleujin").property("str").value());
 	}
 
 	public void testSetBlankArray() throws Exception {

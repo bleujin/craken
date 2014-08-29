@@ -21,9 +21,6 @@ import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.index.IndexSession;
 
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-
 public class IndexWriteConfig implements Serializable{
 
 	private static final long serialVersionUID = 2475651350981574004L;
@@ -51,7 +48,7 @@ public class IndexWriteConfig implements Serializable{
 		}, DATETIME {
 			@Override
 			public void index(WriteDocument doc, String propId, String value) {
-				doc.date(propId, NumberUtil.toInt(StringUtil.substringBefore(value, "-")), NumberUtil.toInt(StringUtil.substringAfter(value, "-"))) ;
+				doc.add(MyField.date(propId, NumberUtil.toInt(StringUtil.substringBefore(value, "-")), NumberUtil.toInt(StringUtil.substringAfter(value, "-")))) ;
 			}
 		}, TEXT {
 			@Override
@@ -151,8 +148,8 @@ public class IndexWriteConfig implements Serializable{
 		
 		WriteDocument commitDoc = isession.newDocument(tranKey.fqnString()) ;
 		commitDoc.number("time", System.currentTimeMillis()); // searcher use for lastTranInfo
-		commitDoc.add(MyField.manual(EntryKey.PARENT, Fqn.TRANSACTIONS.toString(), Store.YES, Index.NOT_ANALYZED)) ;
-		commitDoc.add(MyField.manual(EntryKey.VALUE, createJsonValue(tranKey, tranPropertyValue).toString(), Store.YES, Index.NOT_ANALYZED)) ;
+		commitDoc.add(MyField.noIndex(EntryKey.PARENT, Fqn.TRANSACTIONS.toString())) ;
+		commitDoc.add(MyField.noIndex(EntryKey.VALUE, createJsonValue(tranKey, tranPropertyValue).toString())) ;
 
 		isession.insertDocument(commitDoc) ;
 	}

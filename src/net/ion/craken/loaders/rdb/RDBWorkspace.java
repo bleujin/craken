@@ -139,7 +139,7 @@ public class RDBWorkspace extends Workspace {
 						batch.addBatchParam(3, parentPath) ;
 						batch.addBatchClob(4, "") ;
 						
-						isession.deleteTerm(new Term(IKeywordField.ISKey, path));
+						isession.deleteTerm(new Term(IKeywordField.DocKey, path));
 						break;
 					case REMOVECHILDREN:
 						batch.addBatchParam(0, seq);

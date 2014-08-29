@@ -110,7 +110,7 @@ public class ISearcherWorkspaceConfig extends WorkspaceConfig {
 					}
 				}) ;
 		
-		final Central result = lazyConfig.dir(dir).indexConfigBuilder().indexAnalyzer(new MyKoreanAnalyzer()).setExecutorService(dftIndexExecutor).parent().searchConfigBuilder().queryAnalyzer(new MyKoreanAnalyzer()).build();
+		final Central result = lazyConfig.dir(dir).indexConfigBuilder().indexAnalyzer(new MyKoreanAnalyzer()).executorService(dftIndexExecutor).parent().searchConfigBuilder().queryAnalyzer(new MyKoreanAnalyzer()).build();
 
 		// Debug.line('i', this.hashCode(), this) ;
 
