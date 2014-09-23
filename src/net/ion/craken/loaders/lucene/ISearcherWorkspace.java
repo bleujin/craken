@@ -96,54 +96,50 @@ public class ISearcherWorkspace extends Workspace {
 				reader.beginArray();
 				final int count = config.asInt("count");
 
-				try {
-					for (int i = 0; i < count; i++) {
-						JsonObject tlog = reader.nextJsonObject();
-						String path = tlog.asString("path");
-						Touch touch = Touch.valueOf(tlog.asString("touch"));
-						Action action = Action.valueOf(tlog.asString("action"));
-						// Debug.line(path, touch) ;
-						switch (touch) {
-						case TOUCH:
-							break;
-						case MODIFY:
-							JsonObject val = tlog.asJsonObject("val");
-							if ("/".equals(path) && val.childSize() == 0)
-								continue;
+				for (int i = 0; i < count; i++) {
+					JsonObject tlog = reader.nextJsonObject();
+					String path = tlog.asString("path");
+					Touch touch = Touch.valueOf(tlog.asString("touch"));
+					Action action = Action.valueOf(tlog.asString("action"));
+					// Debug.line(path, touch) ;
+					switch (touch) {
+					case TOUCH:
+						break;
+					case MODIFY:
+						JsonObject val = tlog.asJsonObject("val");
+						if ("/".equals(path) && val.childSize() == 0)
+							continue;
 
-							WriteDocument propDoc = isession.newDocument(path);
-							propDoc.keyword(EntryKey.PARENT, Fqn.fromString(path).getParent().toString());
-							propDoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+						WriteDocument propDoc = isession.newDocument(path);
+						propDoc.keyword(EntryKey.PARENT, Fqn.fromString(path).getParent().toString());
+						propDoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
 
-							JsonObject jobj = new JsonObject();
-							jobj.addProperty(EntryKey.ID, path);
-							jobj.addProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis());
-							jobj.add(EntryKey.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
+						JsonObject jobj = new JsonObject();
+						jobj.addProperty(EntryKey.ID, path);
+						jobj.addProperty(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+						jobj.add(EntryKey.PROPS, fromMapToJson(path, propDoc, IndexWriteConfig.read(config), val.entrySet()));
 
-							propDoc.add(MyField.noIndex(EntryKey.VALUE, jobj.toString()).ignoreBody(true));
+						propDoc.add(MyField.noIndex(EntryKey.VALUE, jobj.toString()).ignoreBody(true));
 
-							if (action == Action.CREATE)
-								isession.insertDocument(propDoc);
-							else
-								isession.updateDocument(propDoc);
-							// isession.updateDocument(propDoc) ;
+						if (action == Action.CREATE)
+							isession.insertDocument(propDoc);
+						else
+							isession.updateDocument(propDoc);
+						// isession.updateDocument(propDoc) ;
 
-							break;
-						case REMOVE:
-							isession.deleteTerm(new Term(IKeywordField.DocKey, path));
-							break;
-						case REMOVECHILDREN:
-							isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));
-							break;
-						default:
-							throw new IllegalArgumentException("Unknown modification type " + touch);
-						}
+						break;
+					case REMOVE:
+						isession.deleteTerm(new Term(IKeywordField.DocKey, path));
+						break;
+					case REMOVECHILDREN:
+						isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));
+						break;
+					default:
+						throw new IllegalArgumentException("Unknown modification type " + touch);
 					}
-					reader.endArray();
-					reader.endObject();
-				} catch (AlreadyClosedException ignore) {
-//					ignore.printStackTrace();
 				}
+				reader.endArray();
+				reader.endObject();
 
 				return count;
 			}

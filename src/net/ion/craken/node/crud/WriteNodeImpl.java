@@ -249,9 +249,16 @@ public class WriteNodeImpl implements WriteNode{
 			if (pvalue == PropertyValue.NotFound) {
 				meta = Metadata.create(path) ;
 			} else {
+//				meta = (Metadata) pvalue.value() ;
+//				gfs().getWritableGridBlob(path, meta).delete() ;
+				
 				// @Todo
-				meta = (Metadata) pvalue.value() ;
-				gfs().getWritableGridBlob(path, meta).delete() ;
+				if (pvalue.value() instanceof Metadata){
+					meta = (Metadata) pvalue.value() ;
+					gfs().getWritableGridBlob(path, meta).delete() ;
+				} else {
+					meta = Metadata.create(path) ;
+				}
 			}
 
 			WritableGridBlob gblob = wsession.workspace().gridBlob(path, meta);

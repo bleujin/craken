@@ -266,32 +266,23 @@ public class RepositoryImpl implements Repository {
 	}
 
 	public RepositoryImpl defineWorkspace(String wsName, WorkspaceConfig config) throws IOException {
-		try {
-			if (configs.containsKey(wsName))
-				throw new IllegalStateException("already define workspace : " + wsName);
-			configs.put(wsName, config);
+		if (configs.containsKey(wsName))
+			throw new IllegalStateException("already define workspace : " + wsName);
+		configs.put(wsName, config);
 
-			CacheLoader cloader = (CacheLoader) Class.forName(config.getCacheLoaderClassName()).newInstance();
-			dm.defineConfiguration(wsName,config.build());
+		dm.defineConfiguration(wsName,config.build());
 
-			dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder()
-					.clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-					.clustering().hash().numOwners(2)
-					.eviction().maxEntries(100)
-					.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore())
-					.addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-			dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.REPL_SYNC, config.location(), 1000));
-			dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 100, 2));
+		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder()
+				.clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
+				.clustering().hash().numOwners(2)
+				.eviction().maxEntries(100)
+				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore())
+				.addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
+		dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.REPL_SYNC, config.location(), 1000));
+		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 100, 2));
 
-			log.info("Workspace[" + wsName + ", DIST] defined");
-			return this;
-		} catch (ClassNotFoundException ex) {
-			throw new IOException(ex);
-		} catch (InstantiationException ex) {
-			throw new IOException(ex);
-		} catch (IllegalAccessException ex) {
-			throw new IOException(ex);
-		}
+		log.info("Workspace[" + wsName + ", DIST] defined");
+		return this;
 	}
 
 	public RepositoryImpl defineWorkspaceForTest(String wsName, WorkspaceConfig config) throws IOException {
@@ -300,6 +291,11 @@ public class RepositoryImpl implements Repository {
 		configs.put(wsName, config);
 
 		dm.defineConfiguration(wsName, config.buildLocal());
+
+		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder()
+			.eviction().maxEntries(100)
+			.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore())
+			.addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
 
 		log.info("Workspace[" + wsName + ", LOCAL] defined");
 		return this;

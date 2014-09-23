@@ -47,5 +47,12 @@ public class TestFqn extends TestBaseCrud {
 		assertEquals(true, f.resolve("/rooms/{roomId}/members/{userId}").get("roomid") == null); // case sensitive
 	}
 	
+
+	public void testAllAlt() throws Exception {
+		Fqn f = Fqn.fromString("/rooms/1234/members/bleujin@i-on.net") ;
+		assertEquals(true, f.isPattern("/rooms/{roomId}/members/{userId}"));
+		assertEquals("bleujin@i-on.net", f.resolve("/rooms/{roomId}/members/{userId}").get("userId"));
+		
+	}
 	
 }

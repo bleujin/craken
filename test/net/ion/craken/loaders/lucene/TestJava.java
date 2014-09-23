@@ -45,4 +45,14 @@ public class TestJava extends TestCase {
 		new InfinityThread().startNJoin() ;
 	}
 
+	
+	public void testBooleanValueOf() throws Exception {
+		assertEquals(true, Boolean.valueOf("").equals(Boolean.FALSE)) ;
+		assertEquals(true, Boolean.valueOf("True").equals(Boolean.TRUE)) ;
+		assertEquals(true, Boolean.valueOf("true").equals(Boolean.TRUE)) ;
+		
+		assertEquals(true, Boolean.valueOf("False").equals(Boolean.FALSE)) ;
+		assertEquals(true, Boolean.valueOf("false").equals(Boolean.FALSE)) ;
+
+	}
 }

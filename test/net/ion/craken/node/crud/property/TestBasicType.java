@@ -37,7 +37,8 @@ public class TestBasicType extends TestBaseCrud {
 			public Void handle(WriteSession wsession) {
 				wsession.root().child("type")
 					.property("float", 2.3f)
-					.property("double", 2.3d);
+					.property("double", 2.3d)
+					;
 				return null;
 			}
 		}).get() ;

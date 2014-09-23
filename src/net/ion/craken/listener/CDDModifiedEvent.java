@@ -34,4 +34,10 @@ public class CDDModifiedEvent {
 		PropertyValue result = value.get(PropertyId.normal(propId)) ;
 		return ObjectUtil.coalesce(result, PropertyValue.NotFound) ;
 	}
+
+	public PropertyValue property(PropertyId propId){
+		PropertyValue result = value.get(propId) ;
+		return ObjectUtil.coalesce(result, PropertyValue.NotFound) ;
+	}
+
 }
