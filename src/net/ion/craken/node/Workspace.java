@@ -38,6 +38,7 @@ import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.stream.JsonWriter;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.config.Central;
@@ -281,8 +282,7 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 			log.warn(logPath + " failed");
 			throw new IOException(ex) ;
 		} finally {
-			input.close() ;
-//			IOUtil.closeQuietly(input);
+			IOUtil.closeQuietly(input);
 		}
 
 		rsession.attribute(TranResult.class.getCanonicalName(), TranResult.create(count, System.currentTimeMillis() - startTime));
