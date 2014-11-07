@@ -1,15 +1,5 @@
 package net.ion.craken.node.search;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.xa.XAResource;
-
-import org.infinispan.context.TransactionalInvocationContextContainer;
-
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 

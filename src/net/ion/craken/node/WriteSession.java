@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.ion.craken.listener.CDDMListener;
+import net.ion.craken.node.Workspace.InstantLogWriter;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;

@@ -14,6 +14,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TreeNodeKey.Type;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.util.StringInputStream;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.IOUtil;
 
@@ -21,8 +22,6 @@ import org.infinispan.atomic.AtomicHashMap;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
-
-import com.amazonaws.util.StringInputStream;
 
 public class TestHelloWord extends TestCase {
 

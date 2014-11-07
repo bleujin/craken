@@ -10,19 +10,16 @@ import net.ion.craken.node.crud.TestBaseCrud;
 public class TestExceptionHandle extends TestBaseCrud {
 
 	public void testThrowExInSyncMode() throws Exception {
-		
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				throw new IOException("test");
+				throw new IOException("test exception (expect)");
 			}
 		});
-		
 		// will stdout print
-		
+
 	}
-	
-	
+
 	public void testHandleException() throws Exception {
 		try {
 			session.tranSync(new TransactionJob<Void>() {
@@ -31,9 +28,9 @@ public class TestExceptionHandle extends TestBaseCrud {
 					throw new IOException("expect");
 				}
 			}, null);
-			fail() ;
+			fail();
 		} catch (ExecutionException expect) {
-			assertEquals(IOException.class, expect.getCause().getClass()) ;
+			assertEquals(IOException.class, expect.getCause().getClass());
 		}
 	}
 }

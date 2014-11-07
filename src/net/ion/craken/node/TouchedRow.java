@@ -1,6 +1,7 @@
 package net.ion.craken.node;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
 
 public class TouchedRow {
@@ -16,12 +19,14 @@ public class TouchedRow {
 	private Touch touch;
 	private Fqn target;
 	private Map<String, Fqn> affected;
+	private Map<PropertyId, PropertyValue> value ;
 
 	private TouchedRow(WriteNode source, Touch touch, Fqn target, Map<String, Fqn> affected) {
 		this.source = source;
 		this.touch = touch;
 		this.target = target;
 		this.affected = affected ;
+		this.value = source.toMap() ;
 	}
 
 	public final static TouchedRow create(WriteNode source, Touch touch, Fqn target, Map<String, Fqn> affected) {
@@ -44,6 +49,10 @@ public class TouchedRow {
 		return source;
 	}
 
+	public Map<PropertyId, PropertyValue> value(){
+		return value ;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (!TouchedRow.class.isInstance(obj))

@@ -61,9 +61,8 @@ public class EmbedCacheTest extends TestCase {
 	
 
 	public void testFileCache() throws Exception {
-		Configuration fileCache = new ConfigurationBuilder().loaders().
-			passivation(false).shared(false).preload(true).
-			addFileCacheStore().fetchPersistentState(true).ignoreModifications(false).purgeOnStartup(false).location("/tmp").async().enable().threadPoolSize(10).build();
+		Configuration fileCache = new ConfigurationBuilder().persistence().passivation(false).addSingleFileStore()
+			.shared(false).preload(true).fetchPersistentState(true).ignoreModifications(false).purgeOnStartup(false).location("/tmp").async().enable().threadPoolSize(10).build();
 		dftManager.defineConfiguration("fileCache", fileCache);
 		dftManager.start();
 

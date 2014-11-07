@@ -9,7 +9,7 @@ import org.infinispan.atomic.AtomicMap;
 import org.infinispan.commands.VisitableCommand;
 import org.infinispan.commands.tx.CommitCommand;
 import org.infinispan.commands.tx.PrepareCommand;
-import org.infinispan.config.ConfigurationException;
+import org.infinispan.commons.CacheConfigurationException;
 import org.infinispan.context.InvocationContext;
 import org.infinispan.interceptors.base.BaseCustomInterceptor;
 import org.infinispan.manager.DefaultCacheManager;
@@ -26,7 +26,7 @@ public class TestInterceptor {
 
 		// If invocationBatching is not enabled, throw a new configuration exception.
 		if (!cache.getCacheConfiguration().invocationBatching().enabled()) {
-			throw new ConfigurationException("invocationBatching is not enabled for cache '" + cache.getName() + "'. Make sure this is enabled by" + " calling configurationBuilder.invocationBatching().enable()");
+			throw new CacheConfigurationException("invocationBatching is not enabled for cache '" + cache.getName() + "'. Make sure this is enabled by" + " calling configurationBuilder.invocationBatching().enable()");
 		}
 		cache.getAdvancedCache().addInterceptor(new CustomCommandInvoker(), 0);
 

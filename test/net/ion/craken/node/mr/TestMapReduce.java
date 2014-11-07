@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
@@ -28,8 +27,7 @@ public class TestMapReduce extends TestCase {
 	protected ReadSession session;
 
 	public void setUp() throws Exception {
-		this.r = RepositoryImpl.create() ;
-		this.r.defineWorkspace("test", ISearcherWorkspaceConfig.create()) ;
+		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
 		
 		this.session = r.login("test") ;
 		session.tranSync(new TransactionJob<Void>() {

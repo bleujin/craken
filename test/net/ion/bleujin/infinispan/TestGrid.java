@@ -5,14 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.FastFileCacheStore;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
 import org.infinispan.Cache;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.io.GridFilesystem;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.io.GridFile.Metadata;
+import org.infinispan.io.GridFilesystem;
 import org.infinispan.manager.DefaultCacheManager;
 
 public class TestGrid extends TestCase {
@@ -25,8 +24,8 @@ public class TestGrid extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.dm = new DefaultCacheManager();
-		dm.defineConfiguration("metadata", FastFileCacheStore.fileStoreConfig(CacheMode.LOCAL, "./resource/temp/metadata", 100)) ;
-		dm.defineConfiguration("data", FastFileCacheStore.fileStoreConfig(CacheMode.LOCAL, "./resource/temp/data", 100)) ;
+		dm.defineConfiguration("metadata", new ConfigurationBuilder().build()) ;
+		dm.defineConfiguration("data", new ConfigurationBuilder().build()) ;
 		Cache<String, Metadata> metadata = dm.getCache("metadata") ;
 		Cache<String, byte[]> data = dm.getCache("data");
 		
@@ -42,7 +41,7 @@ public class TestGrid extends TestCase {
 	
 	public void testAppend() throws Exception {
 		OutputStream output = gfs.getOutput("/file", false);
-		InputStream input = new FileInputStream("./resource/jquery-1.10.2.min.js") ;
+		InputStream input = new FileInputStream("./build.xml") ;
 		IOUtil.copyNClose(input, output) ;
 		
 		InputStream finput = gfs.getInput("/file");
@@ -51,7 +50,7 @@ public class TestGrid extends TestCase {
 
 		
 		output = gfs.getOutput("/file", true);
-		input = new FileInputStream("./resource/jquery-1.10.2.min.js") ;
+		input = new FileInputStream("./build.xml") ;
 		IOUtil.copyNClose(input, output) ;
 
 		finput = gfs.getInput("/file");

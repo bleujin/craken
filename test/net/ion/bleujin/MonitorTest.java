@@ -37,8 +37,7 @@ public class MonitorTest extends TestCase {
 			.build();
 		
 		Configuration defaultConf = new ConfigurationBuilder().
-			clustering().cacheMode(CacheMode.DIST_SYNC).jmxStatistics().enable().
-			loaders().addFileCacheStore().
+			clustering().cacheMode(CacheMode.DIST_SYNC).jmxStatistics().enable().persistence().addSingleFileStore().
 			clustering().l1().enable().lifespan(6000000).invocationBatching().
 			clustering().hash().numOwners(2).unsafe().
 			jmxStatistics().enable().build() ;

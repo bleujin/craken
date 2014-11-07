@@ -1,7 +1,6 @@
 package net.ion.craken.tree;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -18,7 +17,7 @@ public class TestTreeNodeDocument extends TestCase {
 		super.setUp();
 		this.r = RepositoryImpl.create();
 //		FileUtil.deleteDirectory(new File("./resource/index")) ;
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().maxNodeEntry(5)) ;
+		r.defineWorkspace("test") ;
 		this.session = r.login("test");
 	}
 

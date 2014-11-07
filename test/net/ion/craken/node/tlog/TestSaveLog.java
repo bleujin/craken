@@ -7,13 +7,12 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.util.StringInputStream;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-
-import com.amazonaws.util.StringInputStream;
 
 public class TestSaveLog extends TestBaseCrud {
 

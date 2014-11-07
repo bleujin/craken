@@ -11,8 +11,8 @@ import java.util.Set;
 
 import net.ion.craken.tree.Fqn;
 
-import org.infinispan.marshall.AbstractExternalizer;
-import org.infinispan.util.Util;
+import org.infinispan.commons.marshall.AbstractExternalizer;
+import org.infinispan.commons.util.Util;
 
 public class TreeNodeKey implements Serializable {
 

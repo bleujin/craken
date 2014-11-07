@@ -1,6 +1,6 @@
 package net.ion.craken.node.exception;
 
-import org.infinispan.CacheException;
+import org.infinispan.commons.CacheException;
 
 
 public class NodeNotValidException extends CacheException {

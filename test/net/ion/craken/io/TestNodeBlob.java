@@ -1,20 +1,19 @@
 package net.ion.craken.io;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
-
-import com.amazonaws.util.StringInputStream;
 
 public class TestNodeBlob extends TestCase {
 
@@ -24,10 +23,9 @@ public class TestNodeBlob extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		FileUtil.deleteDirectory(new File(ISearcherWorkspaceConfig.create().location())) ;
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.create().maxNodeEntry(5)) ;
-		this.session = r.login("test") ;
+		r.defineWorkspace("search") ;
+		this.session = r.login("search") ;
 	}
 	
 	@Override
@@ -36,49 +34,45 @@ public class TestNodeBlob extends TestCase {
 		super.tearDown();
 	}
 	
-	public void testRead() throws Exception {
-		ReadNode readNode = session.pathBy("/bleujin");
-		assertEquals("bleujin", readNode.property("name").stringValue()) ;
-		Debug.line(IOUtil.toStringWithClose(readNode.property("blob").asBlob().toInputStream())) ;
+	String targetFqn = "/files/craken-cache-config.xml";
+	public void testWriteFile() throws Exception {
+		File dir = new File("./resource/config") ;
+		for (final File file : dir.listFiles()) {
+			if (file.isDirectory()) continue ;
+			session.tran(new TransactionJob<Void>(){
+				@Override
+				public Void handle(WriteSession wsession) throws Exception {
+					wsession.pathBy("/files/" + file.getName()).property("filepath", file.getCanonicalPath()).blob("content", new FileInputStream(file)) ;
+					return null;
+				}
+			}) ;
+		}
+		
+		InputStream input = session.pathBy(targetFqn).property("content").asBlob().toInputStream() ;
+		String content = IOUtil.toStringWithClose(input) ;
+		Debug.line(content);
 	}
 	
-	public void testBlobOutputStream() throws Exception {
+	
+	public void testRead() throws Exception {
+		InputStream input = session.pathBy(targetFqn).property("content").asBlob().toInputStream() ;
+		String content = IOUtil.toStringWithClose(input) ;
+		Debug.line(content);
+	}
+	
+	public void testRewrite() throws Exception {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				final WriteNode wnode = wsession.pathBy("/bleujin").property("name", "bleujin").blob("blob", new StringInputStream("LongLongString"));
-				
+				final WriteNode wnode = wsession.pathBy(targetFqn).property("name", "hello").blob("content", new StringInputStream("LongLongString"));
 				return null;
 			}
 		}) ;
 		
-		ReadNode readNode = session.pathBy("/bleujin");
-		assertEquals("bleujin", readNode.property("name").stringValue()) ;
-		Debug.line(IOUtil.toStringWithClose(readNode.property("blob").asBlob().toInputStream())) ;
-		
+		ReadNode readNode = session.pathBy(targetFqn);
+		assertEquals("hello", readNode.property("name").stringValue()) ;
+		Debug.line(IOUtil.toStringWithClose(readNode.property("content").asBlob().toInputStream())) ;
 	}
 	
-//	public void testBlobOutputStream() throws Exception {
-//		session.tranSync(new TransactionJob<Void>() {
-//			@Override
-//			public Void handle(WriteSession wsession) throws Exception {
-//				final WriteNode wnode = wsession.pathBy("/bleujin").property("name", "bleujin");
-//				WritableGridBlob gblob = wnode.blob("blob");
-//				
-//				final GridOutputStream output = gblob.outputStream();
-//				for (int i = 0; i < 5; i++) {
-//					IOUtil.copy(new StringInputStream("LongLongString"), output)  ;
-//				}
-//				IOUtil.closeQuietly(output) ;
-//				wnode.property(PropertyId.normal("blob"), gblob.getMetadata().asPropertyValue()) ;
-//				return null;
-//			}
-//		}) ;
-//		
-//		ReadNode readNode = session.pathBy("/bleujin");
-//		assertEquals("bleujin", readNode.property("name").stringValue()) ;
-//		Debug.line(IOUtil.toStringWithClose(readNode.property("blob").asBlob().toInputStream())) ;
-//		
-//	}
 
 }

@@ -3,13 +3,11 @@ package net.ion.craken.db;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.exception.AlreadyExistsException;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.db.DBController;

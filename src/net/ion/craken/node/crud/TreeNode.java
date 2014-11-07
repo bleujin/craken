@@ -1,10 +1,9 @@
 package net.ion.craken.node.crud;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.Workspace;
@@ -12,17 +11,14 @@ import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.util.Immutables;
-import org.infinispan.util.Util;
-
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
+import org.infinispan.commons.util.Immutables;
+import org.infinispan.commons.util.Util;
 
 
 public class TreeNode {
@@ -41,6 +37,10 @@ public class TreeNode {
 		return new TreeNode(workspace, fqn) ;
 	} 
 
+	public AtomicMap<PropertyId, PropertyValue> propMap() {
+		return props() ;
+	}
+	
 	private synchronized AtomicMap<PropertyId, PropertyValue> props() {
 		if (lazyProp == null){
 			this.lazyProp = workspace.props(fqn);
@@ -73,7 +73,11 @@ public class TreeNode {
 	}
 
 	public Map<PropertyId, PropertyValue> readMap() {
-		return new HashedMap(props());
+		try {
+			return new HashedMap(props());
+		} catch(IllegalStateException removed){
+			return MapUtil.EMPTY;
+		}
 	}
 	
 	public JsonObject toValueJson(){
@@ -84,6 +88,7 @@ public class TreeNode {
 		
 		return result ;
 	}
+	
 	
 
 	public Set<TreeNode> getChildren() {
@@ -259,8 +264,6 @@ public class TreeNode {
 	public String toString() {
 		return "TreeNode{" + "fqn=" + fqn + '}';
 	}
-
-	
 	
 }
 

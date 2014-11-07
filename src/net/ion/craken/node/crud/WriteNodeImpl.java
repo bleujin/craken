@@ -541,6 +541,7 @@ public class WriteNodeImpl implements WriteNode{
 	public Map<PropertyId, PropertyValue> toMap() {
 		return Collections.unmodifiableMap(tree().readMap());
 	}
+
 	
 	public Object id(){
 		return fqn() ;

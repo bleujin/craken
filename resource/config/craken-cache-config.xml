@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:infinispan:config:6.0 http://www.infinispan.org/schemas/infinispan-config-6.0.xsd"
+	xmlns="urn:infinispan:config:6.0">
+
+	<global>
+		<transport clusterName="emanon" />
+		<globalJmxStatistics enabled="false" />
+	</global>
+
+	<default>
+		<locking useLockStriping="false" />
+		<clustering mode="distribution">
+			<l1 enabled="true" lifespan="60000" />
+			<hash numOwners="2" />
+			<sync />
+		</clustering>
+		<invocationBatching enabled="true" />
+	</default>
+
+
+	<namedCache name="craken-blob">
+		<persistence passivation="false">
+        <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
+            <async enabled="true" flushLockTimeout="300000" shutdownTimeout="1000" modificationQueueSize="100" threadPoolSize="5"/>
+            <properties>
+               <property name="location" value="./resource/store/"/>
+            </properties>
+        </store>
+        </persistence>
+	</namedCache>
+
+	
+<!-- 
+	<namedCache name="craken-log">
+	     <clustering mode="LOCAL" >
+	         <l1 enabled="false" />
+	     </clustering>
+		 <eviction strategy="FIFO" maxEntries="3" ></eviction>
+		 <expiration lifespan="300000" maxIdle="1000" wakeUpInterval="100000" ></expiration>
+	     <persistence passivation="false">
+         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
+            <async enabled="true" flushLockTimeout="30000" shutdownTimeout="1000" modificationQueueSize="1000" threadPoolSize="5"/>
+            <properties>
+               <property name="location" value="./resource/store"/>
+            </properties>
+         </store>
+      	 </persistence>
+	</namedCache>
+-->
+
+	<!--  workspaces -->
+	<namedCache name="search-chunk">
+		<persistence passivation="false">
+         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
+            <async enabled="true" flushLockTimeout="300000" shutdownTimeout="2000" modificationQueueSize="1000" threadPoolSize="5"/>
+            <properties>
+               <property name="location" value="./resource/store/search"/>
+            </properties>
+         </store>
+        </persistence>
+	</namedCache>
+
+	<namedCache name="search-meta">
+		<persistence passivation="false">
+         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
+            <async enabled="true" flushLockTimeout="300000" shutdownTimeout="2000" modificationQueueSize="1000" threadPoolSize="5"/>
+            <properties>
+               <property name="location" value="./resource/store/search"/>
+            </properties>
+         </store>
+      </persistence>
+	</namedCache>
+	
+</infinispan>

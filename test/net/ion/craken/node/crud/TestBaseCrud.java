@@ -1,8 +1,6 @@
 package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
-import net.ion.craken.loaders.neo.NeoWorkspaceConfig;
 import net.ion.craken.node.ReadSession;
 
 public class TestBaseCrud extends TestCase {

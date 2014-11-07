@@ -11,6 +11,7 @@ import net.ion.craken.node.Workspace.InstantLogWriter;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteChildrenEach;
 import net.ion.craken.node.crud.WriteChildrenIterator;
+import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.Debug;
@@ -128,65 +129,10 @@ public abstract class AbstractWriteSession implements WriteSession {
 		TranExceptionHandler ehandler = attribute(TranExceptionHandler.class) ;
 		
 		InstantLogWriter logWriter = rsession.workspace().createLogWriter(this, rsession);
-
-		// for (Fqn parentFqn : ancestorsFqn) { // create parent node
-		// workspace().pathNode(parentFqn, true);
-		// logRows.add(LogRow.create(pathBy(parentFqn), Touch.MODIFY, parentFqn));
-		// }
-
-		// Debug.debug(logRows.size(), logRows) ;
-
-		
-//		TouchedRow[] touchedRows = logRows.toArray(new TouchedRow[0]);
-//		final List<TouchedRow> affectedRow = ListUtil.newList() ;
-//		for (TouchedRow r : touchedRows) {
-//			if (r.touch() == Touch.REMOVECHILDREN){
-//				pathBy(r.target()).children().debugPrint(); 
-//				pathBy(r.target()).children().eachNode(new WriteChildrenEach<Void>() {
-//					@Override
-//					public Void handle(WriteChildrenIterator citer) {
-//						while(citer.hasNext()){ 
-//							WriteNode wnode = citer.next();
-//							affectedRow.add(new TouchedRow(wnode, Touch.REMOVE, wnode.fqn())) ; 
-//						}
-//						return null;
-//					}
-//				}) ;
-//				
-//			} else {
-//				affectedRow.add(r) ;
-//			}
-//		}
-//		cddm.fireRow(affectedRow.toArray(new TouchedRow[0]), this, tjob, ehandler);
 		cddm.fireRow(this, tjob, ehandler);
-
-		logWriter.beginLog(logRows);
-		for (TouchedRow row : logRows) {
-			logWriter.writeLog(row);
-		}
-		logWriter.endLog();
-		logRows.clear();
-
-		//
-		//
-		// if (this.mode != Mode.NORMAL) { // restore mode
-		// // workspace().getCache().cache().clear() ;
-		// return ;
-		// }
-		//
-		// logWriter.beginLog(this) ; // user will define tranId & config after..
-		//
-		//
-		// for (Fqn parentFqn : ancestorsFqn) { // create parent node
-		// workspace().pathNode(parentFqn, true) ;
-		// logRows.add(LogRow.create(Touch.MODIFY, parentFqn, pathBy(parentFqn))) ;
-		// }
-		//
-		// for (LogRow row : logRows) {
-		// row.saveLog(this) ;
-		// }
-		//
-		// logWriter.endLog() ;
+		
+		logWriter.writeLog(logRows) ;
+		logRows = ListOrderedSet.decorate(ListUtil.newList());
 	}
 
 	@Override
@@ -198,7 +144,9 @@ public abstract class AbstractWriteSession implements WriteSession {
 	public void notifyTouch(WriteNode source, Fqn targetFqn, Touch touch, Map<String, Fqn> affected) {
 		if ((touch == Touch.TOUCH) || (targetFqn.isRoot() && touch == Touch.TOUCH))
 			return;
-		logRows.add(TouchedRow.create(source, touch, targetFqn, affected));
+		
+		TouchedRow trow = TouchedRow.create(source, touch, targetFqn, affected);
+		logRows.add(trow);
 	}
 
 	public IndexWriteConfig iwconfig() {

@@ -2,7 +2,7 @@ package net.ion.craken.node.exception;
 
 import java.io.IOException;
 
-import org.infinispan.CacheException;
+import org.infinispan.commons.CacheException;
 
 public class NodeIOException extends CacheException{
 

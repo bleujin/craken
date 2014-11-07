@@ -1,2 +1,0 @@
-þ*
->+/__transactions/53d60a41bb79187072f020a8.#0C1!{"config":{"fields":{},"ignoreBody":false,"ignoreIndex":false,"time":1406536257523,"count":2},"logs":[{"path":"/bleujin","touch":"MODIFY","action":"MERGE","val":{"name":{"vtype":"STR","vals":["bleujin"]}}},{"path":"/hero","touch":"MODIFY","action":"MERGE","val":{"name":{"vtype":"STR","vals":["hero"]}}}]}

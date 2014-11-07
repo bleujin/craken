@@ -18,6 +18,8 @@ public class TestAllWorkspace {
 		suite.addTestSuite(TestDefineWorkspace.class) ;
 		suite.addTestSuite(TestWorkspaceConfig.class) ;
 		suite.addTestSuite(TestOtherWorkspace.class);
+		
+		
 		suite.addTestSuite(TestTransaction.class) ;
 		suite.addTestSuite(TestSync.class) ;
 		suite.addTestSuite(TestWorkspaceListener.class) ;

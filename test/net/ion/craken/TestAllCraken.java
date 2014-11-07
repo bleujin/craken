@@ -1,14 +1,12 @@
 package net.ion.craken;
 
 import junit.framework.TestSuite;
-import net.ion.craken.loaders.TestAllLoaders;
 import net.ion.craken.node.TestAllChildren;
 import net.ion.craken.node.TestAllWorkspace;
 import net.ion.craken.node.TestIndexWriteConfig;
 import net.ion.craken.node.TestSessionTracer;
 import net.ion.craken.node.convert.TestAllConvert;
 import net.ion.craken.node.crud.TestAllCrudNode;
-import net.ion.craken.node.dist.TestAllDist;
 import net.ion.craken.node.mr.TestAllMapReduce;
 import net.ion.craken.node.ref.TestAllRef;
 import net.ion.craken.node.search.TestAllSearchNode;
@@ -30,14 +28,12 @@ public class TestAllCraken extends TestSuite {
 
 		
 		// advanced
-		suite.addTest(TestAllDist.suite()) ;
 		suite.addTest(TestAllMapReduce.suite()) ;
 		
 		
 		// etc
 		suite.addTestSuite(TestIndexWriteConfig.class);
 		suite.addTestSuite(TestSessionTracer.class);
-		
 		return suite ;
 	}
 	

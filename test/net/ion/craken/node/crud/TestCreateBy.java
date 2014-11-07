@@ -1,7 +1,9 @@
 package net.ion.craken.node.crud;
 
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.framework.util.Debug;
 
 public class TestCreateBy extends TestBaseCrud {
 
@@ -10,10 +12,15 @@ public class TestCreateBy extends TestBaseCrud {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").property("name", "bleujin"); 
+				WriteNode wnode = wsession.pathBy("/bleujin").property("name", "bleujin");
 				return null;
 			}
 		}) ;
+		
+		
+		session.workspace().central().newSearcher().createRequest("name:bleujin").find().debugPrint(); 
+		
+		
 		assertEquals(1, session.root().childQuery("name:bleujin").find().totalCount()) ;
 
 		session.tranSync(new TransactionJob<Void>() {

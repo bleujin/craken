@@ -3,12 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="ics6"/>
+	<classpathentry kind="src" path="before"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/netty-3.4.6.Final.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/infinispan521_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/asm-3.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar" sourcepath="/Users/airkjh/git/ionframework">
 		<attributes>
@@ -18,12 +18,10 @@
 	<classpathentry kind="lib" path="lib/reflib/search440_fat.jar"/>
 	<classpathentry kind="lib" path="lib/ref/aradon311_0.9.jar"/>
 	<classpathentry kind="lib" path="lib/option/cglib-nodep-2.2.3.jar"/>
-	<classpathentry kind="lib" path="lib/option/infinispan_cloud.jar"/>
-	<classpathentry kind="lib" path="lib/option/neo_fat.jar"/>
-	<classpathentry kind="lib" path="lib/option/neonode_0.1.jar"/>
-	<classpathentry kind="lib" path="lib/option/mongo-java-driver-2.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/ref/aclient_0.5.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/infinispan602_fat.jar"/>
+	<classpathentry kind="lib" path="lib/imsi/jsr311_fat.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ISearcher"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>

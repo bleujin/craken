@@ -1,12 +1,24 @@
 package net.ion.craken.node.crud;
 
-import junit.framework.TestCase;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
-import net.ion.craken.node.ReadSession;
-import net.ion.framework.util.Debug;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.util.Version;
+import org.apache.commons.collections.LRUMap;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
+
+import junit.framework.TestCase;
+import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
+import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.util.Debug;
 
 public class TestWorkspaceConfig extends TestCase {
 
@@ -24,27 +36,33 @@ public class TestWorkspaceConfig extends TestCase {
 		super.tearDown();
 	}
 	
-	public void testViewConfig() throws Exception {
-		r.defineWorkspace("test", ISearcherWorkspaceConfig.createDefault()) ;
-		ReadSession session = r.login("test");
-		
-		ISearcherWorkspaceConfig config = (ISearcherWorkspaceConfig)session.workspace().config();
-		
-		assertEquals(true, session.workspace().config() == config) ;
-		assertEquals("./resource/temp/isearch", config.location()) ;
-		r.shutdown() ;
+	
+	public void testReadWhenNotDefined() throws Exception {
+		ReadSession session = r.login("notdefined") ;
+		session.root().children().debugPrint(); 
 	}
 	
-	public void xtestIndexConfig() throws Exception {
-		ISearcherWorkspaceConfig newconfig = ISearcherWorkspaceConfig.create();
-		final StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
-		newconfig.centralConfig().indexConfigBuilder().indexAnalyzer(analyzer);
-		r.defineWorkspace("newwork", newconfig) ;
+
+	public void testCreateWorkspace() throws Exception {
+		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/test")) ;
+		ReadSession session = r.login("test");
 		
-		r.start() ;
-		ReadSession newSession = r.login("newwork");
-		Debug.line('o', newconfig.hashCode(),  newconfig) ;
-		assertEquals(true, newSession.workspace().config() == newconfig) ;
-		assertEquals(true, newSession.workspace().central().indexConfig().indexAnalyzer() == analyzer);
+		session.tran(TransactionJobs.HelloBleujin) ;
+	}
+	
+//	public void testWorkspaceNames() throws Exception {
+//		r.defineWorkspace("search") ;
+//		r.defineWorkspace("temp") ;
+//		
+//		Debug.line(r.workspaceNames()) ;
+//		
+//	}
+//	
+	public void testWorkspaceConfig() throws Exception {
+		r.defineWorkspace("search") ;
+		
+		ReadSession session = r.login("search") ;
+		Workspace workspace = session.workspace() ;
+		Debug.line(workspace.cache().getCacheConfiguration()) ; 
 	}
 }

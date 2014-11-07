@@ -9,6 +9,7 @@ import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonParser;
@@ -43,7 +44,8 @@ public class IndexWriteConfig implements Serializable{
 		}, NUMBER {
 			@Override
 			public void index(WriteDocument doc, String propId, String value) {
-				doc.number(propId, Long.parseLong(value)) ;
+				if (StringUtil.contains(value, '.')) doc.number(propId, new Double(Double.parseDouble(value)).longValue() ) ;
+				else doc.number(propId, Long.parseLong(value)) ;
 			}
 		}, DATETIME {
 			@Override
@@ -58,6 +60,16 @@ public class IndexWriteConfig implements Serializable{
 		};
 		
 		public abstract void index(WriteDocument doc, String propId, String value) ;
+		
+		public void index(WriteDocument doc, String propId, VType vtype, Object value) {
+			if (this.equals(UNKNOWN)){
+				if (VType.INT == vtype || VType.LONG == vtype || VType.DOUB == vtype){
+					NUMBER.index(doc, propId, ObjectUtil.toString(value));
+					return ;
+				}
+			}
+			index(doc, propId, ObjectUtil.toString(value));
+		}
 	}
 	
 	private Map<String, FieldIndex> fieldIndexes = MapUtil.newMap() ;

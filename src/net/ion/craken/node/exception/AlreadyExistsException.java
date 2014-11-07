@@ -2,7 +2,7 @@ package net.ion.craken.node.exception;
 
 import net.ion.craken.tree.Fqn;
 
-import org.infinispan.CacheException;
+import org.infinispan.commons.CacheException;
 
 public class AlreadyExistsException extends CacheException {
 

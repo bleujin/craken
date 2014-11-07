@@ -5,14 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import net.ion.craken.loaders.FastFileCacheStore;
-import net.ion.craken.loaders.WorkspaceConfig;
-import net.ion.craken.loaders.lucene.ISearcherWorkspaceConfig;
+import net.ion.craken.loaders.AStoreConfiguration;
+import net.ion.craken.loaders.CrakenStoreConfigurationBuilder;
 import net.ion.craken.node.Credential;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
@@ -24,19 +22,19 @@ import net.ion.framework.logging.LogBroker;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
-import net.ion.framework.util.StringUtil;
+import net.ion.framework.util.SetUtil;
+import net.ion.nsearcher.config.CentralConfig;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.config.ConfigurationException;
+import org.infinispan.configuration.cache.AsyncStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.loaders.file.FileCacheStore;
+import org.infinispan.configuration.cache.ExpirationConfigurationBuilder;
+import org.infinispan.configuration.cache.StoreConfiguration;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.remoting.transport.Address;
 
@@ -46,12 +44,11 @@ public class RepositoryImpl implements Repository {
 
 	private IExecutor executor;
 	private com.google.common.cache.Cache<String, Workspace> workspaceCache = CacheBuilder.newBuilder().maximumSize(20).build();
-	private Map<String, WorkspaceConfig> configs = MapUtil.newCaseInsensitiveMap();
 	private DefaultCacheManager dm;
 	private Map<String, Object> attrs = MapUtil.newMap();
 	private Logger log = LogBroker.getLogger(Repository.class);
 	private String repoId;
-	private ResyncListener rsyncListener;
+	private Set<String> definedWorkspace = SetUtil.newSet() ;
 
 	private RepositoryImpl(DefaultCacheManager dm, String repoId) {
 		this.dm = dm;
@@ -60,56 +57,20 @@ public class RepositoryImpl implements Repository {
 		putAttribute(ColumnParser.class.getCanonicalName(), new ColumnParser());
 	}
 
-	public static RepositoryImpl create() {
-		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport()
-			.clusterName("craken").nodeName("emanon")
-			.addProperty("configurationFile", "./resource/config/jgroups-udp.xml")
-			.build();
-		return create(gconfig);
+	public static RepositoryImpl create() throws IOException {
+		return create(new DefaultCacheManager("./resource/config/craken-cache-config.xml"), "emanon");
 	}
 	
-	public static RepositoryImpl test(DefaultCacheManager dcm, String repoId){
-		RepositoryImpl result = new RepositoryImpl(dcm, "emanon");
-		result.resyncListener(new ResyncListener(result)) ;
-		return result ;
+	public static RepositoryImpl create(DefaultCacheManager dcm, String repoId){
+		return new RepositoryImpl(dcm, "emanon");
 	}
 	
-	public static RepositoryImpl create(String repoId) {
-		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder()
-			.transport().clusterName("craken").nodeName(repoId)
-				.addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
-		return create(gconfig, repoId);
-	}
-
-	public static RepositoryImpl create(GlobalConfiguration gconfig) {
-		if (StringUtil.isBlank(gconfig.transport().nodeName())) throw new IllegalArgumentException("not defined repoId : transport nodename") ;
-		return create(gconfig, gconfig.transport().nodeName());
-	}
-
-	public static RepositoryImpl create(GlobalConfiguration gconfig, String repoId) {
-		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
-		
-		Configuration config = new ConfigurationBuilder().locking().lockAcquisitionTimeout(20000).concurrencyLevel(5000).useLockStriping(false).clustering().cacheMode(CacheMode.DIST_SYNC).invocationBatching().enable().build(); // not indexable : indexing().enable().
-		
-		final RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(gconfig, config), repoId);
-
-		result.resyncListener(new ResyncListener(result)) ;
-		return result;
-	}
-
-	
-	private void resyncListener(ResyncListener resyncListener) {
-		this.rsyncListener = resyncListener ;
-		dm.addListener(resyncListener) ;
-	}
-
 	public static RepositoryImpl inmemoryCreateWithTest() throws CorruptIndexException, IOException {
 		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
-		
-		RepositoryImpl result = new RepositoryImpl(new DefaultCacheManager(), "emanon");
-		result.resyncListener(new ResyncListener(result)) ;
-		return result.defineWorkspaceForTest("test", ISearcherWorkspaceConfig.create().location(""));
+		RepositoryImpl result = create(new DefaultCacheManager(), "emanon");
+		return result.defineWorkspace("test");
 	}
+
 
 	public String memberId() {
 		return repoId; 
@@ -126,7 +87,7 @@ public class RepositoryImpl implements Repository {
 	
 
 	public Set<String> workspaceNames() {
-		return workspaceCache.asMap().keySet();
+		return definedWorkspace ;
 	}
 
 	// only use for test
@@ -148,57 +109,23 @@ public class RepositoryImpl implements Repository {
 		return this;
 	}
 
-	private CountDownLatch latch ;
 	private boolean started;
 	public synchronized RepositoryImpl start() {
 		if (this.started) return this;
 		
 		dm.start();
-		latch = new CountDownLatch(configs.size()) ;
-		try {
-			for (final String wsName : configs.keySet()) {
-				final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
-					public Workspace call() throws Exception {
-						final Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName);
-						if (!cache.getCacheConfiguration().invocationBatching().enabled())
-							throw new ConfigurationException("Invocation batching not enabled in current configuration! Please enable it.");
-						final Workspace created = configs.get(wsName).createWorkspace(RepositoryImpl.this, cache, wsName).start() ;
-
-						return created;
-					}
-				});
-			}
-			log.info(memberId() +" maked workspace") ;
-			this.started = true ;
-		} catch (ExecutionException ex) {
-			throw new IllegalStateException(ex.getMessage());
-		}
-		
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				RepositoryImpl.this.shutdown() ;
 			}
 		}) ;
 		
-		if (dm.getAddress() == null) {
-			rsyncListener.inmomory() ;
-		} 
-		
-		try {
-			latch.await() ;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		started = true ;
 		log.info(memberId() +" started") ;
 		return this;
 	}
 	
 	
-	void release(){
-		latch.countDown() ;
-	}
-	
-
 	public RepositoryImpl shutdown() {
 		if (!started) return this ;
 		
@@ -206,11 +133,13 @@ public class RepositoryImpl implements Repository {
 			ws.close();
 		}
 		workspaceCache.cleanUp(); 
-		configs.clear(); 
+		dm.<String, StringBuilder> getCache("craken-log").stop();
+		dm.<String, StringBuilder> getCache("craken-blob").stop();
 		
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
 		executor.shutdown();
-		
+
+
 		dm.stop();
 		
 		log.info(memberId() +" shutdowned") ;
@@ -226,10 +155,12 @@ public class RepositoryImpl implements Repository {
 		return log ;
 	}
 	
-	Workspace findWorkspace(String wsName) throws ExecutionException{
+	Workspace findWorkspace(final String wsName) throws ExecutionException{
 		final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
 			public Workspace call() throws Exception {
-				return null ;
+				Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName) ;
+				List<StoreConfiguration> stores = cache.getAdvancedCache().getCacheConfiguration().persistence().stores();
+				return new Workspace(RepositoryImpl.this, cache, wsName, stores.size() == 0 ? CentralConfig.newRam().build() : ((AStoreConfiguration)stores.get(0)).central()) ;
 			}
 		});
 		if (found == null) throw new IllegalArgumentException("not found workspace") ;
@@ -247,6 +178,9 @@ public class RepositoryImpl implements Repository {
 	public ReadSessionImpl login(Credential credential, final String wsName, Analyzer queryAnalyzer) throws IOException {
 		try {
 			if (! this.started) this.start() ;
+			if (! definedWorkspace.contains(wsName)) {
+				definedWorkspace.add(wsName) ;
+			}
 
 			final Workspace found = findWorkspace(wsName) ;
 			return new ReadSessionImpl(credential, found, ObjectUtil.coalesce(queryAnalyzer, found.central().searchConfig().queryAnalyzer()));
@@ -256,44 +190,41 @@ public class RepositoryImpl implements Repository {
 
 	}
 
-	public RepositoryImpl defineWorkspace(String wsName, WorkspaceConfig config) throws IOException {
-		if (configs.containsKey(wsName))
-			throw new IllegalStateException("already define workspace : " + wsName);
-		configs.put(wsName, config);
+	public RepositoryImpl defineWorkspace(String wsName) throws IOException {
+		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ; 
+		dm.defineConfiguration(wsName, makeConfig());
 
-		dm.defineConfiguration(wsName,config.build());
-
-		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder()
-				.clustering().cacheMode(CacheMode.DIST_SYNC).locking().lockAcquisitionTimeout(config.lockTimeoutMs())
-				.clustering().hash().numOwners(2)
-				.eviction().maxEntries(100)
-				.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore())
-				.addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-		dm.defineConfiguration(wsName + ".logmeta", FastFileCacheStore.fastStoreConfig(CacheMode.REPL_SYNC, config.location(), 1000));
-		dm.defineConfiguration(wsName + ".log", FastFileCacheStore.fileStoreConfig(CacheMode.DIST_SYNC, config.location(), 100, 2));
-
+		definedWorkspace.add(wsName) ;
 		log.info("Workspace[" + wsName + ", DIST] defined");
 		return this;
 	}
 
-	public RepositoryImpl defineWorkspaceForTest(String wsName, WorkspaceConfig config) throws IOException {
-		if (configs.containsKey(wsName))
-			throw new IllegalStateException("already define workspace : " + wsName);
-		configs.put(wsName, config);
+	public RepositoryImpl createWorkspace(String wsName, WorkspaceConfigBuilder wconfig) {
+		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ;
+		wconfig.init(dm, wsName) ;
+		dm.defineConfiguration(wsName, makeConfig());
 
-		dm.defineConfiguration(wsName, config.buildLocal());
-
-		dm.defineConfiguration(wsName + ".blob", new ConfigurationBuilder()
-			.eviction().maxEntries(100)
-			.loaders().preload(true).shared(false).passivation(false).addCacheLoader().cacheLoader(new FileCacheStore())
-			.addProperty(config.Location, config.location()).purgeOnStartup(false).ignoreModifications(false).fetchPersistentState(true).async().enabled(false).build());
-
-		log.info("Workspace[" + wsName + ", LOCAL] defined");
-		return this;
+		definedWorkspace.add(wsName) ;
+		log.info("Workspace[" + wsName + ", DIST] defined");
+		return this ;
 	}
 
 	public boolean isStarted() {
 		return this.started ;
+	}
+
+	private Configuration makeConfig(){
+		ExpirationConfigurationBuilder builder = new ConfigurationBuilder()
+			.invocationBatching().enable()
+			.persistence().addStore(CrakenStoreConfigurationBuilder.class).fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false)
+			.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
+			.eviction().maxEntries(20000).eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
+		
+		if (dm.getCacheManagerConfiguration().isClustered()){
+			builder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
+		}
+		
+		return builder.build() ;
 	}
 
 }
