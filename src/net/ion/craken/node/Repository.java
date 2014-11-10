@@ -9,6 +9,7 @@ import net.ion.framework.schedule.IExecutor;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.infinispan.remoting.transport.Address;
+import org.infinispan.util.logging.Log;
 
 public interface Repository {
 
@@ -34,7 +35,7 @@ public interface Repository {
 
 	public List<Address> memberAddress();
 	
-	public Logger logger() ;
+	public Log logger() ;
 
 //	public Central central(String wsName);
 

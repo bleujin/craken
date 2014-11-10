@@ -18,7 +18,6 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.framework.logging.LogBroker;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -29,7 +28,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.configuration.cache.AsyncStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -37,6 +35,8 @@ import org.infinispan.configuration.cache.ExpirationConfigurationBuilder;
 import org.infinispan.configuration.cache.StoreConfiguration;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.remoting.transport.Address;
+import org.infinispan.util.logging.Log;
+import org.infinispan.util.logging.LogFactory;
 
 import com.google.common.cache.CacheBuilder;
 
@@ -46,7 +46,7 @@ public class RepositoryImpl implements Repository {
 	private com.google.common.cache.Cache<String, Workspace> workspaceCache = CacheBuilder.newBuilder().maximumSize(20).build();
 	private DefaultCacheManager dm;
 	private Map<String, Object> attrs = MapUtil.newMap();
-	private Logger log = LogBroker.getLogger(Repository.class);
+	private final Log log = LogFactory.getLog(Repository.class);
 	private String repoId;
 	private Set<String> definedWorkspace = SetUtil.newSet() ;
 
@@ -151,7 +151,7 @@ public class RepositoryImpl implements Repository {
 		return executor;
 	}
 	
-	public Logger logger(){
+	public Log logger(){
 		return log ;
 	}
 	
