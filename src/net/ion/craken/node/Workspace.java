@@ -444,14 +444,15 @@ public class Workspace extends TreeStructureSupport implements Closeable {
 
 						if (propertyId.type() == PType.NORMAL) {
 							String propId = propertyId.getString();
+							VType vtype = entry.getValue().type() ;
 							JsonArray pvalue = entry.getValue().asJsonArray() ;
 
-							jso.add(propertyId.idString(), entry.getValue().asJsonArray());
+							jso.add(propertyId.idString(), new JsonObject().put("vals", entry.getValue().asJsonArray()).put("vtype", vtype));
+
 							for (JsonElement e : pvalue.toArray()) {
 								if (e == null)
 									continue;
 								FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
-								VType vtype = entry.getValue().type() ;
 								fieldIndex.index(doc, propId, vtype, e.isJsonObject() ? e.toString() : e.getAsString());
 							}
 						} else if (propertyId.type() == PType.REFER) {
