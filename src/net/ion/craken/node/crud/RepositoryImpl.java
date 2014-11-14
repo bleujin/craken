@@ -36,6 +36,7 @@ import org.infinispan.configuration.cache.ExpirationConfigurationBuilder;
 import org.infinispan.configuration.cache.StoreConfiguration;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.remoting.transport.Address;
+import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
@@ -217,14 +218,15 @@ public class RepositoryImpl implements Repository {
 	}
 
 	private Configuration makeConfig(){
-		EvictionConfigurationBuilder builder = new ConfigurationBuilder() // .read(dm.getDefaultCacheConfiguration())
-			.invocationBatching().enable()
-			.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(20000).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
-			.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
-			.eviction().maxEntries(20000) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
-		if (dm.getCacheManagerConfiguration().isClustered()){
-			builder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
-		}
+		EvictionConfigurationBuilder builder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
+				.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
+				.invocationBatching().enable()
+				.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(20000).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
+				.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
+				.eviction().maxEntries(20000) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
+			if (true){
+				builder.clustering().cacheMode(dm.getDefaultCacheConfiguration().clustering().cacheMode()) ;
+			}
 		
 		return builder.build() ;
 	}

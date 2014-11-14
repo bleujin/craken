@@ -6,6 +6,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.util.Debug;
 
 public class TestTreeNodeDocument extends TestCase {
 	
@@ -15,9 +16,9 @@ public class TestTreeNodeDocument extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create();
+		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
 //		FileUtil.deleteDirectory(new File("./resource/index")) ;
-		r.defineWorkspace("test") ;
+//		r.defineWorkspace("test") ;
 		this.session = r.login("test");
 	}
 
@@ -40,8 +41,10 @@ public class TestTreeNodeDocument extends TestCase {
 	}
 	
 	public void testReload() throws Exception {
+		session.tranSync(TransactionJobs.dummy("/bleujin", 3)) ;
 		session.pathBy("/bleujin").children().debugPrint() ;
-		assertEquals(4, session.pathBy("/bleujin").childrenNames().size()) ;
+		Debug.line(session.pathBy("/bleujin").childrenNames());
+		assertEquals(3, session.pathBy("/bleujin").childrenNames().size()) ;
 	}
 	
 	

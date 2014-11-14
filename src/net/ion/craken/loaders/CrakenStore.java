@@ -241,8 +241,8 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 			public void run() {
 				long now = System.currentTimeMillis();
 				Set keys = ctx.getCache().keySet();
-				Debug.line("Called PURGE : " + keys.size());
 				
+				if (task == null) return ;
 				for (Object key : keys) {
 					task.entryPurged(key);
 				}
