@@ -31,6 +31,7 @@ import org.infinispan.atomic.AtomicMap;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.cache.EvictionConfigurationBuilder;
 import org.infinispan.configuration.cache.ExpirationConfigurationBuilder;
 import org.infinispan.configuration.cache.StoreConfiguration;
 import org.infinispan.manager.DefaultCacheManager;
@@ -62,7 +63,7 @@ public class RepositoryImpl implements Repository {
 	}
 	
 	public static RepositoryImpl create(DefaultCacheManager dcm, String repoId){
-		return new RepositoryImpl(dcm, "emanon");
+		return new RepositoryImpl(dcm, repoId);
 	}
 	
 	public static RepositoryImpl inmemoryCreateWithTest() throws CorruptIndexException, IOException {
@@ -192,20 +193,22 @@ public class RepositoryImpl implements Repository {
 
 	public RepositoryImpl defineWorkspace(String wsName) throws IOException {
 		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ; 
-		dm.defineConfiguration(wsName, makeConfig());
+		Configuration maked = makeConfig();
+		dm.defineConfiguration(wsName, maked);
 
 		definedWorkspace.add(wsName) ;
-		log.info("Workspace[" + wsName + ", DIST] defined");
+		log.info("Workspace[" + wsName + ", " + maked.clustering().cacheModeString() + "] defined");
 		return this;
 	}
 
 	public RepositoryImpl createWorkspace(String wsName, WorkspaceConfigBuilder wconfig) {
 		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ;
 		wconfig.init(dm, wsName) ;
-		dm.defineConfiguration(wsName, makeConfig());
+		Configuration maked = makeConfig();
+		dm.defineConfiguration(wsName, maked);
 
 		definedWorkspace.add(wsName) ;
-		log.info("Workspace[" + wsName + ", DIST] defined");
+		log.info("Workspace[" + wsName + ", " + maked.clustering().cacheModeString() + "] defined");
 		return this ;
 	}
 
@@ -214,12 +217,11 @@ public class RepositoryImpl implements Repository {
 	}
 
 	private Configuration makeConfig(){
-		ExpirationConfigurationBuilder builder = new ConfigurationBuilder()
+		EvictionConfigurationBuilder builder = new ConfigurationBuilder() // .read(dm.getDefaultCacheConfiguration())
 			.invocationBatching().enable()
-			.persistence().addStore(CrakenStoreConfigurationBuilder.class).fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false)
+			.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(20000).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
 			.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
-			.eviction().maxEntries(20000).eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
-		
+			.eviction().maxEntries(20000) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
 		if (dm.getCacheManagerConfiguration().isClustered()){
 			builder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
 		}

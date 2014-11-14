@@ -403,7 +403,7 @@ public class Workspace extends TreeStructureSupport implements Closeable {
 								continue;
 
 							WriteDocument propDoc = isession.newDocument(path);
-							propDoc.keyword(EntryKey.PARENT, Fqn.fromString(path).getParent().toString());
+							propDoc.keyword(EntryKey.PARENT, fqn.getParent().toString());
 							propDoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
 
 							JsonObject jobj = new JsonObject();
@@ -421,9 +421,10 @@ public class Workspace extends TreeStructureSupport implements Closeable {
 							break;
 						case REMOVE:
 							isession.deleteTerm(new Term(IKeywordField.DocKey, path));
+							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(path).startWith())));
 							break;
 						case REMOVECHILDREN:
-							isession.deleteQuery(new WildcardQuery(new Term(EntryKey.PARENT, Fqn.fromString(path).startWith())));
+							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(path).startWith())));
 							break;
 						default:
 							throw new IllegalArgumentException("Unknown modification type " + touch);

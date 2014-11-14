@@ -22,7 +22,6 @@
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/infinispan602_fat.jar"/>
 	<classpathentry kind="lib" path="lib/imsi/jsr311_fat.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ISearcher"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

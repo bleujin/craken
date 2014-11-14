@@ -58,14 +58,12 @@ import org.infinispan.persistence.spi.PersistenceException;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
-
 @Listener
 public class CrakenStore implements AdvancedLoadWriteStore {
 	private static final Log log = LogFactory.getLog(CrakenStore.class);
 	private static final boolean trace = log.isTraceEnabled();
 	private CrakenStoreConfiguration configuration;
 	protected InitializationContext ctx;
-	private ReadWriteLock resizeLock = new ReentrantReadWriteLock();
 	private Central central;
 
 	@Override
@@ -77,29 +75,29 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 	@Override
 	public void start() {
 		try {
-			// open the data file
-			String location = configuration.location();
-			if (StringUtil.isBlank(location))
-				location = "./resource/temp/memory-store";
-			File file = new File(location, ctx.getCache().getName() + ".dat");
-			if (!file.exists()) {
-				File dir = file.getParentFile();
-				if (!dir.mkdirs() && !dir.exists()) {
-					throw log.directoryCannotBeCreated(dir.getAbsolutePath());
-				}
-			}
-		
+//			open the data file
+//			String location = configuration.location();
+//			if (StringUtil.isBlank(location))
+//				location = "./resource/temp/memory-store";
+//			File file = new File(location, ctx.getCache().getName() + ".dat");
+//			if (!file.exists()) {
+//				File dir = file.getParentFile();
+//				if (!dir.mkdirs() && !dir.exists()) {
+//					throw log.directoryCannotBeCreated(dir.getAbsolutePath());
+//				}
+//			}
+
 			String name = ctx.getCache().getName();
 			EmbeddedCacheManager cacheManager = ctx.getCache().getCacheManager();
 			Cache<?, ?> metaCache = cacheManager.getCache(name + "-meta");
 			Cache<?, ?> chunkCache = cacheManager.getCache(name + "-chunk");
 
 			BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, chunkCache, metaCache, name);
-			bcontext.chunkSize(16384 * 8) ;
+			bcontext.chunkSize(1024 * 1024);
 			Directory directory = bcontext.create();
 			this.central = CentralConfig.oldFromDir(directory).build();
-			
-			this.configuration.store(this) ;
+
+			this.configuration.store(this);
 		} catch (Exception e) {
 			throw new PersistenceException(e);
 		}
@@ -111,10 +109,10 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 	}
 
 	@CacheStopped
-	public void whenStopped(CacheStoppedEvent event){
+	public void whenStopped(CacheStoppedEvent event) {
 		Debug.line("STOPPE");
 	}
-	
+
 	/**
 	 * The base class implementation calls {@link #load(Object)} for this, we can do better because we keep all keys in memory.
 	 */
@@ -136,50 +134,17 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 
 	@Override
 	public void write(final MarshalledEntry entry) {
-		
+
 	}
 
 	@Override
 	public void clear() {
-		resizeLock.writeLock().lock();
-		try {
-			synchronized (central) {
-				central.newIndexer().index(new IndexJob<Void>() {
-					@Override
-					public Void handle(IndexSession isession) throws Exception {
-						isession.deleteAll();
-						return null;
-					}
-				});
-			}
-		} catch (Exception e) {
-			throw new PersistenceException(e);
-		} finally {
-			resizeLock.writeLock().unlock();
-		}
+
 	}
 
 	@Override
 	public boolean delete(Object _key) {
-		resizeLock.readLock().lock();
-		try {
-			final TreeNodeKey key = (TreeNodeKey) _key;
-			if (key.getType().isStructure())
-				return true;
-
-			return central.newIndexer().index(new IndexJob<Boolean>() {
-				@Override
-				public Boolean handle(IndexSession isession) throws Exception {
-					isession.deleteTerm(new Term(IKeywordField.DocKey, key.idString()));
-
-					return Boolean.TRUE;
-				}
-			});
-		} catch (Exception e) {
-			throw new PersistenceException(e);
-		} finally {
-			resizeLock.readLock().unlock();
-		}
+		return true;
 	}
 
 	@Override
@@ -195,86 +160,64 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 
 			if (key.getType().isStructure()) {
 				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(EntryKey.PARENT, key.fqnString()))).selections(IKeywordField.DocKey).offset(1000000).find().getDocument();
-				AtomicHashMap<String, Fqn> values = new AtomicHashMap<String, Fqn>() ;
+				AtomicHashMap<String, Fqn> values = new AtomicHashMap<String, Fqn>();
 				for (ReadDocument doc : docs) {
-					String fqnString = doc.idValue() ;
-					values.put(fqnString, Fqn.fromString(fqnString)) ;
+					String fqnString = doc.idValue();
+					values.put(fqnString, Fqn.fromString(fqnString));
 				}
 				InternalMetadata metadataBb = null;
 				return ctx.getMarshalledEntryFactory().newMarshalledEntry(key, values, metadataBb);
 			}
-			
+
 			ReadDocument findDoc = central.newSearcher().createRequestByKey(key.idString()).selections(EntryKey.VALUE).findOne();
 			if (findDoc == null) {
 				return null;
 			}
-			return entryFromDoc(key, findDoc) ;
+			return entryFromDoc(key, findDoc);
 		} catch (IOException e) {
 			return null;
-		} catch(ParseException ex) {
+		} catch (ParseException ex) {
 			return null;
 		}
 	}
-	
-	
-	private MarshalledEntry entryFromDoc(TreeNodeKey key, ReadDocument findDoc){
+
+	private MarshalledEntry entryFromDoc(TreeNodeKey key, ReadDocument findDoc) {
 		InternalMetadata metadataBb = null;
 		AtomicHashMap<PropertyId, PropertyValue> nodeValue = new AtomicHashMap<PropertyId, PropertyValue>();
-		JsonObject raw = JsonObject.fromString(findDoc.asString(EntryKey.VALUE)) ;
-		JsonObject props = raw.asJsonObject(EntryKey.PROPS) ;
+		JsonObject raw = JsonObject.fromString(findDoc.asString(EntryKey.VALUE));
+		JsonObject props = raw.asJsonObject(EntryKey.PROPS);
 		for (Entry<String, JsonElement> entry : props.entrySet()) {
 			String pkey = entry.getKey();
 			JsonElement pvalue = entry.getValue();
 			nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(key, pkey, pvalue.getAsJsonObject()));
 		}
-		
+
 		return ctx.getMarshalledEntryFactory().newMarshalledEntry(key, nodeValue, metadataBb);
 	}
-	
 
 	@Override
-	public void process(KeyFilter _filter, final CacheLoaderTask task, Executor executor, final boolean fetchValue, final boolean fetchMetadata) {
+	public void process(KeyFilter filter, final CacheLoaderTask task, Executor executor, final boolean fetchValue, final boolean fetchMetadata) {
+
 		if (true) return ;
 		
-		
-		final KeyFilter filter = PersistenceUtil.notNull(_filter);
-		final Set<ReadDocument> keysToLoad = new HashSet<ReadDocument>();
-		
-		try {
-			central.newSearcher().createRequest(new MatchAllDocsQuery()).selections(IKeywordField.DocKey, EntryKey.VALUE).find().eachDoc(new EachDocHandler<Void>() {
-				@Override
-				public <T> T handle(EachDocIterator iter) {
-					while(iter.hasNext()){
-						ReadDocument doc = iter.next() ;
-						TreeNodeKey tkey = TreeNodeKey.fromString(doc.idValue()) ;
-						
-						if (filter.shouldLoadKey(tkey))
-							keysToLoad.add(doc);
-					}
-					return null;
-				}
-			}) ;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch(ParseException e){
-			e.printStackTrace();
-		}
+		filter = PersistenceUtil.notNull(filter);
+		Set<Object> keysToLoad = new HashSet<Object>(ctx.getCache().keySet());
 
-		Debug.line(_filter, task, executor, fetchValue, fetchMetadata, keysToLoad.size());
 		ExecutorAllCompletionService eacs = new ExecutorAllCompletionService(executor);
+
 		final TaskContextImpl taskContext = new TaskContextImpl();
-		int taskCount = 0;
-		for (final ReadDocument doc : keysToLoad) {
+		for (final Object key : keysToLoad) {
 			if (taskContext.isStopped())
 				break;
+
 			eacs.submit(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					try {
-						TreeNodeKey tkey = TreeNodeKey.fromString(doc.idValue()) ;
-						final MarshalledEntry marshalledEntry = entryFromDoc(tkey, doc); // , fetchValue, fetchMetadata
+						final MarshalledEntry marshalledEntry = _load(key, fetchValue, fetchMetadata);
 						if (marshalledEntry != null) {
-//							task.processEntry(marshalledEntry, taskContext);
+							Debug.line(task, marshalledEntry, fetchValue, fetchMetadata);
+							task.processEntry(marshalledEntry, taskContext);
 						}
 						return null;
 					} catch (Exception e) {
@@ -292,11 +235,17 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 
 	@Override
 	public void purge(Executor threadPool, final PurgeListener task) {
+
 		threadPool.execute(new Runnable() {
 			@Override
 			public void run() {
 				long now = System.currentTimeMillis();
-//				System.out.println("Called PURGE");
+				Set keys = ctx.getCache().keySet();
+				Debug.line("Called PURGE : " + keys.size());
+				
+				for (Object key : keys) {
+					task.entryPurged(key);
+				}
 			}
 		});
 	}
@@ -306,9 +255,9 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 		try {
 			return central.newSearcher().search("*:*").totalCount();
 		} catch (IOException e) {
-			return 0 ; 
-		} catch(ParseException e) {
-			return 0 ;
+			return 0;
+		} catch (ParseException e) {
+			return 0;
 		}
 	}
 
@@ -317,7 +266,7 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 	}
 
 	public Central central() {
-		return central ;
+		return central;
 	}
 
 }

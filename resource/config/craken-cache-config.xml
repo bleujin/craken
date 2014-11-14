@@ -4,15 +4,13 @@
 	xmlns="urn:infinispan:config:6.0">
 
 	<global>
-		<transport clusterName="emanon" />
+		<transport clusterName="craken_emanon" />
 		<globalJmxStatistics enabled="false" />
 	</global>
 
 	<default>
 		<locking useLockStriping="false" />
-		<clustering mode="distribution">
-			<l1 enabled="true" lifespan="60000" />
-			<hash numOwners="2" />
+		<clustering mode="local">
 			<sync />
 		</clustering>
 		<invocationBatching enabled="true" />
