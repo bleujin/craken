@@ -10,7 +10,6 @@ import net.ion.rosetta.Parsers;
 import net.ion.rosetta.Scanners;
 import net.ion.rosetta.Terminals;
 import net.ion.rosetta.Tokens.Tag;
-import net.ion.rosetta.functors.Map;
 import net.ion.rosetta.misc.Mapper;
 
 public class TestStudyToken extends TestCase {

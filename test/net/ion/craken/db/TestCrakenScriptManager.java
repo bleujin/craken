@@ -3,6 +3,7 @@ package net.ion.craken.db;
 import java.io.File;
 import java.util.concurrent.Executors;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.db.DBController;
@@ -10,7 +11,6 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedureBatch;
 import net.ion.framework.db.servant.StdOutServant;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestCrakenScriptManager extends TestCase {
 

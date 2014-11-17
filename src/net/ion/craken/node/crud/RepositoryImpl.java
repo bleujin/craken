@@ -161,6 +161,8 @@ public class RepositoryImpl implements Repository {
 		final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
 			public Workspace call() throws Exception {
 				Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName) ;
+				
+				
 				List<StoreConfiguration> stores = cache.getAdvancedCache().getCacheConfiguration().persistence().stores();
 				return new Workspace(RepositoryImpl.this, cache, wsName, stores.size() == 0 ? CentralConfig.newRam().build() : ((AStoreConfiguration)stores.get(0)).central()) ;
 			}

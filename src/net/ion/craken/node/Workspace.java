@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
+import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.loaders.EntryKey;
@@ -35,6 +36,7 @@ import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
@@ -44,6 +46,7 @@ import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
+import net.ion.radon.util.uriparser.URIPattern;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.WildcardQuery;
@@ -56,12 +59,16 @@ import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
+import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
 @Listener
-public class Workspace extends TreeStructureSupport implements Closeable {
+public class Workspace extends TreeStructureSupport implements Closeable, WorkspaceListener {
 
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
@@ -83,6 +90,7 @@ public class Workspace extends TreeStructureSupport implements Closeable {
 		super(cache, cache.getBatchContainer());
 		this.repository = repository;
 		this.cache = cache;
+		this.addListener(this) ;
 
 		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache("craken-blob"));
 		
@@ -90,7 +98,6 @@ public class Workspace extends TreeStructureSupport implements Closeable {
 		this.batchContainer = cache.getBatchContainer();
 		this.central = cstore ;
 	}
-
 	public <T> T getAttribute(String key, Class<T> clz) {
 		return repository.getAttribute(key, clz);
 	}
@@ -549,7 +556,24 @@ public class Workspace extends TreeStructureSupport implements Closeable {
 		log.info(msg);
 	}
 
+	
+	@Override
+	public void registered(Workspace workspace) {
+	}
 
+	@Override
+	public void unRegistered(Workspace workspace) {
+	}
 
+	@CacheEntryModified
+	public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event){
+		cddmListener.modifiedRow(event) ;
+	}
+	
+	@CacheEntryRemoved
+	public void removed(CacheEntryRemovedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event){
+		cddmListener.removedRow(event) ;
+	}
+	
 
 }

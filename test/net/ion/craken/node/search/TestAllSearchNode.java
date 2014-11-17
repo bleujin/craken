@@ -1,7 +1,7 @@
 package net.ion.craken.node.search;
 
-import net.ion.craken.node.crud.TestFieldIndexConfig;
 import junit.framework.TestSuite;
+import net.ion.craken.node.crud.TestFieldIndexConfig;
 
 public class TestAllSearchNode extends TestSuite {
 

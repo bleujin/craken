@@ -3,16 +3,14 @@ package net.ion.craken.db;
 import java.io.File;
 import java.util.concurrent.Executors;
 
+import junit.framework.TestCase;
 import net.ion.craken.script.FileAlterationMonitor;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
-
-import junit.framework.TestCase;
 
 public class TestDetect extends TestCase {
 

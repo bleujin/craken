@@ -2,8 +2,6 @@ package net.ion.craken.node.where;
 
 import java.util.List;
 
-import org.apache.lucene.search.Sort;
-
 import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
@@ -15,9 +13,10 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Filters;
 import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
+
+import org.apache.lucene.search.Sort;
 
 public class TestWhere extends TestBaseCrud{
 

@@ -1,10 +1,7 @@
 package net.ion.craken.node.search;
 
-import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.nsearcher.search.filter.TermFilter;
 
 public class TestFilter extends TestBaseSearch {

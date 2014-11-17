@@ -8,10 +8,8 @@ import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.SetUtil;
 
 public class TestAppend extends TestBaseCrud {
 

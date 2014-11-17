@@ -8,7 +8,6 @@ import javax.script.ScriptEngineManager;
 
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.NumberUtil;
 import sun.org.mozilla.javascript.internal.NativeJavaObject;
 
 public class TestFirst extends TestCase {

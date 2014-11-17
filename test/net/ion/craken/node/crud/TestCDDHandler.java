@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
-import net.ion.craken.listener.AsyncCDDHandler;
 import net.ion.craken.listener.AsyncCDDModifyHandler;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
@@ -15,14 +14,9 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectId;
-
-import org.infinispan.atomic.AtomicMap;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 public class TestCDDHandler extends TestCase {
 

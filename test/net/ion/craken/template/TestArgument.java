@@ -1,17 +1,14 @@
 package net.ion.craken.template;
 
-import java.util.HashMap;
-
+import junit.framework.TestCase;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
-import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexJobs;
 import net.ion.nsearcher.search.SearchResponse;
-import junit.framework.TestCase;
 
 public class TestArgument extends TestCase {
 

@@ -1,13 +1,12 @@
 package net.ion.bleujin;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-
-import junit.framework.TestCase;
 
 public class TestDistConfig extends TestCase{
 

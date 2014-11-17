@@ -1,9 +1,6 @@
 package net.ion.craken.node.search;
 
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.WildcardQuery;
-
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -11,10 +8,6 @@ import net.ion.craken.node.crud.ChildQueryResponse;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralConfig;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 
 public class TestSearch extends TestBaseSearch {
 	

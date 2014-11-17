@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.script.CrakenScript;
 import net.ion.framework.db.Rows;
-import junit.framework.TestCase;
 
 public class TestCrakenScript extends TestCase {
 

@@ -23,7 +23,6 @@ import net.ion.nradon.config.RadonConfiguration;
 import net.ion.nradon.handler.SimpleStaticFileHandler;
 import net.ion.script.rhino.MyOutput;
 import net.ion.script.rhino.Scripter;
-import net.ion.script.rhino.RhinoResponse;
 
 public class TestSlide extends TestCase {
 	

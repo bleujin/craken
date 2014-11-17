@@ -4,9 +4,9 @@ import junit.framework.TestSuite;
 import net.ion.craken.node.crud.TestReadChildren;
 import net.ion.craken.node.crud.TestReadChildrenEach;
 import net.ion.craken.node.crud.TestReadNodeChild;
-import net.ion.craken.node.crud.TestWalkRefChildren;
-import net.ion.craken.node.crud.TestWalkReadChildren;
 import net.ion.craken.node.crud.TestRefChildren;
+import net.ion.craken.node.crud.TestWalkReadChildren;
+import net.ion.craken.node.crud.TestWalkRefChildren;
 import net.ion.craken.node.crud.TestWriteChildren;
 import net.ion.craken.node.crud.property.TestInnerChild;
 

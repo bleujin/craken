@@ -4,8 +4,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.TouchedRow;
@@ -13,9 +18,13 @@ import net.ion.craken.node.TranExceptionHandler;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.crud.WriteSessionImpl;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.PropertyId;
+import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.radon.util.uriparser.URIPattern;
@@ -58,6 +67,38 @@ public class CDDMListener implements WorkspaceListener {
 		}
 	}
 
+
+	public void modifiedRow(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
+		if (event.isPre()) return ;
+		if (event.isOriginLocal()) return ;
+
+		for(Entry<CDDHandler, URIPattern> entry : chandlers.entrySet()){
+			CDDHandler handler = entry.getKey() ;
+			Fqn targetFqn = event.getKey().getFqn();
+			if (targetFqn.isPattern(entry.getValue())){
+				CDDModifiedEvent mevent = new CDDModifiedEvent(event.getKey(), event.getValue());
+				Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());;
+				handler.modified(resolveMap, mevent) ;
+			}
+		}
+	}
+
+	public void removedRow(CacheEntryRemovedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
+		if (event.isPre()) return ;
+		if (event.isOriginLocal()) return ;
+
+		for(Entry<CDDHandler, URIPattern> entry : chandlers.entrySet()){
+			CDDHandler handler = entry.getKey() ;
+			Fqn targetFqn = event.getKey().getFqn();
+			if (targetFqn.isPattern(entry.getValue())){
+				CDDRemovedEvent mevent = new CDDRemovedEvent(event.getKey());
+				Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());;
+				handler.deleted(resolveMap, mevent) ;
+			}
+		}
+	}
+
+	
 	public void fireRow(final AbstractWriteSession wsession, TransactionJob tjob, TranExceptionHandler ehandler) {
 
 		TouchedRow[] touchedRows = wsession.logRows().toArray(new TouchedRow[0]);
@@ -134,6 +175,7 @@ public class CDDMListener implements WorkspaceListener {
 			}
 		}
 	}
+
 }
 
 class JobList implements Iterable<TransactionJob<Void>> {

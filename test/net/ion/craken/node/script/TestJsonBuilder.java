@@ -1,14 +1,13 @@
 package net.ion.craken.node.script;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.script.JsonBuilder;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestJsonBuilder extends TestCase {
 

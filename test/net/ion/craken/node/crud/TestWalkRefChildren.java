@@ -1,12 +1,11 @@
 package net.ion.craken.node.crud;
 
-import com.google.common.base.Predicate;
-
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.tree.Fqn;
-import junit.framework.TestCase;
+
+import com.google.common.base.Predicate;
 
 public class TestWalkRefChildren extends TestBaseCrud {
 

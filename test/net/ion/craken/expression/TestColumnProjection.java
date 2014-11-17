@@ -1,16 +1,14 @@
 package net.ion.craken.expression;
 
-import static net.ion.craken.expression.ExpressionParser.*;
-import static net.ion.rosetta.Parsers.between;
+import static net.ion.craken.expression.ExpressionParser.NUMBER;
+import static net.ion.craken.expression.ExpressionParser.QUALIFIED_NAME;
+import static net.ion.craken.expression.ExpressionParser.STRING;
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
 import net.ion.rosetta.Parsers;
 import net.ion.rosetta.Scanners;
-import net.ion.rosetta.Terminals;
-import net.ion.rosetta.Tokens.Tag;
 import net.ion.rosetta.functors.Map;
-import net.ion.rosetta.misc.Mapper;
 
 public class TestColumnProjection extends TestCase {
 

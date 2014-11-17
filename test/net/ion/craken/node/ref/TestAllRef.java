@@ -1,8 +1,8 @@
 package net.ion.craken.node.ref;
 
-import net.ion.craken.node.crud.TestRelation;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.ion.craken.node.crud.TestRelation;
 
 public class TestAllRef extends TestCase{
 

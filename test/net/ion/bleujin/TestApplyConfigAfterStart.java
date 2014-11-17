@@ -1,13 +1,10 @@
 package net.ion.bleujin;
 
-import net.ion.framework.util.Debug;
+import junit.framework.TestCase;
 
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-import org.w3c.tidy.Configuration;
-
-import junit.framework.TestCase;
 
 public class TestApplyConfigAfterStart extends TestCase {
 

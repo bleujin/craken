@@ -1,16 +1,9 @@
 package net.ion.craken.node.where;
 
-import com.google.common.base.Splitter;
-
-import junit.framework.TestCase;
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.search.SortExpression;
 
 public class TestSort extends TestBaseCrud {
 

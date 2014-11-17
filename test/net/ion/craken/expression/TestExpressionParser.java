@@ -1,12 +1,8 @@
 package net.ion.craken.expression;
 
-import static net.ion.craken.expression.ExpressionParser.NUMBER;
-import static net.ion.craken.expression.ExpressionParser.QUALIFIED_ARRAYNAME;
-import static net.ion.craken.expression.ExpressionParser.STRING;
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
-import net.ion.rosetta.Parsers;
 
 public class TestExpressionParser extends TestCase {
 

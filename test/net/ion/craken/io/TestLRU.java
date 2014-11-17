@@ -2,8 +2,8 @@ package net.ion.craken.io;
 
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.RandomUtil;
 
@@ -13,9 +13,6 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
-import org.omg.CORBA.DefinitionKind;
-
-import junit.framework.TestCase;
 
 public class TestLRU extends TestCase{
 

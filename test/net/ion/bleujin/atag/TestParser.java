@@ -1,11 +1,11 @@
 package net.ion.bleujin.atag;
 
+import junit.framework.TestCase;
 import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.framework.util.Debug;
 import net.ion.rosetta.Parser;
-import junit.framework.TestCase;
 
 public class TestParser extends TestCase {
 

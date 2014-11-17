@@ -1,20 +1,11 @@
 package net.ion.craken.io;
 
-import java.util.Set;
-
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
-import net.ion.craken.node.TransactionLog;
-import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.tree.PropertyId;
 import net.ion.framework.util.Debug;
-import net.ion.nsearcher.common.IKeywordField;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
 import org.infinispan.Cache;
 
 public class TestLogLob extends TestCase {

@@ -7,7 +7,6 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.tree.PropertyId;
 
 public class TestFirst extends TestCase {

@@ -1,14 +1,14 @@
 package net.ion.craken.node.where;
 
-import org.apache.lucene.search.FieldValueFilter;
-
+import junit.framework.TestCase;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.search.Searcher;
-import junit.framework.TestCase;
+
+import org.apache.lucene.search.FieldValueFilter;
 
 public class TestLucene extends TestCase {
 
