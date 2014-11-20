@@ -15,6 +15,7 @@ import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.InfinityThread;
 
 public class TestDistEventHandler extends TestCase {
 
@@ -38,7 +39,9 @@ public class TestDistEventHandler extends TestCase {
 
 	public void testFirst() throws Exception {
 		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = session.workspace().cache() ;
-		assertEquals(1, cache.getListeners().size()) ;
+//		Debug.line(cache.getListeners());
+		
+//		assertEquals(1, cache.getListeners().size()) ;
 		
 		session.workspace().cddm().add(new CDDHandler() {
 			@Override
@@ -48,7 +51,7 @@ public class TestDistEventHandler extends TestCase {
 			
 			@Override
 			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
-				Debug.line(resolveMap, event);
+				Debug.line(resolveMap, event.property("time").asLong(0));
 				return null;
 			}
 			
@@ -59,15 +62,15 @@ public class TestDistEventHandler extends TestCase {
 			}
 		}) ;
 
+		new InfinityThread().startNJoin(); 
 		
-		
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").property("name", "bleujin") ;
-				return null;
-			}
-		}) ;
+//		session.tran(new TransactionJob<Void>() {
+//			@Override
+//			public Void handle(WriteSession wsession) throws Exception {
+//				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+//				return null;
+//			}
+//		}) ;
 		
 		
 		
