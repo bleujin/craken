@@ -4,6 +4,7 @@
 	xmlns="urn:infinispan:config:6.0">
 
 	<global>
+		<transport clusterName="craken_emanon" />
 		<globalJmxStatistics enabled="false" />
 	</global>
 

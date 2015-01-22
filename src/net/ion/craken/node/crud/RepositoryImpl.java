@@ -161,8 +161,6 @@ public class RepositoryImpl implements Repository {
 		final Workspace found = workspaceCache.get(wsName, new Callable<Workspace>() {
 			public Workspace call() throws Exception {
 				Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName) ;
-				
-				
 				List<StoreConfiguration> stores = cache.getAdvancedCache().getCacheConfiguration().persistence().stores();
 				return new Workspace(RepositoryImpl.this, cache, wsName, stores.size() == 0 ? CentralConfig.newRam().build() : ((AStoreConfiguration)stores.get(0)).central()) ;
 			}
@@ -221,14 +219,14 @@ public class RepositoryImpl implements Repository {
 
 	private Configuration makeConfig(){
 		EvictionConfigurationBuilder builder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
-				.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
-				.invocationBatching().enable()
-				.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(20000).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
-				.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
-				.eviction().maxEntries(20000) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
-			if (true){
-				builder.clustering().cacheMode(dm.getDefaultCacheConfiguration().clustering().cacheMode()) ;
-			}
+			.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
+			.invocationBatching().enable()
+			.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(20000).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
+			.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
+			.eviction().maxEntries(20000) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
+		if (true){
+			builder.clustering().cacheMode(dm.getDefaultCacheConfiguration().clustering().cacheMode()) ;
+		}
 		
 		return builder.build() ;
 	}

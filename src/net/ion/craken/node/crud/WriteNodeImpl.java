@@ -18,6 +18,7 @@ import net.ion.craken.io.Metadata;
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -111,9 +112,9 @@ public class WriteNodeImpl implements WriteNode{
 	}
 	
 	
-	
-	
-	
+	public ReadNode toReadNode(){
+		return new ReadNodeImpl(wsession.readSession(), tnode) ;
+	}
 	
 
 	public WriteNode property(String key, Object value) {

@@ -72,7 +72,7 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteChildren refChildren(String refName);
 
-
+	public ReadNode toReadNode() ;
 
 
 }

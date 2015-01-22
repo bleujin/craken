@@ -62,7 +62,7 @@ public class TestDistEventHandler extends TestCase {
 			}
 		}) ;
 
-		new InfinityThread().startNJoin(); 
+//		new InfinityThread().startNJoin(); 
 		
 //		session.tran(new TransactionJob<Void>() {
 //			@Override

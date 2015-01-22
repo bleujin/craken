@@ -1,6 +1,5 @@
 package net.ion.craken.loaders;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -8,10 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.tree.Fqn;
@@ -21,31 +17,22 @@ import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
-import net.ion.nsearcher.search.EachDocHandler;
-import net.ion.nsearcher.search.EachDocIterator;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicHashMap;
-import org.infinispan.atomic.AtomicMap;
 import org.infinispan.executors.ExecutorAllCompletionService;
 import org.infinispan.lucene.directory.BuildContext;
 import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.marshall.core.MarshalledEntry;
-import org.infinispan.marshall.core.MarshalledEntryImpl;
 import org.infinispan.metadata.InternalMetadata;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStopped;
@@ -162,8 +149,8 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 				List<ReadDocument> docs = central.newSearcher().createRequest(new TermQuery(new Term(EntryKey.PARENT, key.fqnString()))).selections(IKeywordField.DocKey).offset(1000000).find().getDocument();
 				AtomicHashMap<String, Fqn> values = new AtomicHashMap<String, Fqn>();
 				for (ReadDocument doc : docs) {
-					String fqnString = doc.idValue();
-					values.put(fqnString, Fqn.fromString(fqnString));
+					Fqn fqn = Fqn.fromString(doc.idValue());
+					values.put(fqn.name(), fqn);
 				}
 				InternalMetadata metadataBb = null;
 				return ctx.getMarshalledEntryFactory().newMarshalledEntry(key, values, metadataBb);
@@ -189,12 +176,8 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 		for (Entry<String, JsonElement> entry : props.entrySet()) {
 			String pkey = entry.getKey();
 			JsonElement pvalue = entry.getValue();
-			if (pkey.startsWith("@")){
-				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.createPrimitive(pvalue.getAsString()));
-			} else {
-				nodeValue.put(PropertyId.fromIdString(pkey), PropertyValue.loadFrom(key, pkey, pvalue.getAsJsonObject()));
-			}
-			
+			PropertyId propId = PropertyId.fromIdString(pkey);
+			nodeValue.put(propId, PropertyValue.loadFrom(key, propId, pvalue));
 		}
 
 		return ctx.getMarshalledEntryFactory().newMarshalledEntry(key, nodeValue, metadataBb);

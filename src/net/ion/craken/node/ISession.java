@@ -10,6 +10,8 @@ public interface ISession<T extends NodeCommon<T>> {
 
 	public boolean exists(String fqn) ;
 
+	public boolean exists(Fqn fqn) ;
+
 	public T pathBy(String fqn);
 
 	public Credential credential();

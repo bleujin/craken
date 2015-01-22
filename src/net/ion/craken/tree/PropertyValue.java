@@ -16,6 +16,7 @@ import net.ion.craken.io.Metadata;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
+import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.PropertyValue.ReplaceValue;
 import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.framework.parse.gson.JsonArray;
@@ -39,105 +40,124 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	private final Values values;
 	private transient GridFilesystem gfs;
 
-
 	public enum VType implements Serializable {
 		BOOL {
-			public Class supportedClass(){
-				return Boolean.class ;
+			public Class supportedClass() {
+				return Boolean.class;
 			}
-			public Object read(JsonElement ele){
-				return ele.getAsBoolean() ;
+
+			public Object read(JsonElement ele) {
+				return ele.getAsBoolean();
 			}
-		}, INT {
-			public Class supportedClass(){
-				return Integer.class ;
+		},
+		INT {
+			public Class supportedClass() {
+				return Integer.class;
 			}
-			public Object read(JsonElement ele){
+
+			public Object read(JsonElement ele) {
 				return ele.getAsInt();
 			}
-		}, LONG {
-			public Class supportedClass(){
-				return Long.class ;
-			}
-			public Object read(JsonElement ele){
-				return ele.getAsLong() ;
-			}
-		}, DOUB {
-			public Class supportedClass(){
-				return Double.class ;
-			}
-			public Object read(JsonElement ele){
-				return ele.getAsDouble() ;
-			}
-		}, STR {
-			public Class supportedClass(){
-				return CharSequence.class ;
-			}
-			public Object read(JsonElement ele){
-				return ele.getAsString() ;
-			}
-		}, BLOB {
-			public Class supportedClass(){
-				return Metadata.class ;
-			}
-			public Object read(JsonElement ele){
-				return JsonObject.fromString(ele.getAsString()).getAsObject(Metadata.class) ;
-			}
-		}, REPLACE {
+		},
+		LONG {
 			public Class supportedClass() {
-				return ReplaceValue.class ;
+				return Long.class;
 			}
-			public Object read(JsonElement ele){
-				return ele.getAsString() ;
+
+			public Object read(JsonElement ele) {
+				return ele.getAsLong();
 			}
-		}, UNKNOWN {
-			public Class supportedClass(){
-				return Object.class ;
+		},
+		DOUB {
+			public Class supportedClass() {
+				return Double.class;
 			}
-			public Object read(JsonElement ele){
-				return ele.getAsString() ;
+
+			public Object read(JsonElement ele) {
+				return ele.getAsDouble();
+			}
+		},
+		STR {
+			public Class supportedClass() {
+				return CharSequence.class;
+			}
+
+			public Object read(JsonElement ele) {
+				return ele.getAsString();
+			}
+		},
+		BLOB {
+			public Class supportedClass() {
+				return Metadata.class;
+			}
+
+			public Object read(JsonElement ele) {
+				return JsonObject.fromString(ele.getAsString()).getAsObject(Metadata.class);
+			}
+		},
+		REPLACE {
+			public Class supportedClass() {
+				return ReplaceValue.class;
+			}
+
+			public Object read(JsonElement ele) {
+				return ele.getAsString();
+			}
+		},
+		UNKNOWN {
+			public Class supportedClass() {
+				return Object.class;
+			}
+
+			public Object read(JsonElement ele) {
+				return ele.getAsString();
 			}
 		};
-		
-		public abstract Class supportedClass() ;
-		public abstract Object read(JsonElement jele)  ;
-		
-		public static VType findType(Object value){
-			for(VType vtype : VType.values()){
+
+		public abstract Class supportedClass();
+
+		public abstract Object read(JsonElement jele);
+
+		public static VType findType(Object value) {
+			for (VType vtype : VType.values()) {
 				if (vtype.supportedClass().isInstance(value)) {
-					return vtype ;
+					return vtype;
 				}
 			}
-			return VType.UNKNOWN ;
+			return VType.UNKNOWN;
 		}
 	}
-	
+
 	private PropertyValue(Values values) {
 		this.values = values;
 	}
 
-	public interface ReplaceValue<T>{
-		public <T> T replaceValue() ;
-		public VType vtype() ;
+	public interface ReplaceValue<T> {
+		public <T> T replaceValue();
+
+		public VType vtype();
 	}
-	
+
 	public static PropertyValue createBlank() {
-		return new PropertyValue(Values.newBlank()) ;
+		return new PropertyValue(Values.newBlank());
 	}
-	
+
 	public static PropertyValue createPrimitive(Object value) {
-		return new PropertyValue(Values.create(value)) ;
+		return new PropertyValue(Values.create(value));
 	}
-	
-	public static PropertyValue loadFrom(TreeNodeKey nodeKey, String pkey, JsonObject jso){
-		PropertyValue propValue = new PropertyValue(Values.fromJson(jso)) ;
-		if (propValue.isBlob()) {
-			((Metadata) propValue.value()).path(nodeKey.idString() + "/" + pkey) ;
-		}
+
+	public static PropertyValue loadFrom(TreeNodeKey nodeKey, PropertyId propId, JsonElement pvalue) {
+		if (propId.type() == PType.REFER) {
+			return PropertyValue.createPrimitive(pvalue.getAsString()) ;
+		} else {
+			PropertyValue propValue = new PropertyValue(Values.fromJson(pvalue.getAsJsonObject()));
+			if (propValue.isBlob()) {
+				((Metadata) propValue.value()).path(nodeKey.idString() + "/" + propId.idString());
+			}
 			
-		return propValue ;
+			return propValue;
+		}
 	}
-	
 
 	public PropertyValue gfs(GridFilesystem gfs) {
 		this.gfs = gfs;
@@ -155,11 +175,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}
 		return result;
 	}
-	
-	public JsonObject json(){
-		return values.toJson() ;
+
+	public JsonObject json() {
+		return values.toJson();
 	}
-	
 
 	public Object value() {
 		Iterator iter = values.iterator();
@@ -167,37 +186,34 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	}
 
 	public Set asSet() {
-		return values.asSet() ;
+		return values.asSet();
 	}
 
 	public PropertyValue append(Object... vals) {
-		for(Object val : vals){
+		for (Object val : vals) {
 			values.append(val);
 		}
 		return this;
 	}
-	
-	public PropertyValue remove(Object... vals){
+
+	public PropertyValue remove(Object... vals) {
 		for (Object val : vals) {
-			values.remove(val) ;
+			values.remove(val);
 		}
-		return this ;
+		return this;
 	}
 
-	
 	public String stringValue() {
 		return ObjectUtil.toString(value());
 	}
 
-	
 	public <T> T defaultValue(T defaultValue) {
 		return (T) ObjectUtil.coalesce(value(), defaultValue);
 	}
 
-
 	public int intValue(int dftValue) {
 		try {
-			return (int)Double.parseDouble(stringValue());
+			return (int) Double.parseDouble(stringValue());
 		} catch (NumberFormatException e) {
 			return dftValue;
 		}
@@ -205,7 +221,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public long longValue(long dftValue) {
 		try {
-			return (long)Double.parseDouble(stringValue());
+			return (long) Double.parseDouble(stringValue());
 		} catch (NumberFormatException e) {
 			return dftValue;
 		}
@@ -218,8 +234,8 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		if (gfs == null)
 			throw new NodeIOException("this value not accessable[gfs is null]");
 		if (value instanceof Metadata) {
-			Metadata meta = ((Metadata) value) ;
-			return gfs.gridBlob(meta.path(), meta) ;
+			Metadata meta = ((Metadata) value);
+			return gfs.gridBlob(meta.path(), meta);
 		}
 		if (value instanceof String) {
 			try {
@@ -232,11 +248,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}
 		throw new NodeIOException("this value is not blob type : " + value);
 	}
-	
 
 	public boolean isBlob() {
-		return VType.BLOB == type() ;
-	}	
+		return VType.BLOB == type();
+	}
 
 	public int size() {
 		return values.size();
@@ -277,12 +292,12 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return intValue(0);
 	}
 
-	public String asString(){
-		return stringValue() ;
+	public String asString() {
+		return stringValue();
 	}
-	
-	public Object asObject(){
-		return value() ;
+
+	public Object asObject() {
+		return value();
 	}
 
 	public Boolean asBoolean() {
@@ -290,34 +305,33 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	}
 
 	public long asLong(int dftValue) {
-		return longValue(dftValue) ;
+		return longValue(dftValue);
 	}
-	
-	public float asFloat(float dftValue){
+
+	public float asFloat(float dftValue) {
 		try {
-			return (float)Float.parseFloat(stringValue());
+			return (float) Float.parseFloat(stringValue());
 		} catch (NumberFormatException e) {
 			return dftValue;
 		}
 	}
 
-	public double asDouble(double dftValue){
+	public double asDouble(double dftValue) {
 		try {
-			return (double)Double.parseDouble(stringValue());
+			return (double) Double.parseDouble(stringValue());
 		} catch (NumberFormatException e) {
 			return dftValue;
 		}
 	}
 
-	
-	public String asDateFmt(String fmt){
-		return DateUtil.dateToString(new Date(asLong(0)), fmt) ;
+	public String asDateFmt(String fmt) {
+		return DateUtil.dateToString(new Date(asLong(0)), fmt);
 	}
 
 	public String[] asStrings() {
-		List<String> result = ListUtil.newList() ;
+		List<String> result = ListUtil.newList();
 		for (Object o : asSet()) {
-			result.add(ObjectUtil.toString(o)) ;
+			result.add(ObjectUtil.toString(o));
 		}
 		return result.toArray(new String[0]);
 	}
@@ -326,112 +340,114 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		return StringUtil.isBlank(asString());
 	}
 
-
 }
 
 class Values implements Serializable, Iterable {
-	
-	
+
 	private final Set values;
-	private VType selfType = VType.UNKNOWN ;
-	
-	private Values(Set values){
-		this.values = SetUtil.orderedSet(values) ;
+	private VType selfType = VType.UNKNOWN;
+
+	private Values(Set values) {
+		this.values = SetUtil.orderedSet(values);
 	}
-	
-	static Values newBlank(){
-		return new Values(SetUtil.newSet()) ;
+
+	static Values newBlank() {
+		return new Values(SetUtil.newSet());
 	}
-	
+
 	static Values create(Object value) {
 		if (value == null) {
 			return newBlank();
 		} else if (Collection.class.isInstance(value)) {
-			Values created = newBlank() ;
-			for(Object val : (Collection)value){
+			Values created = newBlank();
+			for (Object val : (Collection) value) {
 				created.append(val);
 			}
 			return created;
 		} else if (value.getClass().isArray()) {
-			Values created = newBlank() ;
-			int length = Array.getLength(value) ;
-			for(int i = 0 ; i < length ; i++){
-				created.append(Array.get(value, i)) ;
+			Values created = newBlank();
+			int length = Array.getLength(value);
+			for (int i = 0; i < length; i++) {
+				created.append(Array.get(value, i));
 			}
 			return created;
 		} else if (ReplaceValue.class.isInstance(value)) {
-			ReplaceValue rvalue = (ReplaceValue)value;
+			ReplaceValue rvalue = (ReplaceValue) value;
 			Values created = create(rvalue.replaceValue());
-			created.selfType = rvalue.vtype() ;
-			return created ;
+			created.selfType = rvalue.vtype();
+			return created;
 		} else if (Metadata.class.isInstance(value)) {
-			Values created = new Values(SetUtil.create(value)) ;
-			created.selfType = VType.BLOB ;
-			return created ;
+			Values created = new Values(SetUtil.create(value));
+			created.selfType = VType.BLOB;
+			return created;
 		} else {
-			Values created = new Values(SetUtil.create(value)) ;
-			created.selfType = VType.findType(value) ;
-			
-			return created ;
+			Values created = new Values(SetUtil.create(value));
+			created.selfType = VType.findType(value);
+
+			return created;
 		}
 	}
 
-	static Values fromJson(JsonObject json){
-		Values created = newBlank() ;
-		created.selfType = VType.valueOf(json.asString("vtype")) ;
-		
-		JsonArray jarray = json.asJsonArray("vals") ;
+	static Values fromJson(JsonObject json) {
+		Values created = newBlank();
+		created.selfType = VType.valueOf(json.asString("vtype"));
+
+		JsonArray jarray = json.asJsonArray("vals");
 		for (JsonElement jele : jarray) {
-			created.append(created.selfType.read(jele)) ;
+			created.append(created.selfType.read(jele));
 		}
-		
-		return created ;
-	}
-	
 
-	JsonObject toJson(){
-		JsonObject result = new JsonObject() ;
+		return created;
+	}
+
+	JsonObject toJson() {
+		JsonObject result = new JsonObject();
 		result.addProperty("vtype", type().toString());
 		JsonArray jarray = new JsonArray();
 		result.add("vals", jarray);
 		for (Object value : values) {
-			jarray.add(JsonPrimitive.create(value));
+			if (value instanceof Metadata){
+				jarray.add(JsonPrimitive.create("[BLOB]"));
+			} else {
+				jarray.add(JsonPrimitive.create(value));
+			}
 		}
-		
-		return result ;
+
+		return result;
 	}
-	
+
 	VType type() {
 		return selfType;
 	}
 
 	int size() {
-		return values.size() ;
+		return values.size();
 	}
 
 	boolean remove(Object val) {
-		return values.remove(val) ;
+		return values.remove(val);
 	}
 
 	void append(Object val) {
 		if (size() == 0) {
-			this.selfType = VType.findType(val) ; 
+			this.selfType = VType.findType(val);
 		} else {
-			if (this.selfType != VType.findType(val)) throw new NodeNotValidException("disallow different type in same property vlaue");
+			if (this.selfType != VType.findType(val))
+				throw new NodeNotValidException("disallow different type in same property vlaue");
 		}
-		
-		values.add(val) ;
+
+		values.add(val);
 	}
 
-	Set asSet(){
-		return Collections.unmodifiableSet(values) ;
+	Set asSet() {
+		return Collections.unmodifiableSet(values);
 	}
-	
+
 	@Override
 	public Iterator iterator() {
 		return values.iterator();
 	}
-	
+
 	public int hashCode() {
 		return values.hashCode();
 	}
@@ -442,8 +458,8 @@ class Values implements Serializable, Iterable {
 		Values that = (Values) obj;
 		return this.values.equals(that.values);
 	}
-	
-	public String toString(){
-		return values.toString() ;
+
+	public String toString() {
+		return values.toString();
 	}
 }

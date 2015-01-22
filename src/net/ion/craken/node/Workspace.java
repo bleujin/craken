@@ -438,7 +438,7 @@ public class Workspace extends TreeStructureSupport implements Closeable, Worksp
 						}
 					}
 					
-					wspace.log.info(wsession.tranId() + " writed") ;
+					wspace.log.debug(wsession.tranId() + " writed") ;
 					rsession.attribute(TranResult.class.getCanonicalName(), TranResult.create(logRows.size(), System.currentTimeMillis() - startTime));
 					// TODO Auto-generated method stub
 					return null;

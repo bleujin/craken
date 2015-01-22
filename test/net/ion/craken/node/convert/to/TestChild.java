@@ -4,6 +4,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.sample.Dept;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.framework.util.Debug;
 
 public class TestChild extends TestBaseCrud {
 
@@ -27,6 +28,10 @@ public class TestChild extends TestBaseCrud {
 		
 		assertEquals("seoul", dept.address().city()) ;
 		assertEquals(0, dept.address().bun()) ;
+		
+		
+		Debug.line(session.pathBy("/dept/dev").childrenNames()) ;
+		
 	}
 	
 	public void testWhenHasGrandChild() throws Exception {

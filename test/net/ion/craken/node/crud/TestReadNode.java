@@ -97,6 +97,9 @@ public class TestReadNode extends TestBaseCrud {
 		assertEquals(true, session.ghostBy("/notfound").isGhost()) ;
 	}
 	
+	public void testChildQuery() throws Exception {
+		session.root().childQuery("bleujin").find().debugPrint();
+	}
 	
 	
 	
