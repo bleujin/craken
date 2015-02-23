@@ -103,6 +103,9 @@ public class TreeNode {
 		return Immutables.immutableSetCopy(strus().keySet());
 	}
 
+	public int getChildCount(){
+		return getChildrenNames().size() ;
+	}
 	
 	public Set<TreeNode> getReferences(String refName){
 		PropertyValue pvalue = this.get(PropertyId.refer(refName)) ;

@@ -27,13 +27,13 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	
 	Rows toRows(String expr);
 
-	ChildQueryRequest childQuery(String query) throws IOException, ParseException;
+	ChildQueryRequest childQuery(String query) throws IOException;
 
-	ChildQueryRequest childQuery(Query query) throws ParseException, IOException;
+	ChildQueryRequest childQuery(Query query) throws IOException;
 
-	ChildQueryRequest childQuery(Query query, boolean includeAllTree) throws ParseException, IOException;
+	ChildQueryRequest childQuery(Query query, boolean includeAllTree) throws IOException;
 
-	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws ParseException, IOException;
+	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws IOException;
 
 	void template(String propId, Writer writer) throws IOException;
 
@@ -48,5 +48,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	WalkReadChildren walkChildren();
 
 	WalkRefChildren walkRefChildren(String refName);
+
+	boolean isMatch(String key, String value) throws IOException;
 
 }

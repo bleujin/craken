@@ -169,8 +169,6 @@ public class CrakenScript {
 		if (Double.class.isInstance(result)) return ((Double)result).intValue() ;
 
 		throw new IllegalStateException("illegal return type");
-		
-
 	}
 
 }

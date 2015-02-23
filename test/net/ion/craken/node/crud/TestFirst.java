@@ -62,6 +62,8 @@ public class TestFirst extends TestCase {
 	}
 	
 	public void testRead() throws Exception {
+		
+		
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").asString()) ;
 		
 	}

@@ -261,12 +261,14 @@ public class ChildQueryRequest {
 		return request.getParam(key);
 	}
 	
-	public ChildQueryRequest filter(Filter filter) {
-		Filter compositeFilter = (request.getFilter() == null) ? filter : FilterUtil.and(request.getFilter(), filter) ;
+	public ChildQueryRequest filter(Filter... filters) {
+		if (filters == null) return this ;
+		
+		Filter compositeFilter = (request.getFilter() == null) ? FilterUtil.and(filters) : FilterUtil.and(request.getFilter(), FilterUtil.and(filters)) ;
 		request.setFilter(compositeFilter) ;
 		return this ;
 	}
-
+	
 	public Filter getFilter() {
 		return request.getFilter();
 	}
@@ -296,6 +298,10 @@ public class ChildQueryRequest {
 	}
 
 
+	public SearchRequest request(){
+		return request ;
+	}
+	
 	public XML toXML() {
 		return request.toXML() ;
 	}

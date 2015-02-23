@@ -20,6 +20,9 @@ import com.google.common.base.Function;
 
 public interface ReadSession extends ISession<ReadNode> {
 
+	public final static String EncryptKeyBytes = "KeyBytes";
+	public final static String EncryptIvBytes = "IvBytes";
+
 	public ReadNode ghostBy(String fqn0, String... fqns);
 
 	public ReadNode ghostBy(Fqn fqn);
@@ -63,4 +66,5 @@ public interface ReadSession extends ISession<ReadNode> {
 	
 	public Object attribute(String key) ;
 
+	public String encrypt(String value) throws IOException ;
 }

@@ -51,6 +51,21 @@ public class TestResponsePredicate extends TestBaseSearch {
 		assertEquals(2, response.totoalCount()) ;
 	}
 	
+	public void testWhereEqual() throws Exception {
+
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.root().child("/emp/bleujin").property("name", "bleujin").property("job", "dev").property("age", 20) ;
+				wsession.root().child("/emp/hero").property("name", "hero").property("age", 21) ;
+				wsession.root().child("/dept/dev").property("name", "dev").property("age", 22) ;
+				wsession.root().child("/emp/jin").property("name", "jin").property("job", "dev").property("age", 23) ;
+				return null;
+			}
+		}) ;
+		session.queryRequest("").descending("name").find().predicated(ResponsePredicates.where("age=20")).debugPrint();;
+	}
+	
 	
 	public void testFive() throws Exception {
 		session.tranSync(TransactionJobs.dummy("/emp", 20)) ;

@@ -77,6 +77,18 @@ public class TestInsertSpeed extends TestCase {
 		session.pathBy("/bleujin").children().offset(10).debugPrint();
 	}
 	
+	public void testCount() throws Exception {
+		long start = System.currentTimeMillis() ;
+		int count = session.pathBy("/bleujin").childrenNames().size() ;
+		Debug.line(System.currentTimeMillis() - start, count);
+	}
+	
+	public void testSearchCount() throws Exception {
+		long start = System.currentTimeMillis() ;
+		session.pathBy("/bleujin").childQuery("").find().debugPrint();
+		int count = session.pathBy("/bleujin").childQuery("").offset(10).find().totalCount() ;
+		Debug.line(System.currentTimeMillis() - start, count);
+	}
 	
 	public void testChildCount() throws Exception {
 		long start = System.currentTimeMillis() ;

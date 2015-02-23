@@ -29,7 +29,6 @@ public class WalkReadChildren extends ReadChildren{
 		super(session, source, children) ;
 	}
 	
-	
 	protected List<ReadNode> readChildren() {
 		LinkedList<ReadNode> result = new LinkedList<ReadNode>();
 		if (includeSelf) result.add(WalkReadNode.create(session(), source(), 0)) ;
@@ -83,9 +82,8 @@ public class WalkReadChildren extends ReadChildren{
         while(sortedChildren.hasNext()){
         	TreeNode child = sortedChildren.next();
         	WalkReadNode target = WalkReadNode.create(session(), child, level);
-			if (! andFilters.apply(target)) continue ;
+			if (andFilters.apply(target)) list.add(target) ;
 			
-			list.add(target) ;
 			this.buildBreadthList(list, child.getChildren().iterator(), level++) ;
         }
     }

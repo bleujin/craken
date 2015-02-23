@@ -93,7 +93,6 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 	}
 	
 	
-	
 	protected List<ReadNode> readChildren() {
 		
 		List<ReadNode> listNode = ListUtil.newList() ;

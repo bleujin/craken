@@ -57,7 +57,10 @@ public final class BinaryExpression extends ValueObject implements Expression {
 					values.add(((ConstantExpression)expr).constantValue().toString()) ;
 				}
 				return Filters.in(qne.lastName(), values.toArray(new String[0])) ;
+			} else if (Op.NE == operator) {
+				 return Filters.ne(findQName().qname.last(), findConstant().constantValue().toString()) ;
 			}
+			
 		} catch(ClassCastException e){
 			throw new UnsupportedOperationException(e) ;
 		} catch (NoSuchMethodException e) {

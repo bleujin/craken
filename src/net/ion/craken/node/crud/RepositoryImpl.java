@@ -135,8 +135,8 @@ public class RepositoryImpl implements Repository {
 			ws.close();
 		}
 		workspaceCache.cleanUp(); 
-		dm.<String, StringBuilder> getCache("craken-log").stop();
-		dm.<String, StringBuilder> getCache("craken-blob").stop();
+//		dm.<String, StringBuilder> getCache("craken-log").stop();
+		dm.getCache("craken-blob").stop();
 		
 		executor.awaitUnInterupt(500, TimeUnit.MILLISECONDS);
 		executor.shutdown();

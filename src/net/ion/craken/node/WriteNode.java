@@ -2,7 +2,10 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+
+import javax.crypto.NoSuchPaddingException;
 
 import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.node.crud.ChildQueryRequest;
@@ -24,6 +27,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteNode property(String key, Object value) ;
 	
+	public WriteNode encrypt(String key, String value) throws IOException ;
+
 	public WriteNode property(PropertyId key, PropertyValue value) ;
 	
 	public WriteNode propertyIfAbsent(String key, Object value) ;

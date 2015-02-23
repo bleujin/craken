@@ -29,13 +29,14 @@ public class WorkspaceConfigBuilder {
 		if (StringUtil.isNotBlank(path)) {
 			Configuration meta_config = new ConfigurationBuilder().persistence().passivation(false)
 				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(path)
-				.async().enable().flushLockTimeout(300000).shutdownTimeout(2000).modificationQueueSize(10).threadPoolSize(3) 
+				.async().enable().flushLockTimeout(300000).shutdownTimeout(2000).modificationQueueSize(10).threadPoolSize(3)
 				.build() ;
 			dm.defineConfiguration(wsName + "-meta", meta_config) ;
 
 			Configuration chunk_config = new ConfigurationBuilder().persistence().passivation(false)
 				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(path)
 				.async().enable().flushLockTimeout(300000).shutdownTimeout(2000).modificationQueueSize(10).threadPoolSize(3) 
+//				.eviction().maxEntries(50)
 				.build() ;
 			dm.defineConfiguration(wsName + "-chunk", chunk_config) ;
 		}
