@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.ion.craken.io.GridFilesystem;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
@@ -19,6 +18,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.commons.util.Immutables;
 import org.infinispan.commons.util.Util;
+import org.infinispan.io.GridFilesystem;
 
 
 public class TreeNode {

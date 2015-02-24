@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.infinispan.io.GridFilesystem;
+
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -11,8 +14,10 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 
 public class TestNodeBlob extends TestCase {
@@ -24,7 +29,7 @@ public class TestNodeBlob extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("search") ;
+		r.createWorkspace("search", WorkspaceConfigBuilder.directory("./resource/store/search")) ;
 		this.session = r.login("search") ;
 	}
 	
@@ -48,6 +53,8 @@ public class TestNodeBlob extends TestCase {
 			}) ;
 		}
 		
+		Debug.line(session.pathBy(targetFqn).property("content").asString()) ;
+		
 		InputStream input = session.pathBy(targetFqn).property("content").asBlob().toInputStream() ;
 		String content = IOUtil.toStringWithClose(input) ;
 		Debug.line(content);
@@ -55,6 +62,7 @@ public class TestNodeBlob extends TestCase {
 	
 	
 	public void testRead() throws Exception {
+
 		InputStream input = session.pathBy(targetFqn).property("content").asBlob().toInputStream() ;
 		String content = IOUtil.toStringWithClose(input) ;
 		Debug.line(content);

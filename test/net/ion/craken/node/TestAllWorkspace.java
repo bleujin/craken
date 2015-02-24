@@ -19,11 +19,11 @@ public class TestAllWorkspace {
 		suite.addTestSuite(TestWorkspaceConfig.class) ;
 		suite.addTestSuite(TestOtherWorkspace.class);
 		
+		suite.addTestSuite(TestExceptionHandle.class) ;
 		
 		suite.addTestSuite(TestTransaction.class) ;
 		suite.addTestSuite(TestSync.class) ;
 		suite.addTestSuite(TestWorkspaceListener.class) ;
-		suite.addTestSuite(TestExceptionHandle.class) ;
 
 		suite.addTestSuite(TestCDDHandler.class);
 		suite.addTestSuite(TestDistEventHandler.class);

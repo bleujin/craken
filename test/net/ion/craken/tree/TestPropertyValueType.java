@@ -1,7 +1,6 @@
 package net.ion.craken.tree;
 
 import junit.framework.TestCase;
-import net.ion.craken.io.Metadata;
 import net.ion.craken.node.exception.NodeNotValidException;
 import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.framework.parse.gson.JsonObject;
@@ -16,7 +15,7 @@ public class TestPropertyValueType extends TestCase {
 		assertEquals(VType.LONG, PropertyValue.createPrimitive(0L).type()) ;
 		assertEquals(VType.DOUB, PropertyValue.createPrimitive(3.0D).type()) ;
 		assertEquals(VType.STR, PropertyValue.createPrimitive("HELLO").type()) ;
-		assertEquals(VType.BLOB, PropertyValue.createPrimitive(Metadata.create("/path")).type()) ;
+		assertEquals(VType.BLOB, PropertyValue.createPrimitive(GridBlob.create(null, "/path")).type()) ;
 		assertEquals(VType.UNKNOWN, PropertyValue.createPrimitive(null).type()) ;
 	}
 	
@@ -71,9 +70,9 @@ public class TestPropertyValueType extends TestCase {
 	}
 
 	public void testBlob() throws Exception {
-		PropertyValue pv = PropertyValue.createPrimitive(Metadata.create("/path"))  ;
+		PropertyValue pv = PropertyValue.createPrimitive(GridBlob.create(null, "/path"))  ;
 		assertEquals(VType.BLOB, pv.type());
-		assertEquals("/path", JsonObject.fromString(pv.value().toString()).asString("path"));
+		assertEquals("/path", GridBlob.class.getMethod("path").invoke(pv.value()));
 	}
 	
 	

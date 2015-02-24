@@ -5,11 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -17,17 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.ShortBufferException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-
-import net.ion.craken.io.GridFilesystem;
-import net.ion.craken.io.Metadata;
-import net.ion.craken.io.WritableGridBlob;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
@@ -37,11 +22,11 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.tree.ExtendPropertyId;
 import net.ion.craken.tree.Fqn;
+import net.ion.craken.tree.GridBlob;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyId.PType;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.PropertyValue.VType;
-import net.ion.framework.file.HexUtil;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ArrayUtil;
@@ -52,7 +37,6 @@ import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.index.Term;
@@ -60,6 +44,8 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
+import org.infinispan.io.GridFile.Metadata;
+import org.infinispan.io.GridFilesystem;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -220,7 +206,8 @@ public class WriteNodeImpl implements WriteNode {
 		}
 
 		if (pvalue.isBlob()) {
-			gfs().remove(pvalue.asBlob());
+			File file = gfs().getFile(pvalue.asBlob().path());
+			if (file.exists()) file.delete() ;
 		}
 		return this;
 	}
@@ -237,7 +224,8 @@ public class WriteNodeImpl implements WriteNode {
 		for (PropertyId pid : keys()) {
 			PropertyValue pvalue = propertyId(pid);
 			if (pvalue.isBlob()) {
-				gfs().remove(pvalue.asBlob());
+				File file = gfs().getFile(pvalue.asBlob().path());
+				if (file.exists()) file.delete() ;
 			}
 		}
 	}
@@ -252,29 +240,10 @@ public class WriteNodeImpl implements WriteNode {
 
 	public WriteNode blob(String key, InputStream input) {
 		try {
-			final String path = fqn().toString() + "/" + key;
-			PropertyValue pvalue = property(key);
-			Metadata meta = null;
-			if (pvalue == PropertyValue.NotFound) {
-				meta = Metadata.create(path);
-			} else {
-				// meta = (Metadata) pvalue.value() ;
-				// gfs().getWritableGridBlob(path, meta).delete() ;
-
-				// @Todo
-				if (pvalue.value() instanceof Metadata) {
-					meta = (Metadata) pvalue.value();
-					gfs().getWritableGridBlob(path, meta).delete();
-				} else {
-					meta = Metadata.create(path);
-				}
-			}
-
-			WritableGridBlob gblob = wsession.workspace().gridBlob(path, meta);
-			IOUtil.copyNClose(input, gblob.outputStream());
-			meta = gblob.getMetadata();
-
-			property(PropertyId.normal(key), PropertyValue.createPrimitive(meta));
+			final String path = fqn().toString() + "/" + key + ".dat";
+			
+			PropertyValue gtvalue = GridBlob.create(gfs(), path).saveAt(input).asPropertyValue() ;
+			property(PropertyId.normal(key), gtvalue);
 
 		} catch (IOException e) {
 			throw new NodeIOException(e);

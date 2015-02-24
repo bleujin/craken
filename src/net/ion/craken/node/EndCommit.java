@@ -1,6 +1,6 @@
 package net.ion.craken.node;
 
-import net.ion.craken.io.Metadata;
+import org.infinispan.io.GridFile.Metadata;
 
 public class EndCommit{
 	private String tranId ;

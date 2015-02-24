@@ -10,10 +10,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import net.ion.craken.io.GridFilesystem;
-import net.ion.craken.io.Metadata;
-import net.ion.craken.io.WritableGridBlob;
-import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.loaders.EntryKey;
@@ -24,6 +20,7 @@ import net.ion.craken.node.crud.TreeNode;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.TreeStructureSupport;
+import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.exception.NodeNotExistsException;
@@ -36,7 +33,6 @@ import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.SetUtil;
@@ -46,7 +42,6 @@ import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
-import net.ion.radon.util.uriparser.URIPattern;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.WildcardQuery;
@@ -58,6 +53,9 @@ import org.infinispan.batch.BatchContainer;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
+import org.infinispan.io.GridFile.Metadata;
+import org.infinispan.io.GridFilesystem;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
@@ -72,7 +70,7 @@ public class Workspace extends TreeStructureSupport implements Closeable, Worksp
 
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
-	private GridFilesystem gfsBlob;
+	private GridFilesystem gfs;
 	private String wsName;
 	private BatchContainer batchContainer;
 	private Engine parseEngine = Engine.createDefaultEngine();
@@ -92,7 +90,11 @@ public class Workspace extends TreeStructureSupport implements Closeable, Worksp
 		this.cache = cache;
 		this.addListener(this) ;
 
-		this.gfsBlob = new GridFilesystem(cache.getCacheManager().<String, byte[]> getCache("craken-blob"));
+		EmbeddedCacheManager dcm = cache.getCacheManager();
+		Cache<String, byte[]> blobChunk = dcm.getCache(WorkspaceConfigBuilder.BlobChunk(wsName));
+		Cache<String, Metadata> blobMeta = dcm.getCache(WorkspaceConfigBuilder.BlobMeta(wsName));
+		
+		this.gfs = new GridFilesystem(blobChunk, blobMeta, 8192);
 		
 		this.wsName = wsName;
 		this.batchContainer = cache.getBatchContainer();
@@ -124,10 +126,12 @@ public class Workspace extends TreeStructureSupport implements Closeable, Worksp
 
 
 	public void close() {
+		cddm().clear() ;
 		final Object[] listeners = cache.getListeners().toArray(new Object[0]);
 		for (Object wlistener : listeners) {
 			if (wlistener instanceof WorkspaceListener) this.removeListener((WorkspaceListener)wlistener);
 		}
+		
 		
 		cache.stop();
 	}
@@ -358,12 +362,12 @@ public class Workspace extends TreeStructureSupport implements Closeable, Worksp
 
 
 	public GridFilesystem gfs() {
-		return gfsBlob;
+		return gfs;
 	}
 
-	public WritableGridBlob gridBlob(String fqnPath, Metadata meta) throws IOException {
-		return gfsBlob.getWritableGridBlob(fqnPath, meta);
-	}
+//	public WritableGridBlob gridBlob(String fqnPath, Metadata meta) throws IOException {
+//		return gfsBlob.getWritableGridBlob(fqnPath, meta);
+//	}
 
 	public InstantLogWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
 		return new InstantLogWriter(this, wsession, rsession);

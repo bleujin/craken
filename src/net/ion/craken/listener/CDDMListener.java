@@ -52,6 +52,10 @@ public class CDDMListener implements WorkspaceListener {
 		return this ;
 	}
 
+	public void clear() {
+		chandlers.clear(); 
+	}
+
 	public void remove(CDDHandler listener) {
 		chandlers.remove(listener);
 	}
@@ -175,6 +179,7 @@ public class CDDMListener implements WorkspaceListener {
 			}
 		}
 	}
+
 
 }
 

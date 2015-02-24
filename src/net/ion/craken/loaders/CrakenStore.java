@@ -62,17 +62,6 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 	@Override
 	public void start() {
 		try {
-//			open the data file
-//			String location = configuration.location();
-//			if (StringUtil.isBlank(location))
-//				location = "./resource/temp/memory-store";
-//			File file = new File(location, ctx.getCache().getName() + ".dat");
-//			if (!file.exists()) {
-//				File dir = file.getParentFile();
-//				if (!dir.mkdirs() && !dir.exists()) {
-//					throw log.directoryCannotBeCreated(dir.getAbsolutePath());
-//				}
-//			}
 
 			String name = ctx.getCache().getName();
 			EmbeddedCacheManager cacheManager = ctx.getCache().getCacheManager();

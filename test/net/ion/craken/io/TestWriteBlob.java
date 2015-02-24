@@ -63,7 +63,7 @@ public class TestWriteBlob extends TestCase {
 			@Override
 			public Void handle(final WriteSession wsession) throws Exception {
 
-				Path start = Paths.get("C:/temp/3rdparty");
+				Path start = Paths.get("C:/temp/inner/3rdparty");
 				final AtomicInteger acount = new AtomicInteger();
 				FileVisitor<? super Path> visitor = new SimpleFileVisitor<Path>() {
 					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {

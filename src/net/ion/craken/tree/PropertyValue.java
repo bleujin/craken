@@ -2,7 +2,6 @@ package net.ion.craken.tree;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -10,9 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.ion.craken.io.GridBlob;
-import net.ion.craken.io.GridFilesystem;
-import net.ion.craken.io.Metadata;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.exception.NodeIOException;
 import net.ion.craken.node.exception.NodeNotValidException;
@@ -30,7 +26,7 @@ import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 
-import org.apache.commons.collections.set.ListOrderedSet;
+import org.infinispan.io.GridFilesystem;
 
 public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
@@ -88,11 +84,11 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		},
 		BLOB {
 			public Class supportedClass() {
-				return Metadata.class;
+				return GridBlob.class;
 			}
 
 			public Object read(JsonElement ele) {
-				return JsonObject.fromString(ele.getAsString()).getAsObject(Metadata.class);
+				return GridBlob.read(ele.getAsString()) ; // JsonObject.fromString(ele.getAsString()).getAsObject(Metadata.class);
 			}
 		},
 		REPLACE {
@@ -151,9 +147,9 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 			return PropertyValue.createPrimitive(pvalue.getAsString()) ;
 		} else {
 			PropertyValue propValue = new PropertyValue(Values.fromJson(pvalue.getAsJsonObject()));
-			if (propValue.isBlob()) {
-				((Metadata) propValue.value()).path(nodeKey.idString() + "/" + propId.idString());
-			}
+//			if (propValue.isBlob()) {
+//				((GridBlob) propValue.value()).path(nodeKey.idString() + "/" + propId.idString());
+//			}
 			
 			return propValue;
 		}
@@ -171,7 +167,11 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public JsonArray asJsonArray() {
 		JsonArray result = new JsonArray();
 		for (Object value : values) {
-			result.add(JsonPrimitive.create(value));
+			if (value instanceof GridBlob){
+				result.add(((GridBlob)value).toJsonPrimitive()) ;
+			} else {
+				result.add(JsonPrimitive.create(value));
+			}
 		}
 		return result;
 	}
@@ -233,18 +233,8 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 			throw new NodeIOException("this value not accessable");
 		if (gfs == null)
 			throw new NodeIOException("this value not accessable[gfs is null]");
-		if (value instanceof Metadata) {
-			Metadata meta = ((Metadata) value);
-			return gfs.gridBlob(meta.path(), meta);
-		}
-		if (value instanceof String) {
-			try {
-				final JsonObject json = JsonObject.fromString((String) value);
-				return gfs.gridBlob(json.asString("path"), Metadata.loadFromJsonString(json.toString()));
-			} catch (JsonSyntaxException ex) {
-				throw new NodeIOException("this value is not blob type : " + ex.getMessage());
-			}
-			// return BlobValue.create(gfs, ) ;
+		if (this.type() == VType.BLOB) {
+			return  ((GridBlob)value).gfs(this.gfs) ; 
 		}
 		throw new NodeIOException("this value is not blob type : " + value);
 	}
@@ -376,7 +366,7 @@ class Values implements Serializable, Iterable {
 			Values created = create(rvalue.replaceValue());
 			created.selfType = rvalue.vtype();
 			return created;
-		} else if (Metadata.class.isInstance(value)) {
+		} else if (GridBlob.class.isInstance(value)) {
 			Values created = new Values(SetUtil.create(value));
 			created.selfType = VType.BLOB;
 			return created;
@@ -406,8 +396,8 @@ class Values implements Serializable, Iterable {
 		JsonArray jarray = new JsonArray();
 		result.add("vals", jarray);
 		for (Object value : values) {
-			if (value instanceof Metadata){
-				jarray.add(JsonPrimitive.create("[BLOB]"));
+			if (value instanceof GridBlob){
+				jarray.add(((GridBlob)value).toJsonPrimitive());
 			} else {
 				jarray.add(JsonPrimitive.create(value));
 			}
