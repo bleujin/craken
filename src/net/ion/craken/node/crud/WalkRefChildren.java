@@ -9,9 +9,11 @@ import java.util.List;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.SortElement;
+import net.ion.craken.node.crud.util.ReadChildrenEachs;
 import net.ion.craken.node.crud.util.TraversalStrategy;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 import com.google.common.base.Predicate;
@@ -67,7 +69,7 @@ public class WalkRefChildren extends ReadChildren {
 		return trcEach.handle(trcIterable) ;
 	}
 
-	private List<TreeNode> buildDepthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
+	private List<TreeNode> buildBreadthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
 		if (loopLimit-- <= 0) return ListUtil.EMPTY ;
 		if (!children.hasNext()) return ListUtil.EMPTY ;
 		
@@ -82,11 +84,11 @@ public class WalkRefChildren extends ReadChildren {
 			inner.addAll(child.getReferences(refName)) ;
 		}
 
-		return buildDepthList(list, inner.iterator(), level++) ;
+		return buildBreadthList(list, inner.iterator(), ++level) ;
 	}
 
 
-	private void buildBreadthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
+	private void buildDepthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
 		if (loopLimit-- <= 0) return ;
 		
 		Iterator<TreeNode> sortedChildren = sort(children) ;
@@ -96,7 +98,7 @@ public class WalkRefChildren extends ReadChildren {
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
-			this.buildBreadthList(list, child.getReferences(refName).iterator(), level++) ;
+			this.buildDepthList(list, child.getReferences(refName).iterator(), (level+1)) ;
         }
     }
 
@@ -141,4 +143,20 @@ public class WalkRefChildren extends ReadChildren {
 		return this ;
 	}
 	
+	public void debugPrint() {
+		eachTreeNode(new WalkChildrenEach<Void>() {
+
+			@Override
+			public <T> T handle(WalkChildrenIterator trc) {
+				Iterator<WalkReadNode> iter = trc.iterator() ;
+				while(iter.hasNext()){
+					WalkReadNode wnode = iter.next();
+					
+					Debug.line(wnode.level(), wnode) ;
+				}
+				return null;
+			}
+		});
+	}
+
 }

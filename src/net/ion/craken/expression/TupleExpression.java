@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.framework.util.SetUtil;
 
 public class TupleExpression extends ValueObject implements Expression {
@@ -22,7 +22,7 @@ public class TupleExpression extends ValueObject implements Expression {
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		ComparableSet result = new ComparableSet();
 		for (Expression exp : expressions) {
 			result.add(exp.value(node)) ;

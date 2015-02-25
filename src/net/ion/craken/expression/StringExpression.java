@@ -1,11 +1,7 @@
 package net.ion.craken.expression;
 
-import java.util.Set;
-
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.craken.node.crud.Filters;
-import net.ion.framework.util.NumberUtil;
-import net.ion.framework.util.SetUtil;
 
 import org.apache.lucene.search.Filter;
 
@@ -17,7 +13,7 @@ public final class StringExpression extends ValueObject implements Expression, C
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		return string;
 	}
 

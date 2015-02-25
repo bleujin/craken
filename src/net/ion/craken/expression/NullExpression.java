@@ -1,9 +1,6 @@
 package net.ion.craken.expression;
 
-import java.util.Set;
-
-import net.ion.craken.node.NodeCommon;
-import net.ion.framework.util.SetUtil;
+import net.ion.craken.node.NodeCommonMap;
 
 public final class NullExpression implements Expression {
 	private NullExpression() {
@@ -12,7 +9,7 @@ public final class NullExpression implements Expression {
 	public static final NullExpression instance = new NullExpression();
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		return null;
 	}
 

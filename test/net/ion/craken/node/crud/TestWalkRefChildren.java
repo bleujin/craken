@@ -22,6 +22,7 @@ public class TestWalkRefChildren extends TestBaseCrud {
 			}
 		}) ;
 		
+		session.pathBy("/bleujin").walkRefChildren("friend").includeSelf(true).debugPrint(); 
 		
 		assertEquals(6, session.pathBy("/bleujin").walkRefChildren("friend").includeSelf(true).count()) ; 
 	}

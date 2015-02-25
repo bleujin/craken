@@ -1,10 +1,7 @@
 package net.ion.craken.expression;
 
-import java.util.Set;
-
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.framework.util.ObjectUtil;
-import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 
 public final class LikeExpression extends ValueObject implements Expression {
@@ -21,7 +18,7 @@ public final class LikeExpression extends ValueObject implements Expression {
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		String expValue = ObjectUtil.toString(expression.value(node));
 		String patternString = ObjectUtil.toString(pattern.value(node)) ;
 		

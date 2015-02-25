@@ -5,12 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.NumberUtil;
-import net.ion.framework.util.SetUtil;
 
 import com.google.common.collect.Iterables;
 
@@ -28,7 +26,7 @@ public final class FunctionExpression extends ValueObject implements Expression 
 	}
 	
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		if (args.size() < 1)
 			return null; // sysdate ?
 		if (function.names.size() > 1)

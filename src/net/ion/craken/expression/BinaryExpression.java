@@ -2,14 +2,11 @@ package net.ion.craken.expression;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Set;
 
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.craken.node.crud.Filters;
 import net.ion.framework.util.ArrayUtil;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.SetUtil;
 
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.lucene.search.Filter;
@@ -25,7 +22,7 @@ public final class BinaryExpression extends ValueObject implements Expression {
 		this.right = right;
 	}
 
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		if (operator == Op.EQ && left instanceof QualifiedNameExpression && "exist".equals(((QualifiedNameExpression)left).lastName())) {
 			return right.value(node) != null;
 		}

@@ -1,9 +1,6 @@
 package net.ion.craken.expression;
 
-import java.util.Set;
-
-import net.ion.craken.node.NodeCommon;
-import net.ion.framework.util.SetUtil;
+import net.ion.craken.node.NodeCommonMap;
 
 public final class WildcardExpression extends ValueObject implements Expression {
 	public final QualifiedName owner;
@@ -13,7 +10,7 @@ public final class WildcardExpression extends ValueObject implements Expression 
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		ComparableSet set = new ComparableSet() ;
 		
 		return null;

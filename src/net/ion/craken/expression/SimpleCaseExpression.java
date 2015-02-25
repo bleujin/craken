@@ -2,10 +2,8 @@ package net.ion.craken.expression;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-import net.ion.craken.node.NodeCommon;
-import net.ion.framework.util.SetUtil;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.rosetta.functors.Pair;
 
 public final class SimpleCaseExpression extends ValueObject implements Expression {
@@ -20,7 +18,7 @@ public final class SimpleCaseExpression extends ValueObject implements Expressio
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		Comparable conditionValue = condition.value(node);
 		for (Pair<Expression, Expression> pair : cases) {
 			if (conditionValue.equals(pair.a.value(node))) return pair.b.value(node) ;

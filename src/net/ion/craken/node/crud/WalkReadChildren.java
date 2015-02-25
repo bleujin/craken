@@ -59,7 +59,7 @@ public class WalkReadChildren extends ReadChildren{
 	}
 
 	
-	private List<TreeNode> buildDepthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
+	private List<TreeNode> buildBreadthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
 		if (!children.hasNext()) return ListUtil.EMPTY ;
 		
 		Iterator<TreeNode> sortedChildren = sort(children) ;
@@ -73,18 +73,18 @@ public class WalkReadChildren extends ReadChildren{
 			inner.addAll(child.getChildren()) ;
 		}
 
-		return buildDepthList(list, inner.iterator(), level++) ;
+		return buildBreadthList(list, inner.iterator(), ++level) ;
 	}
 
 
-	private void buildBreadthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
+	private void buildDepthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
 		Iterator<TreeNode> sortedChildren = sort(children) ;
         while(sortedChildren.hasNext()){
         	TreeNode child = sortedChildren.next();
         	WalkReadNode target = WalkReadNode.create(session(), child, level);
 			if (andFilters.apply(target)) list.add(target) ;
 			
-			this.buildBreadthList(list, child.getChildren().iterator(), level++) ;
+			this.buildDepthList(list, child.getChildren().iterator(), (level+1)) ;
         }
     }
 

@@ -1,14 +1,12 @@
 package net.ion.craken.expression;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
+
+import net.ion.craken.node.NodeCommonMap;
+import net.ion.craken.node.crud.Filters;
 
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.lucene.search.Filter;
-
-import net.ion.craken.node.NodeCommon;
-import net.ion.craken.node.crud.Filters;
-import net.ion.framework.util.SetUtil;
 
 public final class UnaryExpression extends ValueObject implements Expression {
 	public final Expression operand;
@@ -20,7 +18,7 @@ public final class UnaryExpression extends ValueObject implements Expression {
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		return operator.compute(operand.value(node));
 	}
 	

@@ -1,8 +1,7 @@
 package net.ion.craken.expression;
 
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.craken.node.crud.Filters;
-import net.ion.framework.util.NumberUtil;
 
 import org.apache.lucene.search.Filter;
 
@@ -14,7 +13,7 @@ public class BooleanExpression extends ValueObject implements Expression , Const
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		return bvalue;
 	}
 	

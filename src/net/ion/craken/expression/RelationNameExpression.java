@@ -1,9 +1,6 @@
 package net.ion.craken.expression;
 
-import java.util.Set;
-
-import net.ion.craken.node.NodeCommon;
-import net.ion.framework.util.SetUtil;
+import net.ion.craken.node.NodeCommonMap;
 
 public final class RelationNameExpression extends ValueObject implements Expression {
 	
@@ -18,7 +15,7 @@ public final class RelationNameExpression extends ValueObject implements Express
 	}
 
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		// TODO Auto-generated method stub
 		return null;
 	}

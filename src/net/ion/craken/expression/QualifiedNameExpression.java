@@ -1,11 +1,9 @@
 package net.ion.craken.expression ;
 
 import java.util.Iterator;
-import java.util.Set;
 
-import net.ion.craken.node.NodeCommon;
+import net.ion.craken.node.NodeCommonMap;
 import net.ion.framework.util.NumberUtil;
-import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 
 
@@ -26,10 +24,10 @@ public final class QualifiedNameExpression extends ValueObject implements Expres
 	
 	
 	@Override
-	public Comparable value(NodeCommon node) {
+	public Comparable value(NodeCommonMap node) {
 		final Iterator<String> iter = qname.names.iterator();
 		
-		NodeCommon findNode = node ;
+		NodeCommonMap findNode = node ;
 		String nextString = null ;
 		while(iter.hasNext()){
 			nextString = StringUtil.trim(iter.next()) ;
