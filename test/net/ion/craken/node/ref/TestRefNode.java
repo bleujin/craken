@@ -29,8 +29,6 @@ public class TestRefNode extends TestBaseCrud {
 		assertEquals(1, refNode.property("dummy").value()) ;
 	}
 	
-	
-	
 	public void testRefsOrder() throws Exception {
 		session.tranSync(TransactionJobs.dummy("/emp", 10)) ;
 		session.tranSync(TransactionJobs.dummy("/dept", 5)) ;
@@ -49,6 +47,8 @@ public class TestRefNode extends TestBaseCrud {
 		assertEquals(1, refs.get(0).property("dummy").value()) ;
 		assertEquals(2, refs.get(1).property("dummy").value()) ;
 	}
+
+	
 	
 	
 }

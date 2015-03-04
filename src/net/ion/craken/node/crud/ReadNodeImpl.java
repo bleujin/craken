@@ -352,6 +352,21 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	@Override
+	public RefQueryRequest refsToMe(String refName) throws IOException {
+		if (StringUtil.isBlank(refName))
+			throw new IllegalArgumentException("must required refName") ;
+
+		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
+		final RefQueryRequest result = RefQueryRequest.create(session, session.newSearcher(), fqn(), refName);
+//		result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString()));
+
+		return result;
+	}
+
+
+	
+	
+	@Override
 	public void template(String propId, Writer writer) throws IOException {
 		Engine engine = session.workspace().parseEngine();
 		String template = property(propId).stringValue();

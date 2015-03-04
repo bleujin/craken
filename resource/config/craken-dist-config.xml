@@ -10,64 +10,10 @@
 
 	<default>
 		<locking useLockStriping="false" />
-		<clustering mode="local">
+		<clustering mode="dist_sync">
 			<sync />
 		</clustering>
 		<invocationBatching enabled="true" />
 	</default>
-
-
-	<namedCache name="craken-blob">
-		<persistence passivation="false">
-        <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="300000" shutdownTimeout="1000" modificationQueueSize="100" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/"/>
-            </properties>
-        </store>
-        </persistence>
-	</namedCache>
-
-	
-<!-- 
-	<namedCache name="craken-log">
-	     <clustering mode="LOCAL" >
-	         <l1 enabled="false" />
-	     </clustering>
-		 <eviction strategy="FIFO" maxEntries="3" ></eviction>
-		 <expiration lifespan="300000" maxIdle="1000" wakeUpInterval="100000" ></expiration>
-	     <persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="30000" shutdownTimeout="1000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store"/>
-            </properties>
-         </store>
-      	 </persistence>
-	</namedCache>
--->
-
-	<!--  workspaces -->
-	<namedCache name="search-chunk">
-		<persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="300000" shutdownTimeout="2000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/search"/>
-            </properties>
-         </store>
-        </persistence>
-	</namedCache>
-
-	<namedCache name="search-meta">
-		<persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="300000" shutdownTimeout="2000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/search"/>
-            </properties>
-         </store>
-      </persistence>
-	</namedCache>
 	
 </infinispan>

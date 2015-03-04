@@ -144,7 +144,8 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 
 	public static PropertyValue loadFrom(TreeNodeKey nodeKey, PropertyId propId, JsonElement pvalue) {
 		if (propId.type() == PType.REFER) {
-			return PropertyValue.createPrimitive(pvalue.getAsString()) ;
+			// return PropertyValue.createPrimitive(pvalue.getAsString()) ;
+			return PropertyValue.createPrimitive(pvalue.getAsJsonArray().toObjectArray()) ;
 		} else {
 			PropertyValue propValue = new PropertyValue(Values.fromJson(pvalue.getAsJsonObject()));
 //			if (propValue.isBlob()) {

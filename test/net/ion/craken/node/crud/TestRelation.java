@@ -1,8 +1,13 @@
 package net.ion.craken.node.crud;
 
+import java.util.Iterator;
+
+import net.ion.craken.Craken;
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TraversalStrategy;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 
 public class TestRelation extends TestBaseCrud {
@@ -22,7 +27,6 @@ public class TestRelation extends TestBaseCrud {
 	}
 	
 	
-	
 	public void testRefTos() throws Exception {
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
@@ -36,10 +40,33 @@ public class TestRelation extends TestBaseCrud {
 			}
 		}) ;
 
-		session.pathBy("/bleujin").walkRefChildren("friend").strategy(TraversalStrategy.BreadthFirst).debugPrint(); 
+		session.pathBy("/bleujin").walkRefChildren("friend").strategy(TraversalStrategy.BreadthFirst).eachTreeNode(new WalkChildrenEach<Void>(){
+			@Override
+			public <T> T handle(WalkChildrenIterator trc) {
+				Iterator<WalkReadNode> iter = trc.iterator() ;
+				while(iter.hasNext()){
+					WalkReadNode next = iter.next();
+					Debug.line(next.level(), next.from(), next);
+				}
+				return null;
+			}
+		}) ; 
+	}
+	
+
+	public void testRefsToMe() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("dept", "/dept/dev") ;
+				wsession.pathBy("/hero").property("name", "hero").refTo("dept", "/dept/dev") ;
+				wsession.pathBy("/dept/dev").property("name", "dev team") ;
+				return null;
+			}
+		}) ;
 		
-		
-		
+		assertEquals(2, session.pathBy("/dept/dev").refsToMe("dept").find().size()) ;
+		assertEquals(1, session.pathBy("/dept/dev").refsToMe("dept").fqnFilter("/emp").find().size()) ;
 	}
 	
 	

@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -13,6 +14,7 @@ import net.ion.craken.node.crud.util.TraversalStrategy;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.SetUtil;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -31,12 +33,15 @@ public class WalkReadChildren extends ReadChildren{
 	
 	protected List<ReadNode> readChildren() {
 		LinkedList<ReadNode> result = new LinkedList<ReadNode>();
-		if (includeSelf) result.add(WalkReadNode.create(session(), source(), 0)) ;
+		WalkReadNode rootFrom = WalkReadNode.create(session(), null, source(), 0);
+		if (includeSelf) {
+			result.add(rootFrom) ;
+		}
 		
 		this.andFilters = Predicates.and(filters()) ; 
 		
-		if (strategy == TraversalStrategy.BreadthFirst) this.buildBreadthList(result, treeNodes(), 1);
-		else this.buildDepthList(result, treeNodes(), 1) ;
+		if (strategy == TraversalStrategy.BreadthFirst) this.buildBreadthList(result, makeWalk(rootFrom, treeNodes(), 1), 1);
+		else this.buildDepthList(result, makeWalk(rootFrom, treeNodes(), 1), 1) ;
 		
 		
 		return result.subList(skip(), Math.min(skip() + offset(), result.size())) ;
@@ -51,6 +56,15 @@ public class WalkReadChildren extends ReadChildren{
 		
 		return result ;
 	}
+
+	private Iterator<WalkReadNode> makeWalk(WalkReadNode rootFrom, Iterator<TreeNode> treeNodes, int level) {
+		Set<WalkReadNode> result = SetUtil.newSet() ;
+		while(treeNodes.hasNext()){
+			result.add(WalkReadNode.create(session(), rootFrom, treeNodes.next(), level)) ;
+		}
+		return result.iterator();
+	}
+
 	
 
 	public <T> T eachTreeNode(WalkChildrenEach<T> trcEach) {
@@ -59,14 +73,14 @@ public class WalkReadChildren extends ReadChildren{
 	}
 
 	
-	private List<TreeNode> buildBreadthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
+	private List<TreeNode> buildBreadthList(LinkedList<ReadNode> list, Iterator<WalkReadNode> children, int level) {
 		if (!children.hasNext()) return ListUtil.EMPTY ;
 		
-		Iterator<TreeNode> sortedChildren = sort(children) ;
-		List<TreeNode> inner = ListUtil.newList() ;
+		Iterator<WalkReadNode> sortedChildren = sort(children) ;
+		List<WalkReadNode> inner = ListUtil.newList() ;
 		while(sortedChildren.hasNext()){
-			TreeNode child = sortedChildren.next();
-        	WalkReadNode target = WalkReadNode.create(session(), child, level);
+			WalkReadNode child = sortedChildren.next();
+        	WalkReadNode target = WalkReadNode.create(session(), child.from(), child.treeNode(), level);
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
@@ -77,11 +91,11 @@ public class WalkReadChildren extends ReadChildren{
 	}
 
 
-	private void buildDepthList(LinkedList<ReadNode> list, Iterator<TreeNode> children, int level) {
-		Iterator<TreeNode> sortedChildren = sort(children) ;
+	private void buildDepthList(LinkedList<ReadNode> list, Iterator<WalkReadNode> children, int level) {
+		Iterator<WalkReadNode> sortedChildren = sort(children) ;
         while(sortedChildren.hasNext()){
-        	TreeNode child = sortedChildren.next();
-        	WalkReadNode target = WalkReadNode.create(session(), child, level);
+        	WalkReadNode child = sortedChildren.next();
+        	WalkReadNode target = WalkReadNode.create(session(), child.from(), child.treeNode(), level);
 			if (andFilters.apply(target)) list.add(target) ;
 			
 			this.buildDepthList(list, child.getChildren().iterator(), (level+1)) ;
@@ -89,12 +103,12 @@ public class WalkReadChildren extends ReadChildren{
     }
 
 
-	private Iterator<TreeNode> sort(Iterator<TreeNode> children) {
+	private Iterator<WalkReadNode> sort(Iterator<WalkReadNode> children) {
 		if (sorts().size() > 0) {
-			List<TreeNode> childrenList = Lists.newArrayList(children) ;
-			Comparator<TreeNode> mycomparator = new Comparator<TreeNode>() {
+			List<WalkReadNode> childrenList = Lists.newArrayList(children) ;
+			Comparator<WalkReadNode> mycomparator = new Comparator<WalkReadNode>() {
 				@Override
-				public int compare(TreeNode left, TreeNode right) {
+				public int compare(WalkReadNode left, WalkReadNode right) {
 
 					for (SortElement sele : sorts()) {
 						PropertyId spid = PropertyId.fromIdString(sele.propid()) ;

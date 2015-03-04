@@ -6,12 +6,12 @@ import java.util.Map;
 
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.ReadChildren;
+import net.ion.craken.node.crud.RefQueryRequest;
 import net.ion.craken.node.crud.WalkReadChildren;
 import net.ion.craken.node.crud.WalkRefChildren;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 
 
@@ -50,5 +50,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	WalkRefChildren walkRefChildren(String refName);
 
 	boolean isMatch(String key, String value) throws IOException;
+
+	RefQueryRequest refsToMe(String refName) throws IOException;
 
 }

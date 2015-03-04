@@ -335,7 +335,7 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 
 	public Query childrenQuery() {
 		BooleanQuery result = new BooleanQuery();
-		result.add(new TermQuery(new Term(EntryKey.PARENT, "/__transactions")), Occur.MUST_NOT);
+//		result.add(new TermQuery(new Term(EntryKey.PARENT, "/__transactions")), Occur.MUST_NOT);
 		result.add(new WildcardQuery(new Term(EntryKey.PARENT, this.startWith())), Occur.SHOULD);
 		result.add(new TermQuery(new Term(EntryKey.PARENT, this.toString())), Occur.SHOULD);
 		return result;

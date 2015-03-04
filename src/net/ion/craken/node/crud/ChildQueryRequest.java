@@ -33,7 +33,7 @@ public class ChildQueryRequest {
 	private SearchRequest request;
 	private Iterable<String> sorts;
 
-	private ChildQueryRequest(ReadSession session, Query query, Searcher searcher) {
+	protected ChildQueryRequest(ReadSession session, Query query, Searcher searcher) {
 		this.session = session;
 		this.searcher = searcher;
 		this.request = searcher.createRequest(query).selections(IKeywordField.DocKey);
