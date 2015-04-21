@@ -24,7 +24,7 @@ public abstract class AbstractReadSession implements ReadSession {
 		this.workspace = workspace ;
 	}
 
-	public ReadNode pathBy(String fqn0, String... fqns) {
+	public ReadNode pathBy(String fqn0, Object... fqns) {
 		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/'))) ;
 	}
 
@@ -32,7 +32,7 @@ public abstract class AbstractReadSession implements ReadSession {
 		return pathBy(Fqn.fromString((fqn.startsWith("/") ? fqn : "/" + fqn)), true) ;
 	}
 	
-	public ReadNode ghostBy(String fqn0, String... fqns) {
+	public ReadNode ghostBy(String fqn0, Object... fqns) {
 		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')), true) ;
 	}
 	

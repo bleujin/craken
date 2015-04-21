@@ -23,13 +23,13 @@ public interface ReadSession extends ISession<ReadNode> {
 	public final static String EncryptKeyBytes = "KeyBytes";
 	public final static String EncryptIvBytes = "IvBytes";
 
-	public ReadNode ghostBy(String fqn0, String... fqns);
+	public ReadNode ghostBy(String fqn0, Object... fqns);
 
 	public ReadNode ghostBy(Fqn fqn);
 
 	public ReadNode ghostBy(String fqn);
 
-	public ReadNode pathBy(String fqn0, String... fqns);
+	public ReadNode pathBy(String fqn0, Object... fqns);
 
 	public boolean exists(Fqn fqn);
 

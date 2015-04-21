@@ -259,6 +259,7 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public boolean removeSelf() {
+		removeChildren() ;
 		return parent().removeChild(fqn().name());
 	}
 

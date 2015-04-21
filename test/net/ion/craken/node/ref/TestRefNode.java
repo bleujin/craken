@@ -2,11 +2,13 @@ package net.ion.craken.node.ref;
 
 import java.util.List;
 
+import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.util.Debug;
 
 public class TestRefNode extends TestBaseCrud {
 
@@ -48,6 +50,26 @@ public class TestRefNode extends TestBaseCrud {
 		assertEquals(2, refs.get(1).property("dummy").value()) ;
 	}
 
+	
+	public void testRef() throws Exception {
+		session.tranSync(TransactionJobs.dummy("/emp", 10)) ;
+		session.tranSync(TransactionJobs.dummy("/dept", 5)) ;
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/emp/1").refTos("dept", "/dept/1").refTos("dept", "/dept/2").refTo("dept", "/dept/3").refTos("dept", "/dept/4") ;
+				return null;
+			}
+		}).get() ;
+		
+		IteratorList<ReadNode> refs = session.pathBy("/emp/1").refs("dept") ;
+		Debug.line(refs.count());
+		while(refs.hasNext()){
+			refs.next().debugPrint(); 
+		}
+	}
+	
 	
 	
 	

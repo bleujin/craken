@@ -50,4 +50,11 @@ public class TestFqn extends TestBaseCrud {
 		
 	}
 	
+	public void testDouble() throws Exception {
+		assertEquals("/emps/bleujin", Fqn.fromString("/emps/bleujin").toString()) ;
+		assertEquals("/emps/bleujin", Fqn.fromString("/emps///bleujin").toString()) ;
+		assertEquals("/emps/bleujin", Fqn.fromString("/emps/bleujin/").toString()) ;
+		assertEquals("/emps/bleujin", Fqn.fromString("/emps//bleujin/").toString()) ;
+	}
+	
 }

@@ -10,9 +10,6 @@
 
 	<default>
 		<locking useLockStriping="false" />
-		<clustering mode="dist_sync">
-			<sync />
-		</clustering>
 		<invocationBatching enabled="true" />
 	</default>
 	

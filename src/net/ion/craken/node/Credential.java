@@ -2,9 +2,9 @@ package net.ion.craken.node;
 
 import java.io.PrintStream;
 
-import net.ion.nsearcher.search.analyzer.MyKoreanAnalyzer;
-
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.util.Version;
 
 
 public class Credential {
@@ -18,7 +18,7 @@ public class Credential {
 	private PrintStream tracer = System.out ;
 
 	public Credential(String accessKey, String secretKey){
-		this(accessKey, secretKey, new MyKoreanAnalyzer()) ;
+		this(accessKey, secretKey, new StandardAnalyzer(Version.LUCENE_44)) ;
 	}
 	
 	public Credential(String accessKey, String secretKey, Analyzer analyzer){

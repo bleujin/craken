@@ -18,51 +18,6 @@
 		<invocationBatching enabled="true" />
 	</default>
 
-
-	<namedCache name="search-chunk">
-		<persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="30000" shutdownTimeout="1000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/search"/>
-            </properties>
-         </store>
-      </persistence>
-	</namedCache>
-
-	<namedCache name="search-meta">
-		<persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="30000" shutdownTimeout="1000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/search"/>
-            </properties>
-         </store>
-      </persistence>
-	</namedCache>
-
-	<namedCache name="temp-chunk">
-		<persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="30000" shutdownTimeout="1000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/temp"/>
-            </properties>
-         </store>
-      </persistence>
-	</namedCache>
-
-	<namedCache name="temp-meta">
-		<persistence passivation="false">
-         <store class="org.infinispan.persistence.file.SingleFileStore" fetchPersistentState="false" preload="true" shared="false" purgeOnStartup="false" ignoreModifications="false">
-            <async enabled="true" flushLockTimeout="30000" shutdownTimeout="1000" modificationQueueSize="1000" threadPoolSize="5"/>
-            <properties>
-               <property name="location" value="./resource/store/temp"/>
-            </properties>
-         </store>
-      </persistence>
-	</namedCache>
-
 	
 	
 </infinispan>

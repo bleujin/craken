@@ -131,6 +131,10 @@ public class ChildQueryResponse {
 //		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
 	}
 
+	public <T> T each(Function<IteratorList<ReadNode>, T> function){
+		return function.apply(iterator()) ;
+	}
+	
 	public IteratorList<ReadNode> iterator() {
 		final List<Fqn> fqns = found();
 		final Iterator<Fqn> iter = fqns.iterator();

@@ -69,5 +69,43 @@ public class TestRelation extends TestBaseCrud {
 		assertEquals(1, session.pathBy("/dept/dev").refsToMe("dept").fqnFilter("/emp").find().size()) ;
 	}
 	
+
+	public void testRefsToMe2() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTos("dept", "/dept/cxm", "/dept/dev") ;
+				wsession.pathBy("/hero").property("name", "hero").refTo("dept", "/dept/dev") ;
+				wsession.pathBy("/dept/dev").property("name", "dev team") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(2, session.pathBy("/dept/dev").refsToMe("dept").find().size()) ;
+		assertEquals(1, session.pathBy("/dept/dev").refsToMe("dept").fqnFilter("/emp").find().size()) ;
+	}
+	
+	public void testRefsToMe3() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("dept", "/dept/dev") ;
+				wsession.pathBy("/hero").property("name", "hero").refTo("dept", "/dept/dev") ;
+				wsession.pathBy("/dept/dev").property("name", "dev team") ;
+				return null;
+			}
+		}) ;
+		
+		assertEquals(2, session.pathBy("/dept/dev").refsToMe("dept").find().size()) ;
+		assertEquals(1, session.pathBy("/dept/dev").refsToMe("dept").fqnFilter("/emp").find().size()) ;
+
+		assertEquals(2, session.pathBy("/dept").refsToChildren("dept").find().size()) ;
+		assertEquals(1, session.pathBy("/dept").refsToChildren("dept").fqnFilter("/emp").find().size()) ;
+
+	}
+	
+	
+	
+
 	
 }

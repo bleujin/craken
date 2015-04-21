@@ -17,7 +17,7 @@ public class TestAllSearchNode extends TestSuite {
 		suite.addTestSuite(TestSearch.class) ;
 		suite.addTestSuite(TestSearchChild.class) ;
 		suite.addTestSuite(TestStoreSearch.class) ;
-		
+		suite.addTestSuite(TestAnalyzer.class) ;
 		
 		return suite ;
 	}

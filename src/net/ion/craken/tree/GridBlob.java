@@ -51,6 +51,7 @@ public class GridBlob implements Serializable {
 	public GridBlob saveAt(InputStream input) throws IOException {
 		File file = gfs.getFile(path);
 		
+		if (file.exists()) file.delete() ;
 		if (! file.getParentFile().exists()) file.getParentFile().mkdirs();
 		file.createNewFile();
 		

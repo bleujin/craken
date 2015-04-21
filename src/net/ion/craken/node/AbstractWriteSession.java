@@ -65,7 +65,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 		return pathBy(Fqn.fromString(fqn));
 	}
 
-	public WriteNode pathBy(String fqn0, String... fqns) {
+	public WriteNode pathBy(String fqn0, Object... fqns) {
 		return pathBy(Fqn.fromString((fqn0.startsWith("/") ? fqn0 : "/" + fqn0) + '/' + StringUtil.join(fqns, '/')));
 	}
 

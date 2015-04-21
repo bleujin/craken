@@ -26,7 +26,7 @@ public interface WriteSession extends ISession<WriteNode> {
 	
 	public WriteNode resetBy(String fqn);
 	
-	public WriteNode pathBy(String fqn0, String... fqns)  ;
+	public WriteNode pathBy(String fqn0, Object... fqns)  ;
 
 	public WriteNode createBy(String fqn);
 

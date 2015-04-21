@@ -142,6 +142,7 @@ public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.Replace
 	}
 
 	public Object get(int n) {
+		if (n < 0) return elements[size() + n] ;
 		return elements[n];
 	}
 

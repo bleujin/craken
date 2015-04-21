@@ -357,7 +357,19 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 			throw new IllegalArgumentException("must required refName") ;
 
 		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
-		final RefQueryRequest result = RefQueryRequest.create(session, session.newSearcher(), fqn(), refName);
+		final RefQueryRequest result = RefQueryRequest.createMe(session, session.newSearcher(), fqn(), refName);
+//		result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString()));
+
+		return result;
+	}
+
+	@Override
+	public RefQueryRequest refsToChildren(String refName) throws IOException {
+		if (StringUtil.isBlank(refName))
+			throw new IllegalArgumentException("must required refName") ;
+
+		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
+		final RefQueryRequest result = RefQueryRequest.createChildren(session, session.newSearcher(), fqn(), refName);
 //		result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString()));
 
 		return result;

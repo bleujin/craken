@@ -53,4 +53,6 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	RefQueryRequest refsToMe(String refName) throws IOException;
 
+	RefQueryRequest refsToChildren(String string) throws IOException;
+
 }
