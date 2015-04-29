@@ -31,7 +31,7 @@ import net.ion.radon.util.uriparser.URIPattern;
 
 public class CDDMListener implements WorkspaceListener {
 
-	private Map<CDDHandler, URIPattern> chandlers = MapUtil.newMap();
+	private Map<CDDHandler, URIPattern> chandlers = MapUtil.newSyncMap() ;
 	private Future<Void> lastFuture;
 
 	public CDDMListener() {
@@ -158,7 +158,9 @@ public class CDDMListener implements WorkspaceListener {
 
 	private void applyModify(JobList syncJob, JobList asyncJob, CDDHandler[] handlers, final Fqn targetFqn, TouchedRow row, final WriteSession wsession) {
 		for (final CDDHandler handler : handlers) {
-			if (targetFqn.isPattern(chandlers.get(handler))) {
+			URIPattern find = chandlers.get(handler);
+			if (find == null) continue ;
+			if (targetFqn.isPattern(find)) {
 				final Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());
 				if (AsyncCDDHandler.class.isInstance(handler))
 					asyncJob.add(handler.modified(resolveMap, row.modifyEvent()));
@@ -170,7 +172,9 @@ public class CDDMListener implements WorkspaceListener {
 
 	private void applyDeleted(JobList syncJob, JobList asyncJob, CDDHandler[] handlers, final Fqn targetFqn, TouchedRow row, final WriteSession wsession) {
 		for (final CDDHandler handler : handlers) {
-			if (targetFqn.isPattern(chandlers.get(handler))) {
+			URIPattern find = chandlers.get(handler);
+			if (find == null) continue ;
+			if (targetFqn.isPattern(find)) {
 				final Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());
 				if (AsyncCDDHandler.class.isInstance(handler))
 					asyncJob.add(handler.deleted(resolveMap, row.deleteEvent()));
