@@ -191,7 +191,7 @@ public class RepositoryImpl implements Repository {
 
 	public RepositoryImpl defineWorkspace(String wsName) throws IOException {
 		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ; 
-		Configuration maked = makeConfig(CacheMode.LOCAL);
+		Configuration maked = makeConfig(2000, CacheMode.LOCAL);
 		dm.defineConfiguration(wsName, maked);
 
 		definedWorkspace.add(wsName) ;
@@ -202,7 +202,7 @@ public class RepositoryImpl implements Repository {
 	public RepositoryImpl createWorkspace(String wsName, WorkspaceConfigBuilder wconfig) {
 		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ;
 		CacheMode cacheMode = wconfig.init(dm, wsName) ;
-		Configuration maked = makeConfig(cacheMode);
+		Configuration maked = makeConfig(wconfig.maxEntry(), cacheMode);
 		dm.defineConfiguration(wsName, maked);
 
 		definedWorkspace.add(wsName) ;
@@ -214,13 +214,13 @@ public class RepositoryImpl implements Repository {
 		return this.started ;
 	}
 
-	private Configuration makeConfig(CacheMode cmode){
+	private Configuration makeConfig(int maxEntry, CacheMode cmode){
 		EvictionConfigurationBuilder builder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
 			.transaction().transactionMode(TransactionMode.TRANSACTIONAL)
 			.invocationBatching().enable()
-			.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(20000).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
+			.persistence().addStore(CrakenStoreConfigurationBuilder.class).maxEntries(maxEntry).fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false)
 			.async().enabled(false).flushLockTimeout(20000).shutdownTimeout(1000).modificationQueueSize(1000).threadPoolSize(5)
-			.eviction().maxEntries(20000) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
+			.eviction().maxEntries(maxEntry) ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
 			builder.clustering().cacheMode(cmode) ;
 		
 		return builder.build() ;

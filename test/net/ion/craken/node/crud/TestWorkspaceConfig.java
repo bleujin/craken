@@ -51,4 +51,11 @@ public class TestWorkspaceConfig extends TestCase {
 		Workspace workspace = session.workspace() ;
 		Debug.line(workspace.cache().getCacheConfiguration()) ; 
 	}
+	
+	public void testEvictionMaxSegment() throws Exception {
+		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/test").maxEntry(1000).eviMaxSegment(10)) ;
+		ReadSession session = r.login("test");
+		
+		session.tran(TransactionJobs.HelloBleujin) ;
+	}
 }

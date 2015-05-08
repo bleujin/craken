@@ -56,7 +56,9 @@
 		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../niss/lib/ref/" />
 		<echo>Copy to NIAS</echo>
 		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../NICLAS/lib/ref/" />
-		
+		<echo>Copy to external</echo>
+		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../external/lib/ref/" />
+				
 	</target>
 
 </project>

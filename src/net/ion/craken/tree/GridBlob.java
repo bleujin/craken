@@ -40,7 +40,12 @@ public class GridBlob implements Serializable {
 	}
 
 	public InputStream toInputStream() throws FileNotFoundException {
+//		gfs.getInput("/")
 		return gfs.getInput(path);
+	}
+	
+	public File toFile(){
+		return gfs.getFile(path) ;
 	}
 
 	public GridBlob gfs(GridFilesystem gfs) {
