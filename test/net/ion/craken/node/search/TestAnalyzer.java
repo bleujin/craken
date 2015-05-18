@@ -34,7 +34,7 @@ public class TestAnalyzer extends TestCase {
 		}) ;
 
 		session.pathBy("/").childQuery("뜨리거").find().debugPrint(); 
-		
+		r.shutdown() ;
 	}
 	
 	
@@ -52,5 +52,6 @@ public class TestAnalyzer extends TestCase {
 		}) ;
 		
 		central.newSearcher().createRequest("뜨리").find().debugPrint();
+		central.close();
 	}
 }

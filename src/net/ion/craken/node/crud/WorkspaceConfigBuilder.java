@@ -13,8 +13,8 @@ public abstract class WorkspaceConfigBuilder {
 	private final String path;
 	private CacheMode cacheMode = CacheMode.LOCAL ;
 	
-	private int maxEntry = 10000 ;
-	private int eviMaxSegment = 30 ;
+	private int maxEntry = 3000 ;
+	private int eviMaxSegment = 10 ;
 	protected WorkspaceConfigBuilder(String path) {
 		this.path = path ;
 	}

@@ -19,7 +19,7 @@ public class TestFirst extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = RepositoryImpl.create() ;
-		r.defineWorkspace("search") ;
+		r.createWorkspace("search", WorkspaceConfigBuilder.directory("./resource/store/search")) ;
 		session = r.login("search") ;
 	}
 	

@@ -18,14 +18,14 @@ public class TestWalkReadChildren extends TestBaseCrud{
 			public Void handle(WriteSession wsession) throws Exception { // /gparent/parent/child1, /gparent/parent/child2 
 				wsession.pathBy("/gparent").property("name", "gparent")
 				.child("parent1").property("name", "parent")
-				.child("child11").property("name", "child1").parent() 
-				.child("child12").property("name", "child2")
+				.child("child11").property("name", "child11").parent() 
+				.child("child12").property("name", "child12")
 				.child("gchild").property("name", "gchild");
 				
 				wsession.pathBy("/gparent")
-				.child("parent2").property("name", "parent")
-				.child("child21").property("name", "child1").property("order", 1).parent() 
-				.child("child22").property("name", "child2").property("order", 2)
+				.child("parent2").property("name", "parent2")
+				.child("child21").property("name", "child21").property("order", 1).parent() 
+				.child("child22").property("name", "child22").property("order", 2)
 				.child("gchild").property("name", "gchild") ;
 				
 				return null;
@@ -34,16 +34,18 @@ public class TestWalkReadChildren extends TestBaseCrud{
 	}
 	
 	public void testBreadthFirst() throws Exception {
-		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(true).toList() ; 
+		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(true).toList() ;
+		Debug.line(list);
 		assertEquals(9, list.size());
 		assertEquals("gparent", list.get(0).property("name").asString());
-		assertEquals("child1", list.get(8).property("name").asString());
+		assertEquals("parent2", list.get(2).property("name").asString());
 	}
 	
 
 	public void testDepthFirst() throws Exception {
 		long start = System.currentTimeMillis() ;
 		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.DepthFirst).includeSelf(true).toList() ;
+		Debug.line(list);
 		assertEquals(9, list.size());
 		assertEquals("gparent", list.get(0).property("name").asString());
 		assertEquals("gchild", list.get(8).property("name").asString());
@@ -53,7 +55,7 @@ public class TestWalkReadChildren extends TestBaseCrud{
 	public void testConnectWithFilter() throws Exception {
 		List<ReadNode> list = session.pathBy("/gparent").walkChildren().strategy(TraversalStrategy.BreadthFirst).includeSelf(false).in("name", "parent", "child1").toList() ;
 		
-		assertEquals(4, list.size());
+		assertEquals(1, list.size());
 	}
 	
 	
