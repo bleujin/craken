@@ -20,13 +20,13 @@ import net.ion.framework.util.ObjectId;
 
 public class TestCDDHandler extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.inmemoryCreateWithTest();
+		this.r = Craken.inmemoryCreateWithTest();
 		r.start();
 		this.session = r.login("test");
 	}

@@ -3,12 +3,14 @@ package net.ion.bleujin.crawl;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
-import junit.framework.TestCase;
 
 public class TestEnha extends TestCase {
 
@@ -32,7 +34,7 @@ public class TestEnha extends TestCase {
 	}
 	
 	public void testHanPath() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
+		Repository r = Craken.inmemoryCreateWithTest() ;
 		ReadSession session = r.login("test") ;
 		
 		final String name = "1998 방콕 아시안 게임" ;

@@ -5,6 +5,8 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
@@ -15,12 +17,12 @@ import net.ion.framework.util.Debug;
 public class TestCrakenScriptManager extends TestCase {
 
 	protected DBController dc;
-	private RepositoryImpl r;
+	private Repository r;
 	protected ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
-		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
+		this.r = Craken.inmemoryCreateWithTest() ;
 		this.session = r.start().login("test") ;
 		
 		CrakenScriptManager dbm = CrakenScriptManager.create(session, Executors.newScheduledThreadPool(1), new File("./test/net/ion/bleujin/script")) ;

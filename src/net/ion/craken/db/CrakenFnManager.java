@@ -4,24 +4,18 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.framework.db.IDBController;
 import net.ion.framework.db.Rows;
-import net.ion.framework.db.manager.DBManager;
-import net.ion.framework.db.procedure.RepositoryService;
 import net.ion.framework.db.procedure.UserProcedure;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -30,10 +24,10 @@ import org.apache.lucene.index.CorruptIndexException;
 
 public class CrakenFnManager extends CrakenManager {
 
-	private RepositoryImpl repository;
+	private Repository repository;
 	private String wname ;
 
-	public CrakenFnManager(RepositoryImpl repository, String wname) {
+	public CrakenFnManager(Repository repository, String wname) {
 		super() ;
 		this.repository = repository;
 		this.wname = wname ;

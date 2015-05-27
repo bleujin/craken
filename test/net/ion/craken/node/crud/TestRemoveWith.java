@@ -181,8 +181,8 @@ public class TestRemoveWith extends TestBaseCrud {
 				List<TouchedRow> removed = wsession.touched(Touch.REMOVE);
 				assertEquals(1, removed.size());
 				assertEquals(true, removed.get(0).affected().containsKey("/a/b/c/d"));
-				assertEquals(true, removed.get(0).affected().containsKey("/a/b/c/d/e"));
-				assertEquals(true, removed.get(0).affected().containsKey("/a/b/c/d/e/f"));
+				assertEquals(false, removed.get(0).affected().containsKey("/a/b/c/d/e"));
+				assertEquals(false, removed.get(0).affected().containsKey("/a/b/c/d/e/f"));
 				return null;
 			}
 		}) ;

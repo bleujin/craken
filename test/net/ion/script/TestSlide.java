@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.InfinityThread;
 import net.ion.nradon.EventSourceConnection;
@@ -33,7 +35,7 @@ public class TestSlide extends TestCase {
 		Scripter rhiner = Scripter.create().start() ;
 		rhiner.start() ;
 		
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
+		Craken r = Craken.inmemoryCreateWithTest();
 		r.start() ;
 		
 		
@@ -61,9 +63,9 @@ public class TestSlide extends TestCase {
 	private static class ScriptWebSocket implements WebSocketHandler {
 		private List<WebSocketConnection> connections = new CopyOnWriteArrayList<WebSocketConnection>() ;
 		private final Scripter engine;
-		private final RepositoryImpl r;
+		private final Repository r;
 		
-		public ScriptWebSocket(Scripter engine, RepositoryImpl r) {
+		public ScriptWebSocket(Scripter engine, Repository r) {
 			this.engine = engine ;
 			this.r = r ;
 		}

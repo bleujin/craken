@@ -18,20 +18,20 @@ import net.ion.craken.util.StringInputStream;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.IOUtil;
 
-import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 
 public class TestHelloWord extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
+		this.r = Craken.inmemoryCreateWithTest() ;
 		r.start() ;
 		this.session = r.login("test") ;
 	}

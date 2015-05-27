@@ -12,8 +12,10 @@ import java.util.Set;
 import net.ion.craken.tree.Fqn;
 
 import org.infinispan.commons.marshall.AbstractExternalizer;
+import org.infinispan.commons.marshall.SerializeWith;
 import org.infinispan.commons.util.Util;
 
+@SerializeWith(TreeNodeKey.Externalizer.class)
 public class TreeNodeKey implements Serializable {
 
 	private static final long serialVersionUID = 809910293671104885L;

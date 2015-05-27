@@ -1,9 +1,5 @@
 package net.ion.craken.problem;
 
-import java.io.File;
-
-import javax.naming.directory.InvalidSearchControlsException;
-
 import junit.framework.TestCase;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.ReadSession;
@@ -12,9 +8,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.FileUtil;
 import net.ion.nsearcher.common.ReadDocument;
-import net.ion.nsearcher.common.SearchConstant;
 import net.ion.nsearcher.search.Searcher;
 
 public class TestRefsProblem extends TestCase {

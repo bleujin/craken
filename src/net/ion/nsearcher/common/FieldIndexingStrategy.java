@@ -81,13 +81,13 @@ public abstract class FieldIndexingStrategy {
 					return ifield.binaryValue();
 				}
 
-				public TokenStream tokenStream(Analyzer analyzer) throws IOException {
-					return ifield.tokenStream(analyzer);
-				}
-
-//				public TokenStream tokenStream(Analyzer analyzer, TokenStream stream) throws IOException {
-//					return ifield.tokenStream(analyzer, stream);
+//				public TokenStream tokenStream(Analyzer analyzer) throws IOException {
+//					return ifield.tokenStream(analyzer);
 //				}
+
+				public TokenStream tokenStream(Analyzer analyzer, TokenStream stream) throws IOException {
+					return ifield.tokenStream(analyzer, stream);
+				}
 			});
 		}
 	};

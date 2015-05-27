@@ -5,11 +5,10 @@ import static net.ion.craken.expression.TerminalParser.term;
 
 import java.util.List;
 
-import net.ion.framework.mte.util.NestedParser.SelectionParser;
 import net.ion.rosetta.OperatorTable;
 import net.ion.rosetta.Parser;
-import net.ion.rosetta.Parsers;
 import net.ion.rosetta.Parser.Reference;
+import net.ion.rosetta.Parsers;
 import net.ion.rosetta.functors.Binary;
 import net.ion.rosetta.functors.Pair;
 import net.ion.rosetta.functors.Unary;

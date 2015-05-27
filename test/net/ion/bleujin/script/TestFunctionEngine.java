@@ -9,15 +9,17 @@ import javax.script.ScriptEngineManager;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 
 public class TestFunctionEngine extends TestCase {
 
 	private ScriptEngine engine;
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
@@ -25,7 +27,7 @@ public class TestFunctionEngine extends TestCase {
 		super.setUp();
 		ScriptEngineManager manager = new ScriptEngineManager();  
         this.engine = manager.getEngineByName("JavaScript");
-        this.r = RepositoryImpl.inmemoryCreateWithTest() ;
+        this.r = Craken.inmemoryCreateWithTest() ;
         this.session = r.start().login("test") ;
 	}
 	

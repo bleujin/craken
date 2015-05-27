@@ -1,12 +1,12 @@
 package net.ion.craken.script;
 
+import java.util.Iterator;
+import java.util.List;
+
 import net.ion.craken.node.ReadNode;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.util.ListUtil;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Author: Ryunhee Han

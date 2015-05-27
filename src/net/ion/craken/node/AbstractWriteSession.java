@@ -4,17 +4,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 import net.ion.craken.listener.CDDMListener;
-import net.ion.craken.node.Workspace.InstantLogWriter;
 import net.ion.craken.node.crud.ChildQueryRequest;
-import net.ion.craken.node.crud.WriteChildrenEach;
-import net.ion.craken.node.crud.WriteChildrenIterator;
-import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.tree.Fqn;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.SetUtil;
@@ -22,8 +16,6 @@ import net.ion.framework.util.StringUtil;
 
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.queryparser.classic.ParseException;
-
-import com.google.common.collect.Lists;
 
 public abstract class AbstractWriteSession implements WriteSession {
 
@@ -128,7 +120,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 		TransactionJob tjob = attribute(TransactionJob.class) ;
 		TranExceptionHandler ehandler = attribute(TranExceptionHandler.class) ;
 		
-		InstantLogWriter logWriter = rsession.workspace().createLogWriter(this, rsession);
+		NodeWriter logWriter = rsession.workspace().createLogWriter(this, rsession);
 		cddm.fireRow(this, tjob, ehandler);
 		
 		logWriter.writeLog(logRows) ;

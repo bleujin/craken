@@ -2,7 +2,6 @@ package net.ion.bleujin.infinispan;
 
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.InfinityThread;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.Configuration;

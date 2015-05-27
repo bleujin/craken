@@ -1,6 +1,6 @@
 package net.ion.craken.problem;
 
-import net.ion.craken.node.crud.RepositoryImpl;
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 
@@ -13,8 +13,6 @@ import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
-
-import junit.framework.TestCase;
 
 @Listener
 public class TestDistInfinispan extends TestCase{

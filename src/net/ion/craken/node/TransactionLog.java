@@ -19,7 +19,6 @@ import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.index.IndexSession;
 
-import org.apache.lucene.document.Field.Index;
 import org.infinispan.atomic.AtomicMap;
 
 public class TransactionLog{

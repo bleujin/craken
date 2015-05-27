@@ -3,6 +3,7 @@ package net.ion.ics6.core;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import junit.framework.TestCase;
 
@@ -22,7 +23,7 @@ public class TestRecursive extends TestCase {
 //	wsession.pathBy("/afield_rels/ch_summary").property("upperid", "ROOT").property("lowerid", "ch_summary").property("orderno", 1);
 	
 	public void testRecursive() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
+		Craken r = Craken.inmemoryCreateWithTest() ;
 		ReadSession session = r.login("test") ;
 		
 		session.tran(new TransactionJob<Void>() {

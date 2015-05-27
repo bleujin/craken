@@ -22,11 +22,8 @@ public class WalkReadNode extends ReadNodeImpl {
 	static WalkReadNode create(ReadSession session, WalkReadNode from, TreeNode child, int level) {
 		return new WalkReadNode(session, from, child, level);
 	}
-	
-//	static WalkReadNode create(ReadSession session, TreeNode tnode, int level) {
-//		return new WalkReadNode(session, null, tnode, level);
-//	}
 
+	
 	public int level() {
 		return level;
 	}

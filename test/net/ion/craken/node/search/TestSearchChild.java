@@ -1,7 +1,5 @@
 package net.ion.craken.node.search;
 
-import com.google.common.base.Function;
-
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 
@@ -18,7 +16,7 @@ public class TestSearchChild extends TestBaseSearch {
 				return null;
 			}
 		}) ;
-
+		
 		assertEquals(3, session.queryRequest("").find().size()) ;
 		assertEquals(1, session.pathBy("/bleujin").childQuery("").find().size()) ;
 		assertEquals(2, session.pathBy("/bleujin").childQuery("", true).find().size()) ;

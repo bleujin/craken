@@ -15,7 +15,6 @@
  *****************************************************************************/
 package net.ion.rosetta;
 
-import net.ion.framework.util.Debug;
 
 /**
  * Provides common token values.

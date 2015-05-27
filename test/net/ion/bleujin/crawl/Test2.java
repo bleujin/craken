@@ -2,6 +2,7 @@ package net.ion.bleujin.crawl;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
@@ -26,8 +27,7 @@ public class Test2 extends TestCase {
 		.build();
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig) ;
 		
-		RepositoryImpl r = RepositoryImpl.create(dcm, "bleujin");
-		r.createWorkspace("enha", WorkspaceConfigBuilder.directory("./resource/enha2").distMode(CacheMode.REPL_SYNC));
+		Repository r = RepositoryImpl.create(dcm, "bleujin").createWorkspace("enha", WorkspaceConfigBuilder.directory("./resource/enha2").distMode(CacheMode.REPL_SYNC));
 		this.session = r.login("enha");
 	}
 

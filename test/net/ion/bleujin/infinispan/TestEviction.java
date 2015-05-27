@@ -1,13 +1,12 @@
 package net.ion.bleujin.infinispan;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.RandomUtil;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-
-import junit.framework.TestCase;
 
 public class TestEviction extends TestCase {
 

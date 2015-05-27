@@ -4,9 +4,11 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.exception.AlreadyExistsException;
 import net.ion.craken.tree.Fqn;
@@ -17,12 +19,12 @@ import net.ion.framework.db.servant.StdOutServant;
 public class TestBaseFnManager extends TestCase{
 
 	protected DBController dc;
-	private RepositoryImpl r;
+	private Craken r;
 	protected ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
-		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
+		this.r = Craken.inmemoryCreateWithTest() ;
 		this.session = r.start().login("test") ;
 		
 		

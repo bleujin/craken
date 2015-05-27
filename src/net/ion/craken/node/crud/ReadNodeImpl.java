@@ -168,7 +168,8 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(tnode.readMap());
+		Map<PropertyId, PropertyValue> readMap = tnode.readMap();
+		return Collections.unmodifiableMap(readMap);
 	}
 
 	public <T> T transformer(Function<ReadNode, T> function) {

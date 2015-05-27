@@ -9,6 +9,7 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 
+import org.apache.lucene.analysis.cjk.CJKAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 
 public interface WriteNode extends NodeCommon<WriteNode> {
@@ -72,6 +73,9 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteChildren refChildren(String refName);
 
 	public ReadNode toReadNode() ;
+
+	public WriteNode reindex(boolean includeSub);
+
 
 
 }

@@ -27,7 +27,7 @@
 	</target>
 	
 	<property name="version.number" value="0" />
-	<property name="build.number" value="7" />
+	<property name="build.number" value="9" />
 
 	<target name="publish" >
 		<delete file="publish/craken_${version.number}.${build.number}.jar"></delete>

@@ -6,7 +6,7 @@ import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.impl.AtomicHashMap;
 
 public class TestTreeModel extends TestBaseCrud {
 

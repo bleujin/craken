@@ -2,9 +2,6 @@ package net.ion.craken.node;
 
 import java.util.Map;
 
-import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
-
 import junit.framework.TestCase;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
@@ -15,7 +12,9 @@ import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.InfinityThread;
+
+import org.infinispan.Cache;
+import org.infinispan.atomic.AtomicMap;
 
 public class TestDistEventHandler extends TestCase {
 

@@ -10,6 +10,10 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
+import org.infinispan.notifications.cachelistener.event.CacheEntryCreatedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachemanagerlistener.annotation.CacheStarted;
 import org.infinispan.notifications.cachemanagerlistener.annotation.ViewChanged;
 import org.infinispan.notifications.cachemanagerlistener.event.CacheStartedEvent;
@@ -59,7 +63,16 @@ public class TestListener extends TestCase {
 	}
 
 	
-	
+	public void testEntryModified() throws Exception {
+		DefaultCacheManager dcm = new DefaultCacheManager();
+		dcm.defineConfiguration("test", new ConfigurationBuilder().build()) ;
+		Cache<String, String> cache = dcm.getCache("test") ;
+		
+		cache.addListener(new CacheListener());
+		
+		cache.put("bleujin", "hi bleujin") ;
+		dcm.stop();
+	}
 	
 	
 	@Listener
@@ -75,17 +88,17 @@ public class TestListener extends TestCase {
 		public void view(ViewChangedEvent e){
 			Debug.line(e) ;
 		}
-//		
-//		@CacheEntryCreated
-//		public void cacheEntryCreated(CacheEntryCreatedEvent<String, String> e){
-//			Debug.line(e.getKey(), e.getType());
-//		}
-//		
-//		@CacheEntryModified
-//		public void cacheEntryModified(CacheEntryModifiedEvent<String, String> e){
-//			if (e.isPre()) return ;
-//			Debug.line(e.getKey(), e.getValue(), e) ;
-//		}
+		
+		@CacheEntryCreated
+		public void cacheEntryCreated(CacheEntryCreatedEvent<String, String> e){
+			Debug.line(e.getKey(), e.getType());
+		}
+		
+		@CacheEntryModified
+		public void cacheEntryModified(CacheEntryModifiedEvent<String, String> e){
+			if (e.isPre()) return ;
+			Debug.line(e.getKey(), e.getValue(), e) ;
+		}
 //		
 //		@CacheEntryRemoved
 //		public void cacheEntryRemoved(CacheEntryRemovedEvent<String, String> e){

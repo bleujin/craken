@@ -5,13 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.manager.DefaultCacheManager;
-
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
@@ -19,6 +15,11 @@ import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.InfinityThread;
+
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.global.GlobalConfiguration;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
 
 public class TestIndexCrawlData extends TestCase {
 

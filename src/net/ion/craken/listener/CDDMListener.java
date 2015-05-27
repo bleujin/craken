@@ -8,10 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.infinispan.atomic.AtomicHashMap;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
-
 import net.ion.craken.node.AbstractWriteSession;
 import net.ion.craken.node.TouchedRow;
 import net.ion.craken.node.TranExceptionHandler;
@@ -20,14 +16,17 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.node.crud.WriteSessionImpl;
+import net.ion.craken.node.crud.OldWriteSession;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.radon.util.uriparser.URIPattern;
+
+import org.infinispan.atomic.impl.AtomicHashMap;
+import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 public class CDDMListener implements WorkspaceListener {
 
@@ -125,7 +124,7 @@ public class CDDMListener implements WorkspaceListener {
 		}
 		try {
 
-			final WriteSessionImpl newSession = new WriteSessionImpl(wsession.readSession(), wsession.workspace());
+			final WriteSession newSession = wsession.workspace().newWriteSession(wsession.readSession()) ;
 			if (syncJob.size() > 0) {
 				wsession.workspace().tran(newSession, new TransactionJob<Void>() {
 					@Override

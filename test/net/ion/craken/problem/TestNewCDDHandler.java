@@ -8,18 +8,19 @@ import net.ion.craken.listener.CDDModifyHandler;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 
 public class TestNewCDDHandler extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.inmemoryCreateWithTest();
+		this.r = Craken.inmemoryCreateWithTest();
 		r.start();
 		this.session = r.login("test");
 	}

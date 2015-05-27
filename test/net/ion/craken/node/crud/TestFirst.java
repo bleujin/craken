@@ -7,19 +7,20 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
 import net.ion.craken.tree.PropertyId;
 
 public class TestFirst extends TestCase {
 
 	
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("search", WorkspaceConfigBuilder.directory("./resource/store/search")) ;
+		this.r = Craken.create() ;
+		r.createWorkspace("search", CrakenWorkspaceConfigBuilder.singleDir("./resource/store/search")) ;
 		session = r.login("search") ;
 	}
 	

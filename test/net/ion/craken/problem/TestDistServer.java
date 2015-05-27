@@ -2,11 +2,7 @@ package net.ion.craken.problem;
 
 import java.util.Map;
 
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfigurationChildBuilder;
-import org.infinispan.manager.DefaultCacheManager;
-
+import junit.framework.TestCase;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
@@ -15,10 +11,10 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
-import junit.framework.TestCase;
+
+import org.infinispan.manager.DefaultCacheManager;
 
 public class TestDistServer extends TestCase{
 

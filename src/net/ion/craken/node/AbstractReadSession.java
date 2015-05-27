@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.crud.ReadNodeImpl;
-import net.ion.craken.node.crud.WriteSessionImpl;
+import net.ion.craken.node.crud.OldWriteSession;
 import net.ion.craken.node.exception.NotFoundPath;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.StringUtil;
@@ -91,7 +91,7 @@ public abstract class AbstractReadSession implements ReadSession {
 	
 	
 	public <T> Future<T> tran(TransactionJob<T> tjob, TranExceptionHandler handler) {
-		WriteSession tsession = new WriteSessionImpl(this, workspace);
+		WriteSession tsession = workspace.newWriteSession(this) ;
 
 		return workspace.tran(tsession, tjob, handler) ;
 	}

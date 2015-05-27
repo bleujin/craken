@@ -2,8 +2,6 @@ package net.ion.craken.node.crud;
 
 import java.util.Iterator;
 
-import net.ion.craken.Craken;
-import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.util.TraversalStrategy;
