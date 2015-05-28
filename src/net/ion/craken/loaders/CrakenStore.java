@@ -27,8 +27,9 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.executors.ExecutorAllCompletionService;
+import org.infinispan.filter.KeyFilter;
 import org.infinispan.lucene.directory.BuildContext;
 import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.EmbeddedCacheManager;
@@ -46,6 +47,7 @@ import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
 @Listener
+@Deprecated
 public class CrakenStore implements AdvancedLoadWriteStore {
 	private static final Log log = LogFactory.getLog(CrakenStore.class);
 	private static final boolean trace = log.isTraceEnabled();
@@ -66,9 +68,9 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 			String name = ctx.getCache().getName();
 			EmbeddedCacheManager cacheManager = ctx.getCache().getCacheManager();
 			Cache<?, ?> metaCache = cacheManager.getCache(name + "-meta");
-			Cache<?, ?> chunkCache = cacheManager.getCache(name + "-chunk");
+			Cache<?, ?> dataCache = cacheManager.getCache(name + "-chunk");
 
-			BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, chunkCache, metaCache, name);
+			BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
 			bcontext.chunkSize(1024 * 1024);
 			Directory directory = bcontext.create();
 			this.central = CentralConfig.oldFromDir(directory).build();

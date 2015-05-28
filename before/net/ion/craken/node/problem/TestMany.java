@@ -10,6 +10,7 @@ import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -20,7 +21,7 @@ public class TestMany extends TestCase {
 
 	
 	public void testM() throws Exception{
-		Repository r = RepositoryImpl.inmemoryCreateWithTest();
+		Repository r = Craken.inmemoryCreateWithTest();
 		r.start() ;
 		ReadSession session = r.login("test");
 		
@@ -47,7 +48,7 @@ public class TestMany extends TestCase {
 	
 	public void testMWithSearch() throws Exception {
 
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest()  ;
+		Craken r = Craken.inmemoryCreateWithTest()  ;
 		r.start() ;
 		ReadSession session = r.login("test");
 		

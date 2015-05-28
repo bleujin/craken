@@ -7,6 +7,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.MapUtil;
@@ -14,11 +15,11 @@ import net.ion.framework.util.MapUtil;
 public class TestNewVersion extends TestCase {
 
 	private ReadSession session ;
-	private RepositoryImpl r;
+	private Craken r;
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.inmemoryCreateWithTest();
+		this.r = Craken.inmemoryCreateWithTest();
 		this.session = r.login("test");
 	}
 	

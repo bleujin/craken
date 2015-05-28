@@ -9,7 +9,7 @@ import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
-import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;

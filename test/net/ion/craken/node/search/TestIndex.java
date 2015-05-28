@@ -37,7 +37,7 @@ public class TestIndex extends TestBaseSearch {
 		for (int i : ListUtil.rangeNum(50)) {
 			exec.submit(task);
 		}
-		exec.shutdown() ;
+//		exec.shutdown() ;
 		exec.awaitTermination(5, TimeUnit.SECONDS);
 		exec.shutdownNow() ;
 	}

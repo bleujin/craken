@@ -1,19 +1,16 @@
 package net.ion.bleujin;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.WildcardQuery;
-
-import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.index.Indexer;
-import net.ion.nsearcher.search.Searcher;
+
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.WildcardQuery;
 
 public class TestHanja extends TestBaseCrud {
 

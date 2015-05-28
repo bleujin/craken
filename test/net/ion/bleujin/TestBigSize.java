@@ -2,14 +2,13 @@ package net.ion.bleujin;
 
 import java.io.File;
 
+import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-
-import junit.framework.TestCase;
 
 public class TestBigSize extends TestCase {
 

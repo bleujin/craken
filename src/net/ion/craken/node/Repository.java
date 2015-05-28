@@ -2,9 +2,9 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.framework.schedule.IExecutor;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -13,9 +13,9 @@ import org.infinispan.util.logging.Log;
 
 public interface Repository {
 
-	public RepositoryImpl start() throws IOException ;
+	public Repository start() throws IOException ;
 	
-	public RepositoryImpl shutdown()  ;
+	public Repository shutdown()  ;
 
 	public IExecutor executor() ;
 	
@@ -35,7 +35,11 @@ public interface Repository {
 
 	public List<Address> memberAddress();
 	
-	public Log logger() ;
+	public Log getLogger() ;
+
+//	public Repository defineWorkspace(String wsName) throws IOException;
+
+//	public Repository createWorkspace(String string, WorkspaceConfigBuilder distMode) ; 
 
 //	public Central central(String wsName);
 

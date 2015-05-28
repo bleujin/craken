@@ -1,5 +1,7 @@
 package net.ion.craken.node.crud;
 
+import org.infinispan.manager.DefaultCacheManager;
+
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Workspace;
@@ -13,7 +15,7 @@ public class TestWorkspaceConfig extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
+		this.r = RepositoryImpl.create(new DefaultCacheManager(), "emanon");
 	}
 	
 	@Override
@@ -23,7 +25,7 @@ public class TestWorkspaceConfig extends TestCase {
 	}
 	
 	
-	public void testReadWhenNotDefined() throws Exception {
+	public void xtestReadWhenNotDefined() throws Exception {
 		ReadSession session = r.login("notdefined") ;
 		session.root().children().debugPrint(); 
 	}
@@ -45,9 +47,9 @@ public class TestWorkspaceConfig extends TestCase {
 //	}
 //	
 	public void testWorkspaceConfig() throws Exception {
-		r.defineWorkspace("search") ;
+		r.createWorkspace("default", WorkspaceConfigBuilder.directory("")) ;
 		
-		ReadSession session = r.login("search") ;
+		ReadSession session = r.login("default") ;
 		Workspace workspace = session.workspace() ;
 		Debug.line(workspace.cache().getCacheConfiguration()) ; 
 	}

@@ -6,8 +6,7 @@ import java.util.Set;
 import net.ion.craken.tree.PropertyId;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.MapUtil;
-
-import org.apache.lucene.analysis.kr.utils.StringUtil;
+import net.ion.framework.util.StringUtil;
 
 public class ServerStatus {
 

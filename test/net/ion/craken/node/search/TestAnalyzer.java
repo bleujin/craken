@@ -1,24 +1,24 @@
 package net.ion.craken.node.search;
 
 
-import org.apache.lucene.analysis.cjk.CJKAnalyzer;
-import org.apache.lucene.util.Version;
-
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
-import junit.framework.TestCase;
+
+import org.apache.lucene.analysis.cjk.CJKAnalyzer;
+import org.apache.lucene.util.Version;
 
 public class TestAnalyzer extends TestCase {
 
 	public void testIndex() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
+		Craken r = Craken.inmemoryCreateWithTest() ;
 		ReadSession session = r.login("test") ;
 		
 		Central central = session.workspace().central();
@@ -34,7 +34,7 @@ public class TestAnalyzer extends TestCase {
 		}) ;
 
 		session.pathBy("/").childQuery("뜨리거").find().debugPrint(); 
-		
+		r.shutdown() ;
 	}
 	
 	
@@ -52,5 +52,6 @@ public class TestAnalyzer extends TestCase {
 		}) ;
 		
 		central.newSearcher().createRequest("뜨리").find().debugPrint();
+		central.close();
 	}
 }

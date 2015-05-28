@@ -4,15 +4,16 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
 
 public class TestOtherWorkspace extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create();
+		this.r = Craken.inmemoryCreateWithTest();
 	}
 
 	@Override
@@ -22,8 +23,8 @@ public class TestOtherWorkspace extends TestCase {
 	}
 
 	public void testViewConfig() throws Exception {
-		r.defineWorkspace("test1");
-		r.defineWorkspace("test2");
+		r.createWorkspace("test1", CrakenWorkspaceConfigBuilder.singleDir(""));
+		r.createWorkspace("test2", CrakenWorkspaceConfigBuilder.singleDir(""));
 
 		r.start();
 		ReadSession s1 = r.login("test1");

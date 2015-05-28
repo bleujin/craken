@@ -2,14 +2,16 @@ package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
 
 public class TestNewInterface extends TestCase {
 
 	public void testFromMemory() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
+		Repository r = Craken.inmemoryCreateWithTest();
 		ReadSession session = r.login("test") ;
 		
 		long start = System.currentTimeMillis() ;
@@ -29,7 +31,7 @@ public class TestNewInterface extends TestCase {
 	
 	
 	public void testReadFromSaved() throws Exception {
-		RepositoryImpl r = RepositoryImpl.create().defineWorkspace("search") ;
+		Repository r = Craken.create().createWorkspace("search", CrakenWorkspaceConfigBuilder.singleDir("")) ;
 		
 		ReadSession session = r.login("search") ;
 

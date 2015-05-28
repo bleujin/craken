@@ -1,7 +1,5 @@
 package net.ion.craken.db;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,8 +10,6 @@ import net.ion.framework.db.bean.ResultSetHandler;
 import net.ion.framework.db.procedure.UserProcedure;
 import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.ObjectUtil;
-
-import org.apache.lucene.index.CorruptIndexException;
 
 public class CrakenUserProcedure extends UserProcedure implements QueryParam {
 

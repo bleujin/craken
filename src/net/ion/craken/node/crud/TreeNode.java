@@ -14,8 +14,8 @@ import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.infinispan.atomic.AtomicMap;
+import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.commons.util.Immutables;
 import org.infinispan.commons.util.Util;
 import org.infinispan.io.GridFilesystem;
@@ -48,7 +48,7 @@ public class TreeNode {
 		return this.lazyProp ;
 	}
 	
-	private synchronized Map<String, Fqn> strus() {
+	public synchronized Map<String, Fqn> strusMap() {
 		if (lazyStru == null){
 			this.lazyStru = workspace.strus(fqn) ;
 		}
@@ -74,9 +74,9 @@ public class TreeNode {
 
 	public Map<PropertyId, PropertyValue> readMap() {
 		try {
-			return new HashedMap(props());
+			return props();
 		} catch(IllegalStateException removed){
-			return MapUtil.EMPTY;
+			return new AtomicHashMap<PropertyId, PropertyValue>();
 		}
 	}
 	
@@ -93,14 +93,14 @@ public class TreeNode {
 
 	public Set<TreeNode> getChildren() {
 		Set<TreeNode> result = SetUtil.newOrdereddSet();
-		for (Fqn f : strus().values()) {
+		for (Fqn f : strusMap().values()) {
 			result.add(new TreeNode(workspace, f));
 		}
 		return Immutables.immutableSetWrap(result);
 	}
 
 	public Set<String> getChildrenNames() {
-		return Immutables.immutableSetCopy(strus().keySet());
+		return Immutables.immutableSetCopy(strusMap().keySet());
 	}
 
 	public int getChildCount(){
@@ -126,7 +126,7 @@ public class TreeNode {
 //	}
 
 	public Map<String, Fqn> removeChild(String childName) {
-		Map<String, Fqn> s = strus();
+		Map<String, Fqn> s = strusMap();
 		Fqn childFqn = s.remove(childName);
 		if (childFqn != null) {
 			Map<String, Fqn> result = MapUtil.newMap() ;
@@ -211,13 +211,13 @@ public class TreeNode {
 	}
 
 	public boolean hasChild(Object o) {
-		return strus().containsKey(o);
+		return strusMap().containsKey(o);
 	}
 
 	public Map<String, Fqn> removeChildren() {
 		Map<String, Fqn> result = MapUtil.newMap() ;
 
-		Map<String, Fqn> s = strus();
+		Map<String, Fqn> s = strusMap();
 		for (Fqn rfqn : s.values()) {
 			result.put(rfqn.toString(), rfqn) ;
 		}

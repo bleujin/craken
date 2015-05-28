@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.infinispan.io.GridFilesystem;
-
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -17,7 +14,6 @@ import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 
 public class TestNodeBlob extends TestCase {

@@ -4,12 +4,7 @@ import org.infinispan.commons.configuration.Builder;
 import org.infinispan.configuration.cache.AbstractStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
 
-/**
- * Single file cache store configuration builder.
- * 
- * @author Galder Zamarreño
- * @since 6.0
- */
+@Deprecated
 public class CrakenStoreConfigurationBuilder extends AbstractStoreConfigurationBuilder<CrakenStoreConfiguration, CrakenStoreConfigurationBuilder> {
 
 	private String location = "";
@@ -32,14 +27,6 @@ public class CrakenStoreConfigurationBuilder extends AbstractStoreConfigurationB
 		return this;
 	}
 
-	/**
-	 * In order to speed up lookups, the single file cache store keeps an index of keys and their corresponding position in the file. To avoid this index resulting in memory consumption problems, this cache store can bounded by a maximum number of entries that it stores. If this limit is exceeded, entries are removed permanently using the LRU algorithm both from the in-memory index and the
-	 * underlying file based cache store.
-	 * 
-	 * So, setting a maximum limit only makes sense when Infinispan is used as a cache, whose contents can be recomputed or they can be retrieved from the authoritative data store.
-	 * 
-	 * If this maximum limit is set when the Infinispan is used as an authoritative data store, it could lead to data loss, and hence it's not recommended for this use case.
-	 */
 	public CrakenStoreConfigurationBuilder maxEntries(int maxEntries) {
 		this.maxEntries = maxEntries;
 		return this;

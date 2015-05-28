@@ -2,6 +2,7 @@ package net.ion.craken.node.script;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.script.JsonBuilder;
@@ -25,7 +26,7 @@ public class TestJsonBuilder extends TestCase {
 	}
 	
 	public void testWithCraken() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
+		Craken r = Craken.inmemoryCreateWithTest() ;
 		ReadSession session = r.start().login("test") ;
 		session.tranSync(TransactionJobs.dummy("/bleujin", 10)) ;
 		

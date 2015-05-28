@@ -41,7 +41,7 @@ public class TestWalkRefChildren extends TestBaseCrud {
 		
 		session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).debugPrint(); 
 		
-		assertEquals(5, session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).count()) ;
+		assertEquals(8, session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).count()) ;
 	}
 
 	public void testStopWhenInfinityLoop() throws Exception {
@@ -57,7 +57,7 @@ public class TestWalkRefChildren extends TestBaseCrud {
 		
 		session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).debugPrint(); 
 		
-		assertEquals(5, session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).count()) ;
+		assertEquals(8, session.pathBy("/bleujin").walkRefChildren("friend").loopLimit(3).includeSelf(true).count()) ;
 	}
 
 	

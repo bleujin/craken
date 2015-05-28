@@ -76,6 +76,7 @@ public class IndexWriteConfig implements Serializable{
 	private boolean ignoreBody;  
 	private boolean ignoreIndex ;
 	private boolean inmemory;
+	private boolean async;
 	
 	public final static IndexWriteConfig Default = new IndexWriteConfig() ;
 	
@@ -91,6 +92,10 @@ public class IndexWriteConfig implements Serializable{
 	public IndexWriteConfig ignoreIndex() {
 		this.ignoreIndex = true ;
 		return this ;
+	}
+	
+	public boolean isIgnoreIndex(){
+		return this.ignoreIndex ;
 	}
 	
 	
@@ -193,6 +198,15 @@ public class IndexWriteConfig implements Serializable{
 	
 	public boolean isInmemory(){
 		return inmemory ;
+	}
+
+	public boolean isAsync(){
+		return async ;
+	}
+	
+	public IndexWriteConfig async(boolean async) {
+		this.async = async ;
+		return this ;
 	}
 
 

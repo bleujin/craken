@@ -5,12 +5,12 @@ import net.ion.craken.node.ReadSession;
 
 public class TestBaseCrud extends TestCase {
 
-	protected RepositoryImpl r ;
+	protected Craken r ;
 	protected ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
-		this.r = RepositoryImpl.inmemoryCreateWithTest() ; // pre define "test" ;
+		this.r = Craken.inmemoryCreateWithTest() ; // pre define "test" ;
 		
 //		r.defineWorkspace("test", ISearcherWorkspaceConfig.create()) ;
 //		r.defineWorkspace("test2", NeoWorkspaceConfig.create()) ;

@@ -8,6 +8,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.tree.PropertyId;
@@ -23,11 +24,11 @@ import org.infinispan.distexec.mapreduce.Reducer;
 public class TestMapReduce extends TestCase {
 
 	
-	protected RepositoryImpl r ;
+	protected Craken r ;
 	protected ReadSession session;
 
 	public void setUp() throws Exception {
-		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
+		this.r = Craken.inmemoryCreateWithTest() ;
 		
 		this.session = r.login("test") ;
 		session.tranSync(new TransactionJob<Void>() {

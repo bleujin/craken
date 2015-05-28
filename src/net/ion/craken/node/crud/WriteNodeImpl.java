@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,21 +36,21 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.search.filter.TermFilter;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.kr.utils.StringUtil;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
-import org.infinispan.io.GridFile.Metadata;
 import org.infinispan.io.GridFilesystem;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 public class WriteNodeImpl implements WriteNode {
 
@@ -521,7 +522,14 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		return Collections.unmodifiableMap(tree().readMap());
+//		return tnode.readMap() ;
+		try {
+			Map<PropertyId, PropertyValue> readMap = tnode.readMap();
+			return new HashMap(readMap) ;
+		} catch(IllegalStateException e){ // concurrent removed
+			return MapUtil.EMPTY ;
+		}
+//		return Collections.unmodifiableMap(readMap);
 	}
 
 	public Object id() {
@@ -578,4 +586,15 @@ public class WriteNodeImpl implements WriteNode {
 		return result;
 	}
 
+	
+	public WriteNode reindex(boolean includeSub){
+		wsession.workspace().reindex(this, wsession.workspace().central().indexConfig().indexAnalyzer(), includeSub) ;
+		
+		return this ;
+	}
+	
+	public WriteNode reindex(Analyzer anal, boolean includeSub){
+		wsession.workspace().reindex(this, anal, includeSub) ;
+		return this ;
+	}
 }

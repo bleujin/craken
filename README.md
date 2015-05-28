@@ -10,9 +10,9 @@ adaptation of the Infinispan
 public class TestHelloWord extends TestCase {
 
 	public void testHello() throws Exception {
-		Repository r = RepositoryImpl.testSingle() ;
+		Craken r = Craken.inmemoryCreateWithTest() ;
 		r.start() ;
-		ReadSession session = r.testLogin("mywork") ;
+		ReadSession session = r.login("test") ;
 		
 		session.tranSync(new TransactionJob<Void>() {
 			public Void handle(WriteSession wsession) {
@@ -45,6 +45,19 @@ public class TestHelloWord extends TestCase {
 }
 
 
+public class TestGrid extends TestCase {
+
+	public void testRun() throws Exception {
+		Craken craken = Craken.create() ;
+		craken.createWorkspace("grid", CrakenWorkspaceConfigBuilder.gridDir("./resource/grid")) ;
+		
+		.....
+		
+		craken.shutdown() ;
+	}
+
+
+}
 
 
 ```

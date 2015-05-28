@@ -2,7 +2,10 @@ package net.ion.craken.node.crud;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.TestCase;
 import net.ion.craken.listener.WorkspaceListener;
+import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
@@ -11,13 +14,35 @@ import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
 
-import org.infinispan.atomic.AtomicHashMap;
+import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
+import org.infinispan.notifications.cachelistener.event.CacheEntryCreatedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 
-public class TestWorkspaceListener extends TestBaseCrud {
+public class TestWorkspaceListener extends TestCase {
 
+	private Repository r ;
+	private ReadSession session;
+
+	@Override
+	protected void setUp() throws Exception {
+		this.r = Craken.inmemoryCreateWithTest() ; // pre define "test" ;
+		
+//		r.defineWorkspace("test", ISearcherWorkspaceConfig.create()) ;
+//		r.defineWorkspace("test2", NeoWorkspaceConfig.create()) ;
+		
+		r.start() ;
+		this.session = r.login("test") ;
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		this.r.shutdown() ;
+		super.tearDown();
+	}
+	
 	public void testAddListener() throws Exception {
 		session.tranSync(new TransactionJob<Void>(){
 			@Override
@@ -28,12 +53,12 @@ public class TestWorkspaceListener extends TestBaseCrud {
 		}) ;
 
 		final DebugListener listener = new DebugListener();
-		session.workspace().addListener(listener) ;
+		session.workspace().cache().addListener(listener) ;
 		
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.root().child("bleujin").property("name", "bleujin");
+				wsession.pathBy("/bleujin").property("name", "bleujin");
 				return null ;
 			}
 		}).get() ;
@@ -74,6 +99,14 @@ public class TestWorkspaceListener extends TestBaseCrud {
 	static public class DebugListener implements WorkspaceListener {
 
 		private AtomicInteger aint = new AtomicInteger() ;
+		
+		@CacheEntryCreated
+		public void created(CacheEntryCreatedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){
+			if (e.isPre()) return ;
+			if (e.getKey().getType() == Type.DATA)  {
+				aint.incrementAndGet() ;
+			}
+		}
 		
 		@CacheEntryModified
 		public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> e){

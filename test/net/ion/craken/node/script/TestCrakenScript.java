@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.script.CrakenScript;
 import net.ion.framework.db.Rows;
@@ -19,7 +20,7 @@ public class TestCrakenScript extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest() ;
+		Craken r = Craken.inmemoryCreateWithTest() ;
 		this.session = r.start().login("test") ;
 		
 		this.cs = CrakenScript.create(session, Executors.newScheduledThreadPool(1)) ;

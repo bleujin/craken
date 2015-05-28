@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.script.CrakenScript;
 import junit.framework.TestCase;
@@ -12,7 +13,7 @@ import junit.framework.TestCase;
 public class TestBasePackage extends TestCase{
 
 	
-	private RepositoryImpl r;
+	private Craken r;
 	private ScheduledExecutorService ses;
 
 	protected ReadSession session;
@@ -21,7 +22,7 @@ public class TestBasePackage extends TestCase{
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.inmemoryCreateWithTest() ;
+		this.r = Craken.inmemoryCreateWithTest() ;
 		r.start() ;
 		this.session = r.login("test") ;
 		this.ses = Executors.newScheduledThreadPool(1) ;

@@ -27,12 +27,14 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.commons.marshall.AbstractExternalizer;
+import org.infinispan.commons.marshall.SerializeWith;
 import org.infinispan.commons.util.Util;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 // @Immutable
+@SerializeWith(Fqn.Externalizer.class)
 public class Fqn implements Comparable<Fqn>, Serializable, PropertyValue.ReplaceValue<String> {
 
 	private static final long serialVersionUID = 7459897811324670392L;

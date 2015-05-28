@@ -15,7 +15,6 @@
  *****************************************************************************/
 package net.ion.rosetta;
 
-import net.ion.framework.util.Debug;
 import net.ion.rosetta.Tokens.Fragment;
 import net.ion.rosetta.Tokens.ScientificNotation;
 import net.ion.rosetta.Tokens.Tag;

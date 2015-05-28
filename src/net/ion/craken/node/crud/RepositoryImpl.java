@@ -15,16 +15,20 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
+import net.ion.craken.node.crud.impl.OldWorkspace;
+import net.ion.craken.node.crud.store.SingleFileConfigBuilder;
 import net.ion.craken.tree.PropertyId;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.configuration.cache.CacheMode;
@@ -32,7 +36,10 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.EvictionConfigurationBuilder;
 import org.infinispan.configuration.cache.StoreConfiguration;
+import org.infinispan.lucene.directory.BuildContext;
+import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.remoting.transport.Address;
 import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.logging.Log;
@@ -40,6 +47,7 @@ import org.infinispan.util.logging.LogFactory;
 
 import com.google.common.cache.CacheBuilder;
 
+@Deprecated
 public class RepositoryImpl implements Repository {
 
 	private IExecutor executor;
@@ -68,7 +76,7 @@ public class RepositoryImpl implements Repository {
 	public static RepositoryImpl inmemoryCreateWithTest() throws CorruptIndexException, IOException {
 		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
 		RepositoryImpl result = create(new DefaultCacheManager(), "emanon");
-		return result.defineWorkspace("test");
+		return (RepositoryImpl)result.defineWorkspace("test");
 	}
 
 
@@ -150,7 +158,7 @@ public class RepositoryImpl implements Repository {
 		return executor;
 	}
 	
-	public Log logger(){
+	public Log getLogger(){
 		return log ;
 	}
 	
@@ -159,7 +167,7 @@ public class RepositoryImpl implements Repository {
 			public Workspace call() throws Exception {
 				Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName) ;
 				List<StoreConfiguration> stores = cache.getAdvancedCache().getCacheConfiguration().persistence().stores();
-				return new Workspace(RepositoryImpl.this, cache, wsName, stores.size() == 0 ? CentralConfig.newRam().build() : ((AStoreConfiguration)stores.get(0)).central()) ;
+				return new OldWorkspace(RepositoryImpl.this, cache, wsName, stores.size() == 0 ? CentralConfig.newRam().build() : ((AStoreConfiguration)stores.get(0)).central()) ;
 			}
 		});
 		if (found == null) throw new IllegalArgumentException("not found workspace") ;
@@ -170,11 +178,11 @@ public class RepositoryImpl implements Repository {
 		return login(Credential.EMANON, wsname, null);
 	}
 
-	public ReadSessionImpl login(String wsname, Analyzer queryAnalyzer) throws IOException {
+	public ReadSession login(String wsname, Analyzer queryAnalyzer) throws IOException {
 		return login(Credential.EMANON, wsname, queryAnalyzer);
 	}
 
-	public ReadSessionImpl login(Credential credential, final String wsName, Analyzer queryAnalyzer) throws IOException {
+	public ReadSession login(Credential credential, final String wsName, Analyzer queryAnalyzer) throws IOException {
 		try {
 			if (! this.started) this.start() ;
 			if (! definedWorkspace.contains(wsName)) {
@@ -201,8 +209,8 @@ public class RepositoryImpl implements Repository {
 
 	public RepositoryImpl createWorkspace(String wsName, WorkspaceConfigBuilder wconfig) {
 		if (definedWorkspace.contains(wsName)) throw new IllegalArgumentException("already defined workspace : " + wsName) ;
-		CacheMode cacheMode = wconfig.init(dm, wsName) ;
-		Configuration maked = makeConfig(wconfig.maxEntry(), cacheMode);
+		wconfig.init(dm, wsName) ;
+		Configuration maked = makeConfig(wconfig.maxEntry(), wconfig.cacheMode());
 		dm.defineConfiguration(wsName, maked);
 
 		definedWorkspace.add(wsName) ;

@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
@@ -12,7 +13,7 @@ import net.ion.framework.util.MapUtil;
 public class TestOnCraken extends TestCase {
 
 	public void testEngine() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
+		Craken r = Craken.inmemoryCreateWithTest();
 		ReadSession session = r.login("test");
 		
 		session.tranSync(new TransactionJob<Void>() {
@@ -31,7 +32,7 @@ public class TestOnCraken extends TestCase {
 	
 
 	public void testSession() throws Exception {
-		RepositoryImpl r = RepositoryImpl.inmemoryCreateWithTest();
+		Craken r = Craken.inmemoryCreateWithTest();
 		ReadSession session = r.login("test");
 		
 		session.tranSync(new TransactionJob<Void>() {

@@ -3,7 +3,6 @@ package net.ion.craken.node.crud;
 import java.util.Iterator;
 import java.util.List;
 
-import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 
