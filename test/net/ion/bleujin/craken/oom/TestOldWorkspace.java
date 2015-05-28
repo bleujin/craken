@@ -32,7 +32,7 @@ public class TestOldWorkspace extends TestBaseWorkspace {
 		craken.createWorkspace("old", WorkspaceConfigBuilder.directory("./resource/old")) ;
 		
 		ReadSession session = craken.login("old");
-		session.tran(makeJob());
+		session.tran(makeJob(200000));
 	}
 	
 	public void testIndexConfirm() throws Exception {

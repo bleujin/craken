@@ -2,27 +2,23 @@ package net.ion.craken.node.crud.store;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.transaction.Transaction;
 
-import net.ion.craken.loaders.CrakenStoreConfigurationBuilder;
 import net.ion.craken.loaders.EntryKey;
-import net.ion.craken.loaders.GridLoaderConfiguration;
-import net.ion.craken.loaders.GridLoaderConfigurationBuilder;
 import net.ion.craken.node.IndexWriteConfig;
-import net.ion.craken.node.Workspace;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.impl.GridWorkspace;
 import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.PropertyId.PType;
+import net.ion.craken.tree.PropertyValue;
 import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.parse.gson.JsonArray;
@@ -32,6 +28,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
+import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
@@ -51,8 +48,8 @@ import org.infinispan.configuration.cache.ClusteringConfigurationBuilder;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.context.impl.TxInvocationContext;
 import org.infinispan.interceptors.base.BaseCustomInterceptor;
-import org.infinispan.io.GridFilesystem;
 import org.infinispan.io.GridFile.Metadata;
+import org.infinispan.io.GridFilesystem;
 import org.infinispan.lucene.directory.BuildContext;
 import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
@@ -72,7 +69,15 @@ public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 
 	@Override
 	public CrakenWorkspaceConfigBuilder init(DefaultCacheManager dm, String wsName) throws IOException {
-		if (StringUtil.isNotBlank(rootPath)) {
+		if (StringUtil.isBlank(rootPath)) {
+			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder()
+			.persistence().passivation(false)
+			.transaction().invocationBatching().enable()
+			.clustering() ; 
+			
+			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
+			
+		} else if (StringUtil.isNotBlank(rootPath)) {
 
 			File rootFile = new File(rootPath);
 			String dataIndexPath = new File(rootFile, wsName + "_dataindex").getCanonicalPath() ;
@@ -82,65 +87,73 @@ public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 			String searchChunkPath = new File(rootFile, wsName + "_searchchunk").getCanonicalPath() ;
 			
 			ClusteringConfigurationBuilder real_configBuilder = null ;
-			ClusteringConfigurationBuilder meta_configBuilder = null ;
-			ClusteringConfigurationBuilder chunk_configBuilder = null ;
-			ClusteringConfigurationBuilder blob_metaBuilder = null ;
-			ClusteringConfigurationBuilder blob_chunkBuilder = null ;
+			ClusteringConfigurationBuilder idx_meta_builder = null ;
+			ClusteringConfigurationBuilder idx_chunk_builder = null ;
+			ClusteringConfigurationBuilder data_meta_builder = null ;
+			ClusteringConfigurationBuilder data_chunk_builder = null ;
 
 			real_configBuilder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
-				.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable()
 				.eviction().maxEntries(maxEntry())
-			.clustering() ; // .eviction().expiration().lifespan(10, TimeUnit.SECONDS) ;
+//				.eviction().expiration().lifespan(30, TimeUnit.SECONDS)
+				.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable()
+			.clustering() ; 
 			
 			
-			meta_configBuilder = new ConfigurationBuilder().persistence().passivation(false)
+			idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
 				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
+				.modificationQueueSize(1000).threadPoolSize(3)
 				.clustering() ;
 
-			chunk_configBuilder = new ConfigurationBuilder()
+			idx_chunk_builder = new ConfigurationBuilder()
 				.persistence().passivation(false).addStore(SoftIndexFileStoreConfigurationBuilder.class).fetchPersistentState(false)
 				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(searchIndexPath)
 				.dataLocation(searchChunkPath).async().disable()
+				.modificationQueueSize(1000).threadPoolSize(3)
 				.eviction().maxEntries(maxSegment()).clustering();
 			
-			blob_metaBuilder = new ConfigurationBuilder() 
+			data_meta_builder = new ConfigurationBuilder() 
 				.persistence().passivation(false)
 				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
+				.modificationQueueSize(1000).threadPoolSize(3)
 				.clustering();
 			
-			blob_chunkBuilder = new ConfigurationBuilder()
+			data_chunk_builder = new ConfigurationBuilder()
 				.persistence().passivation(false).addStore(SoftIndexFileStoreConfigurationBuilder.class).fetchPersistentState(false)
 				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(dataIndexPath)
 				.dataLocation(dataChunkPath).async().disable()
-				.eviction().maxEntries(maxEntry()).clustering();
+				.modificationQueueSize(1000).threadPoolSize(3)
+				.eviction().maxEntries(maxEntry())
+				.clustering();
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){
 				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ; 
-				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				chunk_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
+				idx_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				idx_chunk_builder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
-				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				blob_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
+				data_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				data_chunk_builder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 			} else if (cacheMode().isClustered()){
 				real_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ; 
-				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				chunk_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
+				idx_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				idx_chunk_builder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
-				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				blob_chunkBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
+				data_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				data_chunk_builder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 			}
 			
 			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
-			dm.defineConfiguration(wsName + "-meta", meta_configBuilder.build()) ;
-			dm.defineConfiguration(wsName + "-chunk", chunk_configBuilder.build()) ;
-			dm.defineConfiguration(blobMeta(wsName), blob_metaBuilder.build()) ;
-			dm.defineConfiguration(blobChunk(wsName), blob_chunkBuilder.build()) ;
 			
-
-			this.gfs = makeGridSystem(dm, wsName) ;
+//			GlobalJmxStatisticsConfigurationBuilder gbuilder = new GlobalConfigurationBuilder().globalJmxStatistics().allowDuplicateDomains(true) ;
+//			DefaultCacheManager other = new DefaultCacheManager(gbuilder.build()) ;
+			dm.defineConfiguration(wsName + "-meta", idx_meta_builder.build()) ;
+			dm.defineConfiguration(wsName + "-chunk", idx_chunk_builder.build()) ;
 			this.central = makeCentral(dm, wsName) ;
+
+			dm.defineConfiguration(blobMeta(wsName), data_meta_builder.build()) ;
+			dm.defineConfiguration(blobChunk(wsName), data_chunk_builder.build()) ;
+			this.gfs = makeGridSystem(dm, wsName) ;
 
 		}
 		return this ;
@@ -171,7 +184,7 @@ public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
 		bcontext.chunkSize(1024 * 1024);
 		Directory directory = bcontext.create();
-		return CentralConfig.oldFromDir(directory).build();
+		return CentralConfig.oldFromDir(directory).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
 	}
 	
 	
@@ -180,17 +193,17 @@ public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 	}
 
 	public void createInterceptor(AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
-		cache.addInterceptor(new GFSInterceptor(gfs(), central, trans), 0);
+		cache.addInterceptor(new GridInterceptor(gfs(), central, trans), 0);
 	}
 }
 
-class GFSInterceptor extends BaseCustomInterceptor {
+class GridInterceptor extends BaseCustomInterceptor {
 
 	private Central central;
 	private com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans;
 	private GridFilesystem gfs;
 	
-	public GFSInterceptor(GridFilesystem gfs, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans) {
+	public GridInterceptor(GridFilesystem gfs, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans) {
 		this.gfs = gfs ;
 		this.central = central ;
 		this.trans = trans ;
@@ -203,12 +216,13 @@ class GFSInterceptor extends BaseCustomInterceptor {
 		final IndexWriteConfig iwconfig = trans.getIfPresent(ctx.getTransaction()) ;
 		if (iwconfig == null) return  invokeNextInterceptor(ctx, command) ;
 		
-
+		
+		
 		IndexJob<Void> indexJob = new IndexJob<Void>() {
 			@Override
 			public Void handle(IndexSession isession) throws Exception {
 				List<DataWriteCommand> list = extractCommand(ctx.getModifications()) ;
-				
+
 				for (DataWriteCommand wcom : list) {
 					TreeNodeKey tkey = (TreeNodeKey) wcom.getKey()  ;
 					
@@ -272,6 +286,7 @@ class GFSInterceptor extends BaseCustomInterceptor {
 					case RemoveCommand.COMMAND_ID :
 						gfs.getFile(pathKey).delete() ;
 						if (! iwconfig.isIgnoreIndex())  isession.deleteById(pathKey) ;
+						break ;
 					default:
 						break;
 					}
@@ -280,6 +295,48 @@ class GFSInterceptor extends BaseCustomInterceptor {
 			}
 		} ;
 		central.newIndexer().index(indexJob) ;
+//		Debug.line();
+
+//		List<DataWriteCommand> list = extractCommand(ctx.getModifications()) ;
+//		for (DataWriteCommand wcom : list) {
+//			TreeNodeKey tkey = (TreeNodeKey) wcom.getKey()  ;
+//			
+//			if (tkey.getFqn().isRoot()) continue ;
+//			String pathKey = tkey.fqnString();
+//			switch (wcom.getCommandId()) {
+//			case PutKeyValueCommand.COMMAND_ID :
+//				
+//				File dirFile = gfs.getFile(tkey.fqnString()) ;
+//				if (! dirFile.exists()) dirFile.mkdirs() ;
+//				if (tkey.getType().isStructure()) break ;
+//				
+//				
+//				
+//				String contentFileName = tkey.fqnString() + "/" + tkey.getFqn().name()  + ".node";
+//				File contentFile = gfs.getFile(contentFileName) ;
+//				if (! contentFile.getParentFile().exists()) {
+//					contentFile.getParentFile().mkdirs() ;
+//				}
+//
+//				PutKeyValueCommand pcommand = (PutKeyValueCommand) wcom ;
+//				Map<PropertyId, PropertyValue> valueMap = (Map) pcommand.getValue() ;
+//
+//				JsonObject nodeJson = new JsonObject() ;
+//				for(PropertyId pid : valueMap.keySet()){
+//					final String propId = pid.idString() ;
+//					PropertyValue pvalue = valueMap.get(pid) ;
+//					nodeJson.add(propId, pvalue.json()); // data
+//					
+//				}
+//				IOUtil.copyNClose(new StringInputStream(nodeJson.toString()), gfs.getOutput(contentFileName)) ;
+//				break;
+//			case RemoveCommand.COMMAND_ID :
+//				gfs.getFile(pathKey).delete() ;
+//				break ;
+//			default:
+//				break;
+//			}
+//		}
 		
 		trans.invalidate(ctx.getTransaction());
 		return invokeNextInterceptor(ctx, command) ;

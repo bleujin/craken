@@ -31,6 +31,7 @@ import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.OldWriteSession;
 import net.ion.craken.node.crud.TreeNode;
 import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.TreeStructureSupport;
 import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.WriteNodeImpl;
@@ -80,7 +81,7 @@ import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
 @Listener
-public class OldWorkspace extends Workspace implements Closeable, WorkspaceListener {
+public class OldWorkspace  extends TreeStructureSupport implements Workspace{
 
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
@@ -99,7 +100,7 @@ public class OldWorkspace extends Workspace implements Closeable, WorkspaceListe
 	}
 
 	private OldWorkspace(Repository repository, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, String wsName, Central cstore) {
-		super(cache);
+		super(cache, cache.getBatchContainer());
 		this.repository = repository;
 		this.cache = cache;
 		this.addListener(this) ;
@@ -154,7 +155,7 @@ public class OldWorkspace extends Workspace implements Closeable, WorkspaceListe
 		cache.stop();
 	}
 
-	protected WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -165,7 +166,7 @@ public class OldWorkspace extends Workspace implements Closeable, WorkspaceListe
 		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn));
 	}
 
-	protected WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -180,7 +181,7 @@ public class OldWorkspace extends Workspace implements Closeable, WorkspaceListe
 		if (fqn.isRoot())
 			return;
 
-		AtomicMap<String, Fqn> parentStru = super.strus(parent);
+		AtomicMap<String, Fqn> parentStru = strus(parent);
 		if (parentStru.containsKey(fqn.getLastElement())) {
 
 		} else {
@@ -196,7 +197,7 @@ public class OldWorkspace extends Workspace implements Closeable, WorkspaceListe
 		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}
 
-	protected WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		if (log.isTraceEnabled())
@@ -209,7 +210,7 @@ public class OldWorkspace extends Workspace implements Closeable, WorkspaceListe
 		// return new TreeNode(this, fqn);
 	}
 
-	protected TreeNode readNode(Fqn fqn) {
+	public TreeNode readNode(Fqn fqn) {
 		return TreeNode.create(this, fqn);
 	}
 

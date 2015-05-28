@@ -31,8 +31,8 @@ public abstract class CrakenWorkspaceConfigBuilder {
 		return new SingleFileConfigBuilder(path);
 	}
 	
-	public static CrakenWorkspaceConfigBuilder sifsDir(String indexPath, String dataPath) {
-		return new SifsFileConfigBuilder(indexPath, dataPath);
+	public static CrakenWorkspaceConfigBuilder sifsDir(String rootPath) {
+		return new SifsFileConfigBuilder(rootPath);
 	}
 
 	public static CrakenWorkspaceConfigBuilder gridDir(String rootPath) throws IOException {
@@ -44,7 +44,7 @@ public abstract class CrakenWorkspaceConfigBuilder {
 		return this ;
 	}
 	
-	public CrakenWorkspaceConfigBuilder eviMaxSegment(int eviMaxSegment){
+	public CrakenWorkspaceConfigBuilder maxSegment(int eviMaxSegment){
 		this.eviMaxSegment = eviMaxSegment ;
 		return this ;
 	}

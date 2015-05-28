@@ -41,27 +41,24 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 
-public abstract class Workspace extends TreeStructureSupport implements Closeable, WorkspaceListener {
+public interface Workspace extends Closeable, WorkspaceListener {
 
-	protected Workspace(AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache) {
-		super(cache, cache.getBatchContainer());
-	}
+	public abstract WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
+
+	public abstract WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
+
+	public abstract WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
+
+	public abstract TreeNode readNode(Fqn fqn) ;
 	
-	protected abstract WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
-
-	protected abstract WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
-
-	protected abstract WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
-
-	protected abstract TreeNode readNode(Fqn fqn) ;
+	public AtomicMap<PropertyId, PropertyValue> props(Fqn fqn) ;
 	
+	public AtomicMap<String, Fqn> strus(Fqn fqn) ;
 
 	public abstract Workspace start() ;
 	
 	public abstract void close() ;
 
-
-	
 	public abstract <T> T getAttribute(String key, Class<T> clz)  ;
 
 	public abstract String wsName() ;
@@ -122,67 +119,6 @@ public abstract class Workspace extends TreeStructureSupport implements Closeabl
 	public abstract WriteSession newWriteSession(ReadSession readSession) ;
 
 	public abstract void reindex(WriteNode wnode, Analyzer anal, boolean includeSub) ;
-
-	protected IndexJob<Void> makeIndexJob(final WriteNode targetNode, final boolean includeSub, final IndexWriteConfig iwconfig) {
-		IndexJob<Void> indexJob = new IndexJob<Void>() {
-			@Override
-			public Void handle(final IndexSession isession) throws Exception {
-
-				indexNode(targetNode.toReadNode(), iwconfig, targetNode.fqn(), isession);
-				if (includeSub) {
-					targetNode.toReadNode().walkChildren().eachNode(new ReadChildrenEach<Void>() {
-						@Override
-						public Void handle(ReadChildrenIterator riter) {
-							try {
-								while (riter.hasNext()) {
-									ReadNode next = riter.next();
-									indexNode(next, iwconfig, next.fqn(), isession);
-								}
-							} catch (IOException ex) {
-								ex.printStackTrace();
-							}
-							return null;
-						}
-					});
-				}
-
-				return null;
-			}
-
-			private void indexNode(final ReadNode wnode, final IndexWriteConfig iwconfig, final Fqn fqn, IndexSession isession) throws IOException {
-				WriteDocument wdoc = isession.newDocument(fqn.toString());
-				wdoc.keyword(EntryKey.PARENT, fqn.getParent().toString());
-				wdoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
-
-				Map<PropertyId, PropertyValue> valueMap = wnode.toMap();
-
-				for (PropertyId pid : valueMap.keySet()) {
-					PropertyValue pvalue = valueMap.get(pid);
-					JsonArray jarray = pvalue.asJsonArray();
-					final String propId = pid.getString();
-
-					if (pid.type() == PType.NORMAL) {
-						VType vtype = pvalue.type();
-						for (JsonElement e : jarray.toArray()) {
-							if (e == null)
-								continue;
-							FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
-							fieldIndex.index(wdoc, propId, vtype, e.isJsonObject() ? e.toString() : e.getAsString());
-						}
-					} else { // refer
-						for (JsonElement e : jarray.toArray()) {
-							if (e == null)
-								continue;
-							FieldIndex.KEYWORD.index(wdoc, '@' + propId, e.getAsString());
-						}
-					}
-				}
-
-				wdoc.update();
-			}
-		};
-		return indexJob;
-	}
 
 
 }

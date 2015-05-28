@@ -1,9 +1,7 @@
 package net.ion.craken.node.crud.impl;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -11,16 +9,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.transaction.Transaction;
-import javax.transaction.xa.Xid;
 
 import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.listener.WorkspaceListener;
-import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.NodeWriter;
-import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.TouchedRow;
@@ -29,54 +24,34 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.OldWriteSession;
-import net.ion.craken.node.crud.ReadChildrenEach;
-import net.ion.craken.node.crud.ReadChildrenIterator;
 import net.ion.craken.node.crud.TreeNode;
 import net.ion.craken.node.crud.TreeNodeKey;
 import net.ion.craken.node.crud.TreeNodeKey.Action;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.TreeStructureSupport;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
 import net.ion.craken.tree.Fqn;
 import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.mte.Engine;
-import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonElement;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectId;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 
-import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.store.Directory;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
-import org.infinispan.atomic.AtomicMapLookup;
 import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.batch.BatchContainer;
-import org.infinispan.commands.tx.CommitCommand;
-import org.infinispan.commands.write.DataWriteCommand;
-import org.infinispan.commands.write.PutKeyValueCommand;
-import org.infinispan.commands.write.RemoveCommand;
 import org.infinispan.context.Flag;
-import org.infinispan.context.impl.TxInvocationContext;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
-import org.infinispan.interceptors.base.BaseCustomInterceptor;
 import org.infinispan.io.GridFile.Metadata;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.lucene.directory.BuildContext;
@@ -94,7 +69,7 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener
-public class CrakenWorkspace extends Workspace {
+public class CrakenWorkspace extends TreeStructureSupport implements Workspace {
 
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
@@ -110,7 +85,7 @@ public class CrakenWorkspace extends Workspace {
 	com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans = CacheBuilder.newBuilder().maximumSize(100).build();
 
 	public CrakenWorkspace(Craken craken, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, CrakenWorkspaceConfigBuilder wconfig) throws IOException {
-		super(cache);
+		super(cache, cache.getBatchContainer());
 		this.repository = craken;
 		this.cache = cache;
 		this.addListener(this);
@@ -181,7 +156,7 @@ public class CrakenWorkspace extends Workspace {
 		cache.stop();
 	}
 
-	protected WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -192,7 +167,7 @@ public class CrakenWorkspace extends Workspace {
 		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn));
 	}
 
-	protected WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -207,7 +182,7 @@ public class CrakenWorkspace extends Workspace {
 		if (fqn.isRoot())
 			return;
 
-		AtomicMap<String, Fqn> parentStru = super.strus(parent);
+		AtomicMap<String, Fqn> parentStru = strus(parent);
 		if (parentStru.containsKey(fqn.getLastElement())) {
 
 		} else {
@@ -223,7 +198,7 @@ public class CrakenWorkspace extends Workspace {
 		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}
 
-	protected WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		if (log.isTraceEnabled())
@@ -236,7 +211,7 @@ public class CrakenWorkspace extends Workspace {
 		// return new TreeNode(this, fqn);
 	}
 
-	protected TreeNode readNode(Fqn fqn) {
+	public TreeNode readNode(Fqn fqn) {
 		return TreeNode.create(this, fqn);
 	}
 
@@ -474,7 +449,7 @@ public class CrakenWorkspace extends Workspace {
 	public void reindex(final WriteNode wnode, Analyzer anal, final boolean includeSub) {
 		final IndexWriteConfig iwconfig = wnode.session().iwconfig();
 
-		this.central().newIndexer().index(anal,makeIndexJob(wnode, includeSub, iwconfig));
+		this.central().newIndexer().index(anal, WorkspaceIndexUtil.makeIndexJob(wnode, includeSub, iwconfig));
 
 	}
 

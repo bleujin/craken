@@ -64,7 +64,7 @@ public class Craken implements Repository {
 	public static Craken inmemoryCreateWithTest() throws CorruptIndexException, IOException {
 		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
 		Craken result = create(new DefaultCacheManager(), "emanon");
-		return (Craken)result.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("", ""));
+		return (Craken)result.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir(""));
 	}
 
 

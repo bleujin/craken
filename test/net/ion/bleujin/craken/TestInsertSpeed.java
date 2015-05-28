@@ -56,7 +56,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/sifs"));
 
 		Craken r = Craken.create();
-		r.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data").eviMaxSegment(30));
+		r.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs").maxSegment(30));
 		ReadSession session = r.login("sifs");
 		session.tran(new TransactionJob<Void>() {
 
@@ -110,7 +110,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/drug"));
 
 		Craken r = Craken.create();
-		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug/index", "./resource/drug/data").eviMaxSegment(30).maxEntry(10000));
+		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30).maxEntry(10000));
 		ReadSession session = r.login("drug");
 		long start = System.currentTimeMillis() ;
 //		session.workspace().withFlag(Flag.IGNORE_RETURN_VALUES, Flag.FORCE_ASYNCHRONOUS) ;
@@ -157,7 +157,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/drug"));
 
 		Craken r = Craken.create();
-		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug/index", "./resource/drug/data").eviMaxSegment(30).maxEntry(10000));
+		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30).maxEntry(10000));
 		ReadSession session = r.login("drug");
 		long start = System.currentTimeMillis() ;
 //		session.workspace().withFlag(Flag.IGNORE_RETURN_VALUES, Flag.FORCE_ASYNCHRONOUS) ; // not applid
@@ -259,7 +259,7 @@ public class TestInsertSpeed extends TestCase {
 	
 	public void xtestContfirm() throws Exception {
 		Craken r = Craken.create();
-		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug/index", "./resource/drug/data").eviMaxSegment(30));
+		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30));
 		ReadSession session = r.login("drug");
 
 		session.root().childQuery("", true).find().debugPrint();
@@ -285,7 +285,7 @@ public class TestInsertSpeed extends TestCase {
 	
 	public void testRead() throws Exception {
 		Craken r = Craken.create();
-		r.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data").eviMaxSegment(30).distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs").maxSegment(30).distMode(CacheMode.DIST_SYNC));
 		ReadSession session = r.login("sifs");
 		
 		ReadNode node = session.pathBy("/crawl/enha/wiki/김은아") ;
