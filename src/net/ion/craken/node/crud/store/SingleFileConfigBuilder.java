@@ -1,5 +1,7 @@
 package net.ion.craken.node.crud.store;
 
+import java.util.concurrent.TimeUnit;
+
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ClusteringConfigurationBuilder;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -25,13 +27,15 @@ public class SingleFileConfigBuilder extends WorkspaceConfigBuilder{
 			meta_configBuilder = new ConfigurationBuilder().persistence().passivation(false)
 				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(path())
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
-				.modificationQueueSize(100).threadPoolSize(10).clustering() ;
+				.modificationQueueSize(100).threadPoolSize(10)
+				.clustering() ;
 
 			chunk_configBuilder = new ConfigurationBuilder().persistence().passivation(false)
 				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(path())
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
 				.modificationQueueSize(100).threadPoolSize(10)
-				.eviction().maxEntries(eviMaxSegment()).clustering() ;
+				.eviction().maxEntries(eviMaxSegment())
+				.clustering() ;
 			
 			blob_metaBuilder = new ConfigurationBuilder() // .clustering().cacheMode(CacheMode.REPL_SYNC)
 				.persistence().passivation(false)
@@ -45,18 +49,19 @@ public class SingleFileConfigBuilder extends WorkspaceConfigBuilder{
 				.addSingleFileStore().fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false).location(path())
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
 				.modificationQueueSize(50).threadPoolSize(3)
-				.eviction().maxEntries(eviMaxSegment()/2).clustering();
+				.eviction().maxEntries(eviMaxSegment()).expiration().maxIdle(100, TimeUnit.SECONDS)
+				.clustering();
 			
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){
 				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				chunk_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				chunk_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
 				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				blob_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 			} else if (cacheMode().isClustered()){
 				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				chunk_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
+				chunk_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
 				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				blob_chunkBuilder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
