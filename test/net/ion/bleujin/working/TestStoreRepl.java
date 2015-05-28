@@ -2,8 +2,12 @@ package net.ion.bleujin.working;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.Repository;
+import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
@@ -11,6 +15,7 @@ import net.ion.framework.util.InfinityThread;
 import org.infinispan.configuration.cache.CacheMode;
 
 public class TestStoreRepl extends TestCase {
+
 	private RepositoryImpl r;
 	private ReadSession session;
 	
@@ -31,8 +36,19 @@ public class TestStoreRepl extends TestCase {
 
 	public void testSave() throws Exception {
 		long start = System.currentTimeMillis() ;
-		session.tran(TransactionJobs.dummy("/bleujin", 200)) ;
+		session.tran(TransactionJobs.dummy("/airkjh", 200)) ;
 		Debug.line(System.currentTimeMillis() - start);
+	}
+	
+	public void testRemove() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/airkjh").removeSelf() ;
+				return null;
+			}
+		}).get() ;
 	}
 
 	public void testRun() throws Exception {

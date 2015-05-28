@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<infinispan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="urn:infinispan:config:6.0 http://www.infinispan.org/schemas/infinispan-config-6.0.xsd"
-	xmlns="urn:infinispan:config:6.0">
+<infinispan
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:infinispan:config:7.2 http://www.infinispan.org/schemas/infinispan-config-7.2.xsd"
+      xmlns="urn:infinispan:config:7.2">
 
-	<global>
-		<transport clusterName="craken_emanon" />		
-		<globalJmxStatistics enabled="false" />
-	</global>
 
-	<default>
-		<locking useLockStriping="false" />
-		<invocationBatching enabled="true" />
-	</default>
+   <jgroups>
+      <stack-file name="tcp" path="./resource/config/craken-tcp.xml"/>
+   </jgroups>
+
+   <cache-container name="sample" statistics="true"  default-cache="default-cache" shutdown-hook="DEFAULT">
+	   <transport stack="tcp" cluster="craken-sample" node-name="emanon" machine="bleujin" rack="r1" site="LON" />
 	
+	   <jmx domain="org.infinispan" />
+	
+	   <replicated-cache name="default-cache" statistics="true" mode="SYNC" remote-timeout="20000">
+	     
+	      <locking isolation="READ_COMMITTED" acquire-timeout="20000" write-skew="false" concurrency-level="5000" striping="false" />
+	      <state-transfer enabled="false" timeout="240000" chunk-size="10000" />
+	   </replicated-cache>
+
+   </cache-container>
 </infinispan>
