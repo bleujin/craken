@@ -31,7 +31,7 @@ public class TestSifsWorkspace extends TestCase {
 
 //		this.craken = Craken.inmemoryCreateWithTest() ;
 		this.craken = Craken.create();
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/test", "./resource/store/test").distMode(CacheMode.DIST_SYNC)) ;
+		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/sifs").distMode(CacheMode.DIST_SYNC)) ;
 		this.session = craken.login("test");
 	}
 	

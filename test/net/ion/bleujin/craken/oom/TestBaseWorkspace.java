@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.ion.bleujin.craken.TestCraken;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.framework.util.IOUtil;
@@ -53,7 +54,7 @@ public class TestBaseWorkspace extends TestCase{
 							}
 
 							String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-							String wpath = makePathString(path) ;
+							String wpath = TestCraken.makePathString(path) ;
 							wsession.pathBy(wpath).property("content", content);
 
 							return FileVisitResult.CONTINUE;
@@ -64,14 +65,6 @@ public class TestBaseWorkspace extends TestCase{
 					}
 				});
 				return null;
-			}
-			public String makePathString(Path path) {
-				Iterator<Path> iter = path.iterator() ;
-				List<String> result = ListUtil.newList() ;
-				while(iter.hasNext()){
-					result.add(String.valueOf(iter.next()));
-				}
-				return "/" + StringUtil.join(result, "/") ;
 			}
 		} ;
 	}

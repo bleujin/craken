@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.lucene.analysis.cjk.CJKAnalyzer;
+import org.infinispan.configuration.cache.CacheMode;
 
+import net.ion.bleujin.craken.TestCraken;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
@@ -26,6 +28,7 @@ import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
@@ -53,21 +56,21 @@ public class TestSifsWorkspace extends TestBaseWorkspace {
 	public void testConfirmOOM() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/sifs"));
 
-		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data"));
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs"));
 
 		ReadSession session = craken.login("sifs");
 		session.tran(makeJob(200000));
 	}
 
 	public void testIndexConfirm() throws Exception {
-		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data"));
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs"));
 
 		ReadSession session = craken.login("sifs");
 		Debug.line(session.root().childQuery("", true).offset(1000).find().size());
 	}
 
 	public void testForceIndex() throws Exception {
-		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data"));
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs"));
 
 		ReadSession session = craken.login("sifs");
 		session.tran(new TransactionJob<Void>() {
@@ -83,7 +86,7 @@ public class TestSifsWorkspace extends TestBaseWorkspace {
 	}
 
 	public void testWriteBlob() throws Exception {
-		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data"));
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs"));
 		ReadSession session = craken.login("sifs");
 		// session.tran(new TransactionJob<Void>(){
 		// @Override
@@ -97,14 +100,24 @@ public class TestSifsWorkspace extends TestBaseWorkspace {
 		Debug.line(IOUtil.toStringWithClose(input));
 	}
 
-	public void testIndexMergeProblem() throws Exception {
-		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs/index", "./resource/sifs/data"));
+	
+	public void testViewSearchIndex() throws Exception {
+		
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs"));
+		ReadSession session = craken.login("sifs");
+
+		Debug.line(session.root().childQuery("", true).find().totalCount()) ;
+	}
+	
+	public void testIndexDirect() throws Exception {
+		FileUtil.deleteDirectory(new File("./resource/sifs"));
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs"));
 		ReadSession session = craken.login("sifs");
 		
 		Central central = session.workspace().central() ;
 
 		Indexer indexer = central.newIndexer();
-		final int maxcount = 200000;
+		final int maxcount = 50000;
 		final AtomicInteger count = new AtomicInteger();
 
 		indexer.index(new IndexJob<Void>() {
@@ -154,6 +167,15 @@ public class TestSifsWorkspace extends TestBaseWorkspace {
 
 		});
 
+	}
+	
+	public void testDirectSearch() throws Exception {
+//			FileUtil.deleteDirectory(new File("./resource/sifs"));
+		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs").distMode(CacheMode.DIST_SYNC));
+		ReadSession session = craken.login("sifs");
+		Central central = session.workspace().central() ;
+		Debug.line(central.newSearcher().createRequest("").find().totalCount()) ;
+		new InfinityThread().startNJoin(); 
 	}
 
 }

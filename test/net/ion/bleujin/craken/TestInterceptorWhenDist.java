@@ -17,7 +17,7 @@ public class TestInterceptorWhenDist extends TestCase {
 	
 	public void testRun() throws Exception {
 		Craken craken = Craken.create() ;
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/index", "./resource/store/data").distMode(CacheMode.REPL_SYNC)) ;
+		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/sifs").distMode(CacheMode.REPL_SYNC)) ;
 		
 		craken.start() ;
 		ReadSession session = craken.login("test") ;
@@ -32,7 +32,7 @@ public class TestInterceptorWhenDist extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/store/index2"));
 		FileUtil.deleteDirectory(new File("./resource/store/data2"));
 		Craken craken = Craken.create() ;
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/index2", "./resource/store/data2").distMode(CacheMode.REPL_SYNC)) ;
+		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/sifs").distMode(CacheMode.REPL_SYNC)) ;
 
 		craken.start() ;
 		ReadSession session = craken.login("test") ;
@@ -51,7 +51,7 @@ public class TestInterceptorWhenDist extends TestCase {
 	
 	public void testConfirm() throws Exception {
 		Craken craken = Craken.create() ;
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/index2", "./resource/store/data2").distMode(CacheMode.REPL_SYNC)) ;
+		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/sifs").distMode(CacheMode.REPL_SYNC)) ;
 
 		craken.start() ;
 		ReadSession session = craken.login("test") ;

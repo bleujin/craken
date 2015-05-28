@@ -66,6 +66,7 @@ import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.AtomicMapLookup;
 import org.infinispan.atomic.impl.AtomicHashMap;
+import org.infinispan.batch.AutoBatchSupport;
 import org.infinispan.batch.BatchContainer;
 import org.infinispan.context.Flag;
 import org.infinispan.distexec.mapreduce.Collector;
@@ -88,7 +89,7 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener
-public class GridWorkspace extends Workspace {
+public class GridWorkspace extends AutoBatchSupport implements Workspace {
 
 	private Repository repository;
 	private AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache;
@@ -104,7 +105,6 @@ public class GridWorkspace extends Workspace {
 	com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans = CacheBuilder.newBuilder().maximumSize(100).build();
 
 	public GridWorkspace(Craken craken, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, GridFileConfigBuilder wconfig) throws IOException {
-		super(cache);
 		this.repository = craken;
 		this.cache = cache;
 		this.addListener(this);
@@ -209,7 +209,7 @@ public class GridWorkspace extends Workspace {
 		cache.stop();
 	}
 
-	protected WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -220,7 +220,7 @@ public class GridWorkspace extends Workspace {
 		return WriteNodeImpl.loadTo(wsession, TreeNode.create(this, fqn));
 	}
 
-	protected WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -235,7 +235,7 @@ public class GridWorkspace extends Workspace {
 		if (fqn.isRoot())
 			return;
 
-		AtomicMap<String, Fqn> parentStru = super.strus(parent);
+		AtomicMap<String, Fqn> parentStru = strus(parent);
 		if (parentStru.containsKey(fqn.getLastElement())) {
 
 		} else {
@@ -251,7 +251,7 @@ public class GridWorkspace extends Workspace {
 		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}
 
-	protected WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		if (log.isTraceEnabled())
@@ -264,7 +264,7 @@ public class GridWorkspace extends Workspace {
 		// return new TreeNode(this, fqn);
 	}
 
-	protected TreeNode readNode(Fqn fqn) {
+	public TreeNode readNode(Fqn fqn) {
 		return TreeNode.create(this, fqn);
 	}
 
@@ -476,7 +476,7 @@ public class GridWorkspace extends Workspace {
 	public void reindex(final WriteNode wnode, Analyzer anal, final boolean includeSub) {
 		final IndexWriteConfig iwconfig = wnode.session().iwconfig();
 
-		this.central().newIndexer().index(anal, makeIndexJob(wnode, includeSub, iwconfig));
+		this.central().newIndexer().index(anal, WorkspaceIndexUtil.makeIndexJob(wnode, includeSub, iwconfig));
 	}
 
 	

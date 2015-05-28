@@ -1,5 +1,7 @@
 package net.ion.craken.node.crud.store;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,17 +45,15 @@ import com.google.common.cache.Cache;
 
 public class SifsFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 
-	private String indexPath;
-	private String dataPath;
+	private String rootPath;
 
-	public SifsFileConfigBuilder(String indexPath, String dataPath) {
-		this.indexPath = indexPath ;
-		this.dataPath = dataPath ;
+	public SifsFileConfigBuilder(String rootPath) {
+		this.rootPath = rootPath ;
 	}
 
 	@Override
-	public CrakenWorkspaceConfigBuilder init(DefaultCacheManager dm, String wsName) {
-		if (StringUtil.isBlank(indexPath)) {
+	public CrakenWorkspaceConfigBuilder init(DefaultCacheManager dm, String wsName) throws IOException {
+		if (StringUtil.isBlank(rootPath)) {
 			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder()
 			.persistence().passivation(false)
 			.transaction().invocationBatching().enable()
@@ -61,67 +61,75 @@ public class SifsFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 			
 			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
 			
-		} else if (StringUtil.isNotBlank(indexPath)) {
+		} else if (StringUtil.isNotBlank(rootPath)) {
+			File rootFile = new File(rootPath);
+			String dataIndexPath = new File(rootFile, wsName + "_dataindex").getCanonicalPath() ;
+			String dataChunkPath = new File(rootFile, wsName + "_datachunk").getCanonicalPath() ;
+
+			String searchIndexPath = new File(rootFile, wsName + "_searchindex").getCanonicalPath() ;
+			String searchChunkPath = new File(rootFile, wsName + "_searchchunk").getCanonicalPath() ;
+
+			String blobIndexPath = new File(rootFile, wsName + "_blobindex").getCanonicalPath() ;
+			String blobChunkPath = new File(rootFile, wsName + "_blobchunk").getCanonicalPath() ;
+
+			
 			ClusteringConfigurationBuilder real_configBuilder = null ;
-			ClusteringConfigurationBuilder meta_configBuilder = null ;
-			ClusteringConfigurationBuilder chunk_configBuilder = null ;
+			ClusteringConfigurationBuilder index_metaBuilder = null ;
+			ClusteringConfigurationBuilder index_chunkBuilder = null ;
 			ClusteringConfigurationBuilder blob_metaBuilder = null ;
 			ClusteringConfigurationBuilder blob_chunkBuilder = null ;
 
 			real_configBuilder = new ConfigurationBuilder()
-			.persistence().passivation(false).addStore(SoftIndexFileStoreConfigurationBuilder.class).fetchPersistentState(true)
-			.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(indexPath)
-			.dataLocation(dataPath).async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
-			.eviction().maxEntries(this.maxSegment()) // alert : no expire
-			.transaction().invocationBatching().enable()
-			.clustering() ; 
+				.persistence().passivation(false).addStore(SoftIndexFileStoreConfigurationBuilder.class).fetchPersistentState(true)
+				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(dataIndexPath)
+				.dataLocation(dataChunkPath).async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
+				.eviction().maxEntries(this.maxEntry()) // alert : no expire
+				.transaction().invocationBatching().enable()
+				.clustering() ; 
 				
-			meta_configBuilder = new ConfigurationBuilder().persistence().passivation(false)
-				.addSingleFileStore().fetchPersistentState(true).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(indexPath)
+			index_metaBuilder = new ConfigurationBuilder().persistence().passivation(false)
+				.addSingleFileStore().fetchPersistentState(true).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
-				.modificationQueueSize(100).threadPoolSize(10).clustering() ;
+				.clustering() ;
 
-			chunk_configBuilder = new ConfigurationBuilder().persistence().passivation(false)
-					.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(indexPath)
-					.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
-					.modificationQueueSize(100).threadPoolSize(10)
-					.eviction().maxEntries(maxSegment())
-					.clustering() ;
+			index_chunkBuilder = new ConfigurationBuilder().persistence().passivation(false)
+				.persistence().passivation(false).addStore(SoftIndexFileStoreConfigurationBuilder.class).fetchPersistentState(false)
+				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(searchIndexPath).dataLocation(searchChunkPath).async().disable()
+				.eviction().maxEntries(maxSegment())
+				.clustering();
 			
 			blob_metaBuilder = new ConfigurationBuilder() // .clustering().cacheMode(CacheMode.REPL_SYNC)
 				.persistence().passivation(false)
-				.addSingleFileStore().fetchPersistentState(true).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(indexPath)
+				.addSingleFileStore().fetchPersistentState(true).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
-				.modificationQueueSize(50).threadPoolSize(3).clustering();
+				.clustering();
 			
 			blob_chunkBuilder = new ConfigurationBuilder() 
-				.eviction()
-				.persistence().passivation(false)
-				.addSingleFileStore().fetchPersistentState(true).preload(false).shared(false).purgeOnStartup(false).ignoreModifications(false).location(indexPath)
-				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
-				.modificationQueueSize(50).threadPoolSize(3)
-				.eviction().clustering();
+				.persistence().passivation(false).addStore(SoftIndexFileStoreConfigurationBuilder.class).fetchPersistentState(false)
+				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(blobIndexPath).dataLocation(blobChunkPath).async().disable()
+				.eviction().maxEntries(maxEntry())
+				.clustering();
 			
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){
 				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ; 
-				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				chunk_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				index_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				index_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				
 				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				blob_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 			} else if (cacheMode().isClustered()){
 				real_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ;
-				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
-				chunk_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
+				index_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
+				index_chunkBuilder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
 				
 				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				blob_chunkBuilder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
 			}
 			
 			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
-			dm.defineConfiguration(wsName + "-meta", meta_configBuilder.build()) ;
-			dm.defineConfiguration(wsName + "-chunk", chunk_configBuilder.build()) ;
+			dm.defineConfiguration(wsName + "-meta", index_metaBuilder.build()) ;
+			dm.defineConfiguration(wsName + "-chunk", index_chunkBuilder.build()) ;
 			dm.defineConfiguration(blobMeta(wsName), blob_metaBuilder.build()) ;
 			dm.defineConfiguration(blobChunk(wsName), blob_chunkBuilder.build()) ;
 		}
@@ -131,7 +139,7 @@ public class SifsFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 
 	@Override
 	public void createInterceptor(AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
-		cache.addInterceptor(new IndexInterceptor(central, trans), 0);
+//		cache.addInterceptor(new IndexInterceptor(central, trans), 0);
 	}
 
 
