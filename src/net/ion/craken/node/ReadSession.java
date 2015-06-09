@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.IndexInfoHandler;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 

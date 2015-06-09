@@ -2,6 +2,7 @@ package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
+import net.ion.framework.util.Debug;
 
 public class TestBaseCrud extends TestCase {
 
@@ -17,6 +18,7 @@ public class TestBaseCrud extends TestCase {
 		
 		r.start() ;
 		this.session = r.login("test") ;
+		Debug.line(getClass().getCanonicalName());
 	}
 	
 	@Override

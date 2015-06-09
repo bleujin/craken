@@ -8,15 +8,16 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.config.Central;
@@ -73,7 +74,7 @@ public class CrakenStore implements AdvancedLoadWriteStore {
 			BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
 			bcontext.chunkSize(1024 * 1024);
 			Directory directory = bcontext.create();
-			this.central = CentralConfig.oldFromDir(directory).build();
+			this.central = CentralConfig.oldFromDir(directory).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
 
 			this.configuration.store(this);
 		} catch (Exception e) {

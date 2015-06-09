@@ -23,11 +23,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
@@ -40,8 +36,6 @@ import net.ion.framework.util.StringUtil;
 import net.ion.radon.util.csv.CsvReader;
 
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
-import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.batch.BatchContainer;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -56,7 +50,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/sifs"));
 
 		Craken r = Craken.create();
-		r.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs").maxSegment(30));
+		r.createWorkspace("sifs", WorkspaceConfigBuilder.sifsDir("./resource/sifs").maxSegment(30));
 		ReadSession session = r.login("sifs");
 		session.tran(new TransactionJob<Void>() {
 
@@ -110,7 +104,7 @@ public class TestInsertSpeed extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/drug"));
 
 		Craken r = Craken.create();
-		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30).maxEntry(10000));
+		r.createWorkspace("drug", WorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30).maxEntry(10000));
 		ReadSession session = r.login("drug");
 		long start = System.currentTimeMillis() ;
 //		session.workspace().withFlag(Flag.IGNORE_RETURN_VALUES, Flag.FORCE_ASYNCHRONOUS) ;
@@ -152,57 +146,6 @@ public class TestInsertSpeed extends TestCase {
 
 		r.shutdown() ;
 	}
-	
-	public void testDataIntsert2() throws Exception {
-		FileUtil.deleteDirectory(new File("./resource/drug"));
-
-		Craken r = Craken.create();
-		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30).maxEntry(10000));
-		ReadSession session = r.login("drug");
-		long start = System.currentTimeMillis() ;
-//		session.workspace().withFlag(Flag.IGNORE_RETURN_VALUES, Flag.FORCE_ASYNCHRONOUS) ; // not applid
-		
-		final Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = session.workspace().cache() ;
-		session.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.iwconfig().async(true) ;
-
-				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
-				
-				CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
-				reader.setFieldDelimiter('\t') ;
-				String[] headers = reader.readLine();
-				String[] line = reader.readLine() ;
-				int max = 20000 ;
-				String prefix = "/drug/" + RandomUtil.nextInt(50) + "/";
-				long rangeTime = System.currentTimeMillis() ;
-				while(line != null && line.length > 0 && max-- > 0 ){
-					TreeNodeKey tkey = TreeNodeKey.fromString(prefix + max) ;
-					AtomicMap<PropertyId, PropertyValue> tvalue = new AtomicHashMap<PropertyId, PropertyValue>() ;
-					for (int ii = 0, last = headers.length; ii < last ; ii++) {
-						if (line.length > ii) tvalue.put(PropertyId.fromIdString(headers[ii]), PropertyValue.createPrimitive(line[ii])) ;
-					}
-					cache.put(tkey, tvalue) ;
-					
-					line = reader.readLine() ;
-					if ((max % 1000) == 0) {
-						wsession.continueUnit() ;
-						Debug.line("rangetime", System.currentTimeMillis() - rangeTime) ;
-						rangeTime = System.currentTimeMillis();
-					} 
-				}
-				reader.close() ;
-				Debug.line("endJob") ;
-				return null;			
-			}
-		}) ;
-		
-		Debug.line(System.currentTimeMillis() - start);
-
-		r.shutdown() ;
-	}
-	
 
 	public void testDataInsert3() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/drug"));
@@ -259,7 +202,7 @@ public class TestInsertSpeed extends TestCase {
 	
 	public void xtestContfirm() throws Exception {
 		Craken r = Craken.create();
-		r.createWorkspace("drug", CrakenWorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30));
+		r.createWorkspace("drug", WorkspaceConfigBuilder.sifsDir("./resource/drug").maxSegment(30));
 		ReadSession session = r.login("drug");
 
 		session.root().childQuery("", true).find().debugPrint();
@@ -285,7 +228,7 @@ public class TestInsertSpeed extends TestCase {
 	
 	public void testRead() throws Exception {
 		Craken r = Craken.create();
-		r.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs").maxSegment(30).distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("sifs", WorkspaceConfigBuilder.sifsDir("./resource/sifs").maxSegment(30).distMode(CacheMode.DIST_SYNC));
 		ReadSession session = r.login("sifs");
 		
 		ReadNode node = session.pathBy("/crawl/enha/wiki/김은아") ;

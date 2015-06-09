@@ -1,8 +1,8 @@
 package net.ion.craken.listener;
 
 import net.ion.craken.node.TouchedRow;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 
 public class CDDRemovedEvent {
 

@@ -4,16 +4,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.framework.util.Debug;
 import net.ion.radon.util.csv.CsvReader;
-import junit.framework.TestCase;
 
 public class TestEviction extends TestCase {
 
@@ -21,8 +21,8 @@ public class TestEviction extends TestCase {
 	private ReadSession session;
 
 	public void setUp() throws Exception {
-		RepositoryImpl r = RepositoryImpl.create() ;
-		r.createWorkspace("evict", WorkspaceConfigBuilder.directory("./resource/temp/")) ;
+		Craken r = Craken.create() ;
+		r.createWorkspace("evict", OldFileConfigBuilder.directory("./resource/temp/")) ;
 		
 		this.session = r.login("evict") ;
 	}

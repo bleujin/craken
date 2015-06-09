@@ -6,7 +6,7 @@ import net.ion.craken.node.crud.TestFieldIndexConfig;
 public class TestAllSearchNode extends TestSuite {
 
 	public static TestSuite suite(){
-		TestSuite suite = new TestSuite("Test All Node Search") ;
+		TestSuite suite = new TestSuite("Test All TreeNode Search") ;
 		suite.addTestSuite(TestFirstSearch.class) ;
 
 		suite.addTestSuite(TestFieldIndexConfig.class) ;

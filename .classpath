@@ -4,11 +4,10 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="ics6"/>
 	<classpathentry kind="src" path="before"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_45"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/reflib/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/netty-3.4.6.Final.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/asm-3.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/ref/iframework_2.3.jar" sourcepath="/Users/airkjh/git/ionframework">
 		<attributes>
@@ -20,9 +19,10 @@
 	<classpathentry kind="lib" path="lib/ref/aclient_0.5.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
 	<classpathentry kind="lib" path="lib/imsi/jsr311_fat.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/infinispan720_fat.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/infinispan-embedded-query-7.2.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_4.10.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search4104_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/infinispan722_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/infinispan-embedded-query-7.2.2.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

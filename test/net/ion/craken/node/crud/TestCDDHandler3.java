@@ -13,6 +13,7 @@ import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.RandomUtil;
@@ -21,6 +22,8 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+
+import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestCDDHandler3 extends TestCase {
 
@@ -53,8 +56,8 @@ class ServerA {
 			.build() ;
 
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig) ;
-		final RepositoryImpl r = RepositoryImpl.create(dcm, "ics");
-		r.createWorkspace("ics", WorkspaceConfigBuilder.directory("./resource/temp/servera").distMode(CacheMode.REPL_SYNC)) ;
+		final Craken r = Craken.create(dcm, "ics");
+		r.createWorkspace("ics", OldFileConfigBuilder.directory("./resource/temp/servera").distMode(CacheMode.REPL_SYNC)) ;
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;
@@ -105,8 +108,8 @@ class ServerB {
 		.build() ;
 		
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig) ;
-		final RepositoryImpl r = RepositoryImpl.create(dcm, "ics");
-		r.createWorkspace("ics", WorkspaceConfigBuilder.directory("./resource/temp/serverb").distMode(CacheMode.REPL_SYNC)) ;
+		final Craken r = Craken.create(dcm, "ics");
+		r.createWorkspace("ics", OldFileConfigBuilder.directory("./resource/temp/serverb").distMode(CacheMode.REPL_SYNC)) ;
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){

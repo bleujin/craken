@@ -1,6 +1,6 @@
 package net.ion.craken.node;
 
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 
 public interface ISession<T extends NodeCommon<T>> {
 

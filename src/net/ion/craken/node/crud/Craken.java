@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import net.ion.craken.node.Credential;
@@ -13,19 +11,17 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.convert.rows.ColumnParser;
-import net.ion.craken.node.crud.impl.CrakenWorkspace;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.schedule.IExecutor;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
-import net.ion.framework.util.SetUtil;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.remoting.transport.Address;
 import org.infinispan.util.logging.Log;
@@ -63,8 +59,8 @@ public class Craken implements Repository {
 	
 	public static Craken inmemoryCreateWithTest() throws CorruptIndexException, IOException {
 		System.setProperty("log4j.configuration", "file:./resource/log4j.properties") ;
-		Craken result = create(new DefaultCacheManager(), "emanon");
-		return (Craken)result.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir(""));
+		Craken result = local();
+		return (Craken)result.createWorkspace("test", WorkspaceConfigBuilder.indexDir(""));
 	}
 
 
@@ -166,11 +162,15 @@ public class Craken implements Repository {
 		return new ReadSessionImpl(credential, found, ObjectUtil.coalesce(queryAnalyzer, found.central().searchConfig().queryAnalyzer()));
 	}
 
-	public synchronized Repository createWorkspace(String wsName, CrakenWorkspaceConfigBuilder wconfig) throws IOException {
+	public synchronized Repository createWorkspace(String wsName) throws IOException {
+		return createWorkspace(wsName, OldFileConfigBuilder.directory("")) ;
+	}
+	
+	public synchronized Repository createWorkspace(String wsName, WorkspaceConfigBuilder wconfig) throws IOException {
 		if (workspaceCache.getIfPresent(wsName) != null) throw new IllegalArgumentException("already defined workspace : " + wsName) ;
 		
-		wconfig.init(dm, wsName) ;
-		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName) ;
+		wconfig.build(dm, wsName) ;
+		Cache<PropertyId, PropertyValue> cache = dm.getCache(wsName) ;
 		workspaceCache.put(wsName, wconfig.createWorkspace(this, cache.getAdvancedCache()));
 
 		log.info("Workspace[" + wsName + "] defined");

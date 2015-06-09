@@ -1,11 +1,10 @@
 package net.ion.ics6.core;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
-import junit.framework.TestCase;
 
 public class TestRecursive extends TestCase {
 

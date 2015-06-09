@@ -3,6 +3,7 @@ package net.ion.craken.tree;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.util.Debug;
 
 public class TestFqn extends TestBaseCrud {

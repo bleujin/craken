@@ -2,9 +2,10 @@ package net.ion.craken.node.crud;
 
 import java.util.Map;
 
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;

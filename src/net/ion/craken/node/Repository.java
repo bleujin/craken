@@ -3,8 +3,6 @@ package net.ion.craken.node;
 import java.io.IOException;
 import java.util.List;
 
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
 import net.ion.framework.schedule.IExecutor;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -39,7 +37,7 @@ public interface Repository {
 
 //	public Repository defineWorkspace(String wsName) throws IOException;
 
-//	public Repository createWorkspace(String string, WorkspaceConfigBuilder distMode) ; 
+//	public Repository createWorkspace(String string, OldFileConfigBuilder distMode) ; 
 
 //	public Central central(String wsName);
 

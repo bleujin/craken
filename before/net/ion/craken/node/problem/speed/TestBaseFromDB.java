@@ -2,8 +2,8 @@ package net.ion.craken.node.problem.speed;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.manager.DBManager;
 import net.ion.framework.db.manager.OracleCacheReleaseDBManager;
@@ -19,7 +19,7 @@ import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 public class TestBaseFromDB extends TestCase {
 
 	protected DBController dc;
-	private RepositoryImpl r;
+	private Craken r;
 	protected ReadSession session;
 
 	@Override
@@ -35,8 +35,8 @@ public class TestBaseFromDB extends TestCase {
 		dc.initSelf() ;
 		
 		GlobalConfiguration gconfig = GlobalConfigurationBuilder.defaultClusteredBuilder().transport().clusterName("craken").addProperty("configurationFile", "./resource/config/jgroups-udp.xml").build();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/test")) ;
+		this.r = Craken.create() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store/test")) ;
 		
 		r.start() ;
 		this.session = r.login("test") ;

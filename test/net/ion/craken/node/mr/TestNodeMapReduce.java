@@ -9,10 +9,10 @@ import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.RandomUtil;
@@ -21,16 +21,17 @@ import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Collector;
 
 import com.google.common.base.Function;
+import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestNodeMapReduce extends TestCase {
 
 	private ReadSession session;
-	private RepositoryImpl r;
+	private Craken r;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create();
+		this.r = Craken.local();
 		r.start();
 	
 		this.session = r.login("my");

@@ -2,8 +2,15 @@ package net.ion.bleujin.working;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.InputStream;
 import java.io.OutputStream;
+
+import junit.framework.TestCase;
+import net.ion.craken.util.StringInputStream;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.IOUtil;
+import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.config.CentralConfig;
+import net.ion.nsearcher.index.IndexJobs;
 
 import org.apache.lucene.store.Directory;
 import org.infinispan.Cache;
@@ -12,15 +19,6 @@ import org.infinispan.io.GridFilesystem;
 import org.infinispan.lucene.directory.BuildContext;
 import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-
-import net.ion.craken.node.crud.store.GridFileConfigBuilder;
-import net.ion.craken.util.StringInputStream;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.IOUtil;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralConfig;
-import net.ion.nsearcher.index.IndexJobs;
-import junit.framework.TestCase;
 
 public class TestComposite extends TestCase {
 
@@ -78,4 +76,6 @@ public class TestComposite extends TestCase {
 			Debug.line(file);
 		}
 	}
+	
+
 }

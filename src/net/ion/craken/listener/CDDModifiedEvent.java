@@ -3,9 +3,9 @@ package net.ion.craken.listener;
 import java.util.Map;
 
 import net.ion.craken.node.TouchedRow;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.ObjectUtil;
 
 public class CDDModifiedEvent {
@@ -19,7 +19,7 @@ public class CDDModifiedEvent {
 	}
 
 	public final static CDDModifiedEvent create(TouchedRow trow){
-		return new CDDModifiedEvent(trow.target().dataKey(), trow.source().toMap()) ;
+		return new CDDModifiedEvent(trow.target().dataKey(), trow.sourceMap()) ;
 	}
 	
 	public TreeNodeKey getKey(){

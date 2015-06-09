@@ -4,15 +4,13 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
-import junit.framework.TestCase;
 
 public class TestCraken extends TestCase {
 
@@ -24,8 +22,8 @@ public class TestCraken extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.craken = Craken.inmemoryCreateWithTest() ;
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/sifs")) ;
-//		craken.createWorkspace("", WorkspaceConfigBuilder.sifs(indexPath, dataPath, blobPath)) ;
+		craken.createWorkspace("test", WorkspaceConfigBuilder.sifsDir("./resource/store/sifs")) ;
+//		craken.createWorkspace("", OldFileConfigBuilder.sifs(indexPath, dataPath, blobPath)) ;
 	}
 	
 	@Override

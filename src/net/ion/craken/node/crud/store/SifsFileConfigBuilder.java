@@ -11,23 +11,30 @@ import javax.transaction.Transaction;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.PropertyValue.VType;
+import net.ion.craken.node.Workspace;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.impl.SifsWorkspace;
+import net.ion.craken.node.crud.tree.TreeCache;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue.VType;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
+import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 
+import org.apache.lucene.store.Directory;
 import org.infinispan.AdvancedCache;
+import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.commands.tx.CommitCommand;
 import org.infinispan.commands.write.DataWriteCommand;
@@ -38,28 +45,44 @@ import org.infinispan.configuration.cache.ClusteringConfigurationBuilder;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.context.impl.TxInvocationContext;
 import org.infinispan.interceptors.base.BaseCustomInterceptor;
+import org.infinispan.io.GridFile.Metadata;
+import org.infinispan.io.GridFilesystem;
+import org.infinispan.lucene.directory.BuildContext;
+import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.persistence.sifs.configuration.SoftIndexFileStoreConfigurationBuilder;
 
-import com.google.common.cache.Cache;
-
-public class SifsFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
+public class SifsFileConfigBuilder extends WorkspaceConfigBuilder {
 
 	private String rootPath;
+	private Central central;
+	private GridFilesystem gfs;
 
 	public SifsFileConfigBuilder(String rootPath) {
 		this.rootPath = rootPath ;
 	}
 
 	@Override
-	public CrakenWorkspaceConfigBuilder init(DefaultCacheManager dm, String wsName) throws IOException {
+	public WorkspaceConfigBuilder build(DefaultCacheManager dm, String wsName) throws IOException {
 		if (StringUtil.isBlank(rootPath)) {
 			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder()
 			.persistence().passivation(false)
 			.transaction().invocationBatching().enable()
 			.clustering() ; 
 			
-			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
+			ClusteringConfigurationBuilder idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();
+			ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+
+			dm.defineConfiguration(wsName, real_configBuilder.build());
+			dm.defineConfiguration(wsName + "-meta", idx_meta_builder.build());
+			dm.defineConfiguration(wsName + "-chunk", idx_chunk_builder.build());
+			
+			this.central = makeCentral(dm, wsName);
+			this.gfs = makeGridSystem(dm, wsName);
+
 			
 		} else if (StringUtil.isNotBlank(rootPath)) {
 			File rootFile = new File(rootPath);
@@ -130,16 +153,54 @@ public class SifsFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
 			dm.defineConfiguration(wsName + "-meta", index_metaBuilder.build()) ;
 			dm.defineConfiguration(wsName + "-chunk", index_chunkBuilder.build()) ;
+			this.central = makeCentral(dm, wsName);
+			
 			dm.defineConfiguration(blobMeta(wsName), blob_metaBuilder.build()) ;
 			dm.defineConfiguration(blobChunk(wsName), blob_chunkBuilder.build()) ;
+			this.gfs = makeGridSystem(dm, wsName);
 		}
 		
 		return this;
 	}
+	
+	public GridFilesystem gfs() {
+		return gfs;
+	}
+
+	public Central central() {
+		return this.central;
+	}
+	
+	private GridFilesystem makeGridSystem(DefaultCacheManager dm, String wsName) {
+		Cache<String, byte[]> blobChunk = dm.getCache(blobChunk(wsName));
+		Cache<String, Metadata> blobMeta = dm.getCache(blobMeta(wsName));
+
+		return new GridFilesystem(blobChunk, blobMeta, 8192);
+	}
+
+	private Central makeCentral(DefaultCacheManager dm, String wsName) throws IOException {
+		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = dm.getCache(wsName);
+		String name = cache.getName();
+		EmbeddedCacheManager cacheManager = cache.getCacheManager();
+		Cache<?, ?> metaCache = cacheManager.getCache(name + "-meta");
+		Cache<?, ?> dataCache = cacheManager.getCache(name + "-chunk");
+
+		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
+		bcontext.chunkSize(1024 * 1024);
+		Directory directory = bcontext.create();
+		return CentralConfig.oldFromDir(directory).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
+	}
+	
+	
 
 	@Override
-	public void createInterceptor(AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
-//		cache.addInterceptor(new IndexInterceptor(central, trans), 0);
+	public void createInterceptor(TreeCache<PropertyId, PropertyValue> tcache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
+		tcache.getCache().getAdvancedCache().addInterceptor(new IndexInterceptor(gfs(), central, trans), 0);
+	}
+
+	@Override
+	public Workspace createWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache) throws IOException {
+		return new SifsWorkspace(craken, cache, this);
 	}
 
 
@@ -150,7 +211,7 @@ class IndexInterceptor extends BaseCustomInterceptor {
 
 	private Central central;
 	private com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans;
-	public IndexInterceptor(Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans) {
+	public IndexInterceptor(GridFilesystem gfs, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans) {
 		this.central = central ;
 		this.trans = trans ;
 	}

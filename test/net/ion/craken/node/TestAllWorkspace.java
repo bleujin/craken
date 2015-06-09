@@ -6,7 +6,6 @@ import net.ion.craken.io.TestExceptionHandle;
 import net.ion.craken.node.crud.TestCDDHandler;
 import net.ion.craken.node.crud.TestDefineWorkspace;
 import net.ion.craken.node.crud.TestOtherWorkspace;
-import net.ion.craken.node.crud.TestWorkspaceConfig;
 import net.ion.craken.node.crud.TestWorkspaceListener;
 import net.ion.craken.node.problem.TestTransaction;
 
@@ -16,7 +15,6 @@ public class TestAllWorkspace {
 		TestSuite suite = new TestSuite("workspace") ;
 		
 		suite.addTestSuite(TestDefineWorkspace.class) ;
-		suite.addTestSuite(TestWorkspaceConfig.class) ;
 		suite.addTestSuite(TestOtherWorkspace.class);
 		
 		suite.addTestSuite(TestExceptionHandle.class) ;

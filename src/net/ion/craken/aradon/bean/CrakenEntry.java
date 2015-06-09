@@ -2,6 +2,7 @@ package net.ion.craken.aradon.bean;
 
 import java.io.IOException;
 
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.nradon.Radon;
 import net.ion.nradon.config.OnEventObject;
@@ -31,6 +32,14 @@ public class CrakenEntry implements OnEventObject{
 
 	public Craken getCraken() {
 		return craken ;
+	}
+
+	public ReadSession login(String wsname) throws IOException {
+		return craken.login(wsname);
+	}
+
+	public void shutdown() {
+		craken.shutdown(); 
 	}
 	
 	

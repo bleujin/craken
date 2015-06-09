@@ -10,9 +10,11 @@ import java.util.Set;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.SortElement;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.TraversalStrategy;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
 
@@ -27,21 +29,21 @@ public class WalkReadChildren extends ReadChildren{
 	private Predicate<ReadNode> andFilters;
 	
 	
-	WalkReadChildren(ReadSession session, TreeNode source, Iterator<TreeNode> children) {
+	WalkReadChildren(ReadSession session, Fqn source, Iterator<Fqn> children) {
 		super(session, source, children) ;
 	}
 	
 	protected List<ReadNode> readChildren() {
 		LinkedList<ReadNode> result = new LinkedList<ReadNode>();
-		WalkReadNode rootFrom = WalkReadNode.create(session(), null, source(), 0);
+		WalkReadNode rootFrom = WalkReadNode.create(session(), null, sourceFqn(), 0);
 		if (includeSelf) {
 			result.add(rootFrom) ;
 		}
 		
 		this.andFilters = Predicates.and(filters()) ; 
 		
-		if (strategy == TraversalStrategy.BreadthFirst) this.buildBreadthList(result, makeWalk(rootFrom, treeNodes(), 1), 1);
-		else this.buildDepthList(result, makeWalk(rootFrom, treeNodes(), 1), 1) ;
+		if (strategy == TraversalStrategy.BreadthFirst) this.buildBreadthList(result, makeWalk(rootFrom, treeFqn(), 1), 1);
+		else this.buildDepthList(result, makeWalk(rootFrom, treeFqn(), 1), 1) ;
 		
 		
 		return result.subList(skip(), Math.min(skip() + offset(), result.size())) ;
@@ -57,7 +59,7 @@ public class WalkReadChildren extends ReadChildren{
 		return result ;
 	}
 
-	private Iterator<WalkReadNode> makeWalk(WalkReadNode rootFrom, Iterator<TreeNode> treeNodes, int level) {
+	private Iterator<WalkReadNode> makeWalk(WalkReadNode rootFrom, Iterator<Fqn> treeNodes, int level) {
 		Set<WalkReadNode> result = SetUtil.newSet() ;
 		while(treeNodes.hasNext()){
 			result.add(WalkReadNode.create(session(), rootFrom, treeNodes.next(), level)) ;
@@ -80,7 +82,7 @@ public class WalkReadChildren extends ReadChildren{
 		List<WalkReadNode> inner = ListUtil.newList() ;
 		while(sortedChildren.hasNext()){
 			WalkReadNode child = sortedChildren.next();
-        	WalkReadNode target = WalkReadNode.create(session(), child.from(), child.treeNode(), level);
+        	WalkReadNode target = WalkReadNode.create(session(), child.from(), child.fqn(), level);
 			if (! andFilters.apply(target)) continue ;
 			
 			list.add(target) ;
@@ -95,7 +97,7 @@ public class WalkReadChildren extends ReadChildren{
 		Iterator<WalkReadNode> sortedChildren = sort(children) ;
         while(sortedChildren.hasNext()){
         	WalkReadNode child = sortedChildren.next();
-        	WalkReadNode target = WalkReadNode.create(session(), child.from(), child.treeNode(), level);
+        	WalkReadNode target = WalkReadNode.create(session(), child.from(), child.fqn(), level);
 			if (andFilters.apply(target)) list.add(target) ;
 			
 			this.buildDepthList(list, child.getChildren().iterator(), (level+1)) ;

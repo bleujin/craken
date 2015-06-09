@@ -7,9 +7,9 @@ import junit.framework.TestCase;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.Filters;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.craken.node.problem.store.SampleWriteJob;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.IKeywordField;
@@ -22,13 +22,13 @@ import org.apache.lucene.search.TermQuery;
 
 public class TestSelectSpeed extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create();
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/select"));
+		this.r = Craken.create();
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store/select"));
 		r.start();
 		this.session = r.login("test");
 	}

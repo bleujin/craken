@@ -3,7 +3,7 @@ package net.ion.craken.node.dist;
 import java.util.Map;
 import java.util.Set;
 
-import net.ion.craken.tree.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;

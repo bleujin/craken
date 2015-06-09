@@ -30,7 +30,6 @@ public class TestAllCraken extends TestSuite {
 		suite.addTest(TestAllCrudNode.suite()) ;
 		suite.addTest(TestAllRef.suite()) ;
 		suite.addTest(TestAllChildren.suite()) ;
-		suite.addTest(TestAllWorkspace.suite()) ;
 
 		// intermediate
 		suite.addTest(TestAllSearchNode.suite()) ;
@@ -38,6 +37,7 @@ public class TestAllCraken extends TestSuite {
 
 		
 		// advanced
+		suite.addTest(TestAllWorkspace.suite()) ;
 		suite.addTest(TestAllMapReduce.suite()) ;
 		
 		

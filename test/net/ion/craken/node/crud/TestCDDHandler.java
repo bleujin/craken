@@ -13,8 +13,8 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectId;
 

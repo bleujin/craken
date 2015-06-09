@@ -10,8 +10,9 @@ import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.WriteChildrenEachs;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.ListUtil;
 
 import com.google.common.base.Predicate;
@@ -26,13 +27,13 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> i
 	private List<Predicate<WriteNode>> filters = ListUtil.newList();;
 	
 	private final WriteSession session ;
-	private final TreeNode source;
-	private final Iterator<TreeNode> children ;
+	private final Fqn parent;
+	private final Iterator<Fqn> children ;
 
 
-	WriteChildren(WriteSession session, TreeNode parent, Iterator<TreeNode> children){
+	WriteChildren(WriteSession session, Fqn parentFqn, Iterator<Fqn> children){
 		this.session = session ;
-		this.source = parent ;
+		this.parent = parentFqn ;
 		this.children = children;
 	}
 	
@@ -75,7 +76,7 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> i
 		List<WriteNode> listNode = ListUtil.newList() ;
 		Predicate<WriteNode> andFilters = Predicates.and(filters) ;
 		while(children.hasNext()){
-			TreeNode tn = children.next() ;
+			Fqn tn = children.next() ;
 			WriteNode read = WriteNodeImpl.loadTo(session, tn);
 			if (andFilters.apply(read)) listNode.add(read) ;
 		}

@@ -9,31 +9,17 @@ import java.util.concurrent.Future;
 
 import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.listener.WorkspaceListener;
-import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.mr.NodeMapReduce;
-import net.ion.craken.node.IndexWriteConfig.FieldIndex;
-import net.ion.craken.node.crud.ReadChildrenEach;
-import net.ion.craken.node.crud.ReadChildrenIterator;
-import net.ion.craken.node.crud.TreeNode;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.TreeStructureSupport;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.PropertyValue.VType;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.mte.Engine;
-import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonElement;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.context.Flag;
 import org.infinispan.io.GridFilesystem;
@@ -47,13 +33,15 @@ public interface Workspace extends Closeable, WorkspaceListener {
 
 	public abstract WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
 
-	public abstract WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) ;
+	public abstract WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn);
+
+//	public abstract TreeNode writeNode(WriteSession wsession, Fqn fqn) ;
 
 	public abstract TreeNode readNode(Fqn fqn) ;
 	
-	public AtomicMap<PropertyId, PropertyValue> props(Fqn fqn) ;
-	
-	public AtomicMap<String, Fqn> strus(Fqn fqn) ;
+//	public Map<PropertyId, PropertyValue> props(Fqn fqn) ;
+//	
+//	public Map<String, Fqn> strus(Fqn fqn) ;
 
 	public abstract Workspace start() ;
 	
@@ -102,7 +90,7 @@ public interface Workspace extends Closeable, WorkspaceListener {
 	public abstract void remove(Fqn fqn)  ;
 
 	@Deprecated
-	public abstract Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache() ;
+	public abstract Cache<?, ?> cache() ;
 
 	public abstract GridFilesystem gfs() ;
 
@@ -119,6 +107,7 @@ public interface Workspace extends Closeable, WorkspaceListener {
 	public abstract WriteSession newWriteSession(ReadSession readSession) ;
 
 	public abstract void reindex(WriteNode wnode, Analyzer anal, boolean includeSub) ;
+
 
 
 }

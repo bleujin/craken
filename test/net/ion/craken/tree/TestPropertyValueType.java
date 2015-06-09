@@ -1,8 +1,10 @@
 package net.ion.craken.tree;
 
 import junit.framework.TestCase;
-import net.ion.craken.node.exception.NodeNotValidException;
-import net.ion.craken.tree.PropertyValue.VType;
+import net.ion.craken.node.crud.tree.NodeNotValidException;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue.VType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 

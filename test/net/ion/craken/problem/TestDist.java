@@ -4,8 +4,8 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.configuration.cache.CacheMode;
@@ -13,14 +13,16 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 
+import com.sun.corba.se.impl.activation.RepositoryImpl;
+
 public class TestDist extends TestCase {
 
 	public void testFirst() throws Exception {
 		GlobalConfiguration gconfig = new GlobalConfigurationBuilder().transport().defaultTransport().clusterName("ics6working").build();
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig);
-		final RepositoryImpl r = RepositoryImpl.create(dcm, "emanon");
+		final Craken r = Craken.create(dcm, "emanon");
 
-		r.createWorkspace("ics", WorkspaceConfigBuilder.directory("./resource/temp/first").distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("ics", OldFileConfigBuilder.directory("./resource/temp/first").distMode(CacheMode.DIST_SYNC));
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;
@@ -47,9 +49,9 @@ public class TestDist extends TestCase {
 	public void testSecond() throws Exception {
 		GlobalConfiguration gconfig = new GlobalConfigurationBuilder().transport().defaultTransport().clusterName("ics6working").build();
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig);
-		final RepositoryImpl r = RepositoryImpl.create(dcm, "emanon");
+		final Craken r = Craken.create(dcm, "emanon");
 
-		r.createWorkspace("ics", WorkspaceConfigBuilder.directory("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("ics", OldFileConfigBuilder.directory("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;

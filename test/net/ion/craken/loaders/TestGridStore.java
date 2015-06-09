@@ -1,12 +1,12 @@
 package net.ion.craken.loaders;
 
+import junit.framework.TestCase;
+
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.EvictionConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.transaction.TransactionMode;
-
-import junit.framework.TestCase;
 
 public class TestGridStore extends TestCase {
 	

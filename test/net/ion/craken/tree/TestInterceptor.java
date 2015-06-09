@@ -1,7 +1,9 @@
 package net.ion.craken.tree;
 
 import net.ion.craken.node.Repository;
-import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
@@ -34,6 +36,9 @@ public class TestInterceptor {
 		Cache<String, byte[]> blobdata = cache.getCacheManager().getCache(cacheName + ".blobdata");
 		
 	}
+	
+	
+	
 }
 
 class CustomCommandInvoker extends BaseCustomInterceptor {
@@ -48,6 +53,7 @@ class CustomCommandInvoker extends BaseCustomInterceptor {
 				Debug.line("prepare" ,command.getParameters().length, command.getParameters(), ((PrepareCommand)command).getModifications()) ;
 				break ;
 			default :
+				Debug.line("", command.getParameters());
 				break ;
 		}
 		return invokeNextInterceptor(ctx, command);

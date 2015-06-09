@@ -3,8 +3,8 @@ package net.ion.bleujin.crawl;
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 
@@ -12,6 +12,8 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+
+import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class Test2 extends TestCase {
 	private ReadSession session;
@@ -27,7 +29,7 @@ public class Test2 extends TestCase {
 		.build();
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig) ;
 		
-		Repository r = RepositoryImpl.create(dcm, "bleujin").createWorkspace("enha", WorkspaceConfigBuilder.directory("./resource/enha2").distMode(CacheMode.REPL_SYNC));
+		Repository r = Craken.create(dcm, "bleujin").createWorkspace("enha", OldFileConfigBuilder.directory("./resource/enha2").distMode(CacheMode.REPL_SYNC));
 		this.session = r.login("enha");
 	}
 

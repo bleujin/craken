@@ -5,11 +5,10 @@ import java.io.InputStream;
 
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteChildren;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.parse.gson.JsonObject;
 
-import org.apache.lucene.analysis.cjk.CJKAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 
 public interface WriteNode extends NodeCommon<WriteNode> {

@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.InfinityThread;
 import net.ion.nradon.EventSourceConnection;
 import net.ion.nradon.EventSourceHandler;

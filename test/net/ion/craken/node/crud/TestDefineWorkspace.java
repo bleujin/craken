@@ -2,14 +2,14 @@ package net.ion.craken.node.crud;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 
 public class TestDefineWorkspace extends TestCase {
 
 	public void testDuplDefine() throws Exception {
 		Craken r = Craken.inmemoryCreateWithTest(); // predefine
 		try {
-			r.createWorkspace("test", CrakenWorkspaceConfigBuilder.singleDir("")); // dupl
+			r.createWorkspace("test", WorkspaceConfigBuilder.indexDir("")); // dupl
 			fail();
 		} catch (IllegalArgumentException expect) {
 		}

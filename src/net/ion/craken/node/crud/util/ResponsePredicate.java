@@ -1,7 +1,7 @@
 package net.ion.craken.node.crud.util;
 
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 
 public interface ResponsePredicate {
 

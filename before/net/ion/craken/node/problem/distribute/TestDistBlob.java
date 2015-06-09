@@ -13,8 +13,8 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
@@ -30,8 +30,8 @@ public class TestDistBlob extends TestCase {
 	public void testServer1() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/temp/s1"));
 		
-		final RepositoryImpl r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/temp/s1")) ;
+		final Craken r = Craken.create() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/temp/s1")) ;
 		r.start() ;
 		
 		Future<Radon> future = RadonConfiguration.newBuilder(9000).rootContext("r", r).add(new PathHandler(TestLet.class)).start() ;
@@ -50,8 +50,8 @@ public class TestDistBlob extends TestCase {
 	public void testServer2() throws Exception {
 		FileUtil.deleteDirectory(new File("./resource/temp/s2"));
 		
-		final RepositoryImpl r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/temp/s2")) ;
+		final Craken r = Craken.create() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/temp/s2")) ;
 		r.start() ;
 
 		Future<Radon> future = RadonConfiguration.newBuilder(9010).rootContext("r", r).add(new PathHandler(TestLet.class)).start() ;
@@ -73,7 +73,7 @@ class TestLet {
 	
 	@Path("/{action}")
 	@GET   // 
-	public String action(@ContextParam("r") RepositoryImpl r, @PathParam("action") String action) throws Exception{
+	public String action(@ContextParam("r") Craken r, @PathParam("action") String action) throws Exception{
 
 		ReadSession session = r.login("test") ;
 

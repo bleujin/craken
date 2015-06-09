@@ -13,18 +13,17 @@ import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
 import net.ion.craken.node.crud.impl.GridWorkspace;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.PropertyValue.VType;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue.VType;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
@@ -57,7 +56,7 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.persistence.sifs.configuration.SoftIndexFileStoreConfigurationBuilder;
 import org.infinispan.transaction.TransactionMode;
 
-public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
+public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 
 	private GridFilesystem gfs;
 	private String rootPath;
@@ -68,7 +67,7 @@ public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 	}
 
 	@Override
-	public CrakenWorkspaceConfigBuilder init(DefaultCacheManager dm, String wsName) throws IOException {
+	public WorkspaceConfigBuilder build(DefaultCacheManager dm, String wsName) throws IOException {
 		if (StringUtil.isBlank(rootPath)) {
 			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder()
 			.persistence().passivation(false)
@@ -188,12 +187,12 @@ public class GridFileConfigBuilder extends CrakenWorkspaceConfigBuilder {
 	}
 	
 	
-	public Workspace createWorkspace(Craken craken, AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache) throws IOException {
+	public Workspace createWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache) throws IOException {
 		return  new GridWorkspace(craken, cache, this);
 	}
 
 	public void createInterceptor(AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
-		cache.addInterceptor(new GridInterceptor(gfs(), central, trans), 0);
+//		cache.addInterceptor(new GridInterceptor(gfs(), central, trans), 0);
 	}
 }
 
@@ -294,49 +293,49 @@ class GridInterceptor extends BaseCustomInterceptor {
 				return null ;
 			}
 		} ;
-		central.newIndexer().index(indexJob) ;
+//		central.newIndexer().index(indexJob) ;
 //		Debug.line();
 
-//		List<DataWriteCommand> list = extractCommand(ctx.getModifications()) ;
-//		for (DataWriteCommand wcom : list) {
-//			TreeNodeKey tkey = (TreeNodeKey) wcom.getKey()  ;
-//			
-//			if (tkey.getFqn().isRoot()) continue ;
-//			String pathKey = tkey.fqnString();
-//			switch (wcom.getCommandId()) {
-//			case PutKeyValueCommand.COMMAND_ID :
-//				
-//				File dirFile = gfs.getFile(tkey.fqnString()) ;
-//				if (! dirFile.exists()) dirFile.mkdirs() ;
-//				if (tkey.getType().isStructure()) break ;
-//				
-//				
-//				
-//				String contentFileName = tkey.fqnString() + "/" + tkey.getFqn().name()  + ".node";
-//				File contentFile = gfs.getFile(contentFileName) ;
-//				if (! contentFile.getParentFile().exists()) {
-//					contentFile.getParentFile().mkdirs() ;
-//				}
-//
-//				PutKeyValueCommand pcommand = (PutKeyValueCommand) wcom ;
-//				Map<PropertyId, PropertyValue> valueMap = (Map) pcommand.getValue() ;
-//
-//				JsonObject nodeJson = new JsonObject() ;
-//				for(PropertyId pid : valueMap.keySet()){
-//					final String propId = pid.idString() ;
-//					PropertyValue pvalue = valueMap.get(pid) ;
-//					nodeJson.add(propId, pvalue.json()); // data
-//					
-//				}
-//				IOUtil.copyNClose(new StringInputStream(nodeJson.toString()), gfs.getOutput(contentFileName)) ;
-//				break;
-//			case RemoveCommand.COMMAND_ID :
-//				gfs.getFile(pathKey).delete() ;
-//				break ;
-//			default:
-//				break;
-//			}
-//		}
+		List<DataWriteCommand> list = extractCommand(ctx.getModifications()) ;
+		for (DataWriteCommand wcom : list) {
+			TreeNodeKey tkey = (TreeNodeKey) wcom.getKey()  ;
+			
+			if (tkey.getFqn().isRoot()) continue ;
+			String pathKey = tkey.fqnString();
+			switch (wcom.getCommandId()) {
+			case PutKeyValueCommand.COMMAND_ID :
+				
+				File dirFile = gfs.getFile(tkey.fqnString()) ;
+				if (! dirFile.exists()) dirFile.mkdirs() ;
+				if (tkey.getType().isStructure()) break ;
+				
+				
+				
+				String contentFileName = tkey.fqnString() + "/" + tkey.getFqn().name()  + ".node";
+				File contentFile = gfs.getFile(contentFileName) ;
+				if (! contentFile.getParentFile().exists()) {
+					contentFile.getParentFile().mkdirs() ;
+				}
+
+				PutKeyValueCommand pcommand = (PutKeyValueCommand) wcom ;
+				Map<PropertyId, PropertyValue> valueMap = (Map) pcommand.getValue() ;
+
+				JsonObject nodeJson = new JsonObject() ;
+				for(PropertyId pid : valueMap.keySet()){
+					final String propId = pid.idString() ;
+					PropertyValue pvalue = valueMap.get(pid) ;
+					nodeJson.add(propId, pvalue.json()); // data
+					
+				}
+				IOUtil.copyNClose(new StringInputStream(nodeJson.toString()), gfs.getOutput(contentFileName)) ;
+				break;
+			case RemoveCommand.COMMAND_ID :
+				gfs.getFile(pathKey).delete() ;
+				break ;
+			default:
+				break;
+			}
+		}
 		
 		trans.invalidate(ctx.getTransaction());
 		return invokeNextInterceptor(ctx, command) ;

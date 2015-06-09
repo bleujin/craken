@@ -10,15 +10,15 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.RandomUtil;
 
 public class TestNodeDistribute extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ExecutorService workerPool;
 
 	@Override
@@ -26,8 +26,8 @@ public class TestNodeDistribute extends TestCase {
 		super.setUp();
 //		FileUtil.deleteDirectory(new File("./resource/local")) ;
 		
-		this.r = RepositoryImpl.create();
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resoruce/store/dist")) ;
+		this.r = Craken.create();
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resoruce/store/dist")) ;
 		r.start() ;
 		this.workerPool = Executors.newCachedThreadPool();
 	}

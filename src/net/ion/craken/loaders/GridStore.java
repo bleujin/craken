@@ -5,8 +5,8 @@ import infinispan.org.codehaus.jackson.map.deser.impl.PropertyValue;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.filter.KeyFilter;

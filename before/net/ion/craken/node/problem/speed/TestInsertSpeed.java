@@ -11,9 +11,9 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.ListUtil;
@@ -22,7 +22,7 @@ import net.ion.radon.util.csv.CsvReader;
 
 public class TestInsertSpeed extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
@@ -30,8 +30,8 @@ public class TestInsertSpeed extends TestCase {
 		super.setUp();
 		FileUtil.deleteDirectory(new File("./resource/temp/insert")) ;
 		
-		this.r = RepositoryImpl.create();
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/insert"));
+		this.r = Craken.create();
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store/insert"));
 		r.start();
 		this.session = r.login("test");
 	}

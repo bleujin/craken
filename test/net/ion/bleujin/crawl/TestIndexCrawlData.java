@@ -7,11 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.InfinityThread;
@@ -20,6 +19,8 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+
+import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestIndexCrawlData extends TestCase {
 
@@ -37,8 +38,8 @@ public class TestIndexCrawlData extends TestCase {
 		.build();
 		DefaultCacheManager dcm = new DefaultCacheManager(gconfig) ;
 		
-		RepositoryImpl r = RepositoryImpl.create(dcm, "bleujin");
-		r.createWorkspace("enha", WorkspaceConfigBuilder.directory("./resource/enha").distMode(CacheMode.REPL_SYNC));
+		Craken r = Craken.create(dcm, "bleujin");
+		r.createWorkspace("enha", OldFileConfigBuilder.directory("./resource/enha").distMode(CacheMode.REPL_SYNC));
 		this.session = r.login("enha");
 	}
 

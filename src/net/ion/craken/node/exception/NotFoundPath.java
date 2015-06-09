@@ -1,6 +1,6 @@
 package net.ion.craken.node.exception;
 
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 
 public class NotFoundPath extends IllegalArgumentException {
 

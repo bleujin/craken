@@ -9,7 +9,6 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.framework.util.Debug;
 
 public class TestNewCDDHandler extends TestCase {

@@ -56,9 +56,7 @@ public class TestRefChildren extends TestBaseCrud {
 			
 		}).get() ;
 		
-		
-		
-		assertEquals(3, count);
+		assertEquals(2, count); // /dept/newpard not exist
 	}
 	
 	public void testWriteInWriteSession() throws Exception {
@@ -72,9 +70,11 @@ public class TestRefChildren extends TestBaseCrud {
 				}
 		}) ;
 		 
+		 assertEquals(2, session.pathBy("/bleujin").refChildren("dept").count());
 		for (ReadNode node : session.pathBy("/bleujin").refChildren("dept")) {
 			assertEquals("refed", node.property("ref").asString());
 		}
+		
 	}
 	
 	

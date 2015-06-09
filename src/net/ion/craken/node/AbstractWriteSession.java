@@ -8,7 +8,7 @@ import java.util.Set;
 import net.ion.craken.listener.CDDMListener;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.SetUtil;
@@ -62,7 +62,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		return workspace().writeNode(this, this.ancestorsFqn, fqn);
+		return workspace().writeNode(this, ancestorsFqn, fqn);
 	}
 
 	public WriteNode root() {
@@ -103,7 +103,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 		List<TouchedRow> result = ListUtil.newList() ;
 		for (TouchedRow row : logRows) {
 			if (row.touch() == touch){
-				result.add(row);
+				result.add(row) ;
 			} 
 		}
 		return result ;
@@ -138,6 +138,16 @@ public abstract class AbstractWriteSession implements WriteSession {
 			return;
 		
 		TouchedRow trow = TouchedRow.create(source, touch, targetFqn, affected);
+		if (touch == Touch.REMOVECHILDREN){
+			Set<TouchedRow> forRemove = SetUtil.newSet() ;
+			for(TouchedRow row : logRows){
+				if (row.target().isChildOrEquals(targetFqn)){
+					forRemove.add(row) ;
+				}
+			}
+			logRows.removeAll(forRemove) ;
+		}
+		
 		logRows.add(trow);
 	}
 

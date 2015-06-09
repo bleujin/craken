@@ -5,7 +5,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionLog;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.util.ObjectId;
 
 

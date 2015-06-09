@@ -7,7 +7,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.util.ListUtil;
 
 public class TestRemoveWith extends TestBaseCrud {
@@ -17,6 +17,7 @@ public class TestRemoveWith extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+				wsession.pathBy("/bleujin/address").property("name", "seoul") ;
 				return null;
 			}
 		}) ;
@@ -30,6 +31,7 @@ public class TestRemoveWith extends TestBaseCrud {
 				return null;
 			}
 		}) ;
+		
 		assertEquals(false, session.exists("/bleujin")) ;
 	}
 	
@@ -180,9 +182,6 @@ public class TestRemoveWith extends TestBaseCrud {
 				
 				List<TouchedRow> removed = wsession.touched(Touch.REMOVE);
 				assertEquals(1, removed.size());
-				assertEquals(true, removed.get(0).affected().containsKey("/a/b/c/d"));
-				assertEquals(false, removed.get(0).affected().containsKey("/a/b/c/d/e"));
-				assertEquals(false, removed.get(0).affected().containsKey("/a/b/c/d/e/f"));
 				return null;
 			}
 		}) ;
@@ -205,8 +204,6 @@ public class TestRemoveWith extends TestBaseCrud {
 				List<TouchedRow> removed = wsession.touched(Touch.REMOVECHILDREN);
 
 				assertEquals(1, removed.size());
-				assertEquals(true, removed.get(0).affected().containsKey("/a/b/c/d/e"));
-				assertEquals(true, removed.get(0).affected().containsKey("/a/b/c/d/e/f"));
 				return null;
 			}
 		}) ;

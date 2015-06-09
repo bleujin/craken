@@ -7,9 +7,8 @@ import java.util.concurrent.Future;
 
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.crud.ReadNodeImpl;
-import net.ion.craken.node.crud.OldWriteSession;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.exception.NotFoundPath;
-import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.StringUtil;
 
 import com.google.common.base.Function;
@@ -46,7 +45,7 @@ public abstract class AbstractReadSession implements ReadSession {
 
 	protected ReadNode pathBy(Fqn fqn, boolean emptyIfNotExist) {
 		if (exists(fqn)) {
-			return ReadNodeImpl.load(this, workspace.readNode(fqn));
+			return ReadNodeImpl.load(this, fqn);
 		} else if (emptyIfNotExist) {
 			return ReadNodeImpl.ghost(this, fqn) ;
 		}

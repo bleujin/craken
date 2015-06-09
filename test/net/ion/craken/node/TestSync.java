@@ -12,8 +12,8 @@ import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.WriteChildren;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.util.Debug;
 
 public class TestSync extends TestBaseCrud {

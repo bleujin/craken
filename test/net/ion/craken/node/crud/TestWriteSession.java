@@ -9,8 +9,8 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.Functions;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.tree.Fqn;
 import net.ion.framework.util.Debug;
 
 public class TestWriteSession extends TestBaseCrud {

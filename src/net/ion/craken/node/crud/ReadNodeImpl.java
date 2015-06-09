@@ -19,12 +19,13 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.convert.rows.AdNodeRows;
-import net.ion.craken.node.exception.NodeNotExistsException;
-import net.ion.craken.tree.ExtendPropertyId;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.ExtendPropertyId;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.NodeNotExistsException;
+import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
@@ -43,6 +44,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
+import org.infinispan.context.Flag;
 import org.infinispan.io.GridFilesystem;
 
 import com.google.common.base.Function;
@@ -53,15 +55,17 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	private static final long serialVersionUID = 1785904048897031227L;
 	private transient ReadSession session;
-	private TreeNode tnode;
+	private Fqn fqn;
 
-	protected ReadNodeImpl(ReadSession session, TreeNode tnode) {
+	protected ReadNodeImpl(ReadSession session, Fqn fqn) {
 		this.session = session;
-		this.tnode = tnode;
+		this.fqn = fqn;
 	}
 
-	public static ReadNode load(ReadSession session, TreeNode inner) {
-		return new ReadNodeImpl(session, inner);
+	public static ReadNode load(ReadSession session, Fqn fqn) {
+		ReadNodeImpl result = new ReadNodeImpl(session, fqn);
+//		if (result.treeNode() == null) throw new NotFoundPath(fqn) ;
+		return result;
 	}
 
 	@Override
@@ -69,21 +73,21 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		if (!(obj instanceof ReadNodeImpl))
 			return false;
 		ReadNodeImpl that = (ReadNodeImpl) obj;
-		return tnode.equals(that.tnode);
+		return treeNode().equals(that.treeNode());
 	}
 
 	@Override
 	public int hashCode() {
-		return tnode.hashCode();
+		return fqn.hashCode();
 	}
 
 	public String toString() {
-		return this.getClass().getSimpleName() + "[fqn=" + tnode.fqn().toString() + "]";
+		return this.getClass().getSimpleName() + "[fqn=" + fqn().toString() + "]";
 	}
 
 	// only use for test
-	public TreeNode treeNode() {
-		return tnode;
+	public TreeNode<PropertyId, PropertyValue> treeNode() {
+		return session.workspace().readNode(fqn);
 	}
 
 	// .. common
@@ -93,27 +97,27 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Fqn fqn() {
-		return tnode.fqn();
+		return fqn;
 	}
 
 	public int dataSize() {
-		return tnode.keys().size();
+		return treeNode().dataSize();
 	}
 
 	public ReadNode parent() {
-		return load(session, tnode.parent());
+		return load(session, fqn.getParent());
 	}
 
 	public boolean hasChild(String relativeFqn) {
-		return tnode.hasChild(Fqn.fromString(relativeFqn));
+		String[] names = StringUtil.split(relativeFqn, "/") ;
+		return treeNode().hasChild(Fqn.fromElements(names));
 	}
 
-	public ReadNode child(String fqn) {
-		// return session.pathBy(Fqn.fromRelativeFqn(this.fqn(), Fqn.fromString(fqn))) ;
-		final TreeNode child = tnode.getChild(Fqn.fromString(fqn));
-		if (child == null)
-			throw new IllegalArgumentException("not found child : " + fqn);
-		return load(session, child);
+	public ReadNode child(String name) {
+		String[] names = StringUtil.split(name, "/") ;
+		Fqn childFqn = Fqn.fromRelativeElements(fqn, names) ;
+		
+		return session.pathBy(childFqn) ;
 	}
 
 	public ReadNode root() {
@@ -122,14 +126,14 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	public Set<String> childrenNames() {
 		Set<String> set = SetUtil.orderedSet(SetUtil.newSet());
-		for (Object object : tnode.getChildrenNames()) {
+		for (Object object : treeNode().getChildrenNames()) {
 			set.add(ObjectUtil.toString(object));
 		}
 		return set;
 	}
 
 	public ReadChildren children() {
-		return new ReadChildren(session, tnode, tnode.getChildren().iterator());
+		return new ReadChildren(session, fqn, treeNode().getChildrenFqn().iterator());
 	}
 
 	public PropertyValue property(String key) {
@@ -141,9 +145,9 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public PropertyValue propertyId(PropertyId pid) {
-		if (tnode.get(pid) == null)
+		if (treeNode().get(pid) == null)
 			return PropertyValue.NotFound;
-		return ObjectUtil.coalesce(tnode.get(pid).gfs(gfs()), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(treeNode().get(pid).gfs(gfs()), PropertyValue.NotFound);
 	}
 
 	// public Optional<PropertyValue> optional(String key) {
@@ -155,7 +159,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Set<PropertyId> keys() {
-		return tnode.keys();
+		return treeNode().getKeys();
 	}
 
 	public Set<PropertyId> normalKeys() {
@@ -168,8 +172,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-		Map<PropertyId, PropertyValue> readMap = tnode.readMap();
-		return Collections.unmodifiableMap(readMap);
+		return treeNode().getData() ;
 	}
 
 	public <T> T transformer(Function<ReadNode, T> function) {
@@ -205,7 +208,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Object id() {
-		return tnode.fqn();
+		return fqn;
 	}
 
 	public boolean hasProperty(String pid) {
@@ -278,16 +281,16 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public ReadChildren refChildren(String refName) {
-		Iterator<TreeNode> titer = tnode.getReferences(refName).iterator();
-		return new ReadChildren(session, tnode, titer);
+		Iterator<Fqn> titer = treeNode().getReferencesFqn(refName).iterator();
+		return new ReadChildren(session, fqn, titer);
 	}
 
 	public WalkRefChildren walkRefChildren(String refName) {
-		return new WalkRefChildren(session, tnode, refName, tnode.getReferences(refName).iterator());
+		return new WalkRefChildren(session, fqn, refName, treeNode().getReferencesFqn(refName).iterator());
 	}
 
 	public WalkReadChildren walkChildren() {
-		return new WalkReadChildren(session, tnode, tnode.getChildren().iterator());
+		return new WalkReadChildren(session, fqn, treeNode().getChildrenFqn().iterator());
 	}
 
 	public <T> T toBean(Class<T> clz) {
@@ -299,7 +302,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public final static ReadNode ghost(ReadSession session, Fqn fqn) {
-		return new GhostReadNode(session, new GhostTreeNode(session, fqn));
+		return new GhostReadNode(session, fqn);
 	}
 
 	@Override
@@ -391,7 +394,12 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public JsonObject toValueJson() {
-		return tnode.toValueJson();
+		JsonObject result = new JsonObject();
+		for (Entry<PropertyId, PropertyValue> prop : toMap().entrySet()) {
+			result.add(prop.getKey().idString(), prop.getValue().json()); 
+		}
+		
+		return result ;
 	}
 
 	public boolean isGhost() {
@@ -412,9 +420,11 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 class GhostReadNode extends ReadNodeImpl {
 
 	private static final long serialVersionUID = -5073334525889136682L;
+	private GhostTreeNode gnode ;
 
-	GhostReadNode(ReadSession session, TreeNode inner) {
-		super(session, inner);
+	GhostReadNode(ReadSession session, Fqn fqn) {
+		super(session, fqn);
+		this.gnode = new GhostTreeNode(session, fqn);
 	}
 
 	@Override
@@ -433,70 +443,117 @@ class GhostReadNode extends ReadNodeImpl {
 		return AdNodeRows.create(session(), IteratorUtils.EMPTY_ITERATOR, sp);
 		// return FAKE ;
 	}
+	
+	// only use for test
+	public TreeNode<PropertyId, PropertyValue> treeNode() {
+		return gnode ;
+	}
 }
 
-class GhostTreeNode extends TreeNode {
+class GhostTreeNode implements TreeNode<PropertyId, PropertyValue> {
 
 	private ReadSession session;
+	private Fqn fqn;
 
 	GhostTreeNode(ReadSession session, Fqn fqn) {
-		super(session.workspace(), fqn);
 		this.session = session;
+		this.fqn = fqn ;
+	}
+
+
+	@Override
+	public Set<TreeNode<PropertyId, PropertyValue>> getChildren() {
+		return SetUtil.EMPTY;
 	}
 
 	@Override
-	public void clearData() {
-
+	public Set<TreeNode<PropertyId, PropertyValue>> getChildren(Flag... flags) {
+		return SetUtil.EMPTY;
 	}
 
 	@Override
-	public int dataSize() {
-		return 0;
+	public Set<Object> getChildrenNames() {
+		return SetUtil.EMPTY;
 	}
 
 	@Override
-	public PropertyValue get(PropertyId key) {
-		return PropertyValue.NotFound;
+	public Set<Object> getChildrenNames(Flag... flags) {
+		return SetUtil.EMPTY;
 	}
 
 	@Override
-	public TreeNode getChild(Fqn f) {
+	public Map<PropertyId, PropertyValue> getData() {
+		return MapUtil.EMPTY;
+	}
+
+	@Override
+	public Map<PropertyId, PropertyValue> getData(Flag... flags) {
+		return MapUtil.EMPTY;
+	}
+
+	@Override
+	public Set<PropertyId> getKeys() {
+		return SetUtil.EMPTY;
+	}
+
+	@Override
+	public Set<PropertyId> getKeys(Flag... flags) {
+		return SetUtil.EMPTY;
+	}
+
+	@Override
+	public Fqn getFqn() {
+		return fqn;
+	}
+
+	@Override
+	public TreeNode<PropertyId, PropertyValue> addChild(Fqn f) {
 		throw new UnsupportedOperationException("current node is ghost node");
 	}
 
 	@Override
-	public Set<TreeNode> getChildren() {
-		return SetUtil.EMPTY;
+	public TreeNode<PropertyId, PropertyValue> addChild(Fqn f, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
 	}
 
 	@Override
-	public Set<String> getChildrenNames() {
-		return SetUtil.EMPTY;
-	}
-
-	@Override
-	public Fqn fqn() {
-		return super.fqn();
-	}
-
-	@Override
-	public Set<PropertyId> keys() {
-		return SetUtil.EMPTY;
-	}
-
-	@Override
-	public TreeNode parent() {
-		return ((ReadNodeImpl) session.ghostBy(super.fqn().getParent())).treeNode();
-	}
-
-	@Override
-	public boolean hasChild(Fqn f) {
+	public boolean removeChild(Fqn f) {
 		return false;
 	}
 
 	@Override
-	public boolean hasChild(Object o) {
+	public boolean removeChild(Fqn f, Flag... flags) {
 		return false;
+	}
+
+	@Override
+	public boolean removeChild(Object childName) {
+		return false;
+	}
+
+	@Override
+	public boolean removeChild(Object childName, Flag... flags) {
+		return false;
+	}
+
+	@Override
+	public TreeNode<PropertyId, PropertyValue> getChild(Fqn f) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public TreeNode<PropertyId, PropertyValue> getChild(Fqn f, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public TreeNode<PropertyId, PropertyValue> getChild(Object name) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public TreeNode<PropertyId, PropertyValue> getChild(Object name, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
 	}
 
 	@Override
@@ -505,7 +562,7 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
+	public PropertyValue put(PropertyId key, PropertyValue value, Flag... flags) {
 		throw new UnsupportedOperationException("current node is ghost node");
 	}
 
@@ -515,17 +572,7 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
-	public PropertyValue remove(PropertyId key) {
-		throw new UnsupportedOperationException("current node is ghost node");
-	}
-
-	@Override
-	public Map<String, Fqn> removeChild(String childName) {
-		throw new UnsupportedOperationException("current node is ghost node");
-	}
-
-	@Override
-	public Map<String, Fqn> removeChildren() {
+	public PropertyValue putIfAbsent(PropertyId key, PropertyValue value, Flag... flags) {
 		throw new UnsupportedOperationException("current node is ghost node");
 	}
 
@@ -535,7 +582,128 @@ class GhostTreeNode extends TreeNode {
 	}
 
 	@Override
+	public PropertyValue replace(PropertyId key, PropertyValue value, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
 	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue) {
 		throw new UnsupportedOperationException("current node is ghost node");
 	}
+
+	@Override
+	public boolean replace(PropertyId key, PropertyValue oldValue, PropertyValue newValue, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public void putAll(Map<? extends PropertyId, ? extends PropertyValue> map, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public void replaceAll(Map<? extends PropertyId, ? extends PropertyValue> map, Flag... flags) {
+		throw new UnsupportedOperationException("current node is ghost node");
+	}
+
+	@Override
+	public PropertyValue get(PropertyId key) {
+		return PropertyValue.NotFound;
+	}
+
+	@Override
+	public PropertyValue get(PropertyId key, Flag... flags) {
+		return PropertyValue.NotFound;
+	}
+
+	@Override
+	public PropertyValue remove(PropertyId key) {
+		return PropertyValue.NotFound;
+	}
+
+	@Override
+	public PropertyValue remove(PropertyId key, Flag... flags) {
+		return PropertyValue.NotFound;
+	}
+
+	@Override
+	public void clearData() {
+	}
+
+	@Override
+	public void clearData(Flag... flags) {
+	}
+
+	@Override
+	public int dataSize() {
+		return 0;
+	}
+
+	@Override
+	public int dataSize(Flag... flags) {
+		return 0;
+	}
+
+	@Override
+	public boolean hasChild(Fqn f) {
+		return false;
+	}
+
+	@Override
+	public boolean hasChild(Fqn f, Flag... flags) {
+		return false;
+	}
+
+	@Override
+	public boolean hasChild(Object o) {
+		return false;
+	}
+
+	@Override
+	public boolean hasChild(Object o, Flag... flags) {
+		return false;
+	}
+
+	@Override
+	public boolean isValid() {
+		return false;
+	}
+
+	@Override
+	public void removeChildren() {
+
+	}
+
+	@Override
+	public void removeChildren(Flag... flags) {
+	}
+
+	@Override
+	public Set<Fqn> getChildrenFqn() {
+		return SetUtil.EMPTY;
+	}
+
+	@Override
+	public Set<Fqn> getReferencesFqn(String refName) {
+		return SetUtil.EMPTY;
+	}
+	
+	public boolean isProxyStatus(){
+		return false ;
+	}
+
+	public void proxyStatus(boolean b){
+		; //
+	}
+
 }
