@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud.tree ;
 
+import net.ion.craken.node.crud.tree.impl.ProxyHandler;
 import net.ion.craken.node.crud.tree.impl.TreeCacheImpl;
 
 import org.infinispan.Cache;
@@ -23,6 +24,11 @@ public class TreeCacheFactory {
     */
 
    public <K, V> TreeCache<K, V> createTreeCache(Cache<K, V> cache) {
+      return createTreeCache(cache, ProxyHandler.BLANK) ;
+   }
+   
+
+   public <K, V> TreeCache<K, V> createTreeCache(Cache<K, V> cache, ProxyHandler proxyHandler) {
 
       // Validation to make sure that the cache is not null.
 
@@ -37,6 +43,6 @@ public class TreeCacheFactory {
                " calling configurationBuilder.invocationBatching().enable()");
       }
 
-      return new TreeCacheImpl<K, V>(cache);
+      return new TreeCacheImpl<K, V>(cache, proxyHandler);
    }
 }

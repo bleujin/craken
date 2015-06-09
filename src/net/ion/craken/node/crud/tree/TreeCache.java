@@ -3,6 +3,7 @@ package net.ion.craken.node.crud.tree ;
 import java.util.Map;
 import java.util.Set;
 
+import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.commons.CacheException;
 import org.infinispan.context.Flag;
@@ -17,11 +18,11 @@ import org.infinispan.lifecycle.Lifecycle;
  * <p/>
  * For most purposes, we expect people to use the {@link Cache} interface directly as it is simpler.
  * <p/>
- * The tree API assumes that a collection of {@link Node}s, organized in a tree structure underneath a root node,
+ * The tree API assumes that a collection of {@link TreeNode}s, organized in a tree structure underneath a root node,
  * contains key/value attributes of data.
  * <p/>
  * Any locking happens on a node-level granularity, which means that all attributes on a node are atomic and in terms of
- * locking, is coarse grained.  At the same time, replication is fine grained, and only modified attributes in a Node
+ * locking, is coarse grained.  At the same time, replication is fine grained, and only modified attributes in a TreeNode
  * are replicated.
  * <p/>
  * Obtaining a TreeCache is done using the {@link TreeCacheFactory}.
@@ -32,7 +33,7 @@ import org.infinispan.lifecycle.Lifecycle;
  * </pre>
  *
  * @author Manik Surtani (<a href="mailto:manik AT jboss DOT org">manik AT jboss DOT org</a>)
- * @see Node
+ * @see TreeNode
  * @since 4.0
  */
 public interface TreeCache<K, V> extends Lifecycle {
@@ -41,19 +42,19 @@ public interface TreeCache<K, V> extends Lifecycle {
     *
     * @return the root node
     */
-   Node<K, V> getRoot();
+   TreeNode<K, V> getRoot();
 
-   Node<K, V> getRoot(Flag... flags);
+   TreeNode<K, V> getRoot(Flag... flags);
 
    /**
-    * Associates the specified value with the specified key for a {@link Node} in this cache. If the {@link Node}
+    * Associates the specified value with the specified key for a {@link TreeNode} in this cache. If the {@link TreeNode}
     * previously contained a mapping for this key, the old value is replaced by the specified value.
     *
-    * @param fqn   <b><i>absolute</i></b> {@link Fqn} to the {@link Node} to be accessed.
+    * @param fqn   <b><i>absolute</i></b> {@link Fqn} to the {@link TreeNode} to be accessed.
     * @param key   key with which the specified value is to be associated.
     * @param value value to be associated with the specified key.
     * @return previous value associated with specified key, or <code>null</code> if there was no mapping for key. A
-    *         <code>null</code> return can also indicate that the Node previously associated <code>null</code> with the
+    *         <code>null</code> return can also indicate that the TreeNode previously associated <code>null</code> with the
     *         specified key, if the implementation supports null values.
     * @throws IllegalStateException if the cache is not in a started state.
     */
@@ -69,7 +70,7 @@ public interface TreeCache<K, V> extends Lifecycle {
     * @param key   key with which the specified value is to be associated.
     * @param value value to be associated with the specified key.
     * @return previous value associated with specified key, or <code>null</code> if there was no mapping for key. A
-    *         <code>null</code> return can also indicate that the Node previously associated <code>null</code> with the
+    *         <code>null</code> return can also indicate that the TreeNode previously associated <code>null</code> with the
     *         specified key, if the implementation supports null values.
     * @throws IllegalStateException if the cache is not in a started state
     */
@@ -79,9 +80,9 @@ public interface TreeCache<K, V> extends Lifecycle {
    V put(String fqn, K key, V value, Flag... flags);
 
    /**
-    * Copies all of the mappings from the specified map to a {@link Node}.
+    * Copies all of the mappings from the specified map to a {@link TreeNode}.
     *
-    * @param fqn  <b><i>absolute</i></b> {@link Fqn} to the {@link Node} to copy the data to
+    * @param fqn  <b><i>absolute</i></b> {@link Fqn} to the {@link TreeNode} to copy the data to
     * @param data mappings to copy
     * @throws IllegalStateException if the cache is not in a started state
     */
@@ -102,12 +103,12 @@ public interface TreeCache<K, V> extends Lifecycle {
    void put(String fqn, Map<? extends K, ? extends V> data, Flag... flags);
 
    /**
-    * Removes the mapping for this key from a Node. Returns the value to which the Node previously associated the key,
-    * or <code>null</code> if the Node contained no mapping for this key.
+    * Removes the mapping for this key from a TreeNode. Returns the value to which the TreeNode previously associated the key,
+    * or <code>null</code> if the TreeNode contained no mapping for this key.
     *
-    * @param fqn <b><i>absolute</i></b> {@link Fqn} to the {@link Node} to be accessed.
-    * @param key key whose mapping is to be removed from the Node
-    * @return previous value associated with specified Node's key
+    * @param fqn <b><i>absolute</i></b> {@link Fqn} to the {@link TreeNode} to be accessed.
+    * @param key key whose mapping is to be removed from the TreeNode
+    * @return previous value associated with specified TreeNode's key
     * @throws IllegalStateException if the cache is not in a started state
     */
    V remove(Fqn fqn, K key);
@@ -128,9 +129,9 @@ public interface TreeCache<K, V> extends Lifecycle {
    V remove(String fqn, K key, Flag... flags);
 
    /**
-    * Removes a {@link Node} indicated by absolute {@link Fqn}.
+    * Removes a {@link TreeNode} indicated by absolute {@link Fqn}.
     *
-    * @param fqn {@link Node} to remove
+    * @param fqn {@link TreeNode} to remove
     * @return true if the node was removed, false if the node was not found
     * @throws IllegalStateException if the cache is not in a started state
     */
@@ -154,12 +155,12 @@ public interface TreeCache<K, V> extends Lifecycle {
     * cache.getRoot().getChild(fqn).
     *
     * @param fqn fqn of the node to retrieve
-    * @return a Node object, or a null if the node does not exist.
+    * @return a TreeNode object, or a null if the node does not exist.
     * @throws IllegalStateException if the cache is not in a started state
     */
-   Node<K, V> getNode(Fqn fqn);
+   TreeNode<K, V> getNode(Fqn fqn);
 
-   Node<K, V> getNode(Fqn fqn, Flag... flags);
+   TreeNode<K, V> getNode(Fqn fqn, Flag... flags);
 
    /**
     * Convenience method that takes a string representation of an Fqn.  Otherwise identical to {@link #getNode(Fqn)}
@@ -168,17 +169,17 @@ public interface TreeCache<K, V> extends Lifecycle {
     * @return node, or null if the node does not exist
     * @throws IllegalStateException if the cache is not in a started state
     */
-   Node<K, V> getNode(String fqn);
+   TreeNode<K, V> getNode(String fqn);
 
-   Node<K, V> getNode(String fqn, Flag... flags);
+   TreeNode<K, V> getNode(String fqn, Flag... flags);
 
 
    /**
-    * Convenience method that allows for direct access to the data in a {@link Node}.
+    * Convenience method that allows for direct access to the data in a {@link TreeNode}.
     *
-    * @param fqn <b><i>absolute</i></b> {@link Fqn} to the {@link Node} to be accessed.
+    * @param fqn <b><i>absolute</i></b> {@link Fqn} to the {@link TreeNode} to be accessed.
     * @param key key under which value is to be retrieved.
-    * @return returns data held under specified key in {@link Node} denoted by specified Fqn.
+    * @return returns data held under specified key in {@link TreeNode} denoted by specified Fqn.
     * @throws IllegalStateException if the cache is not in a started state
     */
    V get(Fqn fqn, K key);
@@ -345,4 +346,6 @@ public interface TreeCache<K, V> extends Lifecycle {
    boolean exists(Fqn fqn);
 
    boolean exists(Fqn fqn, Flag... flags);
+   
+   public TreeNode<K, V> createTreeNode(AdvancedCache<?, ?> cache, Fqn fqn) ;
 }
