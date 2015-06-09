@@ -3,8 +3,7 @@ package net.ion.bleujin.craken;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.infinispan.configuration.cache.CacheMode;
-
+import junit.framework.TestCase;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
@@ -12,13 +11,13 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import junit.framework.TestCase;
+
+import org.infinispan.configuration.cache.CacheMode;
 
 public class TestSifsWorkspace extends TestCase {
 
@@ -30,8 +29,9 @@ public class TestSifsWorkspace extends TestCase {
 		super.setUp();
 
 //		this.craken = Craken.inmemoryCreateWithTest() ;
-		this.craken = Craken.create();
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.sifsDir("./resource/store/sifs").distMode(CacheMode.DIST_SYNC)) ;
+//		FileUtil.deleteDirectory(new File("./resource/store/sifs"));
+		this.craken = Craken.local();
+		craken.createWorkspace("test", WorkspaceConfigBuilder.sifsDir("./resource/store/sifs").distMode(CacheMode.LOCAL)) ;
 		this.session = craken.login("test");
 	}
 	
@@ -48,6 +48,18 @@ public class TestSifsWorkspace extends TestCase {
 		session.root().walkChildren().debugPrint();
 	}
 	
+	public void testWriteBlob() throws Exception {
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").blob("msg", new StringInputStream("hello world")) ;
+				return null;
+			}
+		}) ;
+		
+		InputStream input = session.pathBy("/bleujin").property("msg").asBlob().toInputStream() ;
+		Debug.line(IOUtil.toStringWithClose(input));
+	}
 	
 	public void xtestRead() throws Exception {
 		session.root().walkChildren().debugPrint();
@@ -74,9 +86,24 @@ public class TestSifsWorkspace extends TestCase {
 			}
 		}) ;
 		session.pathBy("/emp").children().debugPrint(); 
-		
-		
 	}
+	
+	public void xtestChildren2() throws Exception {
+		session.pathBy("/emp").children().debugPrint(); 
+	}
+
+	public void testCreateAncestor() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/hero/jin/dummy1").property("name", "dummy1");
+				wsession.pathBy("/hero/jin/dummy2").property("name", "dummy2");
+				wsession.pathBy("/hero/jin").removeChildren() ;
+				return null;
+			}
+		}) ;
+	}
+	
 	
 	public void testQuery() throws Exception {
 		session.tran(new TransactionJob<Void>() {
@@ -92,7 +119,18 @@ public class TestSifsWorkspace extends TestCase {
 				return null;
 			}
 		}) ;
-		
+		session.root().childQuery("age:30", true).find().debugPrint(); // removed dummy1, dummy2 
+	}
+	
+	public void testQueryAfter() throws Exception {
+//		session.pathBy("/bleujin").debugPrint();
+//		session.tran(new TransactionJob<Void>(){
+//			@Override
+//			public Void handle(WriteSession wsession) throws Exception {
+//				wsession.root().reindex(true) ;
+//				return null;
+//			}
+//		}) ;
 		session.root().childQuery("age:30", true).find().debugPrint(); 
 	}
 	
@@ -134,19 +172,6 @@ public class TestSifsWorkspace extends TestCase {
 		
 		assertEquals(true, session.pathBy("/bleujin/cdd").property("modified").asBoolean().booleanValue()) ;
 		
-	}
-	
-	public void testWriteBlob() throws Exception {
-		session.tran(new TransactionJob<Void>(){
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").blob("msg", new StringInputStream("hello world")) ;
-				return null;
-			}
-		}) ;
-		
-		InputStream input = session.pathBy("/bleujin").property("msg").asBlob().toInputStream() ;
-		Debug.line(IOUtil.toStringWithClose(input));
 	}
 	
 	

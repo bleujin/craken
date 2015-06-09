@@ -1,7 +1,5 @@
 package net.ion.bleujin.infinispan;
 
-import org.apache.lucene.analysis.cjk.CJKAnalyzer;
-
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -9,15 +7,15 @@ import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
+
+import org.apache.lucene.analysis.cjk.CJKAnalyzer;
 
 public class TestFirst extends TestCase {
 
 
 	public void testCreate() throws Exception {
-		Repository r = Craken.inmemoryCreateWithTest().createWorkspace("test2", CrakenWorkspaceConfigBuilder.singleDir("")) ;
+		Repository r = Craken.inmemoryCreateWithTest().createWorkspace("test2", WorkspaceConfigBuilder.indexDir("")) ;
 		
 		r.start() ;
 		
@@ -30,7 +28,6 @@ public class TestFirst extends TestCase {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
 				wsession.pathBy("/dept/dev").property("name", "developer") ;
-				
 				wsession.pathBy("/dev/bleujin").property("name", "bleujin").property("age", 20).property("text", "태극기가 바람에 펄럼입니다.").child("address").property("num", 1).property("juso", "seoul") ;
 				wsession.pathBy("/dev/ryunhee").property("name", "ryunhee").property("age", 20).refTo("dept", "/dept/dev") ;
 				return null;

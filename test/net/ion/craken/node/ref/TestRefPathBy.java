@@ -6,7 +6,7 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.exception.NodeNotExistsException;
+import net.ion.craken.node.crud.tree.NodeNotExistsException;
 
 public class TestRefPathBy extends TestBaseCrud {
 

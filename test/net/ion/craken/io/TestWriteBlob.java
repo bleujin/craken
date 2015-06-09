@@ -18,26 +18,28 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.ReadChildrenEach;
 import net.ion.craken.node.crud.ReadChildrenIterator;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.tree.GridBlob;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
 
+import com.sun.corba.se.impl.activation.RepositoryImpl;
+
 public class TestWriteBlob extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create();
-		r.createWorkspace("3rdparty", WorkspaceConfigBuilder.directory("./resource/store/3rdparty"));
+		this.r = Craken.create();
+		r.createWorkspace("3rdparty", OldFileConfigBuilder.directory("./resource/store/3rdparty"));
 		this.session = r.login("3rdparty");
 	}
 

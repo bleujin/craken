@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.TreeNodeKey.Action;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.RandomUtil;

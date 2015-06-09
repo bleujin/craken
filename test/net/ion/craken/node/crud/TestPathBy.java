@@ -5,7 +5,7 @@ import java.util.Map;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
@@ -60,6 +60,7 @@ public class TestPathBy extends TestBaseCrud {
 		
 		
 		assertEquals(true, session.exists("/bleujin/novision")) ;
+		assertEquals(true, session.root().hasChild("/bleujin")) ;
 		assertEquals(true, session.root().hasChild("/bleujin/novision")) ;
 		
 		
@@ -86,11 +87,8 @@ public class TestPathBy extends TestBaseCrud {
 		assertEquals(true, session.root().equals(novision.parent().parent())) ;
 	}
 	
-	
-	
-	
-	
 	public void testMergeInWriteSession() throws Exception {
+		
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
@@ -98,9 +96,10 @@ public class TestPathBy extends TestBaseCrud {
 				return null;
 			}
 		}).get() ;
+		session.root().children().debugPrint() ;
+		
 		
 		ReadNode child = session.pathBy("/a").child("/b").child("/c").child("1"); // check not null
-		session.root().children().debugPrint() ;
 		assertEquals(3, session.root().children().toList().size()) ;
 	}
 	
@@ -183,10 +182,6 @@ public class TestPathBy extends TestBaseCrud {
 //		Debug.line(session.workspace().getCache().cache().get(new TreeNodeKey(Fqn.fromString("/a/b/c/d"), Type.DATA))) ;
 //		Debug.line(session.workspace().getCache().cache().get(new TreeNodeKey(Fqn.fromString("/a/b/c/d"), Type.STRUCTURE))) ;
 //		
-		for (TreeNodeKey key : session.workspace().cache().keySet()) {
-			Debug.line(key) ;
-		} 
-		
 		Debug.debug(session.exists("/a/b/c/d")) ;
 		assertEquals(false, session.exists("/a/b/c/d")) ; // exist child
 		assertEquals("c", session.pathBy("/a/b/c").property("name").value()) ;
@@ -206,11 +201,13 @@ public class TestPathBy extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				assertEquals(false, wsession.pathBy("/a/b/c/d/e").removeChild("")) ;
+				assertEquals(true, wsession.pathBy("/a/b/c/d/e").removeChild("f")) ;
 				return null;
 			}
 		}).get() ;
 		
 		assertEquals(true, session.exists("/a/b/c/d/e")) ;
+		assertEquals(false, session.exists("/a/b/c/d/e/f")) ;
 
 	}
 	

@@ -7,9 +7,9 @@ import java.util.Map;
 import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.util.ListUtil;
 
 public class TouchedRow {
@@ -18,14 +18,12 @@ public class TouchedRow {
 	private Touch touch;
 	private Fqn target;
 	private Map<String, Fqn> affected;
-	private Map<PropertyId, PropertyValue> value ;
 
 	private TouchedRow(WriteNode source, Touch touch, Fqn target, Map<String, Fqn> affected) {
 		this.source = source;
 		this.touch = touch;
 		this.target = target;
 		this.affected = affected ;
-		this.value = source.toMap() ;
 	}
 
 	public final static TouchedRow create(WriteNode source, Touch touch, Fqn target, Map<String, Fqn> affected) {
@@ -44,12 +42,13 @@ public class TouchedRow {
 		return Collections.unmodifiableMap(affected) ;
 	}
 
-	public WriteNode source() {
-		return source;
+	public Map<PropertyId, PropertyValue> sourceMap() {
+//		Debug.line(source, ((WriteNodeImpl)source).tree().getData(Flag.COMMAND_RETRY) ,source.toMap());
+		return source.toMap();
 	}
 
 	public Map<PropertyId, PropertyValue> value(){
-		return value ;
+		return source.toMap() ;
 	}
 	
 	@Override

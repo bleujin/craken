@@ -10,22 +10,22 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.radon.util.csv.CsvReader;
 
 public class TestStoreSpeed extends TestCase {
 	
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/test"));
+		this.r = Craken.create() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store/test"));
 		this.session = r.login("test");
 		session.tranSync(new TransactionJob<Void>() {
 			@Override

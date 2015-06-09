@@ -12,7 +12,6 @@ import javax.script.ScriptException;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
-import sun.org.mozilla.javascript.internal.NativeJavaObject;
 
 public class Scripter {
 
@@ -56,9 +55,6 @@ public class Scripter {
 		RhinoResponse rhinerHandler = RhinoResponse.ReturnNative ;
 		try {
 			Object result = ((Invocable)engine).invokeMethod(pack, "call");
-			if (result instanceof NativeJavaObject){
-				result = ((NativeJavaObject)result).unwrap() ;
-			} 
 			return rhinerHandler.onSuccess("call", new Object[0], result) ;
 		} catch (ScriptException e) {
 			return rhinerHandler.onThrow("call", new Object[0], e) ;
@@ -77,9 +73,6 @@ public class Scripter {
 
 		try {
 			Object result = ((Invocable)engine).invokeMethod(pack, names[1], params);
-			if (result instanceof NativeJavaObject){
-				result = ((NativeJavaObject)result).unwrap() ;
-			} 
 			return rhinerHandler.onSuccess(fullName, params, result) ;
 		} catch (ScriptException e) {
 			return rhinerHandler.onThrow(fullName, params, e) ;

@@ -2,13 +2,13 @@ package net.ion.craken.node.problem.speed;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 
 public class TestSelectFilterSpeed extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
@@ -16,8 +16,8 @@ public class TestSelectFilterSpeed extends TestCase {
 		super.setUp();
 //		FileUtil.deleteDirectory(new File("./resource/insert")) ;
 		
-		this.r = RepositoryImpl.create();
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/insert"));
+		this.r = Craken.create();
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store/insert"));
 		r.start();
 		this.session = r.login("test");
 	}

@@ -4,11 +4,10 @@ import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
 import net.ion.craken.script.CrakenScript;
-import junit.framework.TestCase;
 
 public class TestBasePackage extends TestCase{
 

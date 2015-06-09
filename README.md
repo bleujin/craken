@@ -49,7 +49,7 @@ public class TestGrid extends TestCase {
 
 	public void testRun() throws Exception {
 		Craken craken = Craken.create() ;
-		craken.createWorkspace("grid", CrakenWorkspaceConfigBuilder.gridDir("./resource/grid")) ;
+		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
 		
 		.....
 		

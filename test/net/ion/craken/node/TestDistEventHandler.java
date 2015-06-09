@@ -6,26 +6,28 @@ import junit.framework.TestCase;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 
+import com.sun.corba.se.impl.activation.RepositoryImpl;
+
 public class TestDistEventHandler extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store")) ;
+		this.r = Craken.local() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store")) ;
 		r.start();
 		this.session = r.login("test");
 	}
@@ -37,7 +39,7 @@ public class TestDistEventHandler extends TestCase {
 	}
 
 	public void testFirst() throws Exception {
-		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = session.workspace().cache() ;
+		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = (Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>>) session.workspace().cache() ;
 //		Debug.line(cache.getListeners());
 		
 //		assertEquals(1, cache.getListeners().size()) ;

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 
 public class TestOtherWorkspace extends TestCase {
 
@@ -23,11 +23,11 @@ public class TestOtherWorkspace extends TestCase {
 	}
 
 	public void testViewConfig() throws Exception {
-		r.createWorkspace("test1", CrakenWorkspaceConfigBuilder.singleDir(""));
-		r.createWorkspace("test2", CrakenWorkspaceConfigBuilder.singleDir(""));
+		r.createWorkspace("test1", WorkspaceConfigBuilder.indexDir(""));
+		r.createWorkspace("test2", WorkspaceConfigBuilder.indexDir(""));
 
 		r.start();
-		ReadSession s1 = r.login("test1");
+		final ReadSession s1 = r.login("test1");
 		ReadSession s2 = r.login("test2");
 		s1.tranSync(new TransactionJob<Void>() {
 			@Override
@@ -38,13 +38,16 @@ public class TestOtherWorkspace extends TestCase {
 			}
 		});
 
-		s1.tranSync(new TransactionJob<Void>() {
+		s2.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/jin").property("name", s1.pathBy("/bleujin").property("name"));
 				return null;
 			}
 
 		});
+		
+		assertEquals("bleujin", s2.pathBy("/jin").property("name").asString());
 
 	}
 

@@ -4,7 +4,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 
 public class TestBasicType extends TestBaseCrud {
 

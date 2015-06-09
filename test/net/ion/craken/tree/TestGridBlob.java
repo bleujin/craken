@@ -1,6 +1,7 @@
 package net.ion.craken.tree;
 
 import junit.framework.TestCase;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
 import net.ion.framework.util.Debug;
 
 public class TestGridBlob extends TestCase{

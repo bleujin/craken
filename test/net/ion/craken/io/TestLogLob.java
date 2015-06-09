@@ -2,7 +2,8 @@ package net.ion.craken.io;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 
@@ -17,8 +18,8 @@ public class TestLogLob extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		RepositoryImpl r = RepositoryImpl.create() ;
-		r.defineWorkspace("search") ;
+		Craken r = Craken.create() ;
+		r.createWorkspace("search", WorkspaceConfigBuilder.oldDir("")) ;
 		this.session = r.login("search") ;
 	}
 	

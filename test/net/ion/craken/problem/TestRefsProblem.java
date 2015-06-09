@@ -5,15 +5,17 @@ import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.search.Searcher;
 
+import com.sun.corba.se.impl.activation.RepositoryImpl;
+
 public class TestRefsProblem extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
@@ -22,8 +24,8 @@ public class TestRefsProblem extends TestCase {
 
 //		FileUtil.deleteDirectory(new File("./resource/temp/test"));
 		
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/temp/test")) ;
+		this.r = Craken.create() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/temp/test")) ;
 		this.session = r.login("test") ;
 	}
 	

@@ -11,7 +11,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
 
 public class TestCDDHandler2 extends TestCase {
@@ -34,7 +34,7 @@ public class TestCDDHandler2 extends TestCase {
 	}
 
 	public void testDefineOtherWorkspace() throws Exception {
-		r.createWorkspace("other", CrakenWorkspaceConfigBuilder.singleDir("")) ;
+		r.createWorkspace("other", WorkspaceConfigBuilder.indexDir("")) ;
 		ReadSession osession = r.login("other") ;
 		
 		assertEquals("test", session.workspace().wsName());
@@ -42,7 +42,7 @@ public class TestCDDHandler2 extends TestCase {
 	}
 	
 	public void testWriteOtherWorkspace() throws Exception {
-		r.createWorkspace("other", CrakenWorkspaceConfigBuilder.singleDir("")) ;
+		r.createWorkspace("other", WorkspaceConfigBuilder.indexDir("")) ;
 		final ReadSession osession = r.login("other") ;
 
 		session.workspace().cddm().add(new CDDModifyHandler("/rooms/{roomId}/messages/{msgId}") {

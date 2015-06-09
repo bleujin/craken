@@ -5,7 +5,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
 
 public class TestNewInterface extends TestCase {
@@ -18,20 +18,20 @@ public class TestNewInterface extends TestCase {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) {
-				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
-				wsession.pathBy("/hero").property("name", "hero").property("age", 20) ;
+				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20) ;
+				wsession.pathBy("/emps/hero").property("name", "hero").property("age", 20) ;
 				return null;
 			}
 		}).get() ;
 		
-		session.root().children().debugPrint();
+		session.pathBy("/").children().debugPrint();
 		Debug.line(System.currentTimeMillis() - start);
 		r.shutdown() ;
 	}
 	
 	
 	public void testReadFromSaved() throws Exception {
-		Repository r = Craken.create().createWorkspace("search", CrakenWorkspaceConfigBuilder.singleDir("")) ;
+		Repository r = Craken.local().createWorkspace("search", WorkspaceConfigBuilder.indexDir("")) ;
 		
 		ReadSession session = r.login("search") ;
 

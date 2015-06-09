@@ -7,8 +7,8 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
-import net.ion.craken.tree.PropertyId;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
 
 public class TestFirst extends TestCase {
 
@@ -20,8 +20,9 @@ public class TestFirst extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.r = Craken.create() ;
-		r.createWorkspace("search", CrakenWorkspaceConfigBuilder.singleDir("./resource/store/search")) ;
-		session = r.login("search") ;
+//		FileUtil.deleteDirectory(new File("./resource/store/test"));
+		r.createWorkspace("test", WorkspaceConfigBuilder.indexDir("./resource/store/test")) ;
+		session = r.login("test") ;
 	}
 	
 	@Override
@@ -53,20 +54,20 @@ public class TestFirst extends TestCase {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").property("name", "bleujin") ;
+				wsession.pathBy("/bleujin").property("name", "bleujin").property("age", 20) ;
 				return null;
 			}
 		}) ;
 		
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").asString()) ;
-
 	}
 	
 	public void testRead() throws Exception {
 		
+		session.workspace().central().newSearcher().createRequest("").find().debugPrint();
 		
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").asString()) ;
-		
+		assertEquals(20, session.pathBy("/bleujin").property("age").asInt()) ;
 	}
 	
 	

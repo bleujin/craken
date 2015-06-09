@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.util.Date;
 
 import junit.framework.TestCase;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.util.Debug;
 
 public class TestSerializeJson extends TestCase {

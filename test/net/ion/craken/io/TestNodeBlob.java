@@ -10,22 +10,24 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
+import com.sun.corba.se.impl.activation.RepositoryImpl;
+
 public class TestNodeBlob extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("search", WorkspaceConfigBuilder.directory("./resource/store/search")) ;
+		this.r = Craken.create() ;
+		r.createWorkspace("search", OldFileConfigBuilder.directory("./resource/store/search")) ;
 		this.session = r.login("search") ;
 	}
 	

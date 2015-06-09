@@ -3,7 +3,7 @@ package net.ion.bleujin;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.ion.craken.aradon.bean.RepositoryEntry;
+import net.ion.craken.aradon.bean.CrakenEntry;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
@@ -18,13 +18,13 @@ import net.ion.framework.util.Debug;
 
 public class TestRemovedProperty extends TestCase {
 
-	private RepositoryEntry rentry;
+	private CrakenEntry rentry;
 	private ReadSession rsession;
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		rentry = RepositoryEntry.test();
+		rentry = CrakenEntry.test();
 		rsession = rentry.login("test");
 	}
 

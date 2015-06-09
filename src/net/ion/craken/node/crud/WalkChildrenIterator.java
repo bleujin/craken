@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.ion.craken.node.ReadSession;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.util.ListUtil;
 
 public class WalkChildrenIterator implements Iterable<WalkReadNode>, Iterator<WalkReadNode> {
@@ -50,9 +51,9 @@ public class WalkChildrenIterator implements Iterable<WalkReadNode>, Iterator<Wa
 	}
 
 	public ReadChildren toReadChildren() {
-		List<TreeNode> tnodes = ListUtil.newList() ;
+		List<Fqn> tnodes = ListUtil.newList() ;
 		for (WalkReadNode trn : list) {
-			tnodes.add(trn.treeNode()) ;
+			tnodes.add(trn.fqn()) ;
 		}
 		return new ReadChildren(session, null, tnodes.iterator());
 	}

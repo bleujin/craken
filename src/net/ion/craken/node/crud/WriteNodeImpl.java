@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +19,15 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.tree.ExtendPropertyId;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue.VType;
 import net.ion.craken.node.exception.NodeIOException;
-import net.ion.craken.tree.ExtendPropertyId;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.GridBlob;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyId.PType;
-import net.ion.craken.tree.PropertyValue;
-import net.ion.craken.tree.PropertyValue.VType;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ArrayUtil;
@@ -50,12 +50,11 @@ import org.infinispan.io.GridFilesystem;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 public class WriteNodeImpl implements WriteNode {
 
 	private WriteSession wsession;
-	private TreeNode tnode;
+	private Fqn fqn;
 
 	public enum Touch implements PropertyValue.ReplaceValue<String> {
 		MODIFY, REMOVE, REMOVECHILDREN, TOUCH;
@@ -70,29 +69,29 @@ public class WriteNodeImpl implements WriteNode {
 		}
 	}
 
-	private WriteNodeImpl(WriteSession wsession, TreeNode tnode) {
+	private WriteNodeImpl(WriteSession wsession, Fqn fqn) {
 		this.wsession = wsession;
-		this.tnode = tnode;
+		this.fqn = fqn;
 	}
 
-	public static WriteNode loadTo(WriteSession wsession, TreeNode tnode) { // by pathBy
-		return loadTo(wsession, tnode, Touch.TOUCH);
+	public static WriteNode loadTo(WriteSession wsession, Fqn fqn) { // by pathBy
+		return loadTo(wsession, fqn, Touch.TOUCH);
 	}
 
-	public static WriteNode loadTo(WriteSession wsession, TreeNode tnode, Touch touch) { // by pathBy
-		final WriteNodeImpl result = new WriteNodeImpl(wsession, tnode);
+	public static WriteNode loadTo(WriteSession wsession, Fqn fqn, Touch touch) { // by pathBy
+		final WriteNodeImpl result = new WriteNodeImpl(wsession, fqn);
 		wsession.notifyTouch(result, result.fqn(), touch, MapUtil.EMPTY);
 		return result;
 	}
 
-	public WriteNode load(WriteSession wsession, TreeNode tnode) {
-		final WriteNodeImpl result = new WriteNodeImpl(wsession, tnode);
+	public WriteNode load(WriteSession wsession, Fqn fqn) {
+		final WriteNodeImpl result = new WriteNodeImpl(wsession, fqn);
 		wsession.notifyTouch(result, result.fqn(), Touch.TOUCH, MapUtil.EMPTY);
 		return result;
 	}
 
-	protected TreeNode tree() {
-		return tnode;
+	public TreeNode<PropertyId, PropertyValue> tree() {
+		return wsession.workspace().readNode(fqn);
 	}
 
 	public WriteSession session() {
@@ -108,7 +107,7 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public ReadNode toReadNode() {
-		return new ReadNodeImpl(wsession.readSession(), tnode);
+		return new ReadNodeImpl(wsession.readSession(), fqn);
 	}
 
 	public WriteNode property(String key, Object value) {
@@ -265,20 +264,22 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public boolean removeChild(String childPath) {
+		if (StringUtil.isBlank(childPath)) return false ;
 		final Fqn target = Fqn.fromRelativeFqn(fqn(), Fqn.fromString(childPath));
 
 		// WriteNodeImpl found = (WriteNodeImpl) wsession.pathBy(target) ;
 		// found.removeBlobIfExist();
 
-		Map<String, Fqn> removed = tree().removeChild(target.name());
-		touchRemoved(Touch.REMOVE, target, removed);
-		return removed.size() > 0;
+		boolean removed = tree().removeChild(target.name());
+		touchRemoved(Touch.REMOVE, target);
+		
+		return removed ;
 	}
 
 	public boolean removeChildren() {
-		Map<String, Fqn> removed = tree().removeChildren();
-		touchRemoved(Touch.REMOVECHILDREN, this.fqn(), removed);
-		return removed.size() > 0;
+		tree().removeChildren();
+		touchRemoved(Touch.REMOVECHILDREN, this.fqn());
+		return true ;
 	}
 
 	public boolean hasProperty(String pid) {
@@ -343,25 +344,8 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public WriteChildren refChildren(String refName) {
-		final Iterator<String> refIter = propertyId(PropertyId.refer(refName)).asSet().iterator();
-		Iterator<TreeNode> titer = new Iterator<TreeNode>() {
-			@Override
-			public boolean hasNext() {
-				return refIter.hasNext();
-			}
-
-			@Override
-			public TreeNode next() {
-				return TreeNode.create(session().workspace(), Fqn.fromString(refIter.next()));
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("readonly");
-			}
-		};
-
-		return new WriteChildren(session(), tnode, titer);
+		Set<Fqn> result = tree().getReferencesFqn(refName) ;
+		return new WriteChildren(session(), fqn, result.iterator());
 	}
 
 	public WriteNode fromJson(JsonObject json) {
@@ -444,7 +428,7 @@ public class WriteNodeImpl implements WriteNode {
 
 	// common
 	public Fqn fqn() {
-		return tree().fqn();
+		return fqn;
 	}
 
 	public int dataSize() {
@@ -452,7 +436,7 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public WriteNode parent() {
-		return load(session(), tree().parent());
+		return load(session(), fqn.getParent());
 	}
 
 	public <T> T transformer(Function<WriteNode, T> function) {
@@ -481,7 +465,7 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public Set<PropertyId> keys() {
-		return tree().keys();
+		return tree().getKeys();
 	}
 
 	public Set<PropertyId> normalKeys() {
@@ -522,14 +506,7 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
-//		return tnode.readMap() ;
-		try {
-			Map<PropertyId, PropertyValue> readMap = tnode.readMap();
-			return new HashMap(readMap) ;
-		} catch(IllegalStateException e){ // concurrent removed
-			return MapUtil.EMPTY ;
-		}
-//		return Collections.unmodifiableMap(readMap);
+		return tree().getData();
 	}
 
 	public Object id() {
@@ -537,20 +514,20 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public String toString() {
-		return this.getClass().getSimpleName() + "[fqn=" + tree().fqn().toString() + ", " + this.fqn().dataKey().action() + "]";
+		return this.getClass().getSimpleName() + "[fqn=" + fqn().toString() + ", " + fqn().dataKey().action() + "]";
 	}
 
 	public WriteChildren children() {
-		final Iterator<TreeNode> iter = tree().getChildren().iterator();
-		return new WriteChildren(session(), tnode, iter);
+		final Iterator<Fqn> iter = tree().getChildrenFqn().iterator();
+		return new WriteChildren(session(), fqn, iter);
 	}
 
 	private void touch(Touch touch) {
 		session().notifyTouch(this, this.fqn(), touch, MapUtil.create(fqn().toString(), fqn()));
 	}
 
-	private void touchRemoved(Touch touch, Fqn target, Map<String, Fqn> affected) {
-		session().notifyTouch(this, target, touch, affected);
+	private void touchRemoved(Touch touch, Fqn target) {
+		session().notifyTouch(this, target, touch, MapUtil.EMPTY);
 	}
 
 	private ReadSession readSession() {

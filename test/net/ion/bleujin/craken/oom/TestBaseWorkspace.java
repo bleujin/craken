@@ -13,13 +13,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.TestCase;
 import net.ion.bleujin.craken.TestCraken;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
-import junit.framework.TestCase;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
 
 public class TestBaseWorkspace extends TestCase{
 
@@ -35,6 +37,8 @@ public class TestBaseWorkspace extends TestCase{
 
 			@Override
 			public Void handle(final WriteSession wsession) throws Exception {
+//				wsession.iwconfig().ignoreIndex() ;
+				
 				Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
 					private long start = System.currentTimeMillis();
 
@@ -47,15 +51,65 @@ public class TestBaseWorkspace extends TestCase{
 							
 							if (icount >= maxcount) return FileVisitResult.TERMINATE ;
 							
-							if ((icount % 300) == 0) {
+							if ((icount % 200) == 0) {
 								System.out.println(count.get() + " committed. elapsed time for unit : " + (System.currentTimeMillis() - start));
 								this.start = System.currentTimeMillis();
 								wsession.continueUnit();
 							}
 
 							String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-							String wpath = TestCraken.makePathString(path) ;
+							String wpath = makePath(path) ;
 							wsession.pathBy(wpath).property("content", content);
+
+							return FileVisitResult.CONTINUE;
+						} catch (Throwable e) {
+							System.err.println(file);
+							throw new IOException(e);
+						}
+					}
+					
+					private String makePath(Path path){
+//						return "/" + new ObjectId().toString() ;
+						return TestCraken.makePathString(path) ;
+					}
+					
+				});
+				
+				
+				return null;
+			}
+		} ;
+	}
+
+	public IndexJob<Void> makeIndexJob(final int maxcount) {
+		return new IndexJob<Void>() {
+			private AtomicInteger count = new AtomicInteger(0);
+			private long start = System.currentTimeMillis();
+
+			@Override
+			public Void handle(final IndexSession isession) throws Exception {
+				Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+					private long start = System.currentTimeMillis();
+
+					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+						File file = path.toFile();
+						try {
+							if (file.isDirectory())
+								return FileVisitResult.CONTINUE;
+							int icount = count.incrementAndGet();
+
+							if (icount >= maxcount)
+								return FileVisitResult.TERMINATE;
+
+							if ((icount % 300) == 0) {
+								System.out.println(count.get() + " committed. elapsed time for unit : " + (System.currentTimeMillis() - start));
+								this.start = System.currentTimeMillis();
+								isession.continueUnit();
+							}
+
+							String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
+							String wpath = makePathString(path);
+							isession.newDocument(wpath).text("content", content).update();
 
 							return FileVisitResult.CONTINUE;
 						} catch (Throwable e) {
@@ -66,6 +120,16 @@ public class TestBaseWorkspace extends TestCase{
 				});
 				return null;
 			}
+
+			public String makePathString(Path path) {
+				Iterator<Path> iter = path.iterator();
+				List<String> result = ListUtil.newList();
+				while (iter.hasNext()) {
+					result.add(String.valueOf(iter.next()));
+				}
+				return "/" + StringUtil.join(result, "/");
+			}
+
 		} ;
 	}
 }

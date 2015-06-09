@@ -5,8 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.ion.framework.util.Debug;
 import junit.framework.TestCase;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
+import net.ion.framework.util.Debug;
 
 public class TestTreeNodeKey extends TestCase{
 	

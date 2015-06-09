@@ -45,7 +45,7 @@ public class PowerFunction extends SingleColumn{
 //	return label;
 //}
 //
-//public Object getValue(Node node) {
+//public Object getValue(TreeNode node) {
 //	String val = String.valueOf(col.getValue(node));
 //	return StringUtil.length(val);
 //}

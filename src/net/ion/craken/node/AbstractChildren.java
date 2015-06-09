@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.ion.craken.node.convert.Predicates;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

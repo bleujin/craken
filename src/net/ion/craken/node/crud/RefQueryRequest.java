@@ -1,7 +1,7 @@
 package net.ion.craken.node.crud;
 
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.index.Term;

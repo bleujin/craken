@@ -8,7 +8,6 @@ import javax.script.ScriptEngineManager;
 
 import junit.framework.TestCase;
 import net.ion.framework.util.Debug;
-import sun.org.mozilla.javascript.internal.NativeJavaObject;
 
 public class TestFirst extends TestCase {
 
@@ -22,9 +21,6 @@ public class TestFirst extends TestCase {
 		Object fn = se.eval(script) ;
 		
 		Object result = ((Invocable)se).invokeMethod(fn, "sum", 1, 2) ;
-		if (result instanceof NativeJavaObject){
-			result = ((NativeJavaObject)result).unwrap() ;
-		}
 		Debug.line(result);
 
 	}

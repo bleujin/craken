@@ -4,7 +4,7 @@ package net.ion.craken.node.problem;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 
 public class TestPath extends TestBaseCrud{
 	

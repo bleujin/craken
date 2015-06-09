@@ -3,7 +3,6 @@ package net.ion.craken.node.search;
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
 
 public class TestBaseSearch extends TestCase {
 

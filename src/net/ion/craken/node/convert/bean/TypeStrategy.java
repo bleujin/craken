@@ -11,7 +11,7 @@ import java.util.Set;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.convert.bean.type.TypeAdaptor;
-import net.ion.craken.tree.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ListUtil;
 

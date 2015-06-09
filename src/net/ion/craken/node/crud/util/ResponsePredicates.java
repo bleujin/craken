@@ -4,7 +4,7 @@ import net.ion.craken.expression.Expression;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.tree.Fqn;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.db.Page;
 import net.ion.rosetta.Parser;
 

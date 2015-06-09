@@ -5,6 +5,8 @@ import java.util.Date;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.util.Debug;
 
 public class TestPropertyValue extends TestBaseCrud{

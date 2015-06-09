@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
+import net.ion.craken.node.crud.Craken;
 import net.ion.framework.util.ListUtil;
 
 import org.infinispan.configuration.cache.CacheMode;
@@ -14,12 +14,12 @@ import org.infinispan.eviction.EvictionStrategy;
 
 public class TestLoader extends TestCase {
 
-	private RepositoryImpl repository;
+	private Craken repository;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		repository = RepositoryImpl.create();
+		repository = Craken.create();
 		repository.dm().defineConfiguration("test", createFastLocalCacheStore(100)) ;
 		repository.start() ;
 	}

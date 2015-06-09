@@ -6,7 +6,7 @@ import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
-import net.ion.craken.node.crud.TreeNodeKey;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
 import org.infinispan.atomic.impl.AtomicHashMap;

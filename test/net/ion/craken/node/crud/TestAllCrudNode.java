@@ -7,7 +7,7 @@ import net.ion.craken.node.crud.property.TestBasicType;
 public class TestAllCrudNode extends TestSuite {
 
 	public static TestSuite suite(){
-		TestSuite suite = new TestSuite("Test All Node CRUD") ;
+		TestSuite suite = new TestSuite("Test All TreeNode CRUD") ;
 
 		suite.addTestSuite(TestFirst.class) ;
 		suite.addTestSuite(TestPathBy.class) ;

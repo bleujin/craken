@@ -1,6 +1,6 @@
 package net.ion.craken.script;
 
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 
 public class DBFunction {
 

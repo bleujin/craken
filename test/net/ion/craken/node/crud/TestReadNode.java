@@ -3,7 +3,7 @@ package net.ion.craken.node.crud;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 
 public class TestReadNode extends TestBaseCrud {
 

@@ -9,12 +9,12 @@ import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.util.Debug;
 
+import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.MapReduceTask;
@@ -55,8 +55,9 @@ public class TestMapReduce extends TestCase {
 	}
 
 	public void testMapReduce() throws Exception {
-		MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer> task = 
-				new MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer>(session.workspace().cache());
+		Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache = (Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>>) session.workspace().cache() ;
+		
+		MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer> task = new MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, String, Integer>(cache);
 		task.mappedWith(new WordCountMapper()).reducedWith(new WordCountReducer()) ;
 		
 		Map<String, Integer> map = task.execute();

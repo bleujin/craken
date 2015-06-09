@@ -15,8 +15,11 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.convert.rows.AdNodeRows;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.ReadChildrenEachs;
-import net.ion.craken.tree.PropertyValue;
 import net.ion.framework.db.Page;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.ListUtil;
@@ -35,13 +38,13 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 	private List<Predicate<ReadNode>> filters ;
 
 	private final ReadSession session;
-	private TreeNode source; // parent or refsource
-	private Iterator<TreeNode> treeNodes ;
+	private Fqn sourceFqn; // parent or refsource
+	private Iterator<Fqn> treeFqns ;
 
-	ReadChildren(ReadSession session, TreeNode source, Iterator<TreeNode> treeNodes) {
+	ReadChildren(ReadSession session, Fqn sourceFqn, Iterator<Fqn> treeFqns) {
 		this.session = session;
-		this.source = source ;
-		this.treeNodes = treeNodes ;
+		this.sourceFqn = sourceFqn ;
+		this.treeFqns = treeFqns ;
 		this.sorts = ListUtil.newList();
 		this.filters = ListUtil.newList();
 	}
@@ -56,16 +59,20 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return this;
 	}
 	
-	protected TreeNode source(){
-		return source ;
+	protected Fqn sourceFqn(){
+		return sourceFqn ;
+	}
+	
+	protected Iterator<Fqn> treeFqn(){
+		return treeFqns ;
+	}
+	
+	protected TreeNode<PropertyId, PropertyValue> source(){
+		return session.workspace().readNode(sourceFqn) ;
 	}
 	
 	protected ReadSession session(){
 		return session ;
-	}
-	
-	protected Iterator<TreeNode> treeNodes(){
-		return treeNodes ;
 	}
 	
 	protected int skip(){
@@ -96,9 +103,9 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		
 		Predicate<ReadNode> andFilters = Predicates.and(filters) ; 
 
-		while(treeNodes.hasNext()){
-			TreeNode tn = treeNodes.next() ;
-			ReadNode read = ReadNodeImpl.load(session, tn);
+		while(treeFqns.hasNext()){
+			Fqn nextFqn = treeFqns.next() ;
+			ReadNode read = ReadNodeImpl.load(session, nextFqn);
 			if (andFilters.apply(read)) listNode.add(read) ; // apply filter
 		}
 		

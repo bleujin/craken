@@ -6,8 +6,8 @@ import java.util.Map;
 
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.tree.Fqn;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 

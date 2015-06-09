@@ -1,8 +1,8 @@
 package net.ion.craken.mr;
 
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Mapper;

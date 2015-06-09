@@ -1,16 +1,14 @@
 package net.ion.craken.mr;
 
-import net.ion.craken.node.crud.TreeNodeKey;
-import net.ion.craken.tree.PropertyId;
-import net.ion.craken.tree.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyValue;
 
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.MapReduceTask;
 
-public class NodeMapReduceTask<Ri, Rv> extends MapReduceTask<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>, Ri, Rv>{
+public class NodeMapReduceTask<Ri, Rv> extends MapReduceTask<PropertyId, PropertyValue, Ri, Rv>{
 
-	public NodeMapReduceTask(Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache) {
+	public NodeMapReduceTask(Cache<PropertyId, PropertyValue> cache) {
 		super(cache);
 	}
 

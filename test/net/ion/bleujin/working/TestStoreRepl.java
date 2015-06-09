@@ -2,28 +2,28 @@ package net.ion.bleujin.working;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
-import net.ion.craken.node.Repository;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 
 import org.infinispan.configuration.cache.CacheMode;
 
+import com.sun.corba.se.impl.activation.RepositoryImpl;
+
 public class TestStoreRepl extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("swpace", WorkspaceConfigBuilder.directory("./resource/store/search").distMode(CacheMode.DIST_SYNC)) ;
+		this.r = Craken.create() ;
+		r.createWorkspace("swpace", OldFileConfigBuilder.directory("./resource/store/search").distMode(CacheMode.DIST_SYNC)) ;
 		
 		this.session = r.login("swpace") ;
 	}

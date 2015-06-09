@@ -5,19 +5,21 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
-import net.ion.craken.node.crud.RepositoryImpl;
-import net.ion.craken.node.crud.WorkspaceConfigBuilder;
+import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+
+import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestCrakenStore extends TestCase {
 
-	private RepositoryImpl r;
+	private Craken r;
 	private ReadSession session;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = RepositoryImpl.create() ;
-		r.createWorkspace("test", WorkspaceConfigBuilder.directory("./resource/store/test")) ;
+		this.r = Craken.create() ;
+		r.createWorkspace("test", OldFileConfigBuilder.directory("./resource/store/test")) ;
 		this.session = r.login("test") ;
 	}
 	

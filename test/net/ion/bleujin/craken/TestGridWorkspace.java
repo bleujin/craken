@@ -12,13 +12,12 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
-import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.io.GridFilesystem;
 
 public class TestGridWorkspace extends TestCase {
@@ -31,8 +30,8 @@ public class TestGridWorkspace extends TestCase {
 		super.setUp();
 
 //		this.craken = Craken.inmemoryCreateWithTest() ;
-		this.craken = Craken.create();
-		craken.createWorkspace("test", CrakenWorkspaceConfigBuilder.gridDir("./resource/grid").distMode(CacheMode.DIST_SYNC)) ;
+		this.craken = Craken.local();
+		craken.createWorkspace("test", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
 		this.session = craken.login("test");
 	}
 	
@@ -50,6 +49,20 @@ public class TestGridWorkspace extends TestCase {
 	}
 	
 	
+	
+	public void testWriteBlob() throws Exception {
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").blob("msg", new StringInputStream("hello world")) ;
+				return null;
+			}
+		}) ;
+		
+		InputStream input = session.pathBy("/bleujin").property("msg").asBlob().toInputStream() ;
+		Debug.line(IOUtil.toStringWithClose(input));
+	}
+
 	public void xtestRead() throws Exception {
 		session.root().walkChildren().debugPrint();
 		
@@ -137,19 +150,6 @@ public class TestGridWorkspace extends TestCase {
 		
 		assertEquals(true, session.pathBy("/bleujin/cdd").property("modified").asBoolean().booleanValue()) ;
 		
-	}
-	
-	public void testWriteBlob() throws Exception {
-		session.tran(new TransactionJob<Void>(){
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/bleujin").blob("msg", new StringInputStream("hello world")) ;
-				return null;
-			}
-		}) ;
-		
-		InputStream input = session.pathBy("/bleujin").property("msg").asBlob().toInputStream() ;
-		Debug.line(IOUtil.toStringWithClose(input));
 	}
 
 	
