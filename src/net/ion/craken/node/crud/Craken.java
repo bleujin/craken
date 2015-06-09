@@ -50,6 +50,7 @@ public class Craken implements Repository {
 	}
 
 	public static Craken create() throws IOException {
+		
 		return create(new DefaultCacheManager("./resource/config/craken-cache-config.xml"), "emanon");
 	}
 	

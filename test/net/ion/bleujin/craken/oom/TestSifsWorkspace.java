@@ -14,17 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.lucene.analysis.cjk.CJKAnalyzer;
-import org.infinispan.configuration.cache.CacheMode;
-
-import net.ion.bleujin.craken.TestCraken;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.store.CrakenWorkspaceConfigBuilder;
-import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
@@ -32,10 +26,11 @@ import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.index.Indexer;
+
+import org.infinispan.configuration.cache.CacheMode;
 
 public class TestSifsWorkspace extends TestBaseWorkspace {
 
@@ -173,9 +168,12 @@ public class TestSifsWorkspace extends TestBaseWorkspace {
 //			FileUtil.deleteDirectory(new File("./resource/sifs"));
 		craken.createWorkspace("sifs", CrakenWorkspaceConfigBuilder.sifsDir("./resource/sifs").distMode(CacheMode.DIST_SYNC));
 		ReadSession session = craken.login("sifs");
-		Central central = session.workspace().central() ;
-		Debug.line(central.newSearcher().createRequest("").find().totalCount()) ;
+//		Central central = session.workspace().central() ;
+//		Debug.line(central.newSearcher().createRequest("").find().totalCount()) ;
 		new InfinityThread().startNJoin(); 
 	}
+	
+	
+	
 
 }
