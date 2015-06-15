@@ -166,7 +166,7 @@ public class IndexFileConfigBuilder extends WorkspaceConfigBuilder {
 		Cache<?, ?> dataCache = cacheManager.getCache(name + "-chunk");
 		Cache<?, ?> lockCache = cacheManager.getCache(name + "-lock");
 
-		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
+		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, lockCache, name);
 //		bcontext.chunkSize(1024 * 1024);
 		Directory directory = bcontext.create();
 		
