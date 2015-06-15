@@ -10,14 +10,14 @@
    </jgroups>
 
    <cache-container name="sample" statistics="true"  default-cache="default-cache" shutdown-hook="DEFAULT">
-	   <transport stack="tcp" cluster="craken-sample" node-name="emanon" machine="bleujin" rack="r1" site="LON" />
+	   <transport stack="tcp" cluster="craken-sample" node-name="emanon" machine="bleujin" rack="r1" site="ION" />
 	
 	   <jmx domain="org.infinispan" />
 	
 	   <replicated-cache name="default-cache" statistics="true" mode="SYNC" remote-timeout="20000">
 	     
 	      <locking isolation="READ_COMMITTED" acquire-timeout="20000" write-skew="false" concurrency-level="5000" striping="false" />
-	      <state-transfer enabled="false" timeout="240000" chunk-size="10000" />
+	      <state-transfer enabled="true" timeout="240000" chunk-size="10000" />
 	   </replicated-cache>
 
    </cache-container>

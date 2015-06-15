@@ -240,5 +240,36 @@ public class TestCDDHandler extends TestCase {
 
 //		session.pathBy("/rooms/1/messages").children().debugPrint(); 
 	}
+	
+	public void testEmptyRemove() throws Exception {
+		session.workspace().cddm().add(new CDDHandler() {
+
+			@Override
+			public String pathPattern() {
+				return "/ics/querycache/{groupid}";
+			}
+
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
+				return null;
+			}
+
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
+				Debug.line(resolveMap.get("groupid"), event);
+				return null;
+			}
+		}) ;
+		
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/ics/querycache/1qq").removeSelf() ;
+				wsession.pathBy("/ics/querycache/2qq").removeSelf() ;
+				return null;
+			}
+			
+		}) ;
+	}
 }
 

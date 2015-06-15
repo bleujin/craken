@@ -31,12 +31,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean exists(AdvancedCache<?, ?> cache, Fqn f) {
-		startAtomic();
-		try {
-			return cache.containsKey(f.dataKey()) && cache.containsKey(f.struKey());
-		} finally {
-			endAtomic();
-		}
+		return cache.containsKey(f.dataKey()) && cache.containsKey(f.struKey());
 	}
 
 	/**
@@ -47,8 +42,6 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean createNodeInCache(AdvancedCache<?, ?> cache, Fqn fqn) {
-		startAtomic();
-		try {
 			TreeNodeKey dataKey = fqn.dataKey() ;
 			TreeNodeKey structureKey = fqn.struKey() ;
 			if (cache.containsKey(dataKey) && cache.containsKey(structureKey))
@@ -65,9 +58,6 @@ public class TreeStructureSupport extends AutoBatchSupport {
 			if (log.isTraceEnabled())
 				log.tracef("Created node %s", fqn);
 			return true;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	public static boolean isLocked(LockManager lockManager, Fqn fqn) {

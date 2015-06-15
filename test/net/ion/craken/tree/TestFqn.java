@@ -58,4 +58,21 @@ public class TestFqn extends TestBaseCrud {
 		assertEquals("/emps/bleujin", Fqn.fromString("/emps//bleujin/").toString()) ;
 	}
 	
+	
+	public void testIllegalPath() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emp//bleujin").property("name", "bleujin") ; // oops
+				wsession.pathBy("/emp/", "/hero").property("name", "hero") ; // oops
+				return null;
+			}
+		}) ;
+		
+		assertEquals("bleujin", session.pathBy("/emp/bleujin").property("name").asString()) ;
+		assertEquals("hero", session.pathBy("/emp/hero").property("name").asString()) ;
+		assertEquals("bleujin", session.pathBy("/emp//bleujin").property("name").asString()) ;
+		assertEquals("hero", session.pathBy("/emp//hero").property("name").asString()) ;
+	}
+	
 }

@@ -72,16 +72,11 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	private void put(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, Map<? extends K, ? extends V> data) {
-		startAtomic();
-		try {
 			TreeNode<K, V> n = getNode(cache, fqn);
 			if (n == null)
 				createNodeInCache(cache, fqn);
 			n = getNode(cache, fqn);
 			n.putAll(data);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -105,13 +100,8 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	private V remove(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, K key) {
-		startAtomic();
-		try {
 			AtomicMap<K, V> map = getData(cache, fqn.dataKey());
 			return map == null ? null : map.remove(key);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -137,16 +127,11 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	private boolean removeNode(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn) {
 		if (fqn.isRoot())
 			return false;
-		startAtomic();
 		boolean result;
-		try {
 			if (trace)
 				log.tracef("About to remove node %s", fqn);
 			TreeNode<K, V> n = getNode(cache, fqn.getParent());
 			result = n != null && n.removeChild(fqn.getLastElement());
-		} finally {
-			endAtomic();
-		}
 		if (trace)
 			log.trace("TreeNode successfully removed");
 		return result;
@@ -173,15 +158,10 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	private TreeNode<K, V> getNode(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn) {
-		startAtomic();
-		try {
 			if (exists(cache, fqn))
 				return createTreeNode(cache, fqn);
 			else
 				return null;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	public TreeNode<K, V> createTreeNode(AdvancedCache<?, ?> cache, Fqn fqn) {
@@ -339,16 +319,11 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	private Map<K, V> getData(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn) {
-		startAtomic();
-		try {
 			TreeNode<K, V> node = getNode(cache, fqn);
 			if (node == null)
 				return null;
 			else
 				return node.getData();
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -372,16 +347,11 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	private Set<K> getKeys(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn) {
-		startAtomic();
-		try {
 			TreeNode<K, V> node = getNode(cache, fqn);
 			if (node == null)
 				return null;
 			else
 				return node.getKeys();
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -405,14 +375,9 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	public void clearData(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn) {
-		startAtomic();
-		try {
 			TreeNode<K, V> node = getNode(cache, fqn);
 			if (node != null)
 				node.clearData();
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -426,14 +391,9 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	}
 
 	private V put(AdvancedCache<TreeNodeKey, AtomicMap<?, ?>> cache, Fqn fqn, K key, V value) {
-		startAtomic();
-		try {
 			createNodeInCache(cache, fqn);
 			Map<K, V> m = getData(cache, fqn.dataKey());
 			return m.put(key, value);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override

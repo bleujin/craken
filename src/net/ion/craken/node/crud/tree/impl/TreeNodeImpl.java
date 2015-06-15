@@ -61,24 +61,17 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 	
 	public Set<Fqn> getChildrenFqn(){
-		startAtomic();
-		try {
 			Set<Fqn> result = new HashSet<Fqn>();
 			for (Fqn f : getStructure().values()) {
 				result.add(f);
 			}
 			return Immutables.immutableSetWrap(result);
-		} finally {
-			endAtomic();
-		}
 	}
 	
 
 	@Override
 	public Set<Fqn> getReferencesFqn(String refName) {
 		PropertyValue pvalue = (PropertyValue)get((K)PropertyId.refer(refName)) ;
-		startAtomic();
-		try {
 			if (pvalue == null) return SetUtil.EMPTY ;
 			
 			Set<Fqn> result = SetUtil.newOrdereddSet();
@@ -89,9 +82,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 				result.add(refFqn);
 			}
 			return Immutables.immutableSetWrap(result);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -100,17 +90,12 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private Set<TreeNode<K, V>> getChildren(AdvancedCache<?, ?> cache) {
-		startAtomic();
-		try {
 			Set<TreeNode<K, V>> result = new HashSet<TreeNode<K, V>>();
 			for (Fqn f : getStructure().values()) {
 				TreeNode<K, V> n = tcache.createTreeNode(cache, f) ;
 				result.add(n);
 			}
 			return Immutables.immutableSetWrap(result);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -152,12 +137,7 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private Set<K> getKeys(AdvancedCache<?, ?> cache) {
-		startAtomic();
-		try {
 			return getData(cache).keySet();
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -176,8 +156,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private TreeNode<K, V> addChild(AdvancedCache<?, ?> cache, Fqn f) {
-		startAtomic();
-		try {
 			Fqn absoluteChildFqn = Fqn.fromRelativeFqn(fqn, f);
 
 			// 1) first register it with the parent
@@ -188,9 +166,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 			createNodeInCache(cache, absoluteChildFqn);
 
 			return tcache.createTreeNode(cache, absoluteChildFqn) ;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -218,8 +193,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private boolean removeChild(AdvancedCache cache, Object childName) {
-		startAtomic();
-		try {
 			AtomicMap<Object, Fqn> s = getStructure(cache);
 			Fqn childFqn = s.remove(childName);
 			if (childFqn != null) {
@@ -232,9 +205,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 			}
 
 			return false;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -248,15 +218,10 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private TreeNode<K, V> getChild(AdvancedCache cache, Fqn f) {
-		startAtomic();
-		try {
 			if (hasChild(f))
 				return tcache.createTreeNode(cache, Fqn.fromRelativeFqn(fqn, f)) ;
 			else
 				return null;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -270,15 +235,10 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private TreeNode<K, V> getChild(AdvancedCache cache, Object name) {
-		startAtomic();
-		try {
 			if (hasChild(name))
 				return tcache.createTreeNode(cache, Fqn.fromRelativeElements(fqn, name)) ;
 			else
 				return null;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -292,13 +252,8 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private V put(AdvancedCache cache, K key, V value) {
-		startAtomic();
-		try {
 			AtomicHashMapProxy<K, V> map = (AtomicHashMapProxy<K, V>) getDataInternal(cache);
 			return map.put(key, value);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -312,15 +267,10 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private V putIfAbsent(AdvancedCache<?, ?> cache, K key, V value) {
-		startAtomic();
-		try {
 			AtomicMap<K, V> data = getDataInternal(cache);
 			if (!data.containsKey(key))
 				return data.put(key, value);
 			return data.get(key);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -334,16 +284,11 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private V replace(AdvancedCache<?, ?> cache, K key, V value) {
-		startAtomic();
-		try {
 			AtomicMap<K, V> map = getData(cache, dataKey);
 			if (map.containsKey(key))
 				return map.put(key, value);
 			else
 				return null;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -357,8 +302,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private boolean replace(AdvancedCache<?, ?> cache, K key, V oldValue, V newValue) {
-		startAtomic();
-		try {
 			AtomicMap<K, V> data = getDataInternal(cache);
 			V old = data.get(key);
 			if (Util.safeEquals(oldValue, old)) {
@@ -366,9 +309,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 				return true;
 			}
 			return false;
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -382,12 +322,7 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private void putAll(AdvancedCache cache, Map<? extends K, ? extends V> map) {
-		startAtomic();
-		try {
 			getDataInternal(cache).putAll(map);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -401,14 +336,9 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private void replaceAll(AdvancedCache cache, Map<? extends K, ? extends V> map) {
-		startAtomic();
-		try {
 			AtomicMap<K, V> data = getDataInternal(cache);
 			data.clear();
 			data.putAll(map);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	@Override
@@ -436,12 +366,7 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private V remove(AdvancedCache cache, K key) {
-		startAtomic();
-		try {
-			return getDataInternal(cache).remove(key);
-		} finally {
-			endAtomic();
-		}
+		return getDataInternal(cache).remove(key);
 	}
 
 	@Override
@@ -522,14 +447,9 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private void removeChildren(AdvancedCache<?, ?> cache) {
-		startAtomic();
-		try {
 			Map<Object, Fqn> s = getStructure(cache);
 			for (Object o : Immutables.immutableSetCopy(s.keySet()))
 				removeChild(cache, o);
-		} finally {
-			endAtomic();
-		}
 	}
 
 	private AtomicMap<K, V> getDataInternal(AdvancedCache<?, ?> cache) {

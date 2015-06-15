@@ -25,18 +25,12 @@ public class Indexer implements Closeable{
 	private IndexExceptionHandler<?> ehandler = IndexExceptionHandler.DEFAULT ;
 	private IndexWriter iwriter;
 	
-	private Indexer(CentralConfig config, IndexConfig iconfig, Central central, SingleSearcher searcher) {
+	private Indexer(CentralConfig config, IndexConfig iconfig, Central central, SingleSearcher searcher) throws IOException {
 		this.central = central;
 		this.iconfig = iconfig ;
 		this.searcher = searcher ;
 		
-		try {
-			this.iwriter = new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+//		this.iwriter = new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
 	}
 	
 	public Analyzer analyzer() {
@@ -44,7 +38,7 @@ public class Indexer implements Closeable{
 	}
 
 	
-	public static Indexer create(CentralConfig config, IndexConfig iconfig, Central central, SingleSearcher searcher) {
+	public static Indexer create(CentralConfig config, IndexConfig iconfig, Central central, SingleSearcher searcher) throws IOException {
 		return new Indexer(config, iconfig, central, searcher);
 	}
 
@@ -100,6 +94,17 @@ public class Indexer implements Closeable{
 		return asyncIndex(name, analyzer, indexJob, ehandler) ;
 	}
 	
+	private IndexWriter makeIndexWriter() throws IOException{
+		return new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
+	}
+	
+	private synchronized  IndexWriter indexWriter() throws IOException{
+		if (iwriter == null){
+			this.iwriter = new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
+		}
+		return iwriter ;
+	}
+	
 	public <T> Future<T> asyncIndex(final String name, final Analyzer analyzer, final IndexJob<T> indexJob, final IndexExceptionHandler handler) {
 		
 		return iconfig.indexExecutor().submit(new Callable<T>(){
@@ -108,7 +113,7 @@ public class Indexer implements Closeable{
 				Lock lock = central.writeLock() ;
 				try {
 					lock.lock();
-					session = IndexSession.create(searcher, analyzer, Indexer.this.iwriter);
+					session = IndexSession.create(searcher, analyzer, Indexer.this.indexWriter());
 					session.begin(name) ;
 					T result = indexJob.handle(session);
 					

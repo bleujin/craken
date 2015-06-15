@@ -181,17 +181,17 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid"));
 		ReadSession session = craken.login("grid");
 		long start = System.currentTimeMillis() ;
-		session.root().walkChildren().eachNode(new ReadChildrenEach<Void>() {
-
-			@Override
-			public Void handle(ReadChildrenIterator citer) {
-				while(citer.hasNext()){
-					Debug.line(citer.next().fqn());
-				}
-				return null;
-			}
-		}) ;
-		Debug.line(System.currentTimeMillis() - start);
+//		session.root().walkChildren().eachNode(new ReadChildrenEach<Void>() {
+//
+//			@Override
+//			public Void handle(ReadChildrenIterator citer) {
+//				while(citer.hasNext()){
+//					Debug.line(citer.next().fqn());
+//				}
+//				return null;
+//			}
+//		}) ;
+//		Debug.line(System.currentTimeMillis() - start);
 		start = System.currentTimeMillis() ;
 		Debug.line(session.root().childQuery("", true).find().totalCount(), System.currentTimeMillis() - start) ;
 	}

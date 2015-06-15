@@ -19,10 +19,10 @@
 	<classpathentry kind="lib" path="lib/ref/aclient_0.5.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/guava-jdk5-13.0.jar"/>
 	<classpathentry kind="lib" path="lib/imsi/jsr311_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/infinispan722_fat.jar"/>
+	<classpathentry kind="lib" path="lib/reflib/infinispan-embedded-query-7.2.2.Final.jar"/>
 	<classpathentry kind="lib" path="lib/ref/isearcher_4.10.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search4104_fat.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/search_util_fat.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/infinispan722_fat.jar"/>
-	<classpathentry kind="lib" path="lib/reflib/infinispan-embedded-query-7.2.2.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -488,7 +488,7 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 				}
 			};
 
-			wspace.central().newIndexer().index(indexJob) ;
+			// wspace.central().newIndexer().index(indexJob) ;
 		}
 
 	}
