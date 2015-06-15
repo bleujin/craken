@@ -93,6 +93,7 @@ public class TestDist extends TestCase {
 				r.shutdown() ;
 			}
 		});
+		
 
 
 		ReadSession session = r.login("ics");
