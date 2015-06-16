@@ -69,12 +69,30 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 	@Override
 	public WorkspaceConfigBuilder build(DefaultCacheManager dm, String wsName) throws IOException {
 		if (StringUtil.isBlank(rootPath)) {
-			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder()
-			.persistence().passivation(false)
-			.transaction().invocationBatching().enable()
-			.clustering() ; 
-			
-			dm.defineConfiguration(wsName, real_configBuilder.build()) ;
+			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
+					.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable().clustering();
+
+			ClusteringConfigurationBuilder idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();
+			ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+			ClusteringConfigurationBuilder idx_lock_builder = new ConfigurationBuilder().persistence().passivation(true)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+
+			if (cacheMode().isClustered()){
+				real_configBuilder.cacheMode(CacheMode.REPL_ASYNC) ;
+				idx_meta_builder.cacheMode(CacheMode.REPL_SYNC) ;
+				idx_chunk_builder.cacheMode(CacheMode.DIST_SYNC) ;
+				idx_lock_builder.cacheMode(CacheMode.REPL_SYNC) ;
+			}
+					
+			dm.defineConfiguration(wsName, real_configBuilder.build());
+			dm.defineConfiguration(wsName + "-meta", idx_meta_builder.build());
+			dm.defineConfiguration(wsName + "-chunk", idx_chunk_builder.build());
+			dm.defineConfiguration(wsName + "-lock", idx_lock_builder.build());
+
+			this.central = makeCentral(dm, wsName);
+			this.gfs = makeGridSystem(dm, wsName);
 			
 		} else if (StringUtil.isNotBlank(rootPath)) {
 
@@ -99,7 +117,7 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 			
 			
 			idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
-				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
+				.addSingleFileStore().fetchPersistentState(true).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
 				.modificationQueueSize(1000).threadPoolSize(3)
 				.clustering() ;
@@ -113,7 +131,7 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 			
 			data_meta_builder = new ConfigurationBuilder() 
 				.persistence().passivation(false)
-				.addSingleFileStore().fetchPersistentState(false).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
+				.addSingleFileStore().fetchPersistentState(true).preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).location(rootPath)
 				.async().disable().flushLockTimeout(300000).shutdownTimeout(2000)
 				.modificationQueueSize(1000).threadPoolSize(3)
 				.clustering();
@@ -127,14 +145,14 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 				.clustering();
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){
-				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ; 
+				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering() ; // .l1().enable().clustering() ; 
 				idx_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				idx_chunk_builder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
 				data_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				data_chunk_builder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 			} else if (cacheMode().isClustered()){
-				real_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ; 
+				real_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering() ; //.l1().enable().clustering() ; 
 				idx_meta_builder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				idx_chunk_builder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
@@ -179,10 +197,13 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 		EmbeddedCacheManager cacheManager = cache.getCacheManager();
 		Cache<?, ?> metaCache = cacheManager.getCache(name + "-meta");
 		Cache<?, ?> dataCache = cacheManager.getCache(name + "-chunk");
+		Cache<?, ?> lockCache = cacheManager.getCache(name + "-lock");
 
-		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
-		bcontext.chunkSize(1024 * 1024);
+		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, lockCache, name);
+//		bcontext.chunkSize(1024 * 1024);
 		Directory directory = bcontext.create();
+		
+		
 		return CentralConfig.oldFromDir(directory).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
 	}
 	

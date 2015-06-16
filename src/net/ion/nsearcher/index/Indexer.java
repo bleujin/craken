@@ -94,10 +94,6 @@ public class Indexer implements Closeable{
 		return asyncIndex(name, analyzer, indexJob, ehandler) ;
 	}
 	
-	private IndexWriter makeIndexWriter() throws IOException{
-		return new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
-	}
-	
 	private synchronized  IndexWriter indexWriter() throws IOException{
 		if (iwriter == null){
 			this.iwriter = new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));

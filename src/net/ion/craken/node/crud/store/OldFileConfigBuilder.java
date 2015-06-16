@@ -60,10 +60,20 @@ public class OldFileConfigBuilder extends WorkspaceConfigBuilder {
 					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();
 			ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
 					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+			ClusteringConfigurationBuilder idx_lock_builder = new ConfigurationBuilder().persistence().passivation(true)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
 
+			if (cacheMode().isClustered()){
+				real_configBuilder.cacheMode(CacheMode.REPL_ASYNC) ;
+				idx_meta_builder.cacheMode(CacheMode.REPL_SYNC) ;
+				idx_chunk_builder.cacheMode(CacheMode.DIST_SYNC) ;
+				idx_lock_builder.cacheMode(CacheMode.REPL_SYNC) ;
+			}
+					
 			dm.defineConfiguration(wsName, real_configBuilder.build());
 			dm.defineConfiguration(wsName + "-meta", idx_meta_builder.build());
 			dm.defineConfiguration(wsName + "-chunk", idx_chunk_builder.build());
+			dm.defineConfiguration(wsName + "-lock", idx_lock_builder.build());
 
 			this.central = makeCentral(dm, wsName);
 			this.gfs = makeGridSystem(dm, wsName);
@@ -109,12 +119,14 @@ public class OldFileConfigBuilder extends WorkspaceConfigBuilder {
 			
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){
+				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering() ; //.l1().enable().clustering() ; 
 				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				chunk_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
 				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				blob_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 			} else if (cacheMode().isClustered()){
+				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering() ; //.l1().enable().clustering() ; 
 				meta_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				chunk_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(100, TimeUnit.SECONDS) ;
 				
@@ -173,8 +185,10 @@ public class OldFileConfigBuilder extends WorkspaceConfigBuilder {
 		Cache<?, ?> lockCache = cacheManager.getCache(name + "-lock");
 
 		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, lockCache, name);
-		bcontext.chunkSize(1024 * 1024);
+//		bcontext.chunkSize(1024 * 1024);
 		Directory directory = bcontext.create();
+		
+		
 		return CentralConfig.oldFromDir(directory).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
 	}
 }

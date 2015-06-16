@@ -457,7 +457,7 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 						Fqn fqn = trow.target();
 						String pathKey = fqn.toString();
 
-						Debug.line(pathKey, trow.sourceMap(), touch);
+//						Debug.line(pathKey, trow.sourceMap(), touch);
 
 						switch (touch) {
 						case TOUCH:

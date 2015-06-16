@@ -52,6 +52,7 @@ import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.persistence.sifs.configuration.SoftIndexFileStoreConfigurationBuilder;
+import org.infinispan.transaction.TransactionMode;
 
 public class SifsFileConfigBuilder extends WorkspaceConfigBuilder {
 
@@ -66,20 +67,28 @@ public class SifsFileConfigBuilder extends WorkspaceConfigBuilder {
 	@Override
 	public WorkspaceConfigBuilder build(DefaultCacheManager dm, String wsName) throws IOException {
 		if (StringUtil.isBlank(rootPath)) {
-			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder()
-			.persistence().passivation(false)
-			.transaction().invocationBatching().enable()
-			.clustering() ; 
-			
+			ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
+					.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable().clustering();
+
 			ClusteringConfigurationBuilder idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
 					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();
 			ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
 					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+			ClusteringConfigurationBuilder idx_lock_builder = new ConfigurationBuilder().persistence().passivation(true)
+					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
 
+			if (cacheMode().isClustered()){
+				real_configBuilder.cacheMode(CacheMode.REPL_ASYNC) ;
+				idx_meta_builder.cacheMode(CacheMode.REPL_SYNC) ;
+				idx_chunk_builder.cacheMode(CacheMode.DIST_SYNC) ;
+				idx_lock_builder.cacheMode(CacheMode.REPL_SYNC) ;
+			}
+					
 			dm.defineConfiguration(wsName, real_configBuilder.build());
 			dm.defineConfiguration(wsName + "-meta", idx_meta_builder.build());
 			dm.defineConfiguration(wsName + "-chunk", idx_chunk_builder.build());
-			
+			dm.defineConfiguration(wsName + "-lock", idx_lock_builder.build());
+
 			this.central = makeCentral(dm, wsName);
 			this.gfs = makeGridSystem(dm, wsName);
 
@@ -135,14 +144,14 @@ public class SifsFileConfigBuilder extends WorkspaceConfigBuilder {
 			
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){
-				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ; 
+				real_configBuilder.clustering().cacheMode(CacheMode.REPL_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering() ; //.l1().enable().clustering() ; 
 				index_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				index_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				
 				blob_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				blob_chunkBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 			} else if (cacheMode().isClustered()){
-				real_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering().l1().enable().clustering() ;
+				real_configBuilder.clustering().cacheMode(CacheMode.DIST_SYNC).persistence().addClusterLoader().remoteCallTimeout(10, TimeUnit.SECONDS).clustering() ; //.l1().enable().clustering() ;
 				index_metaBuilder.clustering().cacheMode(CacheMode.REPL_SYNC) ;
 				index_chunkBuilder.clustering().cacheMode(CacheMode.DIST_SYNC) ;
 				
@@ -184,10 +193,13 @@ public class SifsFileConfigBuilder extends WorkspaceConfigBuilder {
 		EmbeddedCacheManager cacheManager = cache.getCacheManager();
 		Cache<?, ?> metaCache = cacheManager.getCache(name + "-meta");
 		Cache<?, ?> dataCache = cacheManager.getCache(name + "-chunk");
+		Cache<?, ?> lockCache = cacheManager.getCache(name + "-lock");
 
-		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, metaCache, name);
-		bcontext.chunkSize(1024 * 1024);
+		BuildContext bcontext = DirectoryBuilder.newDirectoryInstance(metaCache, dataCache, lockCache, name);
+//		bcontext.chunkSize(1024 * 1024);
 		Directory directory = bcontext.create();
+		
+		
 		return CentralConfig.oldFromDir(directory).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
 	}
 	
