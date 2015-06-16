@@ -182,7 +182,7 @@ public class Craken implements Repository {
 	}
 
 	public void stop() {
-		
+		shutdown() ;
 	}
 
 }

@@ -16,6 +16,7 @@ public class TestAllWorkspace {
 		
 		suite.addTestSuite(TestDefineWorkspace.class) ;
 		suite.addTestSuite(TestOtherWorkspace.class);
+		suite.addTestSuite(TestWorkspaceDir.class);
 		
 		suite.addTestSuite(TestExceptionHandle.class) ;
 		

@@ -104,14 +104,15 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 	public GridWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, GridFileConfigBuilder wconfig) throws IOException {
 		this.repository = craken;
 		this.cache = cache;
-		this.tcache = new TreeCacheFactory().createTreeCache(cache) ;
+		this.gfs = wconfig.gfs();
+		this.central = wconfig.central() ;
+		
+		this.tcache = new TreeCacheFactory().createTreeCache(cache, this) ;
 		this.addListener(this);
 
 		this.wsName = cache.getName();
 		this.batchContainer = cache.getBatchContainer();
 
-		this.gfs = wconfig.gfs();
-		this.central = wconfig.central() ;
 		wconfig.createInterceptor(tcache, central, trans);
 	}
 
@@ -217,7 +218,7 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 		return WriteNodeImpl.loadTo(wsession, fqn);
 	}
 
-	public TreeNode readNode(Fqn fqn) {
+	public TreeNode<PropertyId, PropertyValue> readNode(Fqn fqn) {
 		TreeNode<PropertyId, PropertyValue> result = tcache.getNode(fqn);
 		if (result == null){
 			AtomicHashMap<PropertyId, PropertyValue> created = new AtomicHashMap<PropertyId, PropertyValue>();
@@ -488,7 +489,7 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 				}
 			};
 
-			// wspace.central().newIndexer().index(indexJob) ;
+			 wspace.central().newIndexer().index(indexJob) ;
 		}
 
 	}
@@ -559,8 +560,11 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 
 	@Override
 	public AtomicMap<Object, Fqn> handleStructure(TreeNodeKey struKey, AtomicMap<Object, Fqn> created) {
+		if (gfs == null) {
+			return created ;
+		}
+		
 		Fqn fqn = struKey.getFqn() ;
-
 		File file = gfs.getFile(fqn.toString()); // when write
 		if (file.exists() && file.isDirectory()) {
 			for (File child : file.listFiles()) {

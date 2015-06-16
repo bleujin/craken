@@ -457,9 +457,9 @@ public class OldWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 							propDoc.add(MyField.noIndex(EntryKey.VALUE, jobj.toString()).ignoreBody(true));
 
 							if (action == Action.CREATE)
-								isession.insertDocument(propDoc);
+								propDoc.insert() ;
 							else
-								isession.updateDocument(propDoc);
+								propDoc.update() ;
 
 							break;
 						case REMOVE:
@@ -626,8 +626,9 @@ public class OldWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 			if (findDoc == null)
 				return null;
 	
-			JsonObject json = JsonObject.fromString(findDoc.asString(EntryKey.VALUE));
+			JsonObject json = JsonObject.fromString(findDoc.asString(EntryKey.VALUE)).asJsonObject(EntryKey.PROPS);
 			for (String key : json.keySet()) {
+				if (key.startsWith("__")) continue ;
 				PropertyId propId = PropertyId.fromIdString(key);
 				PropertyValue pvalue = PropertyValue.loadFrom(TreeNodeKey.fromString(fqnString), propId, json.asJsonObject(key));
 				created.put(propId, pvalue);

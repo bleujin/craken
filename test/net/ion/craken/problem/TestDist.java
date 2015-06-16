@@ -8,48 +8,25 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
-import net.ion.framework.util.InfinityThread;
-import net.ion.framework.util.RandomUtil;
 import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.Version;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ClusteringConfigurationBuilder;
-import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.lucene.directory.BuildContext;
 import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.persistence.sifs.configuration.SoftIndexFileStoreConfigurationBuilder;
-import org.infinispan.query.Search;
-import org.infinispan.query.SearchManager;
-
-import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestDist extends TestCase {
 
@@ -97,8 +74,17 @@ public class TestDist extends TestCase {
 
 
 		ReadSession session = r.login("ics");
+		int count = 1000;
 		while(true){
 			Thread.sleep(1000);
+			final int index = count++;
+			session.tran(new TransactionJob<Void>() {
+				@Override
+				public Void handle(WriteSession wsession) throws Exception {
+					wsession.pathBy("/index", index).property("index", index);
+					return null;
+				}
+			});
 			Debug.line(session.ghostBy("/index").children().count()) ;
 		}
 	}
@@ -107,7 +93,7 @@ public class TestDist extends TestCase {
 	public void testCofirmFirst() throws Exception {
 		final Craken r = Craken.create();
 
-		r.createWorkspace("ics", WorkspaceConfigBuilder.indexDir("./resource/temp/first").distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("ics", WorkspaceConfigBuilder.gridDir("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;
@@ -115,8 +101,12 @@ public class TestDist extends TestCase {
 		});
 
 		ReadSession session = r.login("ics");
-		Debug.line(session.workspace().cache().keySet());
-		Debug.line(session.workspace().central().newSearcher().createRequest("").find().totalCount()); 
+		
+		session.root().walkChildren().debugPrint();
+		
+		session.ghostBy("/index").children().debugPrint();
+		
+//		session.root().childQuery("", true).find().debugPrint();
 	}
 	
 	

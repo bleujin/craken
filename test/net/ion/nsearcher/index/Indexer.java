@@ -93,7 +93,7 @@ public class Indexer implements Closeable{
 	public <T> Future<T> asyncIndex(final String name, final Analyzer analyzer, final IndexJob<T> indexJob) {
 		return asyncIndex(name, analyzer, indexJob, ehandler) ;
 	}
-	
+
 	private synchronized  IndexWriter indexWriter() throws IOException{
 		if (iwriter == null){
 			this.iwriter = new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
@@ -121,7 +121,9 @@ public class Indexer implements Closeable{
 //					return null ;
 					throw new IndexException(ex.getMessage(), ex) ;
 				} finally {
-					session.end() ;
+					if (session != null) session.end() ;
+					iwriter.close(true);
+					iwriter = null ;
 					lock.unlock();
 				}
 			}
