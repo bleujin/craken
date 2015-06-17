@@ -29,14 +29,13 @@ import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.OldWriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.node.crud.store.SifsFileConfigBuilder;
+import net.ion.craken.node.crud.store.SessionWorkspaceBuilder;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeCache;
 import net.ion.craken.node.crud.tree.TreeCacheFactory;
 import net.ion.craken.node.crud.tree.TreeNode;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
-import net.ion.craken.node.crud.tree.impl.ProxyHandler;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.ObjectId;
@@ -66,12 +65,11 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener
-public class SifsWorkspace extends AutoBatchSupport implements Workspace {
+public class SessionWorkspace extends AutoBatchSupport implements Workspace{
 
 	private Repository repository;
 	private AdvancedCache<PropertyId, PropertyValue> cache;
-	private final GridFilesystem gfs;
-	private final Central central;
+	private GridFilesystem gfs;
 	private String wsName;
 	private BatchContainer batchContainer;
 	private Engine parseEngine = Engine.createDefaultEngine();
@@ -79,24 +77,25 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 
 	private final Log log = LogFactory.getLog(Workspace.class);
 	private ExecutorService es = new WithinThreadExecutor();
+	private Central central;
 	com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans = CacheBuilder.newBuilder().maximumSize(100).build();
 	private TreeCache<PropertyId, PropertyValue> tcache;
 
-	public SifsWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, SifsFileConfigBuilder wconfig) throws IOException {
+	public SessionWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, SessionWorkspaceBuilder wconfig) throws IOException {
 		this.repository = craken;
 		this.cache = cache;
+		this.gfs = wconfig.gfs();
+		this.central = wconfig.central() ;
+		
+		this.tcache = new TreeCacheFactory().createTreeCache(cache) ;
 		this.addListener(this);
 
 		this.wsName = cache.getName();
 		this.batchContainer = cache.getBatchContainer();
 
-		this.gfs = wconfig.gfs() ;
-		this.central = wconfig.central() ;
-		this.tcache = new TreeCacheFactory().createTreeCache(cache, ProxyHandler.BLANK) ;
 		wconfig.createInterceptor(tcache, central, trans);
 	}
 
-	
 	public <T> T getAttribute(String key, Class<T> clz) {
 		return repository.getAttribute(key, clz);
 	}
@@ -118,7 +117,15 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 		return this;
 	}
 
-	public SifsWorkspace withFlag(Flag... flags) {
+
+	public boolean exists(Fqn fqn) {
+		if (Fqn.ROOT.equals(fqn)) {
+			return true;
+		}
+		return tcache.exists(fqn) || readNode(fqn) != null ;
+	}
+
+	public SessionWorkspace withFlag(Flag... flags) {
 		cache = cache.getAdvancedCache().withFlags(flags);
 		return this;
 	}
@@ -137,79 +144,64 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 	public WriteNode createNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
-		fqn.dataKey().createAction() ;
+		fqn.dataKey().createAction();
 		final AtomicHashMap<PropertyId, PropertyValue> props = new AtomicHashMap<PropertyId, PropertyValue>();
-		readNode(fqn).putAll(props); ;
+		readNode(fqn).putAll(props);
+		;
 
-		if (log.isTraceEnabled()) log.tracef("Created node %s", fqn);
+		if (log.isTraceEnabled())
+			log.tracef("Created node %s", fqn);
 		return WriteNodeImpl.loadTo(wsession, fqn);
 	}
 
 	public WriteNode resetNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
-		fqn.dataKey().resetAction() ;
+		fqn.dataKey().resetAction();
 		readNode(fqn).clearData();
 
-		if (log.isTraceEnabled()) log.tracef("Reset node %s", fqn);
+		if (log.isTraceEnabled())
+			log.tracef("Reset node %s", fqn);
 		return WriteNodeImpl.loadTo(wsession, fqn);
 	}
-	
-	
 
 	private void createAncestor(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn parent, Fqn fqn) {
 		if (fqn.isRoot())
 			return;
 
-		if (! tcache.exists(fqn)) {
-			List<String> names = fqn.peekElements() ;
-			TreeNode<PropertyId, PropertyValue> cnode = tcache.getRoot() ;
-			for(String name : names){
-				if (! cnode.hasChild(name)){
+		if (!tcache.exists(fqn)) {
+			List<String> names = fqn.peekElements();
+			TreeNode<PropertyId, PropertyValue> cnode = tcache.getRoot();
+			for (String name : names) {
+				if (!cnode.hasChild(name)) {
 					Fqn childFqn = Fqn.fromRelativeElements(cnode.getFqn(), name);
-					if (readNode(childFqn) == null){
-						cnode.addChild(Fqn.fromString(name)) ;
+					if (readNode(childFqn) == null) {
+						cnode.addChild(Fqn.fromString(name));
 						WriteNodeImpl.loadTo(wsession, childFqn, Touch.MODIFY);
 					}
 				}
-				cnode = cnode.getChild(name) ;
+				cnode = cnode.getChild(name);
 			}
-			
-			
+
 		}
-		
+
 		if (parent.isRoot())
 			return;
-//		createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
+		// createAncestor(wsession, ancestorsFqn, parent.getParent(), parent);
 	}
 
-	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn){
+	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
-		
-		if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
-		return WriteNodeImpl.loadTo(wsession, fqn) ;
-	}
-	
-	
-	public WriteNode pathWriteNode(WriteSession wsession, Fqn fqn){
-		return WriteNodeImpl.loadTo(wsession, fqn) ;
-	}
-	
-	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
-		if (! tcache.exists(fqn)) { 
-			tcache.getRoot().addChild(fqn) ;
-		}
 
-		return readNode(fqn) ;
-		
-		// return exists(fqn) ? WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, false)) : WriteNodeImpl.loadTo(this, workspace().pathNode(fqn, true), Touch.MODIFY);
-		// mergeAncestor(fqn) ;
-		// if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
-		// return new TreeNode(this, fqn);
+		if (log.isTraceEnabled())
+			log.tracef("Merged node %s", fqn);
+		return WriteNodeImpl.loadTo(wsession, fqn);
 	}
 
 	public TreeNode<PropertyId, PropertyValue> readNode(Fqn fqn) {
-		return tcache.getNode(fqn) ;
+		TreeNode<PropertyId, PropertyValue> result = tcache.getNode(fqn);
+		
+		return result;
 	}
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
@@ -239,7 +231,6 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 
 					return result;
 				} catch (Exception ex) {
-					ex.printStackTrace();
 					batchContainer.endBatch(true, false);
 					if (ehandler == null)
 						throw (Exception) ex;
@@ -267,22 +258,6 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 
 	public Repository repository() {
 		return this.repository;
-	}
-
-	public boolean exists(Fqn f) {
-		if (Fqn.ROOT.equals(f)) {
-			return true;
-		}
-		final boolean result = cache.containsKey(f.dataKey()); // && cache.containsKey(f.struKey());
-		return result;
-	}
-
-	public boolean existsData(Fqn f) {
-		if (Fqn.ROOT.equals(f)) {
-			return true;
-		}
-		final boolean result = cache.containsKey(f.dataKey());
-		return result;
 	}
 
 	public Central central() {
@@ -388,29 +363,16 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 	// public WritableGridBlob gridBlob(String fqnPath, Metadata meta) throws IOException {
 	// return gfsBlob.getWritableGridBlob(fqnPath, meta);
 	// }
-
+	private static NodeWriter BLANK = new NodeWriter() {
+		@Override
+		public void writeLog(Set<TouchedRow> logRows) throws IOException {
+		}
+	};
 	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
-		return new InstantLogWriter(this, wsession, rsession);
+		return BLANK ;
 	}
 
-	static class InstantLogWriter implements NodeWriter {
-
-		private final SifsWorkspace wspace;
-		private final WriteSession wsession;
-		private final ReadSession rsession;
-
-		public InstantLogWriter(SifsWorkspace wspace, WriteSession wsession, ReadSession rsession) throws IOException {
-			this.wspace = wspace;
-			this.wsession = wsession;
-			this.rsession = rsession;
-		}
-
-		public void writeLog(final Set<TouchedRow> logRows) throws IOException {
-			
-		}
-
-	}
-
+	
 	private boolean trace = false;
 
 	public CDDMListener cddm() {
@@ -446,9 +408,10 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 
 	public void reindex(final WriteNode wnode, Analyzer anal, final boolean includeSub) {
 		final IndexWriteConfig iwconfig = wnode.session().iwconfig();
-		
-		this.central().newIndexer().index(anal, WorkspaceIndexUtil.makeIndexJob(wnode, includeSub, iwconfig));
 
+		this.central().newIndexer().index(anal, WorkspaceIndexUtil.makeIndexJob(wnode, includeSub, iwconfig));
 	}
+
+
 
 }

@@ -406,6 +406,9 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 		}
 		
 		public void writeLog(final Set<TouchedRow> logRows) throws IOException {
+			if (wsession.iwconfig().isIgnoreIndex()) return ;
+			
+			
 			IndexJob<Void> indexJob = new IndexJob<Void>() {
 
 				@Override

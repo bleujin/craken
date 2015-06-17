@@ -43,7 +43,7 @@ public class TestIndexWorkspace extends TestBaseWorkspace {
 		craken.createWorkspace("index", WorkspaceConfigBuilder.indexDir("./resource/index")) ;
 		
 		ReadSession session = craken.login("index");
-		session.tran(makeJob(20000));
+		session.tran(makeJob(200000));
 	}
 
 	public void testIndexConfirm() throws Exception {

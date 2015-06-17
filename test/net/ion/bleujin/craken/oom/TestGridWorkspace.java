@@ -174,7 +174,7 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 		FileUtil.deleteDirectory(new File("./resource/grid"));
 		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid"));
 		ReadSession session = craken.login("grid");
-		session.tran(makeJob(20000));
+		session.tran(makeJob(200000));
 	}
 	
 	public void testConfirmView() throws Exception {

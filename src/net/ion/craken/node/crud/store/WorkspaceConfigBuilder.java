@@ -41,6 +41,9 @@ public abstract class WorkspaceConfigBuilder {
 		return new OldFileConfigBuilder(rootPath);
 	}
 
+	public static WorkspaceConfigBuilder memoryDir(){
+		return new SessionWorkspaceBuilder() ;
+	}
 
 	public WorkspaceConfigBuilder maxEntry(int maxEntry){
 		this.maxEntry = maxEntry ;
