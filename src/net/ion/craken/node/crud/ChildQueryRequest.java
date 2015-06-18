@@ -7,6 +7,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.db.Page;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
@@ -29,15 +30,11 @@ import com.google.common.base.Splitter;
 public class ChildQueryRequest {
 
 	private ReadSession session;
-	private Searcher searcher;
 	private SearchRequest request;
-	private Iterable<String> sorts;
 
 	protected ChildQueryRequest(ReadSession session, Query query, Searcher searcher) {
 		this.session = session;
-		this.searcher = searcher;
 		this.request = searcher.createRequest(query).selections(IKeywordField.DocKey);
-		this.sorts = ListUtil.EMPTY;
 	}
 
 	public static ChildQueryRequest create(ReadSession session, Searcher searcher, Query query) {
@@ -271,20 +268,8 @@ public class ChildQueryRequest {
 		// field=asc && field2=desc...
 		request.selections(IKeywordField.DocKey);
 
-		Iterator<String> iter = sorts.iterator();
-		while (iter.hasNext()) {
-			String[] exp = StringUtil.split(iter.next(), '=');
-			if (exp.length != 1 && exp.length != 2)
-				throw new IllegalArgumentException("illegal sort expression : " + exp.toString());
-			if (exp.length == 1) {
-				request.ascending(exp[0]);
-			} else if (exp.length == 2) {
-				request = ("desc".equalsIgnoreCase(exp[1])) ? request.descending(exp[0]) : request.ascending(exp[0]);
-			}
-		}
-
 		try {
-			final SearchResponse response = searcher.search(request);
+			final SearchResponse response = request.find() ;
 			return ChildQueryResponse.create(session, response);
 		} catch (ParseException ex) {
 			throw new IOException(ex);
@@ -308,7 +293,20 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest sort(String sexpression) {
-		this.sorts = Splitter.on('&').trimResults().omitEmptyStrings().split(sexpression);
+		Iterable<String> sorts = Splitter.on('&').trimResults().omitEmptyStrings().split(sexpression);
+		
+		Iterator<String> iter = sorts.iterator();
+		while (iter.hasNext()) {
+			String[] exp = StringUtil.split(iter.next(), " =");
+			if (exp.length != 1 && exp.length != 2)
+				throw new IllegalArgumentException("illegal sort expression : " + exp.toString());
+			if (exp.length == 1) {
+				request.ascending(exp[0]);
+			} else if (exp.length == 2) {
+				request = ("desc".equalsIgnoreCase(exp[1])) ? request.descending(exp[0]) : request.ascending(exp[0]);
+			}
+		}
+		
 		return this;
 	}
 

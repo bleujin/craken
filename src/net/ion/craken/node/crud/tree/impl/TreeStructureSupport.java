@@ -3,6 +3,7 @@ package net.ion.craken.node.crud.tree.impl;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeCache;
 import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.framework.util.Debug;
 
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;
@@ -31,7 +32,12 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean exists(AdvancedCache<?, ?> cache, Fqn f) {
-		return cache.containsKey(f.dataKey()) && cache.containsKey(f.struKey());
+		try {
+		return cache.containsKey(f.dataKey()); //  && cache.containsKey(f.struKey());
+		} catch(Exception ex){
+			Debug.line(f);
+			throw ex ;
+		}
 	}
 
 	/**

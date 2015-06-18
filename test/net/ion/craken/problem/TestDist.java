@@ -50,6 +50,8 @@ public class TestDist extends TestCase {
 			session.tran(new TransactionJob<Void>() {
 				@Override
 				public Void handle(WriteSession wsession) throws Exception {
+//					Thread.sleep(1500);
+					wsession.iwconfig().ignoreIndex() ;
 					wsession.pathBy("/index", index).property("index", index);
 					return null;
 				}
@@ -81,6 +83,8 @@ public class TestDist extends TestCase {
 			session.tran(new TransactionJob<Void>() {
 				@Override
 				public Void handle(WriteSession wsession) throws Exception {
+//					Thread.sleep(1500);
+					wsession.iwconfig().ignoreIndex() ;
 					wsession.pathBy("/index", index).property("index", index);
 					return null;
 				}

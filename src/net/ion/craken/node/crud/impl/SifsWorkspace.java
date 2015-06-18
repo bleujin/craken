@@ -390,25 +390,7 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 	// }
 
 	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
-		return new InstantLogWriter(this, wsession, rsession);
-	}
-
-	static class InstantLogWriter implements NodeWriter {
-
-		private final SifsWorkspace wspace;
-		private final WriteSession wsession;
-		private final ReadSession rsession;
-
-		public InstantLogWriter(SifsWorkspace wspace, WriteSession wsession, ReadSession rsession) throws IOException {
-			this.wspace = wspace;
-			this.wsession = wsession;
-			this.rsession = rsession;
-		}
-
-		public void writeLog(final Set<TouchedRow> logRows) throws IOException {
-			
-		}
-
+		return NodeWriter.BLANK ;
 	}
 
 	private boolean trace = false;

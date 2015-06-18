@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 
+import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.config.IndexConfig;
@@ -15,6 +16,7 @@ import net.ion.nsearcher.search.SingleSearcher;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 
 public class Indexer implements Closeable{
 
@@ -96,7 +98,9 @@ public class Indexer implements Closeable{
 
 	private synchronized  IndexWriter indexWriter() throws IOException{
 		if (iwriter == null){
-			this.iwriter = new IndexWriter(searcher.central().dir(), searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer()));
+			IndexWriterConfig writeConfig = searcher.central().indexConfig().newIndexWriterConfig(iconfig.indexAnalyzer());
+//			Debug.line(writeConfig.getWriteLockTimeout());
+			this.iwriter = new IndexWriter(searcher.central().dir(), writeConfig);
 		}
 		return iwriter ;
 	}
@@ -122,7 +126,7 @@ public class Indexer implements Closeable{
 					throw new IndexException(ex.getMessage(), ex) ;
 				} finally {
 					if (session != null) session.end() ;
-					iwriter.close(true);
+					iwriter.close();
 					iwriter = null ;
 					lock.unlock();
 				}

@@ -33,7 +33,7 @@ import com.google.common.collect.Iterators;
 public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> implements Iterable<ReadNode>{
 
 	private int skip = 0;
-	private int offset = 1000;
+	private int offset = 10000;
 	private List<SortElement> sorts ;
 	private List<Predicate<ReadNode>> filters ;
 

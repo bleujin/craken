@@ -18,7 +18,7 @@ public class TestBaseCrud extends TestCase {
 		
 		r.start() ;
 		this.session = r.login("test") ;
-		Debug.line(getClass().getCanonicalName());
+		Debug.line("TEST CALLED", getClass().getCanonicalName());
 	}
 	
 	@Override

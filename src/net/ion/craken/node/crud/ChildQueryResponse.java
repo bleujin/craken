@@ -20,6 +20,7 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.util.ListUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
+import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.SearchResponse;
 import net.ion.rosetta.Parser;
 
@@ -90,6 +91,13 @@ public class ChildQueryResponse {
 		}
 	}
 
+	public void debugPrint(String prop) {
+		for (Fqn fqn : found()) {
+			session.credential().tracer().println(session.pathBy(fqn) + " " + session.pathBy(fqn).property(prop)) ;
+		}
+	}
+
+	
 	public int totalCount() {
 		return response.totalCount();
 	}
@@ -168,5 +176,12 @@ public class ChildQueryResponse {
 			}
 		};
 	}
+
+
+	public SearchRequest request() {
+		return response.request() ;
+	}
+
+
 
 }
