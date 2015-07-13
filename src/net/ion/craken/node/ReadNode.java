@@ -9,6 +9,7 @@ import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.node.crud.RefQueryRequest;
 import net.ion.craken.node.crud.WalkReadChildren;
 import net.ion.craken.node.crud.WalkRefChildren;
+import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 
@@ -54,5 +55,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	RefQueryRequest refsToMe(String refName) throws IOException;
 
 	RefQueryRequest refsToChildren(String string) throws IOException;
+
+	ReadChildren walkRefMeChildren(String refName, Fqn parent);
 
 }

@@ -11,6 +11,8 @@ import javax.sql.RowSetMetaData;
 
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.convert.rows.AdNodeRows;
+import net.ion.craken.node.convert.rows.FieldContext;
+import net.ion.craken.node.convert.rows.FieldDefinition;
 import net.ion.framework.db.rowset.RowSetMetaDataImpl;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -83,6 +85,12 @@ public class SelectProjection extends ValueObject {
 
 	public int size() {
 		return projections.size();
+	}
+
+	public void add(FieldContext fcontext, FieldDefinition[] fieldDefinitons) {
+		for (FieldDefinition fdef : fieldDefinitons) {
+			projections.add(fdef.fieldContext(fcontext).createProjection()) ;
+		}
 	}
 
 	

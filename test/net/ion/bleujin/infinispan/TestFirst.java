@@ -1,5 +1,7 @@
 package net.ion.bleujin.infinispan;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
@@ -45,6 +47,12 @@ public class TestFirst extends TestCase {
 		
 		
 		r.shutdown() ;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Craken craken = Craken.local();
+		craken.createWorkspace("test", WorkspaceConfigBuilder.gridDir("./resource/temp/test"));
+
 	}
 }
 

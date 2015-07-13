@@ -21,7 +21,6 @@ import org.infinispan.atomic.AtomicMap;
 import org.infinispan.distexec.mapreduce.Collector;
 
 import com.google.common.base.Function;
-import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestNodeMapReduce extends TestCase {
 

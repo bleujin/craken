@@ -29,6 +29,10 @@ public abstract class WorkspaceConfigBuilder {
 		return new IndexFileConfigBuilder(path);
 	}
 	
+	public static WorkspaceConfigBuilder icsDir(String path) throws IOException {
+		return new ICSFileConfigBuilder(path);
+	}
+	
 	public static WorkspaceConfigBuilder sifsDir(String rootPath) throws IOException{
 		return new SifsFileConfigBuilder(rootPath);
 	}

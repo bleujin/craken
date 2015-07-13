@@ -12,8 +12,6 @@ import net.ion.framework.util.InfinityThread;
 
 import org.infinispan.configuration.cache.CacheMode;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestStoreRepl extends TestCase {
 
 	private Craken r;

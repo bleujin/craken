@@ -1,16 +1,17 @@
 package net.ion.bleujin.craken;
 
-import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FilenameUtils;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
-import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.StringUtil;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 
 public class TestCraken extends TestCase {
 
@@ -40,12 +41,15 @@ public class TestCraken extends TestCase {
 		session.pathBy("/bleujin").children().debugPrint(); 
 	}
 	
-	public final static String makePathString(Path path) {
-		Iterator<Path> iter = path.iterator() ;
-		List<String> result = ListUtil.newList() ;
-		while(iter.hasNext()){
-			result.add(String.valueOf(iter.next()));
-		}
-		return "/" + StringUtil.join(result, "/") ;
+	public final static String makePathString(File path) throws IOException {
+		String fname = FilenameUtils.separatorsToUnix(path.getCanonicalPath());
+		return "/" + fname.substring(FilenameUtils.getPrefixLength(fname)) ;
+
+//		Iterator<Path> iter = path.iterator() ;
+//		List<String> result = ListUtil.newList() ;
+//		while(iter.hasNext()){
+//			result.add(String.valueOf(iter.next()));
+//		}
+//		return "/" + StringUtil.join(result, "/") ;
 	}
 }

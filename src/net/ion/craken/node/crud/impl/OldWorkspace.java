@@ -633,8 +633,10 @@ public class OldWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 				PropertyValue pvalue = PropertyValue.loadFrom(TreeNodeKey.fromString(fqnString), propId, json.asJsonObject(key));
 				created.put(propId, pvalue);
 			}
-		} catch(IOException | ParseException e){
+		} catch(IOException e){
 			e.printStackTrace(); 
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
 		return created;
 	}
@@ -657,7 +659,9 @@ public class OldWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 					return null;
 				}
 			});
-		} catch (IOException | ParseException e) {
+		} catch(IOException e){
+			e.printStackTrace(); 
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		return created;

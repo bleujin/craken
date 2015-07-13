@@ -16,8 +16,6 @@ import net.ion.framework.util.Debug;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestDistEventHandler extends TestCase {
 
 	private Craken r;

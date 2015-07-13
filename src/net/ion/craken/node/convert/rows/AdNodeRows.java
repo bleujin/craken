@@ -13,6 +13,7 @@ import net.ion.framework.db.RepositoryException;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.RowsImpl;
 import net.ion.framework.db.procedure.Queryable;
+import net.ion.framework.util.StringUtil;
 
 public class AdNodeRows extends RowsImpl {
 
@@ -37,23 +38,26 @@ public class AdNodeRows extends RowsImpl {
 	}
 
 	private void populate(ReadSession session, Iterator<ReadNode> cursor, SelectProjection projection, int screenCount, String scLabel) throws SQLException {
+		int columnSize = projection.size() + (StringUtil.isBlank(scLabel) ? 0 : 1 ) ;
 		if (cursor.hasNext()) {
 			ReadNode firstRow = cursor.next();
-			RowSetMetaData meta = makeMetaData(firstRow, projection, screenCount, scLabel);
+			RowSetMetaData meta = makeMetaData(firstRow, projection, screenCount, columnSize, scLabel);
 			super.setMetaData(meta);
-			appendRow(projection, firstRow, screenCount);
+			appendRow(projection, columnSize, firstRow, screenCount, scLabel);
 			while (cursor.hasNext()) {
-				appendRow(projection, cursor.next(), screenCount);
+				appendRow(projection, columnSize, cursor.next(), screenCount, scLabel);
 			}
+			
 		} else {
-			super.setMetaData(makeMetaData(null, projection, screenCount, scLabel));
+			super.setMetaData(makeMetaData(null, projection, screenCount, columnSize, scLabel));
 		}
 	}
 
-	private RowSetMetaData makeMetaData(ReadNode node, SelectProjection projection, int screenCount, String scLabel) throws SQLException {
-		RowSetMetaData result = projection.getMetaType(node, projection.size() + 1);
+	private RowSetMetaData makeMetaData(ReadNode node, SelectProjection projection, int screenCount, int columnSize, String scLabel) throws SQLException {
+		RowSetMetaData result = projection.getMetaType(node, columnSize);
 		
 //		result.setColumnCount(result.getColumnCount() + 1) ;
+		if (StringUtil.isBlank(scLabel)) return result ;
 		int cindex = result.getColumnCount();
 		result.setColumnName(cindex, scLabel) ;
 		result.setColumnLabel(cindex, scLabel) ;
@@ -62,15 +66,15 @@ public class AdNodeRows extends RowsImpl {
 		return result ;
 	}
 
-	private void appendRow(SelectProjection projection, ReadNode rnode, int screenSize) throws SQLException {
+	private void appendRow(SelectProjection projection, int columnSize, ReadNode rnode, int screenSize, String scLabel) throws SQLException {
 		super.afterLast();
 		super.moveToInsertRow();
 		projection.updateObject(this, rnode);
 		
-		super.updateObject(projection.size() +1, screenSize) ;
-
+		if (StringUtil.isNotBlank(scLabel)) super.updateObject(columnSize, screenSize) ;
 		super.insertRow();
 		super.moveToCurrentRow();
+
 	}
 
 	

@@ -8,8 +8,6 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.store.OldFileConfigBuilder;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestCrakenStore extends TestCase {
 
 	private Craken r;

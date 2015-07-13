@@ -20,8 +20,6 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestIndexCrawlData extends TestCase {
 
 	private ReadSession session;

@@ -3,23 +3,15 @@ package net.ion.bleujin.craken.oom;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import net.ion.bleujin.craken.TestCraken;
+import net.ion.craken.io.FileVisitor;
+import net.ion.craken.io.Files;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 
@@ -37,13 +29,12 @@ public class TestBaseWorkspace extends TestCase{
 
 			@Override
 			public Void handle(final WriteSession wsession) throws Exception {
-//				wsession.iwconfig().ignoreIndex() ;
+				wsession.iwconfig().ignoreIndex() ;
 				
-				Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+				Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 					private long start = System.currentTimeMillis();
 
-					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-						File file = path.toFile();
+					public FileVisitResult visitFile(File file) throws IOException {
 						try {
 							if (file.isDirectory())
 								return FileVisitResult.CONTINUE;
@@ -58,7 +49,7 @@ public class TestBaseWorkspace extends TestCase{
 							}
 
 							String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-							String wpath = makePath(path) ;
+							String wpath = makePath(file) ;
 							wsession.pathBy(wpath).property("content", content);
 
 							return FileVisitResult.CONTINUE;
@@ -68,7 +59,7 @@ public class TestBaseWorkspace extends TestCase{
 						}
 					}
 					
-					private String makePath(Path path){
+					private String makePath(File path) throws IOException{
 //						return "/" + new ObjectId().toString() ;
 						return TestCraken.makePathString(path) ;
 					}
@@ -88,11 +79,10 @@ public class TestBaseWorkspace extends TestCase{
 
 			@Override
 			public Void handle(final IndexSession isession) throws Exception {
-				Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+				Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 					private long start = System.currentTimeMillis();
 
-					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-						File file = path.toFile();
+					public FileVisitResult visitFile(File file) throws IOException {
 						try {
 							if (file.isDirectory())
 								return FileVisitResult.CONTINUE;
@@ -108,7 +98,7 @@ public class TestBaseWorkspace extends TestCase{
 							}
 
 							String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-							String wpath = makePathString(path);
+							String wpath = makePathString(file);
 							isession.newDocument(wpath).text("content", content).update();
 
 							return FileVisitResult.CONTINUE;
@@ -121,13 +111,8 @@ public class TestBaseWorkspace extends TestCase{
 				return null;
 			}
 
-			public String makePathString(Path path) {
-				Iterator<Path> iter = path.iterator();
-				List<String> result = ListUtil.newList();
-				while (iter.hasNext()) {
-					result.add(String.valueOf(iter.next()));
-				}
-				return "/" + StringUtil.join(result, "/");
+			public String makePathString(File path) throws IOException {
+				return TestCraken.makePathString(path) ;
 			}
 
 		} ;

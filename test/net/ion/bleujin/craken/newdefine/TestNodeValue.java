@@ -5,12 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import net.ion.bleujin.craken.TestCraken;
+import net.ion.craken.io.FileVisitor;
+import net.ion.craken.io.Files;
 import net.ion.craken.node.crud.tree.TreeCache;
 import net.ion.craken.node.crud.tree.TreeCacheFactory;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
@@ -164,13 +160,12 @@ public class TestNodeValue extends TestCase {
 		final BatchContainer bcon = cache.getAdvancedCache().getBatchContainer() ;
 		bcon.startBatch(true) ;
 		
-		Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 			private long start = System.currentTimeMillis();
 			private AtomicInteger count = new AtomicInteger() ;
 			private int maxcount = 200000 ;
 
-			public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-				File file = path.toFile();
+			public FileVisitResult visitFile(File file) throws IOException {
 				try {
 					if (file.isDirectory())
 						return FileVisitResult.CONTINUE;
@@ -187,7 +182,7 @@ public class TestNodeValue extends TestCase {
 					}
 
 					String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-					String wpath = makePath(path) ;
+					String wpath = makePath(file) ;
 					cache.put(wpath, content);
 
 					return FileVisitResult.CONTINUE;
@@ -197,7 +192,7 @@ public class TestNodeValue extends TestCase {
 				}
 			}
 			
-			private String makePath(Path path){
+			private String makePath(File path) throws IOException{
 //				return "/" + new ObjectId().toString() ;
 				return TestCraken.makePathString(path) ;
 			}

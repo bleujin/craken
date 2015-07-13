@@ -294,7 +294,7 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 	private void endTran(WriteSession wsession) throws IOException {
 		wsession.endCommit();
 		Transaction transaction = batchContainer.getBatchTransaction();
-		trans.put(transaction, wsession.iwconfig());
+		if (transaction != null) trans.put(transaction, wsession.iwconfig());
 		batchContainer.endBatch(true, true);
 	}
 
@@ -595,8 +595,10 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 				PropertyValue pvalue = PropertyValue.loadFrom(TreeNodeKey.fromString(fqnString), propId, json.asJsonObject(key));
 				created.put(propId, pvalue);
 			}
-		} catch(IOException | ParseException e){
+		} catch(IOException e){
 			e.printStackTrace(); 
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
 		return created;
 	}
@@ -615,7 +617,9 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 					return null;
 				}
 			});
-		} catch (IOException | ParseException e) {
+		} catch(IOException e){
+			e.printStackTrace(); 
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		return created;

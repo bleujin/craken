@@ -16,8 +16,6 @@ import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestNodeBlob extends TestCase {
 
 	private Craken r;

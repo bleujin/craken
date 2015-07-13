@@ -15,6 +15,8 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.convert.rows.AdNodeRows;
+import net.ion.craken.node.convert.rows.FieldContext;
+import net.ion.craken.node.convert.rows.FieldDefinition;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeNode;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
@@ -174,6 +176,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 	public Rows toAdRows(Page _page, String expr) {
 		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
 		SelectProjection sp = TerminalParser.parse(parser, expr);
+		
 		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
 		
 		Iterator<ReadNode> iter = readChildren().iterator() ;
@@ -190,6 +193,40 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), sp, count, "cnt");
 	}
 
+	public Rows toAdRows(String expr, FieldDefinition... fieldDefinitons) {
+		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+		SelectProjection sp = TerminalParser.parse(parser, expr);
+		
+		FieldContext fcontext = new FieldContext() ;
+		sp.add(fcontext, fieldDefinitons) ;
+		
+		return AdNodeRows.create(session, iterator(), sp);
+	}
+	
+	public Rows toAdRows(Page _page, String expr, FieldDefinition... fieldDefinitons) {
+		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+		SelectProjection sp = TerminalParser.parse(parser, expr);
+		
+		FieldContext fcontext = new FieldContext() ;
+		sp.add(fcontext, fieldDefinitons) ;
+
+		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
+		
+		Iterator<ReadNode> iter = readChildren().iterator() ;
+		Iterators.skip(iter, page.getSkipOnScreen()) ;
+		Iterator<ReadNode> limitIter = Iterators.limit(iter, page.getOffsetOnScreen());
+		
+		List<ReadNode> screenList = ListUtil.newList() ;
+		while(limitIter.hasNext()){
+			screenList.add(limitIter.next()) ;
+		}
+
+		int count = screenList.size();
+		Page pageOnScreen = Page.create(page.getListNum(), page.getPageNo() % page.getScreenCount() == 0 ? page.getScreenCount() : page.getPageNo() % page.getScreenCount(), page.getScreenCount()) ;
+		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), sp, count, "");
+	}
+
+	
 	public ReadNode firstNode() {
 		return eachNode(ReadChildrenEachs.FIRSTNODE);
 	}
@@ -214,6 +251,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 	public WalkReadChildren asTreeChildren() {
 		return (WalkReadChildren)this;
 	}
+
 
 
 

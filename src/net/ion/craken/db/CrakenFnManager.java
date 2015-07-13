@@ -82,7 +82,7 @@ public class CrakenFnManager extends CrakenManager {
 		}
 
 		for (Method method : mts) { // if not found annotation
-			if (method.getName().equals(functionName)) {
+			if (method.getName().equalsIgnoreCase(functionName)) {
 				final Class<?>[] paramTypes = method.getParameterTypes();
 				return MethodUtils.invokeMethod(targetPackage, method.getName(), handlePrimitive(params, paramTypes), paramTypes);
 			}

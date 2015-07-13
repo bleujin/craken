@@ -39,7 +39,7 @@ public class TestSifsWorkspace extends TestBaseWorkspace {
 		craken.createWorkspace("sifs", WorkspaceConfigBuilder.sifsDir("./resource/sifs"));
 
 		ReadSession session = craken.login("sifs");
-		session.tran(makeJob(200000));
+		session.tran(makeJob(300000));
 	}
 
 	public void testIndexConfirm() throws Exception {

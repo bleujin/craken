@@ -3,13 +3,6 @@ package net.ion.craken.io;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,8 +20,6 @@ import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.StringUtil;
-
-import com.sun.corba.se.impl.activation.RepositoryImpl;
 
 public class TestWriteBlob extends TestCase {
 
@@ -99,9 +90,8 @@ public class TestWriteBlob extends TestCase {
 		final AtomicLong sumBytes = new AtomicLong() ;
 		final AtomicInteger count = new AtomicInteger() ;
 		
-		Files.walkFileTree(Paths.get("C:/temp/inner/3rdparty"), new SimpleFileVisitor<Path>() {
-			public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-				File file = path.toFile();
+		Files.walkFileTree(new File("C:/temp/inner/3rdparty"), new FileVisitor() {
+			public FileVisitResult visitFile(File file) throws IOException {
 				sumBytes.addAndGet(file.length()) ;
 				count.incrementAndGet() ;
 				return FileVisitResult.CONTINUE ;
@@ -119,10 +109,9 @@ public class TestWriteBlob extends TestCase {
 			@Override
 			public Void handle(final WriteSession wsession) throws Exception {
 				final AtomicInteger acount = new AtomicInteger();
-				FileVisitor<? super Path> visitor = new SimpleFileVisitor<Path>() {
-					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-						String fqnPath = StringUtil.replace(path.toFile().getPath().substring(7), "\\", "/");
-						File file = path.toFile();
+				FileVisitor visitor = new FileVisitor() {
+					public FileVisitResult visitFile(File file) throws IOException {
+						String fqnPath = StringUtil.replace(file.getPath().substring(7), "\\", "/");
 						sumBytes.addAndGet(file.length()) ;
 						FileInputStream fis = new FileInputStream(file);
 						try {
@@ -140,7 +129,7 @@ public class TestWriteBlob extends TestCase {
 						return FileVisitResult.CONTINUE;
 					}
 				};
-				Files.walkFileTree(Paths.get("C:/temp/inner/3rdparty"), visitor);
+				Files.walkFileTree(new File("C:/temp/inner/3rdparty"), visitor);
 
 				return null;
 			}

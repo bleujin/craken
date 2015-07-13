@@ -5,8 +5,6 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.util.TransactionJobs;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestEvictionInSearch extends TestCase{
 
 	

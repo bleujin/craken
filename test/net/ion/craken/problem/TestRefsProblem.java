@@ -11,8 +11,6 @@ import net.ion.framework.util.Debug;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.search.Searcher;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestRefsProblem extends TestCase {
 
 	private Craken r;

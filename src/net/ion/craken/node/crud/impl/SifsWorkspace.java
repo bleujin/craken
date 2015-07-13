@@ -261,7 +261,7 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 	private void endTran(WriteSession wsession) throws IOException {
 		wsession.endCommit();
 		Transaction transaction = batchContainer.getBatchTransaction();
-		trans.put(transaction, wsession.iwconfig());
+		if (transaction != null) trans.put(transaction, wsession.iwconfig());
 		batchContainer.endBatch(true, true);
 	}
 

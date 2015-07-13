@@ -23,7 +23,7 @@ import net.ion.radon.util.csv.CsvReader;
 
 import org.infinispan.io.GridFilesystem;
 
-public class TestGridWorkspace extends TestBaseWorkspace {
+public class TestICSWorkspace extends TestBaseWorkspace {
 
 	private Craken craken;
 
@@ -39,17 +39,18 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 		super.tearDown();
 	}
 
-	public void testGrid() throws Exception {
-		FileUtil.deleteDirectory(new File("./resource/grid"));
+	public void testIcs() throws Exception {
+		FileUtil.deleteDirectory(new File("./resource/ics"));
 		
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics")) ;
 		
-		ReadSession session = craken.login("grid") ;
+		ReadSession session = craken.login("ics") ;
 		long start = System.currentTimeMillis() ;
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-
+				wsession.iwconfig().ignoreIndex() ;
+				
 				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
 				
 				CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));
@@ -82,9 +83,9 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 	}
 	
 	public void testView() throws Exception {
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics")) ;
 		
-		ReadSession session = craken.login("grid") ;
+		ReadSession session = craken.login("ics") ;
 //		Debug.line(session.root().childQuery("", true).find().totalCount()) ;
 		
 		session.root().children().offset(10).debugPrint();
@@ -92,14 +93,14 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 	
 	
 	public void testSampleIndex() throws Exception {
-		FileUtil.deleteDirectory(new File("./resource/grid"));
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
+		FileUtil.deleteDirectory(new File("./resource/ics"));
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics")) ;
 		
-		ReadSession session = craken.login("grid") ;
+		ReadSession session = craken.login("ics") ;
 		session.tran(new TransactionJob<Void>(){
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				for (int index = 0; index < 1000; index++) {
+				for (int index = 0; index < 10; index++) {
 					wsession.pathBy("/emp/" + index).property("index", index) ;
 					if( (index +1) % 100 == 0 ) {
 						System.out.print(".");
@@ -109,21 +110,24 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 				return null;
 			}
 		}) ;
+		
+		session.pathBy("/emp/0").debugPrint();
 	}
 	
 	public void testSampleView() throws Exception {
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics")) ;
 		
-		ReadSession session = craken.login("grid") ;
+		ReadSession session = craken.login("ics") ;
 		session.root().walkChildren().debugPrint(); 
+		session.root().childQuery("", true).find().debugPrint(); 
 	}
 	
 	
 	public void testWikiDirect() throws Exception {
-		FileUtil.deleteDirectory(new File("./resource/grid"));
+		FileUtil.deleteDirectory(new File("./resource/ics"));
 
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
-		ReadSession session = craken.login("grid");
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics")) ;
+		ReadSession session = craken.login("ics");
 		final GridFilesystem gfs = session.workspace().gfs() ;
 		
 		final AtomicInteger count = new AtomicInteger(0);
@@ -164,15 +168,15 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 	}
 	
 	public void testConfirmOOM() throws Exception {
-		FileUtil.deleteDirectory(new File("./resource/grid"));
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid"));
-		ReadSession session = craken.login("grid");
+		FileUtil.deleteDirectory(new File("./resource/ics"));
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics"));
+		ReadSession session = craken.login("ics");
 		session.tran(makeJob(200000));
 	}
 	
 	public void testConfirmView() throws Exception {
-		craken.createWorkspace("grid", WorkspaceConfigBuilder.gridDir("./resource/grid"));
-		ReadSession session = craken.login("grid");
+		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics"));
+		ReadSession session = craken.login("ics");
 		long start = System.currentTimeMillis() ;
 //		session.root().walkChildren().eachNode(new ReadChildrenEach<Void>() {
 //

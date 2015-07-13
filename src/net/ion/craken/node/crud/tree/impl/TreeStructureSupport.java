@@ -24,7 +24,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	public TreeStructureSupport(AdvancedCache<?, ?> cache, BatchContainer batchContainer, ProxyHandler proxyHandler) {
 		this.cache = (AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache;
 		this.batchContainer = batchContainer;
-		this.proxyHandler = proxyHandler ;
+		this.proxyHandler = proxyHandler;
 	}
 
 	public boolean exists(Fqn f) {
@@ -32,12 +32,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean exists(AdvancedCache<?, ?> cache, Fqn f) {
-		try {
-		return cache.containsKey(f.dataKey()); //  && cache.containsKey(f.struKey());
-		} catch(Exception ex){
-			Debug.line(f);
-			throw ex ;
-		}
+		return cache.containsKey(f.dataKey()); // && cache.containsKey(f.struKey());
 	}
 
 	/**
@@ -48,22 +43,22 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean createNodeInCache(AdvancedCache<?, ?> cache, Fqn fqn) {
-			TreeNodeKey dataKey = fqn.dataKey() ;
-			TreeNodeKey structureKey = fqn.struKey() ;
-			if (cache.containsKey(dataKey) && cache.containsKey(structureKey))
-				return false;
-			Fqn parent = fqn.getParent();
-			if (!fqn.isRoot()) {
-				if (!exists(cache, parent))
-					createNodeInCache(cache, parent);
-				AtomicMap<Object, Fqn> parentStructure = getStructure(cache, parent.struKey());
-				parentStructure.put(fqn.getLastElement(), fqn);
-			}
-			getStructure(cache, structureKey);
-			getData(cache, dataKey);
-			if (log.isTraceEnabled())
-				log.tracef("Created node %s", fqn);
-			return true;
+		TreeNodeKey dataKey = fqn.dataKey();
+		TreeNodeKey structureKey = fqn.struKey();
+		if (cache.containsKey(dataKey) && cache.containsKey(structureKey))
+			return false;
+		Fqn parent = fqn.getParent();
+		if (!fqn.isRoot()) {
+			if (!exists(cache, parent))
+				createNodeInCache(cache, parent);
+			AtomicMap<Object, Fqn> parentStructure = getStructure(cache, parent.struKey());
+			parentStructure.put(fqn.getLastElement(), fqn);
+		}
+		getStructure(cache, structureKey);
+		getData(cache, dataKey);
+		if (log.isTraceEnabled())
+			log.tracef("Created node %s", fqn);
+		return true;
 	}
 
 	public static boolean isLocked(LockManager lockManager, Fqn fqn) {
@@ -105,7 +100,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 
 	protected final <K, V> AtomicMap<Object, Fqn> getStructure(AdvancedCache<?, ?> cache, TreeNodeKey struKey) {
 		AtomicMap<Object, Fqn> result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, false);
-		if (result == null){
+		if (result == null) {
 			result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, true);
 			result.putAll(proxyHandler.handleStructure(struKey, result));
 		}

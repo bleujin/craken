@@ -16,8 +16,6 @@ import net.ion.framework.util.InfinityThread;
 
 import org.infinispan.manager.DefaultCacheManager;
 
-import com.sun.corba.se.impl.activation.RepositoryImpl;
-
 public class TestDistServer extends TestCase{
 
 	

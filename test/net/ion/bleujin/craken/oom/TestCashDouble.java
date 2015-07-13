@@ -3,17 +3,13 @@ package net.ion.bleujin.craken.oom;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import net.ion.bleujin.craken.TestCraken;
+import net.ion.craken.io.FileVisitor;
+import net.ion.craken.io.Files;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
@@ -90,13 +86,12 @@ public class TestCashDouble extends TestCase{
 		final BatchContainer bcon = acache.getBatchContainer() ;
 		bcon.startBatch(true) ;
 		
-		Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 			private long start = System.currentTimeMillis();
 			private AtomicInteger count = new AtomicInteger() ;
 			private int maxcount = 200000 ;
 
-			public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-				File file = path.toFile();
+			public FileVisitResult visitFile(File file) throws IOException {
 				try {
 					if (file.isDirectory())
 						return FileVisitResult.CONTINUE;
@@ -112,7 +107,7 @@ public class TestCashDouble extends TestCase{
 					}
 
 					String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-					String wpath = makePath(path) ;
+					String wpath = makePath(file) ;
 					acache.put(wpath, content);
 
 					return FileVisitResult.CONTINUE;
@@ -122,7 +117,7 @@ public class TestCashDouble extends TestCase{
 				}
 			}
 			
-			private String makePath(Path path){
+			private String makePath(File path) throws IOException{
 //				return "/" + new ObjectId().toString() ;
 				return TestCraken.makePathString(path) ;
 			}

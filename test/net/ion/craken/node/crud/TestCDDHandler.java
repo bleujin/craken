@@ -13,6 +13,7 @@ import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
@@ -82,7 +83,6 @@ public class TestCDDHandler extends TestCase {
 		session.pathBy("/rooms/123/members/hero/notify/abcdefg").toRows("message.content").debugPrint();
 	}
 
-	
 	public void testModifiedEvent() throws Exception {
 		session.workspace().cddm().add(new CDDModifyHandler("/{name}") {
 			@Override
@@ -93,11 +93,10 @@ public class TestCDDHandler extends TestCase {
 				return null;
 			}
 		});
-		
-		session.tranSync(TransactionJobs.HelloBleujin) ;
+
+		session.tranSync(TransactionJobs.HelloBleujin);
 	}
-	
-	
+
 	public void testSequenceSyncJob() throws Exception {
 		session.workspace().cddm().add(new CDDModifyHandler("/{userId}") {
 			@Override
@@ -158,8 +157,9 @@ public class TestCDDHandler extends TestCase {
 				return new TransactionJob<Void>() {
 					@Override
 					public Void handle(WriteSession wsession) throws Exception {
-						WriteNode bleujin = wsession.pathBy("/bleujin") ;
-						if ("bleujin".equals(bleujin.property("name").asString())) bleujin.property("name", "modified");
+						WriteNode bleujin = wsession.pathBy("/bleujin");
+						if ("bleujin".equals(bleujin.property("name").asString()))
+							bleujin.property("name", "modified");
 						return null;
 					}
 				};
@@ -179,54 +179,50 @@ public class TestCDDHandler extends TestCase {
 	}
 
 	public void testDeadLock() throws Exception {
-		session.workspace().executorService(Executors.newCachedThreadPool()) ;
-		
+		session.workspace().executorService(Executors.newCachedThreadPool());
+
 		session.workspace().cddm().add(new CDDHandler() {
-			
+
 			@Override
-		    public String pathPattern() {
-		        return "/rooms/{roomId}/members/{userId}";
-		    }
+			public String pathPattern() {
+				return "/rooms/{roomId}/members/{userId}";
+			}
 
-		    @Override
-		    public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
 
-		        final String roomId = resolveMap.get("roomId");
-		        final String userId = resolveMap.get("userId");
+				final String roomId = resolveMap.get("roomId");
+				final String userId = resolveMap.get("userId");
 
-		        Debug.line(roomId, userId);
-		        
-		        return new TransactionJob<Void>() {
-		            @Override
-		            public Void handle(WriteSession wsession) throws Exception {
-		                String randomID = new ObjectId().toString();
-		                wsession.pathBy("/rooms/" + roomId + "/messages/")
-		                        .child(randomID)
-		                        .property("message", userId + "님이 입장하셨습니다.") ;
-		                return null;
-		            }
-		        };
-		    }
+				Debug.line(roomId, userId);
 
-		    @Override
-		    public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-		        final String roomId = resolveMap.get("roomId");
-		        final String userId = resolveMap.get("userId");
-		        return new TransactionJob<Void>() {
-		            @Override
-		            public Void handle(WriteSession wsession) throws Exception {
-		                String randomID = new ObjectId().toString();
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						String randomID = new ObjectId().toString();
+						wsession.pathBy("/rooms/" + roomId + "/messages/").child(randomID).property("message", userId + "님이 입장하셨습니다.");
+						return null;
+					}
+				};
+			}
 
-		                //will define message
-		                wsession.pathBy("/rooms/" + roomId + "/messages/")
-		                        .child(randomID)
-		                        .property("message", userId + "님이 퇴장하셨습니다.") ;
-		                return null;
-		            }
-		        };
-		    }
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
+				final String roomId = resolveMap.get("roomId");
+				final String userId = resolveMap.get("userId");
+				return new TransactionJob<Void>() {
+					@Override
+					public Void handle(WriteSession wsession) throws Exception {
+						String randomID = new ObjectId().toString();
+
+						// will define message
+						wsession.pathBy("/rooms/" + roomId + "/messages/").child(randomID).property("message", userId + "님이 퇴장하셨습니다.");
+						return null;
+					}
+				};
+			}
 		});
-		
+
 		session.tranSync(new TransactionJob<Object>() {
 			@Override
 			public Object handle(WriteSession wsession) throws Exception {
@@ -235,12 +231,12 @@ public class TestCDDHandler extends TestCase {
 				return null;
 			}
 		});
-		
-		session.workspace().cddm().await(); 
 
-//		session.pathBy("/rooms/1/messages").children().debugPrint(); 
+		session.workspace().cddm().await();
+
+		// session.pathBy("/rooms/1/messages").children().debugPrint();
 	}
-	
+
 	public void testEmptyRemove() throws Exception {
 		session.workspace().cddm().add(new CDDHandler() {
 
@@ -259,17 +255,18 @@ public class TestCDDHandler extends TestCase {
 				Debug.line(resolveMap.get("groupid"), event);
 				return null;
 			}
-		}) ;
-		
-		session.tran(new TransactionJob<Void>(){
+		});
+
+		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/ics/querycache/1qq").removeSelf() ;
-				wsession.pathBy("/ics/querycache/2qq").removeSelf() ;
+				wsession.pathBy("/ics/querycache/1qq").removeSelf();
+				wsession.pathBy("/ics/querycache/2qq").removeSelf();
 				return null;
 			}
-			
-		}) ;
-	}
-}
 
+		});
+	}
+
+
+}

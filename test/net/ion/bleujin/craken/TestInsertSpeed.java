@@ -5,18 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
+import net.ion.craken.io.FileVisitor;
+import net.ion.craken.io.Files;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
@@ -29,10 +23,8 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.HashFunction;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.RandomUtil;
-import net.ion.framework.util.StringUtil;
 import net.ion.radon.util.csv.CsvReader;
 
 import org.infinispan.Cache;
@@ -61,11 +53,10 @@ public class TestInsertSpeed extends TestCase {
 			public Void handle(final WriteSession wsession) throws Exception {
 //				final Cache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> sifsCache = wsession.workspace().cache() ;
 				
-				Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+				Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 					private long start = System.currentTimeMillis();
 
-					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-						File file = path.toFile();
+					public FileVisitResult visitFile(File file) throws IOException {
 						try {
 							if (file.isDirectory())
 								return FileVisitResult.CONTINUE;
@@ -81,7 +72,7 @@ public class TestInsertSpeed extends TestCase {
 							}
 
 							String content = IOUtil.toStringWithClose(new FileInputStream(file), "UTF-8");
-							String wpath = makePathString(path) ;
+							String wpath = TestCraken.makePathString(file) ;
 							wsession.pathBy(wpath).property("content", content);
 
 							return FileVisitResult.CONTINUE;
@@ -211,19 +202,9 @@ public class TestInsertSpeed extends TestCase {
 	
 	
 	
-	private String makePathString(Path path) {
-		Iterator<Path> iter = path.iterator() ;
-		List<String> result = ListUtil.newList() ;
-		while(iter.hasNext()){
-			result.add(iter.next().toString());
-		}
-		return "/" + StringUtil.join(result, "/") ;
-	}
-
-	
 	public void xtestMakePath() throws Exception {
 		File file = new File("C:/crawl/enha/wiki/김은아");
-		Debug.line(makePathString(Paths.get(file.toURI())));
+		Debug.line(TestCraken.makePathString(file));
 	}
 	
 	public void testRead() throws Exception {
@@ -242,20 +223,20 @@ public class TestInsertSpeed extends TestCase {
 //			Debug.line(makePathString(p));
 //		}
 		
-		final Map<String, Path> readPath = MapUtil.newMap() ;
+		final Map<String, File> readPath = MapUtil.newMap() ;
 		final AtomicInteger count = new AtomicInteger(0);
-		Files.walkFileTree(Paths.get(new File("C:/crawl/enha/wiki").toURI()), new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 			private long start = System.currentTimeMillis();
 
-			public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+			public FileVisitResult visitFile(File file) throws IOException {
 				int icount = count.incrementAndGet();
 				if (icount > 100000) return FileVisitResult.TERMINATE ;
 				
-				String wpath = makePathString(path) ;
+				String wpath = TestCraken.makePathString(file) ;
 				if (readPath.containsKey(wpath)){
-					Debug.line(wpath, readPath.get(wpath), path);
+					Debug.line(wpath, readPath.get(wpath), file);
 				}
-				readPath.put(wpath, path) ;
+				readPath.put(wpath, file) ;
 				
 				return FileVisitResult.CONTINUE ;
 			}

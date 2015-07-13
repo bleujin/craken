@@ -4,16 +4,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.infinispan.configuration.cache.CacheMode;
+
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.ReadNode;
+import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -146,8 +151,25 @@ public class TestProperty extends TestBaseCrud {
 	}
 	
 	
+	public void testNullValue() throws Exception {
+		super.r.createWorkspace("local", WorkspaceConfigBuilder.gridDir("./resource/temp").distMode(CacheMode.LOCAL)) ;
+		
+		ReadSession msession = r.login("local");
+		
+		msession.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emps/dev/bleujin").property("name", null) ;
+				return null;
+			}
+			
+		}) ;
+		
+		msession.root().walkChildren().debugPrint(); 
+	}	
 	
-	public void testObjectId() throws Exception {
+	
+	public void xtestObjectId() throws Exception {
 		Set<String> oids = SetUtil.newSet() ;
 		for (int i : ListUtil.rangeNum(10000)) {
 			oids.add(new ObjectId().toString()) ;

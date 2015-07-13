@@ -288,6 +288,34 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public WalkRefChildren walkRefChildren(String refName) {
 		return new WalkRefChildren(session, fqn, refName, treeNode().getReferencesFqn(refName).iterator());
 	}
+	
+	public ReadChildren walkRefMeChildren(String refName, Fqn parentFqn) {
+		ReadNode parent = session.ghostBy(parentFqn) ;
+		ReadNode currentNode = this ;
+		
+		List<Fqn> currentDepth = ListUtil.newList() ;
+		currentDepth.add(currentNode.fqn()) ;
+		
+		List<Fqn> result = ListUtil.newList() ;
+	
+		refMeChildren(result, currentDepth, refName, parent.children().toList()) ;
+		return new ReadChildren(session, fqn, result.iterator());
+	}
+
+	private void refMeChildren(List<Fqn> result, List<Fqn> currentDepth, String refName, List<ReadNode> children) {
+		List<Fqn> newDepth = ListUtil.newList() ;
+		for(ReadNode child : children){
+			for (Fqn cfqn : currentDepth) {
+				if (child.hasRef(refName, cfqn)) {
+					result.add(child.fqn()) ;
+					newDepth.add(child.fqn()) ;
+					break ;
+				}
+			}
+		}
+		if (newDepth.size() == 0) return ;
+		refMeChildren(result, newDepth, refName, children) ;
+	}
 
 	public WalkReadChildren walkChildren() {
 		return new WalkReadChildren(session, fqn, treeNode().getChildrenFqn().iterator());
