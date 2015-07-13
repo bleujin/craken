@@ -65,7 +65,7 @@ public class TestDist extends TestCase {
 		FileUtil.deleteDirectory(new File("./resource/temp/second"));
 		
 		final Craken r = Craken.create();
-		r.createWorkspace("ics", WorkspaceConfigBuilder.gridDir("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
 
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
@@ -97,7 +97,7 @@ public class TestDist extends TestCase {
 	public void testCofirmFirst() throws Exception {
 		final Craken r = Craken.create();
 
-		r.createWorkspace("ics", WorkspaceConfigBuilder.gridDir("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
+		r.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/temp/second").distMode(CacheMode.DIST_SYNC));
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
 				r.shutdown() ;
