@@ -2,11 +2,13 @@ package net.ion.craken.db;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.script.CrakenScript;
 import net.ion.framework.db.Rows;
+import net.ion.framework.db.procedure.IQueryable;
 
 public class CrakenScriptManager extends CrakenManager {
 
@@ -37,7 +39,9 @@ public class CrakenScriptManager extends CrakenManager {
 		return cs.execUpdate(cupt.getProcName(), cupt.getParams().toArray(new Object[0])) ;
 	}
 
-	
-	
+	@Override
+	public int updateWith(CrakenUserProcedures cupts) throws Exception {
+		throw new UnsupportedOperationException("if you must do it, call bleujin") ;
+	}
 
 }

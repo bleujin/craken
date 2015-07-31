@@ -29,9 +29,9 @@ public class TestBaseWorkspace extends TestCase{
 
 			@Override
 			public Void handle(final WriteSession wsession) throws Exception {
-				wsession.iwconfig().ignoreIndex() ;
+//				wsession.iwconfig().ignoreIndex() ;
 				
-				Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
+				Files.walkFileJDK7(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 					private long start = System.currentTimeMillis();
 
 					public FileVisitResult visitFile(File file) throws IOException {

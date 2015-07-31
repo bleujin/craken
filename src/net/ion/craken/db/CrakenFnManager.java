@@ -56,6 +56,12 @@ public class CrakenFnManager extends CrakenManager {
 			return ((Integer) result).intValue();
 		return -1;
 	}
+	
+	@Override
+	public int updateWith(CrakenUserProcedures cupts) throws Exception {
+		throw new UnsupportedOperationException("if you must do it, call bleujin") ;
+	}
+
 
 	private Object callFunction(UserProcedure cupt) throws SecurityException, NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, CorruptIndexException, IOException {
 		String packageName = StringUtil.substringBefore(cupt.getProcName(), "@");

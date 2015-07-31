@@ -132,7 +132,7 @@ public class TestICSWorkspace extends TestBaseWorkspace {
 		
 		final AtomicInteger count = new AtomicInteger(0);
 		
-		Files.walkFileTree(new File("C:/crawl/enha/wiki"), new FileVisitor() {
+		Files.walkFileJDK7(new File("C:/crawl/enha/wiki"), new FileVisitor() {
 			private long start = System.currentTimeMillis();
 
 			public FileVisitResult visitFile(File file) throws IOException {
@@ -171,7 +171,7 @@ public class TestICSWorkspace extends TestBaseWorkspace {
 		FileUtil.deleteDirectory(new File("./resource/ics"));
 		craken.createWorkspace("ics", WorkspaceConfigBuilder.icsDir("./resource/ics"));
 		ReadSession session = craken.login("ics");
-		session.tran(makeJob(200000));
+		session.tran(makeJob(100000));
 	}
 	
 	public void testConfirmView() throws Exception {

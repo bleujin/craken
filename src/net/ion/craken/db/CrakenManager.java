@@ -24,6 +24,7 @@ public abstract class CrakenManager extends DBManager {
 
 	public abstract int updateWith(CrakenUserProcedureBatch crakenUserProcedureBatch) throws Exception;
 
+	public abstract int updateWith(CrakenUserProcedures crakenUserProcedures) throws Exception ;
 	
 
 	@Override
@@ -63,6 +64,7 @@ public abstract class CrakenManager extends DBManager {
 
 		this.fake = (Connection) e.create();
 	}
+
 	
 	
 }

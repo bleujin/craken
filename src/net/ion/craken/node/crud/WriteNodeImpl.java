@@ -120,7 +120,7 @@ public class WriteNodeImpl implements WriteNode {
 			for (int i = 0; i < length; i++) {
 				set.add(Array.get(value, i));
 			}
-			return property(PropertyId.normal(key), PropertyValue.createPrimitive(set));
+			return property(createNormalId(key), PropertyValue.createPrimitive(set));
 		}
 		return property(createNormalId(key), PropertyValue.createPrimitive(value));
 	}
@@ -243,7 +243,7 @@ public class WriteNodeImpl implements WriteNode {
 			final String path = fqn().toString() + "/" + key + ".dat";
 			
 			PropertyValue gtvalue = GridBlob.create(gfs(), path).saveAt(input).asPropertyValue() ;
-			property(PropertyId.normal(key), gtvalue);
+			property(createNormalId(key), gtvalue);
 
 		} catch (IOException e) {
 			throw new NodeIOException(e);

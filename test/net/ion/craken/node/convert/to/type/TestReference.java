@@ -7,6 +7,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.convert.sample.Dept;
 import net.ion.craken.node.convert.sample.Employee;
 import net.ion.craken.node.crud.TestBaseCrud;
+import net.ion.craken.node.crud.util.TransactionJobs;
 
 public class TestReference extends TestBaseCrud {
 	
@@ -16,7 +17,6 @@ public class TestReference extends TestBaseCrud {
 			@Override
 			public Void handle(WriteSession wsession) {
 				wsession.pathBy("/dept/dev").property("deptno", 20).property("name", "dev").refTos("manager", "/emps/bleujin") ;
-				
 				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20) ;
 				return null;
 			}
@@ -54,6 +54,29 @@ public class TestReference extends TestBaseCrud {
 		assertEquals(true, depts[2].name() == null) ;
 		
 	}
+	
+	public void testUnRef() throws Exception {
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/dept/dev").property("deptno", 20).property("name", "dev").refTos("manager", "/emps/bleujin") ;
+				wsession.pathBy("/emps/bleujin").property("name", "bleujin").property("age", 20) ;
+				return null;
+			}
+		}) ;
+		
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/dept/dev").unRefTos("manager") ;
+				return null;
+			}
+		}) ;
+		
+		session.pathBy("/dept/dev").refChildren("manager").debugPrint();
+		
+	}
+	
 	
 	public void testWhenRemoved() throws Exception {
 		session.tran(new TransactionJob<Void>() {

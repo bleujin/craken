@@ -173,7 +173,7 @@ public class ICSFileConfigBuilder extends WorkspaceConfigBuilder {
 	
 	private Central makeCentral(DefaultCacheManager dm, String wsName) throws IOException {
 		File indexRoot = new File(new File(rootPath), "/index");
-		return CentralConfig.newLocalFile().dirFile(indexRoot).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
+		return CentralConfig.newLocalFile().dirFile(indexRoot).indexConfigBuilder().build();
 	}
 	
 	
@@ -182,7 +182,7 @@ public class ICSFileConfigBuilder extends WorkspaceConfigBuilder {
 	}
 
 	public void createInterceptor(TreeCache<PropertyId, PropertyValue> tcache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
-		tcache.getCache().getAdvancedCache().addInterceptor(new ICSInterceptor(gfs(), central, trans), 0);
+//		tcache.getCache().getAdvancedCache().addInterceptor(new ICSInterceptor(gfs(), central, trans), 0);
 	}
 }
 
@@ -214,7 +214,7 @@ class ICSInterceptor extends BaseCustomInterceptor {
 
 				for (DataWriteCommand wcom : list) {
 					TreeNodeKey tkey = (TreeNodeKey) wcom.getKey()  ;
-					
+
 					if (tkey.getFqn().isRoot()) continue ;
 					String pathKey = tkey.fqnString();
 					switch (wcom.getCommandId()) {
@@ -279,6 +279,7 @@ class ICSInterceptor extends BaseCustomInterceptor {
 					default:
 						break;
 					}
+
 				}
 				return null ;
 			}

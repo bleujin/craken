@@ -52,7 +52,7 @@ public class SessionWorkspaceBuilder extends WorkspaceConfigBuilder {
 				.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
 
 		if (cacheMode().isClustered()){
-			real_configBuilder.cacheMode(CacheMode.REPL_ASYNC) ;
+			real_configBuilder.cacheMode(CacheMode.REPL_SYNC) ;
 			idx_meta_builder.cacheMode(CacheMode.REPL_SYNC) ;
 			idx_chunk_builder.cacheMode(CacheMode.DIST_SYNC) ;
 			idx_lock_builder.cacheMode(CacheMode.REPL_SYNC) ;

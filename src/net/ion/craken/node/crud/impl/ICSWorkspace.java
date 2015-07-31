@@ -84,6 +84,8 @@ import org.infinispan.util.logging.LogFactory;
 
 import com.google.common.cache.CacheBuilder;
 
+// central use localmode
+
 @Listener
 public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHandler{
 
@@ -394,8 +396,8 @@ public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 	// }
 
 	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
-		return NodeWriter.BLANK ;
-//		return new ICSFileWriter(this, wsession);
+//		return NodeWriter.BLANK ;
+		return new ICSFileWriter(this, wsession);
 	}
 
 	static class ICSFileWriter implements NodeWriter {
