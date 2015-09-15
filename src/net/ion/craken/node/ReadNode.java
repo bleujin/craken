@@ -13,6 +13,7 @@ import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 
 
@@ -35,6 +36,8 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 	ChildQueryRequest childQuery(Query query, boolean includeAllTree) throws IOException;
 
 	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws IOException;
+	
+	ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException ;
 
 	void template(String propId, Writer writer) throws IOException;
 

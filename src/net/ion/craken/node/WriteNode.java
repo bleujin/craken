@@ -67,6 +67,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public ChildQueryRequest childQuery(String query) throws IOException, ParseException  ;
 	
+	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException  ;
+	
 	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws ParseException, IOException;
 
 	public WriteChildren refChildren(String refName);
@@ -75,6 +77,11 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 
 	public WriteNode reindex(boolean includeSub);
 
+	public WriteNode moveTo(String targetParent);
+	
+	public WriteNode moveTo(String targetParent, int ancestorDepth);
+
+	public WriteNode copyTo(String targetParent, boolean includeChild);
 
 
 }

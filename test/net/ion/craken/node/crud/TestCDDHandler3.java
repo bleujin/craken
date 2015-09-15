@@ -48,8 +48,8 @@ class ServerA {
 			.transport().defaultTransport()
 				.clusterName("cddtest")
 				.nodeName("servera")
-				.addProperty("configurationFile", new File("./resource/config/jgroups-udp.xml").getCanonicalPath())
-			.transport().asyncTransportExecutor().addProperty("maxThreads", "100").addProperty("threadNamePrefix", "mytransport-thread")
+				.addProperty("configurationFile", new File("./resource/config/craken-tcp.xml").getCanonicalPath())
+//			.transport().asyncTransportExecutor().addProperty("maxThreads", "100").addProperty("threadNamePrefix", "mytransport-thread")
 			.globalJmxStatistics().enabled(false)
 			.build() ;
 
@@ -100,8 +100,8 @@ class ServerB {
 		.transport().defaultTransport()
 			.clusterName("cddtest")
 			.nodeName("serverb")
-			.addProperty("configurationFile", new File("./resource/config/jgroups-udp.xml").getCanonicalPath())
-		.transport().asyncTransportExecutor().addProperty("maxThreads", "100").addProperty("threadNamePrefix", "mytransport-thread")
+			.addProperty("configurationFile", new File("./resource/config/craken-tcp.xml").getCanonicalPath())
+//		.transport().asyncTransportExecutor().addProperty("maxThreads", "100").addProperty("threadNamePrefix", "mytransport-thread")
 		.globalJmxStatistics().enabled(false)
 		.build() ;
 		

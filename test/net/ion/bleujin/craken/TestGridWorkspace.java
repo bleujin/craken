@@ -10,12 +10,15 @@ import net.ion.craken.listener.CDDModifiedEvent;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
+import net.ion.craken.node.crud.impl.GridWorkspace;
 import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 
 import org.infinispan.io.GridFilesystem;
@@ -30,6 +33,7 @@ public class TestGridWorkspace extends TestCase {
 		super.setUp();
 
 //		this.craken = Craken.inmemoryCreateWithTest() ;
+//		FileUtil.deleteDirectory(new File("./resource/grid"));
 		this.craken = Craken.local();
 		craken.createWorkspace("test", WorkspaceConfigBuilder.gridDir("./resource/grid")) ;
 		this.session = craken.login("test");
@@ -41,6 +45,27 @@ public class TestGridWorkspace extends TestCase {
 		super.tearDown();
 	}
 	
+	
+	public void testPath() throws Exception {
+		ReadSession session = craken.login("test") ;
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				WriteNode wnode = wsession.pathBy("/a/b/c/d");
+				Debug.line(wnode.property("greeting").asString());
+				wnode.property("greeting", "hi") ;
+				return null;
+			}
+		}) ;
+		
+		session.root().children().debugPrint();
+		Debug.line();
+		session.root().walkChildren().debugPrint();
+//		GridWorkspace gworkspace = (GridWorkspace)session.workspace() ;
+//		File root = gworkspace.gfs().getFile("/") ;
+//		Debug.line(root.listFiles()) ;
+		
+	}
 	
 	public void testFirst() throws Exception {
 		session.tran(TransactionJobs.HelloBleujin) ;

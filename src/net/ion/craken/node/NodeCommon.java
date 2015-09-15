@@ -38,7 +38,7 @@ public interface NodeCommon<T extends NodeCommon<T>> extends NodeCommonMap<T> {
 
 	public Iterable<T> children();
 
-	public Set<PropertyId> keys();
+	public Set<PropertyId> keys(); // all normal & ref
 	
 	public Set<PropertyId> normalKeys();
 

@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.ion.craken.node.AbstractChildren;
 import net.ion.craken.node.IteratorList;
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.SortElement;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
@@ -128,6 +129,38 @@ public class WriteChildren  extends AbstractChildren<WriteNode, WriteChildren> i
 		return eachNode(WriteChildrenEachs.COUNT);
 	}
 
+	public PropertyValue min(final String propId) {
+		return eachNode(new WriteChildrenEach<PropertyValue>(){
+			@Override
+			public PropertyValue handle(WriteChildrenIterator citer) {
+				List<PropertyValue> store = ListUtil.newList() ;
+				while(citer.hasNext()){
+					WriteNode rnode = citer.next() ;
+					store.add(rnode.property(propId)) ;
+				}
+				
+				Collections.sort(store);
+				return store.size() > 0 ? store.get(0) : PropertyValue.NotFound;
+			}
+		}) ;
+	}
+
+	public PropertyValue max(final String propId) {
+		return eachNode(new WriteChildrenEach<PropertyValue>(){
+			@Override
+			public PropertyValue handle(WriteChildrenIterator citer) {
+				List<PropertyValue> store = ListUtil.newList() ;
+				while(citer.hasNext()){
+					WriteNode rnode = citer.next() ;
+					store.add(rnode.property(propId)) ;
+				}
+				
+				Collections.sort(store);
+				Collections.reverse(store);
+				return store.size() > 0 ? store.get(0) : PropertyValue.NotFound;
+			}
+		}) ;
+	}
 
 }
 

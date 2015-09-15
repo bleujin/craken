@@ -24,6 +24,7 @@ import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.util.ReadChildrenEachs;
 import net.ion.framework.db.Page;
 import net.ion.framework.db.Rows;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.rosetta.Parser;
@@ -252,6 +253,38 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return (WalkReadChildren)this;
 	}
 
+	public PropertyValue min(final String propId) {
+		return eachNode(new ReadChildrenEach<PropertyValue>(){
+			@Override
+			public PropertyValue handle(ReadChildrenIterator citer) {
+				List<PropertyValue> store = ListUtil.newList() ;
+				while(citer.hasNext()){
+					ReadNode rnode = citer.next() ;
+					store.add(rnode.property(propId)) ;
+				}
+				
+				Collections.sort(store);
+				return store.size() > 0 ? store.get(0) : PropertyValue.NotFound;
+			}
+		}) ;
+	}
+
+	public PropertyValue max(final String propId) {
+		return eachNode(new ReadChildrenEach<PropertyValue>(){
+			@Override
+			public PropertyValue handle(ReadChildrenIterator citer) {
+				List<PropertyValue> store = ListUtil.newList() ;
+				while(citer.hasNext()){
+					ReadNode rnode = citer.next() ;
+					store.add(rnode.property(propId)) ;
+				}
+				
+				Collections.sort(store);
+				Collections.reverse(store);
+				return store.size() > 0 ? store.get(0) : PropertyValue.NotFound;
+			}
+		}) ;
+	}
 
 
 

@@ -348,6 +348,18 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 			throw new IOException(e);
 		}
 	}
+	
+	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException {
+		if (StringUtil.isBlank(name) || StringUtil.isBlank(value)) throw new ParseException(String.format("not defined name or value[%s:%s]", name, value)) ;
+		
+		final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), new TermQuery(new Term(name, value)));
+		if (includeDecentTree){
+			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+		} else {
+			result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString()));
+		}
+		return result;
+	}
 
 	public ChildQueryRequest childQuery(Query query) throws IOException {
 		return ChildQueryRequest.create(session, session.newSearcher(), query);

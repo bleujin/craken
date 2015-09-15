@@ -31,6 +31,12 @@ public class TestPropertyValueType extends TestCase {
 		assertEquals(Boolean.FALSE, pv.asSet().toArray()[1]) ;
 	}
 	
+	public void testAsDouble() throws Exception {
+		assertEquals(VType.DOUB, PropertyValue.createPrimitive(3.0d).type()) ;
+		assertEquals(3.0d, PropertyValue.createPrimitive(3.0d).asDouble(0d)) ;
+	}
+	
+	
 	public void testSameType() throws Exception {
 		PropertyValue pv = PropertyValue.createPrimitive("Hello")  ;
 		try {

@@ -74,8 +74,10 @@ import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
+import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
@@ -86,7 +88,7 @@ import com.google.common.cache.CacheBuilder;
 
 // central use localmode
 
-@Listener
+@Listener(clustered = true)
 public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHandler{
 
 	private Repository repository;
@@ -197,10 +199,10 @@ public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 			for (String name : names) {
 				if (!cnode.hasChild(name)) {
 					Fqn childFqn = Fqn.fromRelativeElements(cnode.getFqn(), name);
-					if (readNode(childFqn) == null) {
+//					if (readNode(childFqn) == null) {
 						cnode.addChild(Fqn.fromString(name));
 						WriteNodeImpl.loadTo(wsession, childFqn, Touch.MODIFY);
-					}
+//					}
 				}
 				cnode = cnode.getChild(name);
 			}
@@ -227,7 +229,8 @@ public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 			AtomicMap<PropertyId, PropertyValue> found = handleData(fqn.dataKey(), created) ;
 			if (found == null) return null ;
 			else {
-				result = tcache.getRoot().addChild(fqn) ;
+				result = tcache.createTreeNode(cache, fqn) ;
+//				result = tcache.getRoot().addChild(fqn) ;
 				result.putAll(found);
 			}
 			
@@ -518,8 +521,8 @@ public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 	public void unRegistered(Workspace workspace) {
 	}
 
-	@CacheEntryModified
-	public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
+	@CacheEntryModified @CacheEntryCreated
+	public void modified(CacheEntryEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
 		cddmListener.modifiedRow(event);
 	}
 

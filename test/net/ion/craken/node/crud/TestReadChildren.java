@@ -116,4 +116,10 @@ public class TestReadChildren extends TestBaseCrud {
 	public void testChildrenTransform() throws Exception {
 		session.pathBy("/bleujin").children().offset(10).transform(Functions.CHILDLIST) ;
 	}
+	
+	
+	public void testMinMax() throws Exception {
+		Debug.line( session.pathBy("/bleujin").children().offset(1000).min("dummy").asDouble(0.0)) ;
+		Debug.line( session.pathBy("/bleujin").children().offset(1000).max("dummy").asDouble(0.0)) ;
+	}
 }

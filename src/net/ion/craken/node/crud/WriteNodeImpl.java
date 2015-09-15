@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream.GetField;
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Iterator;
@@ -538,6 +539,18 @@ public class WriteNodeImpl implements WriteNode {
 		return ChildQueryRequest.create(readSession(), readSession().newSearcher(), query);
 	}
 
+	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException {
+		if (StringUtil.isBlank(name) || StringUtil.isBlank(value)) throw new ParseException(String.format("not defined name or value[%s:%s]", name, value)) ;
+		
+		final ChildQueryRequest result = ChildQueryRequest.create(readSession(), readSession().newSearcher(), new TermQuery(new Term(name, value)));
+		if (includeDecentTree){
+			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+		} else {
+			result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString()));
+		}
+		return result;
+	}
+	
 	public ChildQueryRequest childQuery(String query) throws IOException, ParseException {
 		if (StringUtil.isBlank(query))
 			return childQuery(new TermQuery(new Term(EntryKey.PARENT, this.fqn().toString())));
@@ -574,4 +587,53 @@ public class WriteNodeImpl implements WriteNode {
 		wsession.workspace().reindex(this, anal, includeSub) ;
 		return this ;
 	}
+	
+	
+	public WriteNode moveTo(String targetParent){
+		return moveTo(targetParent, 1) ;
+	}
+	public WriteNode moveTo(String targetParent, int ancestorDepth){
+		if (ancestorDepth < 1) throw new IllegalArgumentException("depth must be 1 higher") ;
+		
+		Fqn parent = fqn().getAncestor(fqn().size() - ancestorDepth) ;
+		Fqn tparent = Fqn.fromString(targetParent) ;
+		
+		if (parent.equals(tparent)) return this;
+		
+		WalkReadChildren walkChildren = this.toReadNode().walkChildren().includeSelf(true) ;
+		for(ReadNode rnode : walkChildren){
+			Fqn fqnForMove = rnode.fqn().replaceAncestor(parent, tparent) ;
+			WriteNode movenode = wsession.pathBy(fqnForMove) ;
+			for (PropertyId propId : rnode.keys()) {
+				movenode.property(propId.idString(), rnode.propertyId(propId).asObject()) ;
+			}
+		}
+		
+		this.removeSelf() ;
+		return session().pathBy(Fqn.fromRelativeElements(tparent, fqn().name())) ;
+	}
+
+	public WriteNode copyTo(String targetParent, boolean includeSelf){
+		Fqn parent = fqn().getParent() ;
+		Fqn tparent = Fqn.fromString(targetParent) ;
+		
+		if (includeSelf) {
+			WalkReadChildren walkChildren = this.toReadNode().walkChildren().includeSelf(true) ;
+			for(ReadNode rnode : walkChildren){
+				Fqn fqnForCopy = rnode.fqn().replaceAncestor(parent, tparent) ;
+				WriteNode copynode = wsession.pathBy(fqnForCopy) ;
+				for (PropertyId propId : rnode.keys()) {
+					copynode.property(propId.idString(), rnode.propertyId(propId).asObject()) ;
+				}
+			}
+		} else {
+			Fqn fqnForCopy = this.fqn.replaceAncestor(parent, tparent) ;
+			WriteNode copynode = wsession.pathBy(fqnForCopy) ;
+			for (PropertyId propId : keys()) {
+				copynode.property(propId.idString(), propertyId(propId).asObject()) ;
+			}
+		}
+		return session().pathBy(Fqn.fromRelativeElements(tparent, fqn().name())) ;
+	}
+
 }

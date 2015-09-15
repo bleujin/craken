@@ -23,7 +23,7 @@ import org.infinispan.Cache;
 import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.context.Flag;
 import org.infinispan.io.GridFilesystem;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
+import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 
 
@@ -100,7 +100,7 @@ public interface Workspace extends Closeable, WorkspaceListener {
 
 	public abstract void log(String msg) ;
 
-	public abstract void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) ;
+	public abstract void modified(CacheEntryEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) ;
 	
 	public abstract void removed(CacheEntryRemovedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) ;
 

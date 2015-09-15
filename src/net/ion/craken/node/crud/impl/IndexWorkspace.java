@@ -83,8 +83,10 @@ import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
+import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
@@ -93,7 +95,7 @@ import org.infinispan.util.logging.LogFactory;
 
 import com.google.common.cache.CacheBuilder;
 
-@Listener
+@Listener(clustered = true)
 public class IndexWorkspace extends AutoBatchSupport implements Workspace, ProxyHandler {
 
 	private Repository repository;
@@ -559,8 +561,8 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 	public void unRegistered(Workspace workspace) {
 	}
 
-	@CacheEntryModified
-	public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
+	@CacheEntryModified @CacheEntryCreated
+	public void modified(CacheEntryEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
 		cddmListener.modifiedRow(event);
 	}
 

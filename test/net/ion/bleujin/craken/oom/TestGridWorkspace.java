@@ -49,7 +49,7 @@ public class TestGridWorkspace extends TestBaseWorkspace {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-
+				wsession.iwconfig().ignoreIndex() ;
 				File file = new File("C:/temp/freebase-datadump-tsv/data/medicine/drug_label_section.tsv") ;
 				
 				CsvReader reader = new CsvReader(new BufferedReader(new FileReader(file)));

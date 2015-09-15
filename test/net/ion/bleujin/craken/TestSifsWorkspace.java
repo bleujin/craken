@@ -42,6 +42,25 @@ public class TestSifsWorkspace extends TestCase {
 	}
 	
 	
+	public void testPath() throws Exception {
+		ReadSession session = craken.login("test") ;
+		session.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/a/b").property("greeting", "hi") ;
+				return null;
+			}
+		}) ;
+		
+		session.root().children().debugPrint();
+		Debug.line();
+		session.root().walkChildren().debugPrint();
+//		GridWorkspace gworkspace = (GridWorkspace)session.workspace() ;
+//		File root = gworkspace.gfs().getFile("/") ;
+//		Debug.line(root.listFiles()) ;
+		
+	}
+	
 	public void testFirst() throws Exception {
 		session.tran(TransactionJobs.HelloBleujin) ;
 		assertEquals("bleujin", session.pathBy("/bleujin").property("name").asString()) ;

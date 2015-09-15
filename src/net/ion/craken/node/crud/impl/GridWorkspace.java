@@ -74,8 +74,10 @@ import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
+import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
@@ -84,7 +86,7 @@ import org.infinispan.util.logging.LogFactory;
 
 import com.google.common.cache.CacheBuilder;
 
-@Listener
+@Listener(clustered = true)
 public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyHandler{
 
 	private Repository repository;
@@ -225,7 +227,8 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 			AtomicMap<PropertyId, PropertyValue> found = handleData(fqn.dataKey(), created) ;
 			if (found == null) return null ;
 			else {
-				result = tcache.getRoot().addChild(fqn) ;
+				result = tcache.createTreeNode(cache, fqn) ;
+//				result = tcache.getRoot().addChild(fqn) ;
 				result.putAll(found);
 			}
 			
@@ -406,7 +409,56 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 		}
 		
 		public void writeLog(final Set<TouchedRow> logRows) throws IOException {
-			if (wsession.iwconfig().isIgnoreIndex()) return ;
+//			if (wsession.iwconfig().isIgnoreIndex()) return ;
+			
+			if (wsession.iwconfig().isIgnoreIndex()){ // 10% ... 
+				long startTime = System.currentTimeMillis() ;
+				GridFilesystem gfs = wspace.gfs() ;
+
+				for (TouchedRow trow : logRows) {
+					Touch touch = trow.touch() ;
+					Fqn fqn = trow.target() ;
+					String pathKey = fqn.toString() ;
+					switch (touch) {
+					case TOUCH:
+						break;
+					case MODIFY:
+						Map<PropertyId, PropertyValue> props = trow.sourceMap() ;
+						if ("/".equals(pathKey))
+							continue;
+
+						String contentFileName = fqn.toString() + "/" + fqn.name()  + ".node";
+						File contentFile = gfs.getFile(contentFileName) ;
+						if (! contentFile.getParentFile().exists()) {
+							contentFile.getParentFile().mkdirs() ;
+						}
+
+						JsonObject nodeJson = new JsonObject() ;
+						for(PropertyId pid : props.keySet()){
+							final String propId = pid.idString() ;
+							PropertyValue pvalue = props.get(pid) ;
+							nodeJson.add(propId, pvalue.json()); // data
+						}
+						IOUtil.copyNClose(new StringInputStream(nodeJson.toString()), gfs.getOutput(contentFileName)) ;
+						break;
+					case REMOVE:
+						File rfile = gfs.getFile(pathKey) ;
+						if (rfile.exists()) rfile.delete() ;
+						break;
+					case REMOVECHILDREN :
+						File cfile = gfs.getFile(pathKey) ;
+						if (cfile.exists()) cfile.delete() ;
+						break;
+					default:
+						throw new IllegalArgumentException("Unknown modification type " + touch);
+					}
+				}
+				
+				wspace.log.debug(wsession.tranId() + " writed") ;
+				wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(logRows.size(), System.currentTimeMillis() - startTime));
+				
+				return ;
+			}
 			
 			
 			IndexJob<Void> indexJob = new IndexJob<Void>() {
@@ -515,8 +567,8 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 	public void unRegistered(Workspace workspace) {
 	}
 
-	@CacheEntryModified
-	public void modified(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
+	@CacheEntryModified @CacheEntryCreated
+	public void modified(CacheEntryEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
 		cddmListener.modifiedRow(event);
 	}
 

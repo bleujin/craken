@@ -24,8 +24,10 @@ import net.ion.framework.util.MapUtil;
 import net.ion.radon.util.uriparser.URIPattern;
 
 import org.infinispan.atomic.impl.AtomicHashMap;
+import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
+import org.infinispan.notifications.cachelistener.event.Event.Type;
 
 public class CDDMListener implements WorkspaceListener {
 
@@ -70,19 +72,25 @@ public class CDDMListener implements WorkspaceListener {
 	}
 
 
-	public void modifiedRow(CacheEntryModifiedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
-		if (event.isPre()) return ;
-		if (event.isOriginLocal()) return ;
-
+	public void modifiedRow(CacheEntryEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {
+		if (event.getType() == Type.CACHE_ENTRY_CREATED){
+			if (event.isOriginLocal()) return ;
+			if (event.isOriginLocal()) return ;
+		} else if (event.getType() == Type.CACHE_ENTRY_MODIFIED) {
+			if (event.isPre()) return ;
+			if (event.isOriginLocal()) return ;
+		}
+		
 		for(Entry<CDDHandler, URIPattern> entry : chandlers.entrySet()){
 			CDDHandler handler = entry.getKey() ;
 			Fqn targetFqn = event.getKey().getFqn();
 			if (targetFqn.isPattern(entry.getValue())){
-				CDDModifiedEvent mevent = new CDDModifiedEvent(event.getKey(), event.getValue());
+				CDDModifiedEvent mevent = new CDDModifiedEvent(event.getKey(), event.getValue()).etype(event.getType());
 				Map<String, String> resolveMap = targetFqn.resolve(handler.pathPattern());;
 				handler.modified(resolveMap, mevent) ;
 			}
 		}
+		
 	}
 
 	public void removedRow(CacheEntryRemovedEvent<TreeNodeKey, AtomicHashMap<PropertyId, PropertyValue>> event) {

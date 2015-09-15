@@ -75,4 +75,12 @@ public class TestFqn extends TestBaseCrud {
 		assertEquals("hero", session.pathBy("/emp//hero").property("name").asString()) ;
 	}
 	
+	
+	public void testAncestor() throws Exception {
+		Fqn bleujin = Fqn.fromString("/emp/manager/bleujin") ;
+		Fqn expect = Fqn.fromString("/ion/manager/bleujin") ;
+		
+		Fqn newbleujin = bleujin.replaceAncestor(Fqn.fromString("/emp"), Fqn.fromString("/ion/manager")) ;
+		Debug.line(newbleujin, newbleujin.getAncestor(newbleujin.size() - 1));
+	}
 }

@@ -173,7 +173,7 @@ public class ICSFileConfigBuilder extends WorkspaceConfigBuilder {
 	
 	private Central makeCentral(DefaultCacheManager dm, String wsName) throws IOException {
 		File indexRoot = new File(new File(rootPath), "/index");
-		return CentralConfig.newLocalFile().dirFile(indexRoot).indexConfigBuilder().build();
+		return CentralConfig.newLocalFile().dirFile(indexRoot).indexConfigBuilder().executorService(new WithinThreadExecutor()).build();
 	}
 	
 	

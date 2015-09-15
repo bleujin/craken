@@ -12,10 +12,8 @@ public class TestBaseCrud extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		this.r = Craken.inmemoryCreateWithTest() ; // pre define "test" ;
-		
 //		r.defineWorkspace("test", ISearcherWorkspaceConfig.create()) ;
 //		r.defineWorkspace("test2", NeoWorkspaceConfig.create()) ;
-		
 		r.start() ;
 		this.session = r.login("test") ;
 		Debug.line("TEST CALLED", getClass().getCanonicalName());

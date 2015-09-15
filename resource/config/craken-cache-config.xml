@@ -10,7 +10,7 @@
    </jgroups>
    
    <cache-container name="sample" statistics="true"  default-cache="default-cache" shutdown-hook="DEFAULT">
-	   <transport stack="tcp" cluster="craken-sample" node-name="emanon" machine="bleujin" rack="r1" site="ION" />
+	   <transport stack="tcp" cluster="craken-sample" node-name="emanon1" machine="bleujin" rack="r1" site="ION" />
 	   <jmx domain="org.infinispan" />
 	
 	   <replicated-cache name="default-cache" statistics="true" mode="SYNC" remote-timeout="20000">
