@@ -34,6 +34,7 @@ import net.ion.nsearcher.config.CentralConfig;
 import net.ion.nsearcher.index.IndexJob;
 import net.ion.nsearcher.index.IndexSession;
 
+import org.apache.ecs.xhtml.tr;
 import org.apache.lucene.store.Directory;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
@@ -73,11 +74,11 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 					.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable().clustering();
 
 			ClusteringConfigurationBuilder idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
-					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();
+					.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();
 			ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
-					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+					.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
 			ClusteringConfigurationBuilder idx_lock_builder = new ConfigurationBuilder().persistence().passivation(true)
-					.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+					.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
 
 			if (cacheMode().isClustered()){
 				real_configBuilder.cacheMode(CacheMode.REPL_ASYNC) ;
@@ -184,6 +185,7 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 	public Central central(){
 		return this.central ;
 	}
+
 	
 	private GridFilesystem makeGridSystem(DefaultCacheManager dm, String wsName){
 		Cache<String, byte[]> blobChunk = dm.getCache(blobChunk(wsName));

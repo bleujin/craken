@@ -29,7 +29,7 @@ import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.OldWriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.node.crud.store.SessionWorkspaceBuilder;
+import net.ion.craken.node.crud.store.MemoryWorkspaceBuilder;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeCache;
 import net.ion.craken.node.crud.tree.TreeCacheFactory;
@@ -68,7 +68,7 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener(clustered = true)
-public class SessionWorkspace extends AutoBatchSupport implements Workspace{
+public class MemoryWorkspace extends AutoBatchSupport implements Workspace{
 
 	private Repository repository;
 	private AdvancedCache<PropertyId, PropertyValue> cache;
@@ -84,7 +84,7 @@ public class SessionWorkspace extends AutoBatchSupport implements Workspace{
 	com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans = CacheBuilder.newBuilder().maximumSize(100).build();
 	private TreeCache<PropertyId, PropertyValue> tcache;
 
-	public SessionWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, SessionWorkspaceBuilder wconfig) throws IOException {
+	public MemoryWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, MemoryWorkspaceBuilder wconfig) throws IOException {
 		this.repository = craken;
 		this.cache = cache;
 		this.gfs = wconfig.gfs();
@@ -128,7 +128,7 @@ public class SessionWorkspace extends AutoBatchSupport implements Workspace{
 		return tcache.exists(fqn) || readNode(fqn) != null ;
 	}
 
-	public SessionWorkspace withFlag(Flag... flags) {
+	public MemoryWorkspace withFlag(Flag... flags) {
 		cache = cache.getAdvancedCache().withFlags(flags);
 		return this;
 	}

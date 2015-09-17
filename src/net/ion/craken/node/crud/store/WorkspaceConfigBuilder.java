@@ -24,7 +24,8 @@ public abstract class WorkspaceConfigBuilder {
 	
 	private int maxEntry = 1000 ;
 	private int eviMaxSegment = 20 ;
-
+	private int transferTimeOut = 300;
+	
 	public static WorkspaceConfigBuilder indexDir(String path) throws IOException {
 		return new IndexFileConfigBuilder(path);
 	}
@@ -46,7 +47,7 @@ public abstract class WorkspaceConfigBuilder {
 	}
 
 	public static WorkspaceConfigBuilder memoryDir(){
-		return new SessionWorkspaceBuilder() ;
+		return new MemoryWorkspaceBuilder() ;
 	}
 
 	public WorkspaceConfigBuilder maxEntry(int maxEntry){
@@ -86,6 +87,14 @@ public abstract class WorkspaceConfigBuilder {
 		return wsName + "-bmeta" ;
 	}
 
+	public WorkspaceConfigBuilder transferTimeout(int transferTimeOut){
+		this.transferTimeOut = transferTimeOut ;
+		return this ;
+	}
+	
+	public int transferTimeout(){
+		return transferTimeOut ;
+	}
 	
 	public void createInterceptor(TreeCache<PropertyId, PropertyValue> cache, Central central, Cache<Transaction, IndexWriteConfig> trans){
 	}

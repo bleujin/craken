@@ -8,7 +8,7 @@ import javax.transaction.Transaction;
 import net.ion.craken.node.IndexWriteConfig;
 import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.Craken;
-import net.ion.craken.node.crud.impl.SessionWorkspace;
+import net.ion.craken.node.crud.impl.MemoryWorkspace;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
@@ -31,12 +31,12 @@ import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.transaction.TransactionMode;
 
-public class SessionWorkspaceBuilder extends WorkspaceConfigBuilder {
+public class MemoryWorkspaceBuilder extends WorkspaceConfigBuilder {
 
 	private GridFilesystem gfs;
 	private Central central;
 
-	public SessionWorkspaceBuilder() {
+	public MemoryWorkspaceBuilder() {
 	}
 
 	@Override
@@ -45,11 +45,11 @@ public class SessionWorkspaceBuilder extends WorkspaceConfigBuilder {
 				.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable().clustering();
 
 		ClusteringConfigurationBuilder idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
-				.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();
+				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();
 		ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
-				.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
 		ClusteringConfigurationBuilder idx_lock_builder = new ConfigurationBuilder().persistence().passivation(true)
-				.clustering().stateTransfer().timeout(300, TimeUnit.SECONDS).clustering();;
+				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
 
 		if (cacheMode().isClustered()){
 			real_configBuilder.cacheMode(CacheMode.REPL_SYNC) ;
@@ -87,10 +87,12 @@ public class SessionWorkspaceBuilder extends WorkspaceConfigBuilder {
 	
 	
 	public Workspace createWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache) throws IOException {
-		return  new SessionWorkspace(craken, cache, this);
+		return  new MemoryWorkspace(craken, cache, this);
 	}
 
 	public void createInterceptor(AdvancedCache<TreeNodeKey, AtomicMap<PropertyId, PropertyValue>> cache, Central central, com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans){
 	}
 
+	
+	
 }
