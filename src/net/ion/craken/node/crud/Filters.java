@@ -8,6 +8,7 @@ import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.nsearcher.config.IndexConfig;
 import net.ion.nsearcher.config.SearchConfig;
 import net.ion.nsearcher.search.filter.BooleanFilter;
 import net.ion.nsearcher.search.filter.FilterUtil;
@@ -57,8 +58,8 @@ public class Filters {
 		return new QueryWrapperFilter(new WildcardQuery(new Term(field, ObjectUtil.toString(value)))) ;
 	}
 
-	public static Filter query(SearchConfig sconfig, String query) throws ParseException {
-		return new QueryWrapperFilter(sconfig.parseQuery(query)) ;
+	public static Filter query(SearchConfig sconfig, IndexConfig iconfig, String query) throws ParseException {
+		return new QueryWrapperFilter(sconfig.parseQuery(iconfig, query)) ;
 	}
 
 	public static Filter lte(String field, long max) {

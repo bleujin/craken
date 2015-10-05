@@ -34,6 +34,7 @@ import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.filter.TermFilter;
 import net.ion.rosetta.Parser;
 
@@ -338,9 +339,10 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		if (StringUtil.isBlank(query))
 			return childQuery(new TermQuery(new Term(EntryKey.PARENT, this.fqn().toString())));
 
-		Analyzer analyzer = session.workspace().central().searchConfig().queryAnalyzer();
+		Central central = session.workspace().central();
+		Analyzer analyzer = central.searchConfig().queryAnalyzer();
 		try {
-			final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
+			final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
 			result.filter(new TermFilter(EntryKey.PARENT, this.fqn().toString()));
 
 			return result;
@@ -386,7 +388,8 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 		try {
 			Analyzer analyzer = session().queryAnalyzer();
-			final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), session.workspace().central().searchConfig().parseQuery(analyzer, query));
+			Central central = session.workspace().central();
+			final ChildQueryRequest result = ChildQueryRequest.create(session, session.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
 			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
 			return result;
 		} catch (ParseException e) {

@@ -184,7 +184,7 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest query(String query) throws ParseException {
-		filter(Filters.query(session.central().searchConfig(), query));
+		filter(Filters.query(session.central().searchConfig(), session.central().indexConfig(), query));
 		return this;
 	}
 
