@@ -19,7 +19,7 @@ public class TestFirst extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.r = Craken.create() ;
+		this.r = Craken.local() ;
 //		FileUtil.deleteDirectory(new File("./resource/store/test"));
 		r.createWorkspace("test", WorkspaceConfigBuilder.indexDir("./resource/store/test")) ;
 		session = r.login("test") ;

@@ -32,6 +32,7 @@ import net.ion.craken.node.exception.NodeIOException;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ArrayUtil;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
@@ -93,7 +94,11 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public TreeNode<PropertyId, PropertyValue> tree() {
-		return wsession.workspace().readNode(fqn);
+		TreeNode read = wsession.workspace().writeNode(fqn);
+		if (read == null){
+			Debug.line(read, fqn);
+		}
+		return read;
 	}
 
 	public WriteSession session() {

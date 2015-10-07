@@ -29,6 +29,7 @@ import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -88,7 +89,10 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 
 	// only use for test
 	public TreeNode<PropertyId, PropertyValue> treeNode() {
-		return session.workspace().readNode(fqn);
+		TreeNode result = session.workspace().readNode(fqn);
+		if (result == null) return new GhostTreeNode(session, fqn) ;
+		return result;
+		
 	}
 
 	// .. common
@@ -160,7 +164,8 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Set<PropertyId> keys() {
-		return treeNode().getKeys();
+		TreeNode<PropertyId, PropertyValue> treeNode = treeNode();
+		return treeNode.getKeys();
 	}
 
 	public Set<PropertyId> normalKeys() {

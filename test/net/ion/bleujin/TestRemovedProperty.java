@@ -10,6 +10,7 @@ import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.framework.util.Debug;
 
 /**
@@ -25,6 +26,7 @@ public class TestRemovedProperty extends TestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 		rentry = CrakenEntry.test();
+		rentry.getCraken().createWorkspace("test", WorkspaceConfigBuilder.memoryDir()) ;
 		rsession = rentry.login("test");
 	}
 
@@ -51,6 +53,20 @@ public class TestRemovedProperty extends TestCase {
 		Thread.sleep(500);
 		assertEquals("hello", rsession.pathBy(prefix + "/ryun").property("message").stringValue());
 
+	}
+	
+	
+	public void testRemoveNotExists() throws Exception {
+		rsession.tran(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/emps/bleujin").removeSelf() ;
+				wsession.pathBy("/emps/bleujin").removeSelf() ;
+				return null;
+			}
+		}) ;
+		
+		rsession.root().debugPrint();
 	}
 	
 	

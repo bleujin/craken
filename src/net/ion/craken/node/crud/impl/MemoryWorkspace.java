@@ -203,9 +203,17 @@ public class MemoryWorkspace extends AutoBatchSupport implements Workspace{
 
 	public TreeNode<PropertyId, PropertyValue> readNode(Fqn fqn) {
 		TreeNode<PropertyId, PropertyValue> result = tcache.getNode(fqn);
-		
 		return result;
 	}
+	
+	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
+		if (! tcache.exists(fqn)) { 
+			tcache.getRoot().addChild(fqn) ;
+		}		
+		return readNode(fqn) ;
+	}
+
+
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
 		return tran(wsession, tjob, null);

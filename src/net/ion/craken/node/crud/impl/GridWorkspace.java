@@ -235,6 +235,14 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 		}
 		return result;
 	}
+	
+	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
+		if (! tcache.exists(fqn)) { 
+			tcache.getRoot().addChild(fqn) ;
+		}		
+		return readNode(fqn) ;
+	}
+	
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
 		return tran(wsession, tjob, null);

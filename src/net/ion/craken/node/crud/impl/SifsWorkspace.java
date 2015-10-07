@@ -197,6 +197,13 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 		return WriteNodeImpl.loadTo(wsession, fqn) ;
 	}
 	
+
+
+	public TreeNode<PropertyId, PropertyValue> readNode(Fqn fqn) {
+		TreeNode<PropertyId, PropertyValue> result = tcache.getNode(fqn);
+		return result ;
+	}
+
 	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
 		if (! tcache.exists(fqn)) { 
 			tcache.getRoot().addChild(fqn) ;
@@ -209,11 +216,7 @@ public class SifsWorkspace extends AutoBatchSupport implements Workspace {
 		// if (log.isTraceEnabled()) log.tracef("Merged node %s", fqn);
 		// return new TreeNode(this, fqn);
 	}
-
-	public TreeNode<PropertyId, PropertyValue> readNode(Fqn fqn) {
-		return tcache.getNode(fqn) ;
-	}
-
+	
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
 		return tran(wsession, tjob, null);
 	}

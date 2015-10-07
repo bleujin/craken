@@ -39,6 +39,9 @@ public interface Workspace extends Closeable, WorkspaceListener {
 
 	public abstract TreeNode readNode(Fqn fqn) ;
 	
+	public abstract TreeNode writeNode(Fqn fqn);
+
+	
 //	public Map<PropertyId, PropertyValue> props(Fqn fqn) ;
 //	
 //	public Map<String, Fqn> strus(Fqn fqn) ;
@@ -107,6 +110,7 @@ public interface Workspace extends Closeable, WorkspaceListener {
 	public abstract WriteSession newWriteSession(ReadSession readSession) ;
 
 	public abstract void reindex(WriteNode wnode, Analyzer anal, boolean includeSub) ;
+
 
 
 

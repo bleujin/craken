@@ -49,7 +49,6 @@ import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectId;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.MyField;
@@ -87,7 +86,6 @@ import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
 import org.infinispan.util.logging.Log;
@@ -236,7 +234,10 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 		if (result == null){
 			AtomicHashMap<PropertyId, PropertyValue> created = new AtomicHashMap<PropertyId, PropertyValue>();
 			AtomicMap<PropertyId, PropertyValue> found = handleData(fqn.dataKey(), created) ;
-			if (found == null) return null ;
+			if (found == null) {
+//				result = tcache.getRoot().addChild(fqn) ;
+				return null ;
+			}
 			else {
 				result = tcache.getRoot().addChild(fqn) ;
 				result.putAll(found);
@@ -245,6 +246,14 @@ public class IndexWorkspace extends AutoBatchSupport implements Workspace, Proxy
 		}
 		return result;
 	}
+	
+	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
+		if (! tcache.exists(fqn)) { 
+			tcache.getRoot().addChild(fqn) ;
+		}		
+		return readNode(fqn) ;
+	}
+
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
 		return tran(wsession, tjob, null);
