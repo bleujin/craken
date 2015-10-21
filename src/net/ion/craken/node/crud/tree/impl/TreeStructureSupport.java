@@ -100,10 +100,14 @@ public class TreeStructureSupport extends AutoBatchSupport {
 
 	protected final <K, V> AtomicMap<Object, Fqn> getStructure(AdvancedCache<?, ?> cache, TreeNodeKey struKey) {
 		AtomicMap<Object, Fqn> result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, false);
+
+		
 		if (result == null) {
 			result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, true);
-			result.putAll(proxyHandler.handleStructure(struKey, result));
+			AtomicMap<Object, Fqn> added = proxyHandler.handleStructure(struKey, result);
+//			result.putAll(added);
 		}
+		
 		return result;
 	}
 }

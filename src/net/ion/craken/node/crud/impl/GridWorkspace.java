@@ -51,6 +51,7 @@ import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ObjectId;
 import net.ion.nsearcher.common.IKeywordField;
@@ -72,6 +73,7 @@ import org.infinispan.context.Flag;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
+import org.infinispan.io.GridFile;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
@@ -213,6 +215,10 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 	}
 
 	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
+		if (exists(fqn)){
+			return WriteNodeImpl.loadTo(wsession, fqn) ;
+		}
+		
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		if (log.isTraceEnabled())
@@ -491,7 +497,7 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 								continue;
 
 							String contentFileName = fqn.toString() + "/" + fqn.name()  + ".node";
-							File contentFile = gfs.getFile(contentFileName) ;
+							File contentFile = (GridFile) gfs.getFile(contentFileName) ;
 							if (! contentFile.getParentFile().exists()) {
 								contentFile.getParentFile().mkdirs() ;
 							}
@@ -647,7 +653,6 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 				created.put(child.getName(), Fqn.fromRelativeElements(fqn, child.getName()));
 			}
 		}
-
 		return created;
 	}
 

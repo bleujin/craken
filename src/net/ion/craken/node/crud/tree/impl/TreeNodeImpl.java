@@ -9,6 +9,7 @@ import java.util.Set;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeCache;
 import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.SetUtil;
 
 import org.infinispan.AdvancedCache;
@@ -63,7 +64,8 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	public Set<Fqn> getChildrenFqn(){
 			Set<Fqn> result = new HashSet<Fqn>();
 			for (Fqn f : getStructure().values()) {
-				result.add(f);
+//				if (this.dataKey.fqn.equals(f.getParent())) 
+					result.add(f);
 			}
 			return Immutables.immutableSetWrap(result);
 	}
@@ -457,7 +459,11 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	}
 
 	private AtomicMap<Object, Fqn> getStructure() {
-		return getStructure(cache, structureKey);
+		AtomicMap<Object, Fqn> result = getStructure(cache, structureKey);
+		
+		Debug.line(structureKey, result != null ? result.keySet() : result);
+		
+		return result;
 	}
 
 	private AtomicMap<Object, Fqn> getStructure(AdvancedCache<?, ?> cache) {
