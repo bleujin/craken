@@ -12,10 +12,14 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-2.8.xsd">
     <TCP bind_port="7800" port_range="10"
-         recv_buf_size="640000"
+         recv_buf_size="20000000"
          send_buf_size="640000"
+         loopback="false"
+         discard_incompatible_packets="true"
          max_bundle_size="64000"
          max_bundle_timeout="30"
+         enable_bundling="true"
+         enable_unicast_bundling="true"
          enable_diagnostics="true"
          thread_naming_pattern="cl"
 
@@ -35,7 +39,11 @@
          oob_thread_pool.queue_max_size="1000"
          oob_thread_pool.rejection_policy="discard"/>
 
-   <TCPPING initial_hosts="125.131.88.157[7800],125.131.88.78[7800]" port_range="10" timeout="3000" num_initial_members="2" />
+   <MPING timeout="2000"
+    mcast_addr="228.110.12.3"
+    mcast_port="45566"
+    ip_ttl="8"
+    num_initial_members="1"/>
 
     <MERGE2 max_interval="30000"
             min_interval="10000"/>
@@ -53,6 +61,8 @@
     <pbcast.GMS print_local_addr="true" join_timeout="5000"
                 max_bundling_time="30"
                 view_bundling="true"/>
+    <UFC max_credits="2M"
+         min_threshold="0.4"/>
     <MFC max_credits="2M"
          min_threshold="0.4"/>
     <FRAG2 frag_size="60000"  />

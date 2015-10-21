@@ -52,10 +52,10 @@ public class MemoryWorkspaceBuilder extends WorkspaceConfigBuilder {
 				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
 
 		if (cacheMode().isClustered()){
-			real_configBuilder.cacheMode(CacheMode.REPL_SYNC) ;
-			idx_meta_builder.cacheMode(CacheMode.REPL_SYNC) ;
-			idx_chunk_builder.cacheMode(CacheMode.DIST_SYNC) ;
-			idx_lock_builder.cacheMode(CacheMode.REPL_SYNC) ;
+			real_configBuilder.cacheMode(cacheMode()) ;
+			idx_meta_builder.cacheMode(cacheMode()) ;
+			idx_chunk_builder.cacheMode(cacheMode()) ;
+			idx_lock_builder.cacheMode(cacheMode()) ;
 		}
 				
 		dm.defineConfiguration(wsName, real_configBuilder.build());

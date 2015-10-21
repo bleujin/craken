@@ -6,12 +6,12 @@
 
 
    <jgroups>
-      <stack-file name="mping" path="./resource/config/craken-mping.xml"/>
+      <stack-file name="tcp" path="./resource/config/craken-mping.xml"/>
    </jgroups>
-   
+
    <cache-container name="sample" statistics="true"  default-cache="default-cache" shutdown-hook="DEFAULT">
-	   <transport stack="mping" cluster="craken-sample" node-name="emanon1" machine="bleujin" rack="r1" site="ION" />
-	   
+	   <transport stack="tcp" cluster="craken-sample" node-name="emanon" machine="bleujin" rack="r1" site="LON" />
+	
 	   <jmx domain="org.infinispan" />
 	
 	   <replicated-cache name="default-cache" statistics="true" mode="SYNC" remote-timeout="20000">

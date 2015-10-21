@@ -451,11 +451,11 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 						break;
 					case REMOVE:
 						File rfile = gfs.getFile(pathKey) ;
-						if (rfile.exists()) rfile.delete() ;
+						deleteFile(rfile);
 						break;
 					case REMOVECHILDREN :
 						File cfile = gfs.getFile(pathKey) ;
-						if (cfile.exists()) cfile.delete() ;
+						deleteFile(cfile);
 						break;
 					default:
 						throw new IllegalArgumentException("Unknown modification type " + touch);
@@ -532,13 +532,13 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 							break;
 						case REMOVE:
 							File rfile = gfs.getFile(pathKey) ;
-							if (rfile.exists()) rfile.delete() ;
+							deleteFile(rfile);
 							if (! iwconfig.isIgnoreIndex())  isession.deleteById(pathKey) ;
 							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(pathKey).startWith())));
 							break;
 						case REMOVECHILDREN :
 							File cfile = gfs.getFile(pathKey) ;
-							if (cfile.exists()) cfile.delete() ;
+							deleteFile(cfile);
 							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(pathKey).startWith())));
 							break;
 						default:
@@ -550,11 +550,22 @@ public class GridWorkspace extends AutoBatchSupport implements Workspace, ProxyH
 					wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(logRows.size(), System.currentTimeMillis() - startTime));
 					return null;
 				}
+
 			};
 
 			 wspace.central().newIndexer().index(indexJob) ;
 		}
 
+		private void deleteFile(File file){
+			if (file.exists()){
+				if (file.isDirectory()){
+					for(File cfile : file.listFiles()){
+						deleteFile(cfile);
+					}
+				} 
+				file.delete() ;
+			}
+		}
 	}
 
 	private boolean trace = false;
