@@ -19,6 +19,8 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.convert.rows.AdNodeRows;
+import net.ion.craken.node.convert.rows.FieldContext;
+import net.ion.craken.node.convert.rows.FieldDefinition;
 import net.ion.craken.node.crud.tree.ExtendPropertyId;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.NodeNotExistsException;
@@ -29,7 +31,6 @@ import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -331,8 +332,8 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return transformer(Functions.beanCGIFunction(clz));
 	}
 
-	public Rows toRows(String expr) {
-		return transformer(Functions.rowsFunction(session, expr));
+	public Rows toRows(String expr, FieldDefinition... fieldDefinitons) {
+		return transformer(Functions.rowsFunction(session, expr, fieldDefinitons));
 	}
 
 	public final static ReadNode ghost(ReadSession session, Fqn fqn) {
@@ -485,9 +486,12 @@ class GhostReadNode extends ReadNodeImpl {
 	}
 
 	@Override
-	public Rows toRows(String expr) {
+	public Rows toRows(String expr, FieldDefinition... fieldDefinitons) {
 		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
 		SelectProjection sp = TerminalParser.parse(parser, expr);
+		FieldContext fcontext = new FieldContext() ;
+		sp.add(fcontext, fieldDefinitons) ;
+		
 		return AdNodeRows.create(session(), IteratorUtils.EMPTY_ITERATOR, sp);
 		// return FAKE ;
 	}

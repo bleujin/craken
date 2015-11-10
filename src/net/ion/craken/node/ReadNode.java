@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
+import net.ion.craken.node.convert.rows.FieldDefinition;
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.ReadChildren;
 import net.ion.craken.node.crud.RefQueryRequest;
@@ -27,7 +28,7 @@ public interface ReadNode extends NodeCommon<ReadNode> {
 
 	ReadChildren children();
 	
-	Rows toRows(String expr);
+	Rows toRows(String expr, FieldDefinition... fieldDefinitons);
 
 	ChildQueryRequest childQuery(String query) throws IOException;
 

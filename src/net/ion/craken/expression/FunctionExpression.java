@@ -39,7 +39,7 @@ public final class FunctionExpression extends ValueObject implements Expression 
 
 		String fnName = function.names.get(0);
 		Comparable target = margs.get(0);
-
+		if (target == null) return null ;
 		try {
 
 			if (margs.size() == 1)

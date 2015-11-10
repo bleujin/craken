@@ -3,6 +3,7 @@ package net.ion.bleujin.problem;
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
@@ -28,7 +29,10 @@ public class TestChildren extends TestCase {
 		session.tran(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				wsession.pathBy("/a/b/c").property("greeting", "hello") ;
+				WriteNode wnode = wsession.pathBy("/a/b/c");
+				wnode.toReadNode().debugPrint(); 
+				
+				wnode.property("greeting", "hello") ;
 				return null;
 			}
 		}) ;

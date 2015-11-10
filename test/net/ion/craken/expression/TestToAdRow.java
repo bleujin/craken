@@ -1,7 +1,11 @@
 package net.ion.craken.expression;
 
+import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.convert.rows.FieldContext;
+import net.ion.craken.node.convert.rows.FieldDefinition;
+import net.ion.craken.node.convert.rows.FieldRender;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.db.Page;
@@ -20,7 +24,7 @@ public class TestToAdRow extends TestBaseCrud {
 			}
 		}) ;
 		
-		Rows rows = session.root().children().toAdRows("this.name b, this.age");
+		Rows rows = session.root().children().toAdRows("'' pwd, this.name b, this.age");
 		rows.debugPrint() ;
 	}
 
@@ -95,6 +99,12 @@ public class TestToAdRow extends TestBaseCrud {
 		}) ;
 		Rows rows = session.pathBy("/emps").children().toAdRows("substring(this.name, 2) s");
 		rows.debugPrint() ;
+		
+		try {
+			session.pathBy("/emps").toRows("substring(this.name, 2) s");
+		} catch(NullPointerException e){
+			fail("when no column, must be null") ;
+		}
 	}
 	
 	public void testRelation() throws Exception {
@@ -110,8 +120,19 @@ public class TestToAdRow extends TestBaseCrud {
 		Rows rows = session.pathBy("/emps").children().toAdRows("dept.manager.name managerName");
 		rows.debugPrint() ;
 		
-		session.pathBy("/emps/bleujin").toRows("this.dept.manager.name managerName") ;
+		session.pathBy("/emps/bleujin").toRows("this.dept.manager.name managerName", new FieldDefinition("cnt", new FieldRender<Integer>() {
+			@Override
+			public Integer render(FieldContext fcontext, ReadNode current) {
+				return 3;
+			}
+		})).debugPrint(); ;
 	}
+	
+	
+	
+	
+	
+	
 	
 	
 }

@@ -13,6 +13,8 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.convert.rows.AdNodeRows;
+import net.ion.craken.node.convert.rows.FieldContext;
+import net.ion.craken.node.convert.rows.FieldDefinition;
 import net.ion.craken.node.crud.bean.ToBeanStrategy;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
@@ -30,7 +32,7 @@ import com.google.common.base.Function;
 public class Functions {
 
 	
-	public final static Function<ReadNode, Rows> rowsFunction(final ReadSession session, final String expr){
+	public final static Function<ReadNode, Rows> rowsFunction(final ReadSession session, final String expr, final FieldDefinition... fieldDefinitons){
 		return new Function<ReadNode, Rows>(){
 			@Override
 			public Rows apply(ReadNode node) {
@@ -39,6 +41,9 @@ public class Functions {
 				
 				Parser<SelectProjection> parser = ExpressionParser.selectProjection();
 				SelectProjection sp = TerminalParser.parse(parser, expr);
+				FieldContext fcontext = new FieldContext() ;
+				sp.add(fcontext, fieldDefinitons) ;
+				
 				return AdNodeRows.create(session, ListUtil.toList(node).iterator(), sp);
 			}
 		} ;
@@ -155,7 +160,16 @@ public class Functions {
 	public final static Function<ReadNode, Void> READ_DEBUGPRINT = new Function<ReadNode, Void>() {
 		@Override
 		public Void apply(ReadNode target) {
-			Debug.debug(target, target.keys());;
+			StringBuilder sb = new StringBuilder() ;
+			sb.append(target).append(", [") ;
+			boolean notfirst = false ;
+			for (PropertyId pid :  target.keys()) {
+				if (notfirst) sb.append(",") ;
+				sb.append(pid.idString()).append(":").append(target.propertyId(pid).asString()) ;
+				notfirst = true ;
+			}
+			sb.append("]") ;
+			Debug.debug(sb);;
 			return null ;
 		}
 	};
