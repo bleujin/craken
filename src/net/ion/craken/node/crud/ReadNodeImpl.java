@@ -487,12 +487,7 @@ class GhostReadNode extends ReadNodeImpl {
 
 	@Override
 	public Rows toRows(String expr, FieldDefinition... fieldDefinitons) {
-		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
-		SelectProjection sp = TerminalParser.parse(parser, expr);
-		FieldContext fcontext = new FieldContext() ;
-		sp.add(fcontext, fieldDefinitons) ;
-		
-		return AdNodeRows.create(session(), IteratorUtils.EMPTY_ITERATOR, sp);
+		return AdNodeRows.create(session(), IteratorUtils.EMPTY_ITERATOR, expr, fieldDefinitons);
 		// return FAKE ;
 	}
 	

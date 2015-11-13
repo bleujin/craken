@@ -7,6 +7,7 @@ import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.TestBaseCrud;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.util.TransactionJobs;
 import net.ion.framework.util.Debug;
 
 public class TestPropertyValue extends TestBaseCrud{
@@ -17,6 +18,20 @@ public class TestPropertyValue extends TestBaseCrud{
 		assertEquals(true, new Date().getTime() > 1380521825847L) ;
 		Debug.line(pv.value(), pv.asJsonArray().get(0).getClass()) ;
 
+	}
+	
+	public void testDateProperty() throws Exception {
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("regdate", new Date()) ;
+				return null;
+			}
+		}) ;
+		
+		
+		Object obj = session.pathBy("/bleujin").property("regdate").asObject() ;
+		Debug.line(obj);
 	}
 	
 	public void testNotAllowDouble() throws Exception {

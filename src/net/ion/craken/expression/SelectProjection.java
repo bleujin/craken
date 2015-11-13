@@ -87,10 +87,11 @@ public class SelectProjection extends ValueObject {
 		return projections.size();
 	}
 
-	public void add(FieldContext fcontext, FieldDefinition[] fieldDefinitons) {
+	public SelectProjection add(FieldContext fcontext, FieldDefinition[] fieldDefinitons) {
 		for (FieldDefinition fdef : fieldDefinitons) {
 			projections.add(fdef.fieldContext(fcontext).createProjection()) ;
 		}
+		return this ;
 	}
 
 	

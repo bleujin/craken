@@ -133,8 +133,7 @@ public class ChildQueryResponse {
 
 	
 	public Rows toRows(String expr) throws SQLException {
-		SelectProjection sp = TerminalParser.parse(parser, expr);
-		return AdNodeRows.create(session, iterator(), sp);
+		return AdNodeRows.create(session, iterator(), expr);
 		
 //		return CrakenNodeRows.create(session, iterator(), cparser.parse(cols));
 	}

@@ -53,6 +53,7 @@ public class TestToAdRow extends TestBaseCrud {
 		session.tranSync(TransactionJobs.dummy("/bleujin", 120)) ;
 		
 		Rows rows = session.pathBy("/bleujin").children().ascending("dummy").toAdRows(Page.create(10, 11, 10), "this.name b, dummy, this.age");
+		rows.debugPrint();
 
 
 		assertEquals(20, rows.firstRow().getInt("cnt")) ;

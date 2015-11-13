@@ -168,49 +168,15 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 
 	
 	public Rows toAdRows(String expr) {
-		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
-		SelectProjection sp = TerminalParser.parse(parser, expr);
-		return AdNodeRows.create(session, iterator(), sp);
+		return AdNodeRows.create(session, iterator(), expr);
 	}
 
-
-	public Rows toAdRows(Page _page, String expr) {
-		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
-		SelectProjection sp = TerminalParser.parse(parser, expr);
-		
-		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
-		
-		Iterator<ReadNode> iter = readChildren().iterator() ;
-		Iterators.skip(iter, page.getSkipOnScreen()) ;
-		Iterator<ReadNode> limitIter = Iterators.limit(iter, page.getOffsetOnScreen());
-		
-		List<ReadNode> screenList = ListUtil.newList() ;
-		while(limitIter.hasNext()){
-			screenList.add(limitIter.next()) ;
-		}
-
-		int count = screenList.size();
-		Page pageOnScreen = Page.create(page.getListNum(), page.getPageNo() % page.getScreenCount() == 0 ? page.getScreenCount() : page.getPageNo() % page.getScreenCount(), page.getScreenCount()) ;
-		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), sp, count, "cnt");
-	}
 
 	public Rows toAdRows(String expr, FieldDefinition... fieldDefinitons) {
-		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
-		SelectProjection sp = TerminalParser.parse(parser, expr);
-		
-		FieldContext fcontext = new FieldContext() ;
-		sp.add(fcontext, fieldDefinitons) ;
-		
-		return AdNodeRows.create(session, iterator(), sp);
+		return AdNodeRows.create(session, iterator(), expr, fieldDefinitons);
 	}
 	
 	public Rows toAdRows(Page _page, String expr, FieldDefinition... fieldDefinitons) {
-		Parser<SelectProjection> parser = ExpressionParser.selectProjection();
-		SelectProjection sp = TerminalParser.parse(parser, expr);
-		
-		FieldContext fcontext = new FieldContext() ;
-		sp.add(fcontext, fieldDefinitons) ;
-
 		Page page = (_page == Page.ALL) ? Page.create(10000, 1) : _page; // limit
 		
 		Iterator<ReadNode> iter = readChildren().iterator() ;
@@ -224,7 +190,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 
 		int count = screenList.size();
 		Page pageOnScreen = Page.create(page.getListNum(), page.getPageNo() % page.getScreenCount() == 0 ? page.getScreenCount() : page.getPageNo() % page.getScreenCount(), page.getScreenCount()) ;
-		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), sp, count, "");
+		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), expr, fieldDefinitons, count, "");
 	}
 
 	

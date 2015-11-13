@@ -6,7 +6,9 @@ import java.util.Iterator;
 
 import javax.sql.RowSetMetaData;
 
+import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
+import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.framework.db.RepositoryException;
@@ -14,21 +16,27 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.db.RowsImpl;
 import net.ion.framework.db.procedure.Queryable;
 import net.ion.framework.util.StringUtil;
+import net.ion.rosetta.Parser;
 
 public class AdNodeRows extends RowsImpl {
 
 	private static final long serialVersionUID = 5559980355928579198L;
 
-	private AdNodeRows(ReadSession session, Iterator<ReadNode> iterator) throws SQLException {
+	private AdNodeRows(ReadSession session) throws SQLException {
 		super(Queryable.Fake);
 	}
 
 
 	
 
-	public static Rows create(ReadSession session, Iterator<ReadNode> iter, SelectProjection projection, int screenCount, String scLabel)  {
+	public static Rows create(ReadSession session, Iterator<ReadNode> iter, String expr, FieldDefinition[] fds, int screenCount, String scLabel)  {
 		try {
-			AdNodeRows result = new AdNodeRows(session, iter);
+			SelectProjection projection = makeSelectProjection(expr) ;
+			
+			FieldContext fcontext = new FieldContext() ;
+			projection.add(fcontext, fds) ;
+
+			AdNodeRows result = new AdNodeRows(session);
 			result.populate(session, iter, projection, screenCount, scLabel);
 			result.beforeFirst();
 			return result;
@@ -83,9 +91,14 @@ public class AdNodeRows extends RowsImpl {
 	
 	
 	
-	public static Rows create(ReadSession session, Iterator<ReadNode> iter, SelectProjection projection) {
+	public static Rows create(ReadSession session, Iterator<ReadNode> iter, String expr, FieldDefinition... fds) {
 		try {
-			AdNodeRows result = new AdNodeRows(session, iter);
+			SelectProjection projection = makeSelectProjection(expr);
+			
+			FieldContext fcontext = new FieldContext() ;
+			projection.add(fcontext, fds) ;
+			
+			AdNodeRows result = new AdNodeRows(session);
 			result.populate(session, iter, projection);
 			result.beforeFirst();
 			return result;
@@ -99,9 +112,9 @@ public class AdNodeRows extends RowsImpl {
 			ReadNode firstRow = cursor.next();
 			RowSetMetaData meta = makeMetaData(firstRow, projection);
 			setMetaData(meta);
-			appendRow(projection, firstRow);
+			appendRow(this, projection, firstRow);
 			while (cursor.hasNext()) {
-				appendRow(projection, cursor.next());
+				appendRow(this, projection, cursor.next());
 			}
 		} else {
 			setMetaData(makeMetaData(null, projection));
@@ -112,12 +125,18 @@ public class AdNodeRows extends RowsImpl {
 		return projection.getMetaType(node, projection.size());
 	}
 
-	private void appendRow(SelectProjection projection, ReadNode rnode) throws SQLException {
-		super.afterLast();
-		super.moveToInsertRow();
-		projection.updateObject(this, rnode) ;
+	private static Parser<SelectProjection> parser = ExpressionParser.selectProjection();
+	public static SelectProjection makeSelectProjection(String expr) {
+		SelectProjection sp = TerminalParser.parse(parser, expr);
+		return sp;
+	}
+	
+	public static void appendRow(AdNodeRows rows, SelectProjection projection, ReadNode rnode) throws SQLException {
+		rows.afterLast();
+		rows.moveToInsertRow();
+		projection.updateObject(rows, rnode) ;
 
-		super.insertRow();
-		super.moveToCurrentRow();
+		rows.insertRow();
+		rows.moveToCurrentRow();
 	}
 }

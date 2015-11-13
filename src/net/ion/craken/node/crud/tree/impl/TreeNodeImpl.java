@@ -461,8 +461,6 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	private AtomicMap<Object, Fqn> getStructure() {
 		AtomicMap<Object, Fqn> result = getStructure(cache, structureKey);
 		
-		Debug.line(structureKey, result != null ? result.keySet() : result);
-		
 		return result;
 	}
 
