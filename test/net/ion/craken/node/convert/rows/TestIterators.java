@@ -19,9 +19,9 @@ public class TestIterators extends TestBaseCrud {
 			}
 		}) ;
 
-		AdNodeRows rows = AdNodeRowsBuilder.create(session, session.ghostBy("/user1").children().iterator(), "userid")
-			.unionAll(session.pathBy("/group").children().iterator(), "groupid userid")
-			.unionAll(session.pathBy("/user").children().iterator(), "userid").build() ;
+		AdNodeRows rows = (AdNodeRows) AdNodeRows.create(session, session.ghostBy("/user1").children().iterator(), "userid") ;
+		rows.unionAll(session.pathBy("/group").children().iterator(), "groupid userid") ;
+		rows.unionAll(session.pathBy("/user").children().iterator(), "userid") ;
 		
 		rows.debugPrint();
 	}

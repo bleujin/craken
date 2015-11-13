@@ -9,6 +9,7 @@ import javax.sql.RowSetMetaData;
 import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.SelectProjection;
 import net.ion.craken.expression.TerminalParser;
+import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.framework.db.RepositoryException;
@@ -139,4 +140,14 @@ public class AdNodeRows extends RowsImpl {
 		rows.insertRow();
 		rows.moveToCurrentRow();
 	}
+	
+	public AdNodeRows unionAll(IteratorList<ReadNode> cursor, String expr) throws SQLException {
+		SelectProjection projection = AdNodeRows.makeSelectProjection(expr) ;
+		while (cursor.hasNext()) {
+			appendRow(this, projection, cursor.next());
+		}
+		beforeFirst(); 
+		return this;
+	}
+
 }

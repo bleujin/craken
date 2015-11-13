@@ -190,7 +190,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 
 		int count = screenList.size();
 		Page pageOnScreen = Page.create(page.getListNum(), page.getPageNo() % page.getScreenCount() == 0 ? page.getScreenCount() : page.getPageNo() % page.getScreenCount(), page.getScreenCount()) ;
-		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), expr, fieldDefinitons, count, "");
+		return AdNodeRows.create(session,  pageOnScreen.subList(screenList).iterator(), expr, fieldDefinitons, count, "cnt");
 	}
 
 	
