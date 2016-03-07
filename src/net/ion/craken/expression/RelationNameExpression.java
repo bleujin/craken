@@ -16,7 +16,6 @@ public final class RelationNameExpression extends ValueObject implements Express
 
 	@Override
 	public Comparable value(NodeCommonMap node) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

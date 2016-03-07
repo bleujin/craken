@@ -34,7 +34,6 @@ public class FunctionFilter extends Filter {
 
 	@Override
 	public DocIdSet getDocIdSet(AtomicReaderContext atomicreadercontext, Bits bits) throws IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

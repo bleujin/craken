@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 
 import net.ion.framework.parse.gson.JsonPrimitive;
@@ -66,6 +67,10 @@ public class GridBlob implements Serializable {
 
 	public PropertyValue asPropertyValue() {
 		return PropertyValue.createPrimitive(this);
+	}
+
+	public OutputStream toOutputStream() throws IOException {
+		return gfs.getOutput(path) ;
 	}
 
 }

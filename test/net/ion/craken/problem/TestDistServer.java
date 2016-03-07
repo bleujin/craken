@@ -81,7 +81,6 @@ public class TestDistServer extends TestCase{
 				return new TransactionJob<Void>(){
 					@Override
 					public Void handle(WriteSession wsession) throws Exception {
-						// TODO Auto-generated method stub
 						return null;
 					}
 				};

@@ -65,5 +65,11 @@
 		<echo>Copy to ToonServer</echo>
 		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../ics6_work/ics/WEB-INF/lib/" />
 	</target>	
+
 	
+	<target name="copy_ics6_sql" depends="publish">
+		<echo>Copy to ToonServer</echo>
+		<copy file="publish/craken_${version.number}.${build.number}.jar" todir="../ics6_sql/ics/WEB-INF/lib/" />
+	</target>	
+		
 </project>

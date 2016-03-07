@@ -44,4 +44,8 @@ public class TestToRows extends TestBaseSearch {
 
 
 	
+	public void testToChar() throws Exception {
+		session.pathBy("/board1/1").toRows("toString(index) index").debugPrint();
+	}
+	
 }

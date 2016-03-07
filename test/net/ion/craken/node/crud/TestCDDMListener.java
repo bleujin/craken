@@ -163,7 +163,6 @@ public class TestCDDMListener extends TestCase {
 			
 			@Override
 			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 			

@@ -1,5 +1,8 @@
 package net.ion.craken.node.crud.tree.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -31,7 +34,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	private final static long serialVersionUID = 4614113174797214253L;
 	public final static PropertyValue NotFound = new PropertyValue(Values.newBlank());
 
-	private final Values values;
+	private Values values;
 	private transient GridFilesystem gfs;
 
 	public enum VType implements Serializable {
@@ -328,6 +331,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public boolean isBlank() {
 		return StringUtil.isBlank(asString());
 	}
+
 
 }
 

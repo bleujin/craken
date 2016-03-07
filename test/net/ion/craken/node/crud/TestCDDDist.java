@@ -68,7 +68,6 @@ public class TestCDDDist extends TestCase {
 			
 			@Override
 			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		}) ;

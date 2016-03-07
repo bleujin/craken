@@ -60,4 +60,11 @@ public interface NodeCommon<T extends NodeCommon<T>> extends NodeCommonMap<T> {
 
 	<R> R transformer(Function<T, R> transformer) ;
 
+	public String asString(String pid) ;
+	
+	public String asDateFmt(String pid, String fmt) ;
+	
+	public <R> R defaultValue(String pid, R val) ;
+	
+	public T asRef(String pid, Fqn base) ;
 }

@@ -172,6 +172,21 @@ public class TestWriteNode extends TestBaseCrud {
 
 	}
 	
-
+	public void testMultipleWrite() throws Exception {
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/jin").property("name", "jin") ;
+				wsession.pathBy("/jin").property("age", 20) ;
+				wsession.pathBy("/jin").property("address", "seoul") ;
+				wsession.pathBy("/jin").refTos("friend", "/bleujin") ;
+				wsession.pathBy("/jin").refTos("friend", "/hero") ;
+				return null;
+			}
+		});
+		
+		assertEquals(3, session.pathBy("/jin").normalKeys().size()) ;
+		assertEquals(2, session.pathBy("/jin").refChildren("friend").count()) ;
+	}
 	
 }

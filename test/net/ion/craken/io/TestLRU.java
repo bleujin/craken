@@ -75,7 +75,7 @@ public class TestLRU extends TestCase{
 					try {
 						Thread.sleep(RandomUtil.nextInt(100));
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				}

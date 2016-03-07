@@ -139,6 +139,18 @@ public class TestSearch extends TestBaseSearch {
 	
 	
 	
+	public void testSearchReference() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/emp/bleujin").property("age", 20).property("name", "bleujin").refTo("dev", "/dept/dev") ;
+				return null;
+			}
+		}) ;
+		
+		session.pathBy("/emp").childQuery("dev:/dept/dev").find().debugPrint();
+	}
+	
 
 	
 }

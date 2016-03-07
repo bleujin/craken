@@ -141,6 +141,42 @@ public class ChildQueryResponse {
 	public <T> T each(Function<IteratorList<ReadNode>, T> function){
 		return function.apply(iterator()) ;
 	}
+
+	
+	public <T> T eachFqn(Function<IteratorList<Fqn>, T> function){
+		return function.apply(iteratorFqn()) ;
+	}
+
+	public IteratorList<Fqn> iteratorFqn(){
+		final List<Fqn> fqns = found();
+		final Iterator<Fqn> iter = fqns.iterator() ;
+		return new IteratorList<Fqn>(){
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public Fqn next() {
+				return iter.next();
+			}
+
+			@Override
+			public Iterator<Fqn> iterator() {
+				return this;
+			}
+
+			@Override
+			public List<Fqn> toList() {
+				return fqns;
+			}
+
+			@Override
+			public int count() {
+				return fqns.size();
+			}
+		} ;
+	}
 	
 	public IteratorList<ReadNode> iterator() {
 		final List<Fqn> fqns = found();
@@ -150,7 +186,7 @@ public class ChildQueryResponse {
 			public List<ReadNode> toList() {
 				List<ReadNode> result = ListUtil.newList() ;
 				for(Fqn fqn : fqns) {
-					result.add(session.pathBy(fqn)) ;
+					result.add(session.ghostBy(fqn)) ;
 				}
 				return Collections.unmodifiableList(result);
 			}
@@ -162,7 +198,7 @@ public class ChildQueryResponse {
 
 			@Override
 			public ReadNode next() {
-				return session.pathBy(iter.next());
+				return session.ghostBy(iter.next());
 			}
 
 			@Override
@@ -179,6 +215,17 @@ public class ChildQueryResponse {
 
 	public SearchRequest request() {
 		return response.request() ;
+	}
+
+
+	
+	public WalkRefChildren walkRefChildren(final String refName) {
+		 return eachFqn(new Function<IteratorList<Fqn>, WalkRefChildren>() {
+				@Override
+				public WalkRefChildren apply(IteratorList<Fqn> iter) {
+					return new WalkRefChildren(session, Fqn.ROOT, refName, iter.toList().iterator()) ;
+				}
+		});
 	}
 
 

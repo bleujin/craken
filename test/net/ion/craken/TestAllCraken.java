@@ -22,7 +22,6 @@ public class TestAllCraken extends TestSuite {
 		try {
 			FileUtil.deleteDirectory(new File("./resource/store"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

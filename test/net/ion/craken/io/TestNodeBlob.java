@@ -3,6 +3,7 @@ package net.ion.craken.io;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import junit.framework.TestCase;
 import net.ion.craken.node.ReadNode;
@@ -12,6 +13,7 @@ import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.store.OldFileConfigBuilder;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
 import net.ion.craken.util.StringInputStream;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
@@ -77,6 +79,23 @@ public class TestNodeBlob extends TestCase {
 		assertEquals("hello", readNode.property("name").stringValue()) ;
 		Debug.line(IOUtil.toStringWithClose(readNode.property("content").asBlob().toInputStream())) ;
 	}
+	
+	
+	public void testWriteOutput() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				OutputStream output = wsession.pathBy(targetFqn).output("hello") ;
+				IOUtil.copyNClose(new StringInputStream("hello bleujin"), output) ;
+				return null;
+			}
+		}) ;
+		
+		ReadNode readNode = session.pathBy(targetFqn);
+		Debug.line(IOUtil.toStringWithClose(readNode.property("hello").asBlob().toInputStream())) ;
+	}
+	
+	
 	
 
 }

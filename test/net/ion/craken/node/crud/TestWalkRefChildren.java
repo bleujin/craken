@@ -3,7 +3,11 @@ package net.ion.craken.node.crud;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.convert.rows.FieldContext;
+import net.ion.craken.node.convert.rows.FieldDefinition;
+import net.ion.craken.node.convert.rows.FieldRender;
 import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.framework.util.Debug;
 
 import com.google.common.base.Predicate;
 
@@ -102,6 +106,31 @@ public class TestWalkRefChildren extends TestBaseCrud {
 		}).debugPrint();
 	}
 	
+
 	
+	public void testToRow() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/bleujin").property("name", "BLEUJIN").refTos("friend", "/hero", "/jin") ;
+				wsession.pathBy("/hero").property("name", "HERO").refTo("friend", "/jin") ;
+				wsession.pathBy("/jin").property("name", "JIN").refTo("friend", "/novision") ;
+				wsession.pathBy("/novision").property("name", "NOVISION").refTo("friend", "/unknown") ;
+				return null;
+			}
+		}) ;
+		
+		session.pathBy("/bleujin").walkRefChildren("friend").includeSelf(true)
+			.toAdRows("name", new FieldDefinition("path", new FieldRender<String>() {
+				public String render(FieldContext fcon, ReadNode rnode) {
+					return ((WalkReadNode)rnode).path("/") ;
+				}
+			}), new FieldDefinition("namepath", new FieldRender<String>() {
+				public String render(FieldContext fcon, ReadNode rnode) {
+					return ((WalkReadNode)rnode).propertyPath(rnode.parent(), "name", "/") ;
+				}
+			})).debugPrint(); 
+
+	}
 	
 }

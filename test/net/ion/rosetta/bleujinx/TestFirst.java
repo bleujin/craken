@@ -112,7 +112,6 @@ public class TestFirst extends TestCase {
 
 			@Override
 			public Valuable map(String from) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 			

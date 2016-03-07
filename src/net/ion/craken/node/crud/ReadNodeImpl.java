@@ -142,6 +142,22 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 		return new ReadChildren(session, fqn, treeNode().getChildrenFqn().iterator());
 	}
 
+	public String asString(String pid) {
+		return property(pid).asString() ;
+	}
+
+	public String asDateFmt(String pid, String fmt) {
+		return property(pid).asDateFmt(fmt) ;
+	}
+
+	public <R> R defaultValue(String pid, R val) {
+		return property(pid).defaultValue(val) ;
+	}
+
+	public ReadNode asRef(String pid, Fqn prefix) {
+		return session.ghostBy(Fqn.fromRelativeElements(prefix, asString(pid))) ;
+	}
+	
 	public PropertyValue property(String key) {
 		return propertyId(PropertyId.normal(key));
 	}

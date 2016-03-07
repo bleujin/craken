@@ -14,7 +14,6 @@ public class TestOrSearchFilter extends TestBasePackage {
 		session.tranSync(new TransactionJob<Void>() {
 			@Override
 			public Void handle(WriteSession wsession) throws Exception {
-				// TODO Auto-generated method stub
 				wsession.pathBy("/test").property("id", "hello").property("name", "kim");
 				wsession.pathBy("/test2").property("id", "hello2").property("name", "airkjh");
 				wsession.pathBy("/test3").property("id", "imhello").property("name", "bleujin");

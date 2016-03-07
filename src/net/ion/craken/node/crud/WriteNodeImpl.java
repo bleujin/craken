@@ -1,11 +1,12 @@
 package net.ion.craken.node.crud;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream.GetField;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Iterator;
@@ -116,6 +117,23 @@ public class WriteNodeImpl implements WriteNode {
 	public ReadNode toReadNode() {
 		return new ReadNodeImpl(wsession.readSession(), fqn);
 	}
+	
+	public String asString(String pid) {
+		return property(pid).asString() ;
+	}
+	
+	public <R> R defaultValue(String pid, R val) {
+		return property(pid).defaultValue(val) ;
+	}
+	
+	public String asDateFmt(String pid, String fmt) {
+		return property(pid).asDateFmt(fmt) ;
+	}
+	
+	public WriteNode asRef(String pid, Fqn prefix) {
+		return wsession.pathBy(Fqn.fromRelativeElements(prefix, asString(pid))) ;
+	}
+
 
 	public WriteNode property(String key, Object value) {
 		if (value instanceof PropertyValue) {
@@ -507,8 +525,7 @@ public class WriteNodeImpl implements WriteNode {
 
 	public PropertyValue propertyId(PropertyId pid) {
 		PropertyValue result = ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
-		if (result.isBlob())
-			result.gfs(wsession.workspace().gfs());
+		result.gfs(wsession.workspace().gfs());
 		return result;
 	}
 
@@ -642,6 +659,17 @@ public class WriteNodeImpl implements WriteNode {
 			}
 		}
 		return session().pathBy(Fqn.fromRelativeElements(tparent, fqn().name())) ;
+	}
+
+	@Override
+	public OutputStream output(String key) throws IOException {
+		final String path = fqn().toString() + "/" + key + ".dat";
+		
+		File pfile = gfs().getFile(path).getParentFile() ;
+		if (! pfile.exists()) pfile.mkdirs() ;
+		blob(key, new ByteArrayInputStream(new byte[0])) ;
+		
+		return GridBlob.create(gfs(), path).toOutputStream() ;
 	}
 
 }

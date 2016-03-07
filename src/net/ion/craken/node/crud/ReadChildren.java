@@ -66,7 +66,7 @@ public class ReadChildren extends AbstractChildren<ReadNode, ReadChildren> imple
 		return sourceFqn ;
 	}
 	
-	protected Iterator<Fqn> treeFqn(){
+	public Iterator<Fqn> treeFqn(){
 		return treeFqns ;
 	}
 	

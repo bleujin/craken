@@ -2,6 +2,7 @@ package net.ion.craken.node;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import net.ion.craken.node.crud.ChildQueryRequest;
 import net.ion.craken.node.crud.WriteChildren;
@@ -82,6 +83,8 @@ public interface WriteNode extends NodeCommon<WriteNode> {
 	public WriteNode moveTo(String targetParent, int ancestorDepth);
 
 	public WriteNode copyTo(String targetParent, boolean includeChild);
+
+	public OutputStream output(String key) throws IOException;
 
 
 }

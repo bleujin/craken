@@ -26,7 +26,6 @@ public class GridStore implements AdvancedLoadWriteStore<TreeNodeKey, Map<Proper
 
 	@Override
 	public void init(InitializationContext icontext) {
-		// TODO Auto-generated method stub
 		Debug.line("init");
 	}
 

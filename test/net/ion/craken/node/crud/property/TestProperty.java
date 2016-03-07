@@ -1,5 +1,6 @@
 package net.ion.craken.node.crud.property;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -176,6 +177,21 @@ public class TestProperty extends TestBaseCrud {
 		}
 		
 		assertEquals(10000, oids.size()) ;
+	}
+	
+	
+	
+	public void testExpertUse() throws Exception {
+		session.tranSync(new TransactionJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) {
+				wsession.pathBy("/bleujin").property("name", "bleu").property("age", 20).property("birth", new Date());
+				return null;
+			}
+		}) ;
+		
+		assertEquals("bleu", session.pathBy("/bleujin").asString("name")) ;
+		assertEquals(true, session.pathBy("/bleujin").defaultValue("age", 20) == 20) ;
 	}
 	
 	

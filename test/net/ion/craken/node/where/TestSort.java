@@ -20,7 +20,6 @@ public class TestSort extends TestBaseCrud {
 
 	@Override
 	protected void setUp() throws Exception {
-		// TODO Auto-generated method stub
 		super.setUp();
 		session.tranSync(new TransactionJob<Void>(){
 			@Override

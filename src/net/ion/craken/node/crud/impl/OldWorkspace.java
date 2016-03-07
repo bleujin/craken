@@ -487,7 +487,6 @@ public class OldWorkspace extends AutoBatchSupport implements Workspace, ProxyHa
 
 					wspace.log.debug(wsession.tranId() + " writed");
 					rsession.attribute(TranResult.class.getCanonicalName(), TranResult.create(logRows.size(), System.currentTimeMillis() - startTime));
-					// TODO Auto-generated method stub
 					return null;
 				}
 

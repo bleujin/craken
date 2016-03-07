@@ -124,13 +124,11 @@ public class TestWorkspaceListener extends TestCase {
 
 		@Override
 		public void registered(Workspace workspace) {
-			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
 		public void unRegistered(Workspace workspace) {
-			// TODO Auto-generated method stub
 			
 		}
 	}
