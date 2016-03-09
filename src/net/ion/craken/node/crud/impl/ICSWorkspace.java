@@ -89,7 +89,7 @@ import com.google.common.cache.CacheBuilder;
 // central use localmode
 
 @Listener(clustered = true)
-public class ICSWorkspace extends AutoBatchSupport implements Workspace, ProxyHandler{
+public class ICSWorkspace extends AbWorkspace implements Workspace, ProxyHandler{
 
 	private Repository repository;
 	private AdvancedCache<PropertyId, PropertyValue> cache;

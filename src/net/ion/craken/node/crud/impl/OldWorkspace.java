@@ -93,7 +93,7 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener(clustered = true)
-public class OldWorkspace extends AutoBatchSupport implements Workspace, ProxyHandler {
+public class OldWorkspace extends AbWorkspace implements Workspace, ProxyHandler {
 
 	private Repository repository;
 	private AdvancedCache<PropertyId, PropertyValue> cache;

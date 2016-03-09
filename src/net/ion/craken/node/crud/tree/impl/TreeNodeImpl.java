@@ -65,7 +65,7 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 			Set<Fqn> result = new HashSet<Fqn>();
 			for (Fqn f : getStructure().values()) {
 //				if (this.dataKey.fqn.equals(f.getParent())) 
-					result.add(f);
+				result.add(f);
 			}
 			return Immutables.immutableSetWrap(result);
 	}
@@ -461,6 +461,7 @@ public class TreeNodeImpl<K, V> extends TreeStructureSupport implements TreeNode
 	private AtomicMap<Object, Fqn> getStructure() {
 		AtomicMap<Object, Fqn> result = getStructure(cache, structureKey);
 		
+
 		return result;
 	}
 

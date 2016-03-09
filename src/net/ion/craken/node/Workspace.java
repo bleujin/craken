@@ -1,7 +1,11 @@
 package net.ion.craken.node;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -12,10 +16,12 @@ import net.ion.craken.listener.WorkspaceListener;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
 import net.ion.framework.mte.Engine;
+import net.ion.framework.util.IOUtil;
 import net.ion.nsearcher.config.Central;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -112,6 +118,15 @@ public interface Workspace extends Closeable, WorkspaceListener {
 	public abstract void reindex(WriteNode wnode, Analyzer anal, boolean includeSub) ;
 
 
+
+	
+	public InputStream toInputStream(GridBlob gblob) throws FileNotFoundException ;
+	
+	public File toFile(GridBlob gblob) ;
+
+	public GridBlob saveAt(GridBlob gblob, InputStream input) throws IOException ;
+
+	public OutputStream toOutputStream(GridBlob gblob) throws IOException ;
 
 
 }

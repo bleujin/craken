@@ -68,7 +68,7 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener(clustered = true)
-public class SifsWorkspace extends AutoBatchSupport implements Workspace {
+public class SifsWorkspace extends AbWorkspace implements Workspace {
 
 	private Repository repository;
 	private AdvancedCache<PropertyId, PropertyValue> cache;

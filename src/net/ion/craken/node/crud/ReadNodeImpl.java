@@ -169,7 +169,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	public PropertyValue propertyId(PropertyId pid) {
 		if (treeNode().get(pid) == null)
 			return PropertyValue.NotFound;
-		return ObjectUtil.coalesce(treeNode().get(pid).gfs(gfs()), PropertyValue.NotFound);
+		return ObjectUtil.coalesce(treeNode().get(pid).workspace(session.workspace()), PropertyValue.NotFound);
 	}
 
 	// public Optional<PropertyValue> optional(String key) {
@@ -260,47 +260,14 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 			String refPath = propertyId(referId).stringValue();
 			if (StringUtil.isBlank(refPath))
 				throw new NodeNotExistsException("not found ref :" + refName);
-
 			return session.ghostBy(refPath);
 		} else {
 			throw new NodeNotExistsException("not found ref :" + refName);
 		}
 	}
 
-	public IteratorList<ReadNode> refs(String refName) {
-		PropertyId referId = PropertyId.refer(refName);
-		final Set values = hasPropertyId(referId) ? propertyId(referId).asSet() : SetUtil.EMPTY_SET;
-		final Iterator<String> iter = values.iterator();
-
-		return new IteratorList<ReadNode>() {
-			@Override
-			public List<ReadNode> toList() {
-				List<ReadNode> result = ListUtil.newList();
-				while (iter.hasNext()) {
-					result.add(session.pathBy(iter.next()));
-				}
-				return Collections.unmodifiableList(result);
-			}
-
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public ReadNode next() {
-				return session.ghostBy(iter.next());
-			}
-
-			@Override
-			public Iterator<ReadNode> iterator() {
-				return this;
-			}
-
-			public int count() {
-				return values.size();
-			}
-		};
+	public NodeIteratorList<ReadNode> refs(String refName) {
+		return NodeIteratorList.ReadRefs(this, refName) ;
 	}
 
 	public ReadChildren refChildren(String refName) {

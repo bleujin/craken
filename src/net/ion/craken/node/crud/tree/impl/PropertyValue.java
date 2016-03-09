@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.crud.tree.NodeNotValidException;
 import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
 import net.ion.craken.node.crud.tree.impl.PropertyValue.ReplaceValue;
@@ -35,7 +36,7 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public final static PropertyValue NotFound = new PropertyValue(Values.newBlank());
 
 	private Values values;
-	private transient GridFilesystem gfs;
+	private transient Workspace workspace;
 
 	public enum VType implements Serializable {
 		BOOL {
@@ -146,7 +147,8 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 	public static PropertyValue loadFrom(TreeNodeKey nodeKey, PropertyId propId, JsonElement pvalue) {
 		if (propId.type() == PType.REFER) {
 			// return PropertyValue.createPrimitive(pvalue.getAsString()) ;
-			return PropertyValue.createPrimitive(pvalue.getAsJsonArray().toObjectArray()) ;
+			return PropertyValue.createPrimitive(pvalue.getAsJsonArray().toObjectArray()) ; 
+//			return pvalue.isJsonArray() ? PropertyValue.createPrimitive(pvalue.getAsJsonArray().toObjectArray()) : PropertyValue.createPrimitive(pvalue.getAsJsonObject().asJsonArray("vals").toObjectArray()) ;
 		} else {
 			PropertyValue propValue = new PropertyValue(Values.fromJson(pvalue.getAsJsonObject()));
 //			if (propValue.isBlob()) {
@@ -157,8 +159,8 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		}
 	}
 
-	public PropertyValue gfs(GridFilesystem gfs) {
-		this.gfs = gfs;
+	public PropertyValue workspace(Workspace workspace) {
+		this.workspace = workspace;
 		return this;
 	}
 
@@ -233,10 +235,10 @@ public class PropertyValue implements Serializable, Comparable<PropertyValue> {
 		final Object value = value();
 		if (value == null)
 			throw new NodeIOException("this value not accessable");
-		if (gfs == null)
+		if (workspace == null)
 			throw new NodeIOException("this value not accessable[gfs is null]");
 		if (this.type() == VType.BLOB) {
-			return  ((GridBlob)value).gfs(this.gfs) ; 
+			return  ((GridBlob)value).workspace(this.workspace) ; 
 		}
 		throw new NodeIOException("this value is not blob type : " + value);
 	}

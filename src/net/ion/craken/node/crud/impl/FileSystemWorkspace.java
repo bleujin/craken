@@ -1,16 +1,28 @@
 package net.ion.craken.node.crud.impl;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.crypto.spec.PSource;
 import javax.transaction.Transaction;
 
 import net.ion.craken.listener.CDDMListener;
@@ -19,7 +31,6 @@ import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.IndexWriteConfig;
-import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.NodeWriter;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
@@ -34,53 +45,44 @@ import net.ion.craken.node.crud.Craken;
 import net.ion.craken.node.crud.OldWriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
-import net.ion.craken.node.crud.store.GridFileConfigBuilder;
+import net.ion.craken.node.crud.store.FileSystemWorkspaceConfigBuilder;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeCache;
 import net.ion.craken.node.crud.tree.TreeCacheFactory;
 import net.ion.craken.node.crud.tree.TreeNode;
+import net.ion.craken.node.crud.tree.impl.GridBlob;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
-import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
-import net.ion.craken.node.crud.tree.impl.PropertyValue.VType;
 import net.ion.craken.node.crud.tree.impl.ProxyHandler;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
+import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
-import net.ion.craken.util.StringInputStream;
 import net.ion.framework.mte.Engine;
-import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
+import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
-import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
+import net.ion.nsearcher.search.Searcher;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.impl.AtomicHashMap;
-import org.infinispan.batch.AutoBatchSupport;
 import org.infinispan.batch.BatchContainer;
 import org.infinispan.context.Flag;
 import org.infinispan.distexec.mapreduce.Collector;
 import org.infinispan.distexec.mapreduce.Mapper;
 import org.infinispan.distexec.mapreduce.Reducer;
-import org.infinispan.io.GridFile;
 import org.infinispan.io.GridFilesystem;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
 import org.infinispan.util.logging.Log;
@@ -89,7 +91,7 @@ import org.infinispan.util.logging.LogFactory;
 import com.google.common.cache.CacheBuilder;
 
 @Listener(clustered = true)
-public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandler{
+public class FileSystemWorkspace extends AbWorkspace implements Workspace, ProxyHandler {
 
 	private Repository repository;
 	private AdvancedCache<PropertyId, PropertyValue> cache;
@@ -104,20 +106,23 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 	private Central central;
 	com.google.common.cache.Cache<Transaction, IndexWriteConfig> trans = CacheBuilder.newBuilder().maximumSize(100).build();
 	private TreeCache<PropertyId, PropertyValue> tcache;
-
-	public GridWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, GridFileConfigBuilder wconfig) throws IOException {
+	
+	private PathStore pstore ;
+	
+	public FileSystemWorkspace(Craken craken, AdvancedCache<PropertyId, PropertyValue> cache, FileSystemWorkspaceConfigBuilder wconfig) throws IOException {
 		this.repository = craken;
 		this.cache = cache;
-		this.gfs = wconfig.gfs();
-		this.central = wconfig.central() ;
-		
-		this.tcache = new TreeCacheFactory().createTreeCache(cache, this) ;
 		this.addListener(this);
 
 		this.wsName = cache.getName();
 		this.batchContainer = cache.getBatchContainer();
 
+		this.gfs = wconfig.gfs();
+		this.central = wconfig.central();
+		this.pstore = new PathStore(wconfig.dataDir()) ;
+		this.tcache = new TreeCacheFactory().createTreeCache(cache, this);
 		wconfig.createInterceptor(tcache, central, trans);
+		
 	}
 
 	public <T> T getAttribute(String key, Class<T> clz) {
@@ -141,15 +146,18 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 		return this;
 	}
 
+	private Searcher searcher() throws IOException {
+		return central.newSearcher();
+	}
 
 	public boolean exists(Fqn fqn) {
 		if (Fqn.ROOT.equals(fqn)) {
 			return true;
 		}
-		return tcache.exists(fqn) || readNode(fqn) != null ;
+		return tcache.exists(fqn) || readNode(fqn) != null;
 	}
 
-	public GridWorkspace withFlag(Flag... flags) {
+	public FileSystemWorkspace withFlag(Flag... flags) {
 		cache = cache.getAdvancedCache().withFlags(flags);
 		return this;
 	}
@@ -204,6 +212,7 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 						WriteNodeImpl.loadTo(wsession, childFqn, Touch.MODIFY);
 					}
 				}
+				if (! cnode.hasChild(name)) cnode.addChild(Fqn.fromString(name)) ;
 				cnode = cnode.getChild(name);
 			}
 
@@ -215,10 +224,6 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 	}
 
 	public WriteNode writeNode(WriteSession wsession, Set<Fqn> ancestorsFqn, Fqn fqn) {
-		if (exists(fqn)){
-			return WriteNodeImpl.loadTo(wsession, fqn) ;
-		}
-		
 		createAncestor(wsession, ancestorsFqn, fqn.getParent(), fqn);
 
 		if (log.isTraceEnabled())
@@ -231,10 +236,12 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 		if (result == null){
 			AtomicHashMap<PropertyId, PropertyValue> created = new AtomicHashMap<PropertyId, PropertyValue>();
 			AtomicMap<PropertyId, PropertyValue> found = handleData(fqn.dataKey(), created) ;
-			if (found == null) return null ;
+			if (found == null) {
+//				result = tcache.getRoot().addChild(fqn) ;
+				return null ;
+			}
 			else {
 				result = tcache.createTreeNode(cache, fqn) ;
-//				result = tcache.getRoot().addChild(fqn) ;
 				result.putAll(found);
 			}
 			
@@ -243,12 +250,13 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 	}
 	
 	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
-		if (! tcache.exists(fqn)) { 
-			tcache.getRoot().addChild(fqn) ;
+		if (! tcache.exists(fqn)) {
+			handleStructure(fqn.struKey(), new AtomicHashMap<Object, Fqn>()) ;
+//			tcache.getNode(fqn.getParent()).addChild(fqn) ;
 		}		
 		return readNode(fqn) ;
 	}
-	
+
 
 	public <T> Future<T> tran(final WriteSession wsession, final TransactionJob<T> tjob) {
 		return tran(wsession, tjob, null);
@@ -277,6 +285,7 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 
 					return result;
 				} catch (Exception ex) {
+					ex.printStackTrace();
 					batchContainer.endBatch(true, false);
 					if (ehandler == null)
 						throw (Exception) ex;
@@ -284,6 +293,7 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 					ehandler.handle(wsession, tjob, ex);
 					return null;
 				} catch (Error ex) {
+					ex.printStackTrace();
 					batchContainer.endBatch(true, false);
 					ehandler.handle(wsession, tjob, ex);
 					return null;
@@ -398,8 +408,13 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 	}
 
 	@Deprecated
-	public Cache<PropertyId, PropertyValue> cache() {
+	public Cache<?, ?> cache() {
 		return cache;
+	}
+
+	@Deprecated
+	public TreeCache<PropertyId, PropertyValue> treeCache() {
+		return tcache;
 	}
 
 	public GridFilesystem gfs() {
@@ -411,170 +426,79 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 	// }
 
 	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
-		return new GridFileWriter(this, wsession);
+		return new FileSystemWriter(this, wsession);
 	}
 
-	static class GridFileWriter implements NodeWriter {
-		private WriteSession wsession ;
-		private GridWorkspace wspace;
-		public GridFileWriter(GridWorkspace wspace, WriteSession wsession){
-			this.wspace = wspace ;
-			this.wsession = wsession ;
+	static class FileSystemWriter implements NodeWriter {
+		private WriteSession wsession;
+		private FileSystemWorkspace wspace;
+		private PathStore pstore;
+
+		public FileSystemWriter(FileSystemWorkspace wspace, WriteSession wsession) {
+			this.wspace = wspace;
+			this.wsession = wsession;
+			this.pstore = wspace.pstore() ;
 		}
-		
+
 		public void writeLog(final Set<TouchedRow> logRows) throws IOException {
-//			if (wsession.iwconfig().isIgnoreIndex()) return ;
-			
-			if (wsession.iwconfig().isIgnoreIndex()){ // 10% ... 
-				long startTime = System.currentTimeMillis() ;
-				GridFilesystem gfs = wspace.gfs() ;
 
-				for (TouchedRow trow : logRows) {
-					Touch touch = trow.touch() ;
-					Fqn fqn = trow.target() ;
-					String pathKey = fqn.toString() ;
-					switch (touch) {
-					case TOUCH:
-						break;
-					case MODIFY:
-						Map<PropertyId, PropertyValue> props = trow.sourceMap() ;
-						if ("/".equals(pathKey))
-							continue;
-
-						String contentFileName = fqn.toString() + "/" + fqn.name()  + ".node";
-						File contentFile = gfs.getFile(contentFileName) ;
-						if (! contentFile.getParentFile().exists()) {
-							contentFile.getParentFile().mkdirs() ;
-						}
-
-						JsonObject nodeJson = new JsonObject() ;
-						for(PropertyId pid : props.keySet()){
-							final String propId = pid.idString() ;
-							PropertyValue pvalue = props.get(pid) ;
-							nodeJson.add(propId, pvalue.json()); // data
-						}
-						IOUtil.copyNClose(new StringInputStream(nodeJson.toString()), gfs.getOutput(contentFileName)) ;
-						break;
-					case REMOVE:
-						File rfile = gfs.getFile(pathKey) ;
-						deleteFile(rfile);
-						break;
-					case REMOVECHILDREN :
-						File cfile = gfs.getFile(pathKey) ;
-						deleteFile(cfile);
-						break;
-					default:
-						throw new IllegalArgumentException("Unknown modification type " + touch);
-					}
-				}
-				
-				wspace.log.debug(wsession.tranId() + " writed") ;
-				wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(logRows.size(), System.currentTimeMillis() - startTime));
-				
-				return ;
-			}
-			
-			
-			IndexJob<Void> indexJob = new IndexJob<Void>() {
+			Callable<Void> indexJob = new Callable<Void>() {
 
 				@Override
-				public Void handle(IndexSession isession) throws Exception {
-					IndexWriteConfig iwconfig = wsession.iwconfig() ;
-					long startTime = System.currentTimeMillis() ;
-					GridFilesystem gfs = wspace.gfs() ;
+				public Void call() throws Exception {
+					long startTime = System.currentTimeMillis();
 
 					for (TouchedRow trow : logRows) {
-						Touch touch = trow.touch() ;
-						Action action = trow.target().dataKey().action() ;
-						Fqn fqn = trow.target() ;
-						String pathKey = fqn.toString() ;
+						Touch touch = trow.touch();
+						Action action = trow.target().dataKey().action();
+						Fqn fqn = trow.target();
+						String pathKey = fqn.toString();
+
+//						Debug.line(pathKey, trow.sourceMap(), touch);
+
+						PathEntry pentry = pstore.find(pathKey) ;
 						switch (touch) {
 						case TOUCH:
 							break;
 						case MODIFY:
-							Map<PropertyId, PropertyValue> props = trow.sourceMap() ;
+							Map<PropertyId, PropertyValue> props = trow.sourceMap();
 							if ("/".equals(pathKey))
 								continue;
 
-							String contentFileName = fqn.toString() + "/" + fqn.name()  + ".node";
-							File contentFile = (GridFile) gfs.getFile(contentFileName) ;
-							if (! contentFile.getParentFile().exists()) {
-								contentFile.getParentFile().mkdirs() ;
-							}
-
-							WriteDocument wdoc = isession.newDocument(pathKey) ;
-							wdoc.keyword(EntryKey.PARENT, fqn.getParent().toString()) ;
-							wdoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+							pentry.write(EntryKey.PARENT, fqn.getParent().toString())
+								.write(EntryKey.LASTMODIFIED, "" + System.currentTimeMillis());
 							
-							JsonObject nodeJson = new JsonObject() ;
-							for(PropertyId pid : props.keySet()){
-								final String propId = pid.idString() ;
-								PropertyValue pvalue = props.get(pid) ;
+							JsonObject nodeJson = new JsonObject();
+							for (PropertyId pid : props.keySet()) {
+								final String propId = pid.idString();
+								PropertyValue pvalue = props.get(pid);
 								nodeJson.add(propId, pvalue.json()); // data
-								
-								JsonArray jarray = pvalue.asJsonArray(); // index
-								if (pid.type() == PType.NORMAL) {
-									VType vtype = pvalue.type() ;
-									for (JsonElement e : jarray.toArray()) {
-										if (e == null)
-											continue;
-										FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
-										fieldIndex.index(wdoc, propId, vtype, e.isJsonObject() ? e.toString() : e.getAsString());
-									}
-								} else { // refer
-									for (JsonElement e : jarray.toArray()) {
-										if (e == null)
-											continue;
-										FieldIndex.KEYWORD.index(wdoc, '@' + propId, e.getAsString());
-									}
-								}
-								
 							}
-							IOUtil.copyNClose(new StringInputStream(nodeJson.toString()), gfs.getOutput(contentFileName)) ;
-							if (! iwconfig.isIgnoreIndex()) {
-								if (action == Action.CREATE) wdoc.insert() ; 
-								else wdoc.update() ;
-							}
+							
+							pentry.write(EntryKey.VALUE, nodeJson.toString()) ;
+							pentry.update() ;
 							break;
 						case REMOVE:
-							File rfile = gfs.getFile(pathKey) ;
-							deleteFile(rfile);
-							if (! iwconfig.isIgnoreIndex())  isession.deleteById(pathKey) ;
-							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(pathKey).startWith())));
+							wspace.treeCache().removeNode(fqn); // @Todo -_- ?
+							pentry.delete(); 
 							break;
-						case REMOVECHILDREN :
-							File cfile = gfs.getFile(pathKey) ;
-							deleteFile(cfile);
-							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(pathKey).startWith())));
+						case REMOVECHILDREN:
+							pentry.deleteChildren(); 
 							break;
 						default:
-							throw new IllegalArgumentException("Unknown modification type " + touch);
+							break;
 						}
 					}
-					
-					wspace.log.debug(wsession.tranId() + " writed") ;
+
+					wspace.log.debug(wsession.tranId() + " writed");
 					wsession.readSession().attribute(TranResult.class.getCanonicalName(), TranResult.create(logRows.size(), System.currentTimeMillis() - startTime));
 					return null;
 				}
-
 			};
-
-			 wspace.central().newIndexer().index(indexJob) ;
+			wspace.es.submit(indexJob) ;
 		}
 
-		private void deleteFile(File file){
-			if (file.exists()){
-				if (file.isDirectory()){
-					for(File cfile : file.listFiles()){
-						deleteFile(cfile);
-					}
-				} 
-				file.delete() ;
-			}
-		}
 	}
-
-	private boolean trace = false;
 
 	public CDDMListener cddm() {
 		return cddmListener;
@@ -614,47 +538,166 @@ public class GridWorkspace extends AbWorkspace implements Workspace, ProxyHandle
 	}
 
 	@Override
-	public AtomicMap<PropertyId, PropertyValue> handleData(TreeNodeKey dataKey, AtomicMap<PropertyId, PropertyValue> created) {
-		
-		Fqn fqn = dataKey.getFqn() ;
-		String contentFileName = fqn.toString() + "/" + fqn.name() + ".node"; // when write
-		File file = gfs.getFile(contentFileName);
-		if (!file.exists())
-			return null;
-
+	public AtomicMap<PropertyId, PropertyValue> handleData(TreeNodeKey dataKey, final AtomicMap<PropertyId, PropertyValue> created) {
 		try {
-			InputStream input = gfs.getInput(file);
-			JsonObject json = JsonObject.fromString(IOUtil.toStringWithClose(input));
-			TreeNodeKey tkey = fqn.dataKey();
+			String fqnString = dataKey.fqnString();
+			PathEntry pentry = pstore().find(fqnString) ;
+			if (! pentry.exists()) return null ;
+
+			JsonObject json = JsonObject.fromString(pentry.asString(EntryKey.VALUE)) ;
+	
 			for (String key : json.keySet()) {
 				PropertyId propId = PropertyId.fromIdString(key);
-				PropertyValue pvalue = PropertyValue.loadFrom(tkey, propId, json.asJsonObject(key));
+				JsonElement val = json.asJsonObject(key) ;
+				if (propId.type() == PType.REFER && val.isJsonObject() && ((JsonObject)val).has("vals")) {
+					val = ((JsonObject)val).get("vals").getAsJsonArray() ;
+					// val = val.asJsonArray("vals").toObjectArray()) ;
+				}
+
+				PropertyValue pvalue = PropertyValue.loadFrom(TreeNodeKey.fromString(fqnString), propId, val);
 				created.put(propId, pvalue);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch(IOException e){
+			e.printStackTrace(); 
 		}
-		
 		return created;
 	}
 
 	@Override
-	public AtomicMap<Object, Fqn> handleStructure(TreeNodeKey struKey, AtomicMap<Object, Fqn> created) {
-		if (gfs == null) {
-			return created ;
-		}
-		
-		Fqn fqn = struKey.getFqn() ;
-		File file = gfs.getFile(fqn.toString()); // when write
-		if (file.exists() && file.isDirectory()) {
-			for (File child : file.listFiles()) {
-				if (child.isFile())
-					continue;
-				created.put(child.getName(), Fqn.fromRelativeElements(fqn, child.getName()));
-			}
+	public AtomicMap<Object, Fqn> handleStructure(TreeNodeKey struKey, final AtomicMap<Object, Fqn> created) {
+		PathEntry pentry = pstore().find(struKey.fqnString()) ;
+		if (pentry.exists()){
+			pentry.loadChild(created) ;
 		}
 		return created;
 	}
 
+	private PathStore pstore() {
+		return this.pstore ;
+	}
+	
+	
+	public InputStream toInputStream(GridBlob gblob) throws FileNotFoundException {
+		return pstore.find(gblob.path()).asInputStream() ;
+	}
+	
+	public File toFile(GridBlob gblob){
+		return pstore.find(gblob.path()).asFile() ;
+	}
+
+	public GridBlob saveAt(GridBlob gblob, InputStream input) throws IOException {
+		final PathEntry find = pstore.find(gblob.path());
+		if (! find.asFile().getParentFile().exists()){
+			find.asFile().getParentFile().mkdirs() ;
+		}
+		
+		find.write(input) ;
+		return gblob ;
+	}
+
+	public OutputStream toOutputStream(GridBlob gblob) throws IOException {
+		return pstore.find(gblob.path()).asOutputStream() ;
+	}
+
 
 }
+
+class PathStore {
+	
+	private File dataDir;
+	public PathStore(File dataDir){
+		this.dataDir = dataDir ;
+	}
+	public PathEntry find(String pathKey) {
+		File file = new File(dataDir, pathKey) ;
+
+		Path path = file.toPath();
+		return new PathEntry(path, pathKey);
+	}
+	
+}
+
+class PathEntry {
+
+	private Path path;
+	private Map<String, String> props = MapUtil.newMap() ;
+	private String pathKey;
+
+	public PathEntry(Path path, String pathKey) {
+		this.path = path ;
+		this.pathKey = pathKey ;
+	}
+	
+	public OutputStream asOutputStream() throws FileNotFoundException {
+		return new FileOutputStream(asFile());
+	}
+
+	public InputStream asInputStream() throws FileNotFoundException {
+		return new FileInputStream(asFile());
+	}
+
+	public File asFile() {
+		return path.toFile();
+	}
+
+	public void write(InputStream input) throws FileNotFoundException, IOException {
+		IOUtil.copyNClose(input, new FileOutputStream(path.toFile()));
+	}
+
+	public String asString(String key) throws IOException {
+		UserDefinedFileAttributeView view = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		if (! view.list().contains(key)) return "" ;
+		ByteBuffer buf = ByteBuffer.allocate(view.size(key));
+		view.read(key, buf);
+		buf.flip();
+		return Charset.forName("UTF-8").decode(buf).toString();
+	}
+
+	public void loadChild(AtomicMap<Object, Fqn> created) {
+		for(File child : path.toFile().listFiles(new FileFilter(){
+			@Override
+			public boolean accept(File child) {
+				return child.isDirectory();
+			}
+		})){
+//			if (created.containsKey(child.getName())) continue ;
+//			Debug.debug(path.toFile(), child);
+			created.put(child.getName(), Fqn.fromRelativeElements(Fqn.fromString(pathKey), child.getName())) ;
+		};
+	}
+
+	public boolean exists() {
+		return path.toFile().exists();
+	}
+
+	public PathEntry update() throws IOException {
+		File file = path.toFile() ;
+		if (! file.exists()) {
+			file.mkdirs() ;
+		}
+		
+		UserDefinedFileAttributeView view = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		for(Entry<String, String> entry : props.entrySet()){
+			view.write(entry.getKey(), Charset.forName("UTF-8").encode(entry.getValue()));
+		}
+		return this ;
+	}
+
+	public PathEntry write(String key, String value) throws IOException{
+		props.put(key, value) ;
+		return this ;
+	}
+	
+	public void delete() throws IOException{
+		FileUtil.deleteDirectory(path.toFile()) ;
+	}
+	
+	public void deleteChildren() throws IOException{
+		for(File child : path.toFile().listFiles()){
+			FileUtil.deleteDirectory(child);
+		}
+	}
+}
+
+
+

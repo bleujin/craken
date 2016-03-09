@@ -17,6 +17,7 @@ import net.ion.craken.listener.CDDModifyHandler;
 import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.TransactionJob;
+import net.ion.craken.node.Workspace;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.store.WorkspaceConfigBuilder;
 import net.ion.craken.node.crud.tree.impl.GridBlob;
@@ -39,7 +40,7 @@ public class TestCDDBlob extends TestCase {
 		Craken craken = Craken.inmemoryCreateWithTest();
 		ReadSession session = craken.login("test");
 
-		final GridFilesystem gfs = session.workspace().gfs();
+		final Workspace workspace = session.workspace();
 
 		session.workspace().cddm().add(new CDDHandler() {
 			@Override
@@ -54,7 +55,7 @@ public class TestCDDBlob extends TestCase {
 					for (PropertyId pid : values.keySet()) {
 						PropertyValue val = values.get(pid);
 						if (val.isBlob()) {
-							InputStream input = ((GridBlob) val.gfs(gfs).asBlob()).toInputStream();
+							InputStream input = ((GridBlob) val.workspace(workspace).asBlob()).toInputStream();
 							Debug.line(pid, IOUtil.toStringWithClose(input));
 						}
 					}

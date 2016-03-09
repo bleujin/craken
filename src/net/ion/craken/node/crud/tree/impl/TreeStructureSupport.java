@@ -49,8 +49,9 @@ public class TreeStructureSupport extends AutoBatchSupport {
 			return false;
 		Fqn parent = fqn.getParent();
 		if (!fqn.isRoot()) {
-			if (!exists(cache, parent))
+			if (!exists(cache, parent)){
 				createNodeInCache(cache, parent);
+			}
 			AtomicMap<Object, Fqn> parentStructure = getStructure(cache, parent.struKey());
 			parentStructure.put(fqn.getLastElement(), fqn);
 		}
@@ -101,7 +102,6 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	protected final <K, V> AtomicMap<Object, Fqn> getStructure(AdvancedCache<?, ?> cache, TreeNodeKey struKey) {
 		AtomicMap<Object, Fqn> result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, false);
 
-		
 		if (result == null) {
 			result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, true);
 			AtomicMap<Object, Fqn> added = proxyHandler.handleStructure(struKey, result);

@@ -21,6 +21,7 @@ import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
+import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.crud.tree.ExtendPropertyId;
 import net.ion.craken.node.crud.tree.Fqn;
 import net.ion.craken.node.crud.tree.TreeNode;
@@ -267,7 +268,7 @@ public class WriteNodeImpl implements WriteNode {
 		try {
 			final String path = fqn().toString() + "/" + key + ".dat";
 			
-			PropertyValue gtvalue = GridBlob.create(gfs(), path).saveAt(input).asPropertyValue() ;
+			PropertyValue gtvalue = GridBlob.create(wsession.workspace(), path).saveAt(input).asPropertyValue() ;
 			property(createNormalId(key), gtvalue);
 
 		} catch (IOException e) {
@@ -331,41 +332,8 @@ public class WriteNodeImpl implements WriteNode {
 		}
 	}
 
-	public IteratorList<WriteNode> refs(String refName) {
-
-		PropertyId referId = createReferId(refName);
-		final Set values = hasPropertyId(referId) ? propertyId(referId).asSet() : SetUtil.EMPTY;
-		final Iterator<String> iter = values.iterator();
-
-		return new IteratorList<WriteNode>() {
-			@Override
-			public List<WriteNode> toList() {
-				List<WriteNode> result = ListUtil.newList();
-				while (iter.hasNext()) {
-					result.add(wsession.pathBy(iter.next()));
-				}
-				return Collections.unmodifiableList(result);
-			}
-
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public WriteNode next() {
-				return wsession.pathBy(iter.next());
-			}
-
-			@Override
-			public Iterator<WriteNode> iterator() {
-				return this;
-			}
-
-			public int count() {
-				return values.size();
-			}
-		};
+	public NodeIteratorList<WriteNode> refs(String refName) {
+		return NodeIteratorList.WriteRefs(this, refName) ;
 	}
 
 	public WriteChildren refChildren(String refName) {
@@ -525,7 +493,7 @@ public class WriteNodeImpl implements WriteNode {
 
 	public PropertyValue propertyId(PropertyId pid) {
 		PropertyValue result = ObjectUtil.coalesce(tree().get(pid), PropertyValue.NotFound);
-		result.gfs(wsession.workspace().gfs());
+		result.workspace(wsession.workspace());
 		return result;
 	}
 
@@ -669,7 +637,10 @@ public class WriteNodeImpl implements WriteNode {
 		if (! pfile.exists()) pfile.mkdirs() ;
 		blob(key, new ByteArrayInputStream(new byte[0])) ;
 		
-		return GridBlob.create(gfs(), path).toOutputStream() ;
+		return GridBlob.create(wsession.workspace(), path).toOutputStream() ;
 	}
 
+	public void debugPrint(){
+		this.toReadNode().transformer(Functions.READ_DEBUGPRINT);
+	}
 }
