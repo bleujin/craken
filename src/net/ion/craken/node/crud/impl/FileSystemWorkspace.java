@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
-import javax.crypto.spec.PSource;
 import javax.transaction.Transaction;
 
 import net.ion.craken.listener.CDDMListener;
@@ -31,6 +31,7 @@ import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.mr.NodeMapReduce;
 import net.ion.craken.mr.NodeMapReduceTask;
 import net.ion.craken.node.IndexWriteConfig;
+import net.ion.craken.node.IndexWriteConfig.FieldIndex;
 import net.ion.craken.node.NodeWriter;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.Repository;
@@ -52,22 +53,29 @@ import net.ion.craken.node.crud.tree.TreeCacheFactory;
 import net.ion.craken.node.crud.tree.TreeNode;
 import net.ion.craken.node.crud.tree.impl.GridBlob;
 import net.ion.craken.node.crud.tree.impl.PropertyId;
+import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
 import net.ion.craken.node.crud.tree.impl.PropertyValue;
+import net.ion.craken.node.crud.tree.impl.PropertyValue.VType;
 import net.ion.craken.node.crud.tree.impl.ProxyHandler;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey;
-import net.ion.craken.node.crud.tree.impl.PropertyId.PType;
 import net.ion.craken.node.crud.tree.impl.TreeNodeKey.Action;
 import net.ion.framework.mte.Engine;
+import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.FileUtil;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
+import net.ion.nsearcher.common.IKeywordField;
+import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.search.Searcher;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.WildcardQuery;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
@@ -146,10 +154,6 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 		return this;
 	}
 
-	private Searcher searcher() throws IOException {
-		return central.newSearcher();
-	}
-
 	public boolean exists(Fqn fqn) {
 		if (Fqn.ROOT.equals(fqn)) {
 			return true;
@@ -169,7 +173,12 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 			if (wlistener instanceof WorkspaceListener)
 				this.removeListener((WorkspaceListener) wlistener);
 		}
-
+		central.indexConfig().indexExecutor().shutdown();
+		try {
+			central.indexConfig().indexExecutor().awaitTermination(3, TimeUnit.SECONDS) ;
+		} catch (InterruptedException e) {
+		}
+		central.destroySelf();
 		cache.stop();
 	}
 
@@ -425,7 +434,7 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 	// return gfsBlob.getWritableGridBlob(fqnPath, meta);
 	// }
 
-	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
+	public NodeWriter createNodeWriter(WriteSession wsession, ReadSession rsession) throws IOException {
 		return new FileSystemWriter(this, wsession);
 	}
 
@@ -442,7 +451,7 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 
 		public void writeLog(final Set<TouchedRow> logRows) throws IOException {
 
-			Callable<Void> indexJob = new Callable<Void>() {
+			Callable<Void> job = new Callable<Void>() {
 
 				@Override
 				public Void call() throws Exception {
@@ -450,11 +459,8 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 
 					for (TouchedRow trow : logRows) {
 						Touch touch = trow.touch();
-						Action action = trow.target().dataKey().action();
 						Fqn fqn = trow.target();
 						String pathKey = fqn.toString();
-
-//						Debug.line(pathKey, trow.sourceMap(), touch);
 
 						PathEntry pentry = pstore.find(pathKey) ;
 						switch (touch) {
@@ -495,7 +501,84 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 					return null;
 				}
 			};
-			wspace.es.submit(indexJob) ;
+			wspace.es.submit(job) ;
+
+			IndexJob<Void> indexJob = new IndexJob<Void>() {
+				@Override
+				public Void handle(IndexSession isession) throws Exception {
+					IndexWriteConfig iwconfig = wsession.iwconfig();
+					long startTime = System.currentTimeMillis();
+
+					for (TouchedRow trow : logRows) {
+						Touch touch = trow.touch();
+						Action action = trow.target().dataKey().action();
+						Fqn fqn = trow.target();
+						String pathKey = fqn.toString();
+
+						switch (touch) {
+						case TOUCH:
+							break;
+						case MODIFY:
+							Map<PropertyId, PropertyValue> props = trow.sourceMap();
+							if ("/".equals(pathKey))
+								continue;
+
+							WriteDocument wdoc = isession.newDocument(pathKey);
+							wdoc.keyword(EntryKey.PARENT, fqn.getParent().toString());
+							wdoc.number(EntryKey.LASTMODIFIED, System.currentTimeMillis());
+
+							for (PropertyId pid : props.keySet()) {
+								final String propId = pid.idString();
+								PropertyValue pvalue = props.get(pid);
+
+								JsonArray jarray = pvalue.asJsonArray(); // index
+								if (pid.type() == PType.NORMAL) {
+									VType vtype = pvalue.type();
+									for (JsonElement e : jarray.toArray()) {
+										if (e == null)
+											continue;
+										FieldIndex fieldIndex = iwconfig.fieldIndex(propId);
+										fieldIndex.index(wdoc, propId, vtype, e.isJsonObject() ? e.toString() : e.getAsString());
+									}
+								} else { // refer
+									for (JsonElement e : jarray.toArray()) {
+										if (e == null)
+											continue;
+										FieldIndex.KEYWORD.index(wdoc, propId, e.getAsString());
+									}
+								}
+
+							}
+							
+							if (!iwconfig.isIgnoreIndex()) {
+								if (action == Action.CREATE)
+									wdoc.insert();
+								else
+									wdoc.update();
+							}
+
+							break;
+						case REMOVE:
+							wspace.treeCache().removeNode(fqn); // @Todo -_- ?
+							if (!iwconfig.isIgnoreIndex())
+								isession.deleteById(pathKey);
+							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(pathKey).startWith())));
+							break;
+						case REMOVECHILDREN:
+							isession.deleteQuery(new WildcardQuery(new Term(IKeywordField.DocKey, Fqn.fromString(pathKey).startWith())));
+							break;
+						default:
+							break;
+						}
+					}
+
+					wspace.log.debug(wsession.tranId() + " indexed");
+					
+					return null;
+				}
+			};
+
+			wspace.central().newIndexer().asyncIndex(indexJob) ;
 		}
 
 	}
@@ -577,6 +660,8 @@ public class FileSystemWorkspace extends AbWorkspace implements Workspace, Proxy
 	}
 	
 	
+	
+	
 	public InputStream toInputStream(GridBlob gblob) throws FileNotFoundException {
 		return pstore.find(gblob.path()).asInputStream() ;
 	}
@@ -608,14 +693,16 @@ class PathStore {
 	public PathStore(File dataDir){
 		this.dataDir = dataDir ;
 	}
+	
 	public PathEntry find(String pathKey) {
 		File file = new File(dataDir, pathKey) ;
 
 		Path path = file.toPath();
 		return new PathEntry(path, pathKey);
 	}
-	
+
 }
+
 
 class PathEntry {
 
@@ -698,6 +785,3 @@ class PathEntry {
 		}
 	}
 }
-
-
-

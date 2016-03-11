@@ -103,7 +103,7 @@ public interface Workspace extends Closeable, WorkspaceListener {
 
 	public abstract GridFilesystem gfs() ;
 
-	public abstract NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException ;
+	public abstract NodeWriter createNodeWriter(WriteSession wsession, ReadSession rsession) throws IOException ;
 
 	public abstract CDDMListener cddm()  ;
 

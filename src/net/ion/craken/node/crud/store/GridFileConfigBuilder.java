@@ -47,6 +47,7 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.ClusteringConfigurationBuilder;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.context.impl.TxInvocationContext;
+import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.interceptors.base.BaseCustomInterceptor;
 import org.infinispan.io.GridFile.Metadata;
 import org.infinispan.io.GridFilesystem;
@@ -111,7 +112,7 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 			ClusteringConfigurationBuilder data_chunk_builder = null ;
 
 			real_configBuilder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
-				.eviction().maxEntries(maxEntry())
+				.eviction().maxEntries(maxEntry()).strategy(EvictionStrategy.LRU)
 //				.eviction().expiration().lifespan(30, TimeUnit.SECONDS)
 				.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable()
 			.clustering() ; 
@@ -128,7 +129,7 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(searchIndexPath)
 				.dataLocation(searchChunkPath).async().disable()
 				.modificationQueueSize(1000).threadPoolSize(3)
-				.eviction().maxEntries(maxSegment()).clustering();
+				.eviction().maxEntries(maxSegment()).strategy(EvictionStrategy.LRU).clustering();
 			
 			data_meta_builder = new ConfigurationBuilder() 
 				.persistence().passivation(false)
@@ -142,7 +143,7 @@ public class GridFileConfigBuilder extends WorkspaceConfigBuilder {
 				.preload(true).shared(false).purgeOnStartup(false).ignoreModifications(false).indexLocation(dataIndexPath)
 				.dataLocation(dataChunkPath).async().disable()
 				.modificationQueueSize(1000).threadPoolSize(3)
-				.eviction().maxEntries(maxEntry())
+				.eviction().maxEntries(maxEntry()).strategy(EvictionStrategy.LRU)
 				.clustering();
 			
 			if (cacheMode().isClustered() && cacheMode().isReplicated()){

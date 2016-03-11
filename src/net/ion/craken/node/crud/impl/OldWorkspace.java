@@ -413,7 +413,7 @@ public class OldWorkspace extends AbWorkspace implements Workspace, ProxyHandler
 	// return gfsBlob.getWritableGridBlob(fqnPath, meta);
 	// }
 
-	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
+	public NodeWriter createNodeWriter(WriteSession wsession, ReadSession rsession) throws IOException {
 		return new InstantLogWriter(this, wsession, rsession);
 	}
 

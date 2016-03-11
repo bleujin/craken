@@ -22,7 +22,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 	private ReadSession rsession;
 	private IndexWriteConfig iwconfig = new IndexWriteConfig();
 
-	private Set<TouchedRow> logRows = ListOrderedSet.decorate(ListUtil.newList());
+	private Set<TouchedRow> touchedRows = ListOrderedSet.decorate(ListUtil.newList());
 	private String tranId;
 
 	private Set<Fqn> ancestorsFqn = SetUtil.newSet();
@@ -101,7 +101,7 @@ public abstract class AbstractWriteSession implements WriteSession {
 	
 	public List<TouchedRow> touched(Touch touch){
 		List<TouchedRow> result = ListUtil.newList() ;
-		for (TouchedRow row : logRows) {
+		for (TouchedRow row : touchedRows) {
 			if (row.touch() == touch){
 				result.add(row) ;
 			} 
@@ -110,8 +110,8 @@ public abstract class AbstractWriteSession implements WriteSession {
 	}
 	
 	
-	public Set<TouchedRow> logRows(){
-		return logRows ;
+	public Set<TouchedRow> touchedRows(){
+		return touchedRows ;
 	}
 
 	@Override
@@ -120,11 +120,11 @@ public abstract class AbstractWriteSession implements WriteSession {
 		TransactionJob tjob = attribute(TransactionJob.class) ;
 		TranExceptionHandler ehandler = attribute(TranExceptionHandler.class) ;
 		
-		NodeWriter logWriter = rsession.workspace().createLogWriter(this, rsession);
+		NodeWriter nodeWriter = rsession.workspace().createNodeWriter(this, rsession);
 		cddm.fireRow(this, tjob, ehandler);
 		
-		logWriter.writeLog(logRows) ;
-		logRows = ListOrderedSet.decorate(ListUtil.newList());
+		nodeWriter.writeLog(touchedRows) ;
+		touchedRows = ListOrderedSet.decorate(ListUtil.newList());
 	}
 
 	@Override
@@ -140,15 +140,15 @@ public abstract class AbstractWriteSession implements WriteSession {
 		TouchedRow trow = TouchedRow.create(source, touch, targetFqn, affected);
 		if (touch == Touch.REMOVECHILDREN){
 			Set<TouchedRow> forRemove = SetUtil.newSet() ;
-			for(TouchedRow row : logRows){
+			for(TouchedRow row : touchedRows){
 				if (row.target().isChildOrEquals(targetFqn)){
 					forRemove.add(row) ;
 				}
 			}
-			logRows.removeAll(forRemove) ;
+			touchedRows.removeAll(forRemove) ;
 		}
 		
-		logRows.add(trow);
+		touchedRows.add(trow);
 	}
 
 	public IndexWriteConfig iwconfig() {

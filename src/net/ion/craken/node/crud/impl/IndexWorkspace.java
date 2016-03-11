@@ -239,7 +239,7 @@ public class IndexWorkspace extends AbWorkspace implements Workspace, ProxyHandl
 				return null ;
 			}
 			else {
-				result = tcache.getRoot().addChild(fqn) ;
+				result = tcache.createTreeNode(cache, fqn) ;
 				result.putAll(found);
 			}
 			
@@ -249,7 +249,7 @@ public class IndexWorkspace extends AbWorkspace implements Workspace, ProxyHandl
 	
 	public TreeNode<PropertyId, PropertyValue> writeNode(Fqn fqn) {
 		if (! tcache.exists(fqn)) { 
-			tcache.getRoot().addChild(fqn) ;
+			tcache.createTreeNode(cache, fqn) ;
 		}		
 		return readNode(fqn) ;
 	}
@@ -422,7 +422,7 @@ public class IndexWorkspace extends AbWorkspace implements Workspace, ProxyHandl
 	// return gfsBlob.getWritableGridBlob(fqnPath, meta);
 	// }
 
-	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
+	public NodeWriter createNodeWriter(WriteSession wsession, ReadSession rsession) throws IOException {
 		return new IndexFileWriter(this, wsession);
 	}
 

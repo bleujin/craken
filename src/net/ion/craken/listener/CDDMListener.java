@@ -111,7 +111,7 @@ public class CDDMListener implements WorkspaceListener {
 	
 	public void fireRow(final AbstractWriteSession wsession, TransactionJob tjob, TranExceptionHandler ehandler) {
 
-		TouchedRow[] touchedRows = wsession.logRows().toArray(new TouchedRow[0]);
+		TouchedRow[] touchedRows = wsession.touchedRows().toArray(new TouchedRow[0]);
 
 		final JobList syncJob = JobList.create();
 		final JobList asyncJob = JobList.create();

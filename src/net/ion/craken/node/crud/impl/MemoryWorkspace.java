@@ -379,7 +379,7 @@ public class MemoryWorkspace extends AbWorkspace implements Workspace{
 		public void writeLog(Set<TouchedRow> logRows) throws IOException {
 		}
 	};
-	public NodeWriter createLogWriter(WriteSession wsession, ReadSession rsession) throws IOException {
+	public NodeWriter createNodeWriter(WriteSession wsession, ReadSession rsession) throws IOException {
 		return BLANK ;
 	}
 

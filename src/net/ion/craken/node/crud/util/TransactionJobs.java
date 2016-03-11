@@ -13,6 +13,13 @@ public class TransactionJobs {
 			return null;
 		}
 	};
+	public static final TransactionJob<Void> REMOVE_ALL = new TransactionJob<Void>() {
+		@Override
+		public Void handle(WriteSession wsession) throws Exception {
+			wsession.root().removeChildren() ;
+			return null;
+		}
+	};
 
 	public final static TransactionJob<Void> dummy(final String prefixFqn, final int count){
 		return new TransactionJob<Void>() {

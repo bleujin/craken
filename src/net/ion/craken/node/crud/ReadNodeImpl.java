@@ -31,6 +31,7 @@ import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -139,6 +140,10 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public ReadChildren children() {
+		for( Fqn f : treeNode().getChildrenFqn()){
+			Debug.line(f);
+		}
+		
 		return new ReadChildren(session, fqn, treeNode().getChildrenFqn().iterator());
 	}
 
@@ -195,6 +200,7 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
+		if (treeNode() == null) return MapUtil.EMPTY ;
 		return treeNode().getData() ;
 	}
 

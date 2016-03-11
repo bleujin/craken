@@ -98,7 +98,8 @@ public class WriteNodeImpl implements WriteNode {
 	public TreeNode<PropertyId, PropertyValue> tree() {
 		TreeNode read = wsession.workspace().writeNode(fqn);
 		if (read == null){
-			Debug.line(read, fqn);
+			wsession.workspace().createNode(wsession, SetUtil.EMPTY, fqn) ;
+//			Debug.line(read, fqn);
 		}
 		return read;
 	}
@@ -498,6 +499,7 @@ public class WriteNodeImpl implements WriteNode {
 	}
 
 	public Map<PropertyId, PropertyValue> toMap() {
+		if (tree() == null) return MapUtil.EMPTY ;
 		return tree().getData();
 	}
 

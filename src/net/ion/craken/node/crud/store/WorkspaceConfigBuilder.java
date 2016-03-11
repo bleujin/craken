@@ -22,7 +22,7 @@ public abstract class WorkspaceConfigBuilder {
 
 	private CacheMode cacheMode = CacheMode.LOCAL ;
 	
-	private int maxEntry = 1000 ;
+	private int maxEntry = 3000 ;
 	private int eviMaxSegment = 20 ;
 	private int transferTimeOut = 300;
 	
