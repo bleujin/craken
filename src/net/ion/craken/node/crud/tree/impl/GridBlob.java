@@ -18,7 +18,7 @@ public class GridBlob implements Serializable {
 
 	private static final long serialVersionUID = -8661240636213998157L;
 	private String path;
-	private Workspace workspace;
+	private transient Workspace workspace;
 
 	private GridBlob(Workspace workspace, String path) {
 		this.workspace = workspace ;

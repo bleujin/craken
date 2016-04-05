@@ -10,16 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.ion.craken.expression.ExpressionParser;
-import net.ion.craken.expression.SelectProjection;
-import net.ion.craken.expression.TerminalParser;
 import net.ion.craken.loaders.EntryKey;
 import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.convert.Functions;
 import net.ion.craken.node.convert.rows.AdNodeRows;
-import net.ion.craken.node.convert.rows.FieldContext;
 import net.ion.craken.node.convert.rows.FieldDefinition;
 import net.ion.craken.node.crud.tree.ExtendPropertyId;
 import net.ion.craken.node.crud.tree.Fqn;
@@ -31,7 +27,6 @@ import net.ion.craken.node.crud.tree.impl.PropertyValue;
 import net.ion.framework.db.Rows;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -39,7 +34,6 @@ import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.filter.TermFilter;
-import net.ion.rosetta.Parser;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -140,10 +134,6 @@ public class ReadNodeImpl implements ReadNode, Serializable {
 	}
 
 	public ReadChildren children() {
-		for( Fqn f : treeNode().getChildrenFqn()){
-			Debug.line(f);
-		}
-		
 		return new ReadChildren(session, fqn, treeNode().getChildrenFqn().iterator());
 	}
 
