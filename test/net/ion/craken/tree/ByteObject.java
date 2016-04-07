@@ -9,4 +9,7 @@ public class ByteObject implements Serializable{
 	public ByteObject(byte[] bytes){
 		this.bytes = bytes ;
 	}
+	public byte[] bytes() {
+		return bytes;
+	}
 }
