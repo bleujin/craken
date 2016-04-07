@@ -4,13 +4,15 @@ import java.util.concurrent.ExecutionException;
 
 import net.ion.framework.dio.FSDataInputStream;
 import net.ion.framework.dio.FSError;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.InfinityThread;
 import junit.framework.TestCase;
 
 public class TestSingle extends TestCase {
 	
 	public void testRun() throws Exception {
 		System.setProperty("java.net.preferIPv4Stack", "true") ;
-		final FileServer fserver = new FileServer().runner(9000);
+		final FileServer fserver = new FileServer().runner(9200);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
@@ -23,6 +25,9 @@ public class TestSingle extends TestCase {
 				}
 			}
 		});
+		
+		Debug.line("started");
+		new InfinityThread().startNJoin(); 
 	}
 
 }
