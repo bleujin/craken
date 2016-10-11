@@ -47,7 +47,6 @@ import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.impl.AtomicHashMap;
-import org.infinispan.batch.AutoBatchSupport;
 import org.infinispan.batch.BatchContainer;
 import org.infinispan.context.Flag;
 import org.infinispan.distexec.mapreduce.Collector;
@@ -59,7 +58,6 @@ import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryRemoved;
 import org.infinispan.notifications.cachelistener.event.CacheEntryEvent;
-import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.util.concurrent.WithinThreadExecutor;
 import org.infinispan.util.logging.Log;
@@ -129,7 +127,7 @@ public class MemoryWorkspace extends AbWorkspace implements Workspace{
 	}
 
 	public MemoryWorkspace withFlag(Flag... flags) {
-		cache = cache.getAdvancedCache().withFlags(flags);
+		cache = cache.withFlags(flags);
 		return this;
 	}
 
@@ -265,6 +263,7 @@ public class MemoryWorkspace extends AbWorkspace implements Workspace{
 		Transaction transaction = batchContainer.getBatchTransaction();
 		if (transaction != null) trans.put(transaction, wsession.iwconfig());
 		batchContainer.endBatch(true, true);
+
 	}
 
 	public Repository repository() {
@@ -374,13 +373,27 @@ public class MemoryWorkspace extends AbWorkspace implements Workspace{
 	// public WritableGridBlob gridBlob(String fqnPath, Metadata meta) throws IOException {
 	// return gfsBlob.getWritableGridBlob(fqnPath, meta);
 	// }
+	private NodeWriter createWriter(final WriteSession wsession){
+		return new NodeWriter() {
+			@Override
+			public void writeLog(Set<TouchedRow> logRows) throws IOException {
+				for(TouchedRow trow : logRows){
+					if (trow.touch() == Touch.REMOVE){
+						Debug.line(trow);
+					}
+				}
+			}
+		} ;
+	}
+	
 	private static NodeWriter BLANK = new NodeWriter() {
-		@Override
 		public void writeLog(Set<TouchedRow> logRows) throws IOException {
 		}
 	};
+	
 	public NodeWriter createNodeWriter(WriteSession wsession, ReadSession rsession) throws IOException {
 		return BLANK ;
+//		return createWriter(wsession) ;
 	}
 
 	

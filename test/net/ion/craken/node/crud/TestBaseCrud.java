@@ -16,7 +16,7 @@ public class TestBaseCrud extends TestCase {
 //		r.defineWorkspace("test2", NeoWorkspaceConfig.create()) ;
 		r.start() ;
 		this.session = r.login("test") ;
-		Debug.line("TEST CALLED", getClass().getCanonicalName());
+//		Debug.line("TEST CALLED", getClass().getCanonicalName());
 	}
 	
 	@Override

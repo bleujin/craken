@@ -20,6 +20,11 @@ public class TestFilters extends TestCase {
 		Debug.line(result) ;
 	}
 
+	public void testBlank() throws Exception {
+		Filter fitler = Filters.where("artid = '한글'") ;
+		
+	}
+	
 	public void testOneCondition() throws Exception {
 		Filter filter = Filters.where("ta=='2'");
 		assertEquals(true, filter instanceof TermFilter) ;

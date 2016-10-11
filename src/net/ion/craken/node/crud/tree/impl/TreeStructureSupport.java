@@ -8,8 +8,10 @@ import net.ion.framework.util.Debug;
 import org.infinispan.AdvancedCache;
 import org.infinispan.atomic.AtomicMap;
 import org.infinispan.atomic.AtomicMapLookup;
+import org.infinispan.atomic.impl.AtomicHashMap;
 import org.infinispan.batch.AutoBatchSupport;
 import org.infinispan.batch.BatchContainer;
+import org.infinispan.context.Flag;
 import org.infinispan.util.concurrent.locks.LockManager;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
@@ -32,7 +34,7 @@ public class TreeStructureSupport extends AutoBatchSupport {
 	}
 
 	protected boolean exists(AdvancedCache<?, ?> cache, Fqn f) {
-		return cache.containsKey(f.dataKey()); // && cache.containsKey(f.struKey());
+		return cache.containsKey(f.dataKey()) ; //&& cache.containsKey(f.struKey());
 	}
 
 	/**
@@ -99,15 +101,18 @@ public class TreeStructureSupport extends AutoBatchSupport {
 		return AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, dataKey);
 	}
 
+	protected final boolean hasKey(AdvancedCache<?, ?> cache, TreeNodeKey struKey){
+		return cache.containsKey(struKey) ;
+	}
+	
 	protected final <K, V> AtomicMap<Object, Fqn> getStructure(AdvancedCache<?, ?> cache, TreeNodeKey struKey) {
 		AtomicMap<Object, Fqn> result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, false);
-
 		if (result == null) {
 			result = AtomicMapLookup.getAtomicMap((AdvancedCache<TreeNodeKey, AtomicMap<?, ?>>) cache, struKey, true);
 			AtomicMap<Object, Fqn> added = proxyHandler.handleStructure(struKey, result);
 //			result.putAll(added);
 		}
-		
+
 		return result;
 	}
 }

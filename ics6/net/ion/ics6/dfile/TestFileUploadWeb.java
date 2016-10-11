@@ -5,6 +5,7 @@ import java.io.File;
 import junit.framework.TestCase;
 import net.ion.craken.node.crud.Craken;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.InfinityThread;
 import net.ion.radon.aclient.NewClient;
 import net.ion.radon.aclient.RequestBuilder;
 import net.ion.radon.aclient.Response;
@@ -28,6 +29,10 @@ public class TestFileUploadWeb extends TestCase{
 	protected void tearDown() throws Exception {
 		this.fserver.shutdown(); 
 		super.tearDown();
+	}
+	
+	public void testSingle() throws Exception {
+		new InfinityThread().startNJoin(); 
 	}
 	
 	public void testParseInfo() throws Exception {

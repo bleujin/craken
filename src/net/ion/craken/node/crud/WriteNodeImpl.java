@@ -8,15 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import net.ion.craken.loaders.EntryKey;
-import net.ion.craken.node.IteratorList;
 import net.ion.craken.node.ReadNode;
 import net.ion.craken.node.ReadSession;
 import net.ion.craken.node.WriteNode;
@@ -34,9 +31,7 @@ import net.ion.craken.node.exception.NodeIOException;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ArrayUtil;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
-import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
@@ -99,7 +94,6 @@ public class WriteNodeImpl implements WriteNode {
 		TreeNode read = wsession.workspace().writeNode(fqn);
 		if (read == null){
 			wsession.workspace().createNode(wsession, SetUtil.EMPTY, fqn) ;
-//			Debug.line(read, fqn);
 		}
 		return read;
 	}

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
+import net.ion.craken.listener.AsyncCDDHandler;
 import net.ion.craken.listener.AsyncCDDModifyHandler;
 import net.ion.craken.listener.CDDHandler;
 import net.ion.craken.listener.CDDModifiedEvent;
@@ -268,5 +269,55 @@ public class TestCDDHandler extends TestCase {
 		});
 	}
 
+	
+	public void testChain() throws Exception {
+		session.workspace().cddm().add(new CDDHandler() {
+
+			@Override
+			public String pathPattern() {
+				return "/ics/{taskid}";
+			}
+
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
+				final String taskId = resolveMap.get("taskid") ;
+				if ("remove".equals(event.property("action").asString())){
+					return new TransactionJob<Void>(){
+						@Override
+						public Void handle(WriteSession wsession) throws Exception {
+							wsession.pathBy("/ics/" + taskId).removeSelf() ;
+							return null;
+						}
+					} ;
+				}
+				return null;
+			}
+
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
+				return null;
+			}
+		});
+		
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/ics/123").property("name", "bleujin") ;
+				return null;
+			}
+		}) ;
+
+		session.tran(new TransactionJob<Void>(){
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/ics/123").property("action", "remove") ;
+				return null;
+			}
+		}) ;
+		
+		session.ghostBy("/ics").children().debugPrint(); 
+
+
+	}
 
 }

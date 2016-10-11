@@ -8,10 +8,12 @@ import net.ion.craken.expression.ExpressionParser;
 import net.ion.craken.expression.TerminalParser;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.IndexConfig;
 import net.ion.nsearcher.config.SearchConfig;
 import net.ion.nsearcher.search.filter.BooleanFilter;
 import net.ion.nsearcher.search.filter.FilterUtil;
+import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
 import net.ion.nsearcher.search.filter.TermFilter;
 import net.ion.rosetta.Parser;
 
@@ -105,6 +107,8 @@ public class Filters {
 
 
 	public static Filter where(String fnString) {
+		if (StringUtil.isBlank(fnString)) return new MatchAllDocsFilter() ;
+		
 		Parser<Expression> parser = ExpressionParser.expression();
 		Expression result = TerminalParser.parse(parser, fnString);
 		

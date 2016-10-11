@@ -87,7 +87,6 @@ public class TestCDDMListener extends TestCase {
 					@Override
 					public Void handle(WriteSession wsession) throws Exception {
 						Thread.sleep(500);
-						
 						wsession.pathBy("/" + name + "/cdd").property("modified", true) ;
 						return null;
 					}
@@ -108,10 +107,11 @@ public class TestCDDMListener extends TestCase {
 			}
 		}) ;
 		
-		assertEquals(false, session.exists("/bleujin/cdd")) ;
+//		assertEquals(false, session.exists("/bleujin")) ;
 		
 		session.workspace().cddm().await(); 
-		assertEquals(true, session.exists("/bleujin/cdd")) ;
+		assertEquals(true, session.exists("/bleujin")) ;
+		session.ghostBy("/bleujin").debugPrint(); 
 	}
 	
 	

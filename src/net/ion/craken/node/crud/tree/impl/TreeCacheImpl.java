@@ -400,7 +400,7 @@ public class TreeCacheImpl<K, V> extends TreeStructureSupport implements TreeCac
 	public Cache<?, ?> getCache() {
 		// Retrieve the advanced cache as a way to retrieve
 		// the cache behind the cache adapter.
-		return cache.getAdvancedCache();
+		return cache;
 	}
 
 	// ------------------ nothing different; just delegate to the cache

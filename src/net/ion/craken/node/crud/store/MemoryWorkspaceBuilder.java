@@ -30,6 +30,7 @@ import org.infinispan.lucene.directory.DirectoryBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.transaction.TransactionMode;
+import org.infinispan.util.concurrent.IsolationLevel;
 
 public class MemoryWorkspaceBuilder extends WorkspaceConfigBuilder {
 
@@ -42,14 +43,24 @@ public class MemoryWorkspaceBuilder extends WorkspaceConfigBuilder {
 	@Override
 	public WorkspaceConfigBuilder build(DefaultCacheManager dm, String wsName) throws IOException {
 		ClusteringConfigurationBuilder real_configBuilder = new ConfigurationBuilder().read(dm.getDefaultCacheConfiguration())
-				.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable().clustering();
+				.transaction().transactionMode(TransactionMode.TRANSACTIONAL).invocationBatching().enable()
+				.clustering().locking().isolationLevel(IsolationLevel.READ_COMMITTED).lockAcquisitionTimeout(30, TimeUnit.SECONDS)
+				.deadlockDetection().enable().spinDuration(1000)
+				.eviction().maxEntries(10000L) // .... 
+				.clustering();
 
 		ClusteringConfigurationBuilder idx_meta_builder = new ConfigurationBuilder().persistence().passivation(false)
-				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();
+				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS)
+				.clustering().locking().isolationLevel(IsolationLevel.READ_COMMITTED).lockAcquisitionTimeout(30, TimeUnit.SECONDS)
+				.clustering();
 		ClusteringConfigurationBuilder idx_chunk_builder = new ConfigurationBuilder().persistence().passivation(false)
-				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
+				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS)
+				.clustering().locking().isolationLevel(IsolationLevel.READ_COMMITTED).lockAcquisitionTimeout(30, TimeUnit.SECONDS)
+				.clustering();;
 		ClusteringConfigurationBuilder idx_lock_builder = new ConfigurationBuilder().persistence().passivation(true)
-				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS).clustering();;
+				.clustering().stateTransfer().timeout(transferTimeout(), TimeUnit.SECONDS)
+				.clustering().locking().isolationLevel(IsolationLevel.READ_COMMITTED).lockAcquisitionTimeout(30, TimeUnit.SECONDS)
+				.clustering();
 
 		if (cacheMode().isClustered()){
 			real_configBuilder.cacheMode(cacheMode()) ;

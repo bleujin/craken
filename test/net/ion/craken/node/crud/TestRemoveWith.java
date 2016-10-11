@@ -1,14 +1,24 @@
 package net.ion.craken.node.crud;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import net.ion.craken.listener.CDDHandler;
+import net.ion.craken.listener.CDDModifiedEvent;
+import net.ion.craken.listener.CDDRemovedEvent;
 import net.ion.craken.node.TouchedRow;
 import net.ion.craken.node.TransactionJob;
 import net.ion.craken.node.WriteNode;
 import net.ion.craken.node.WriteSession;
 import net.ion.craken.node.crud.WriteNodeImpl.Touch;
 import net.ion.craken.node.crud.tree.Fqn;
+import net.ion.craken.node.crud.util.TransactionJobs;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectId;
 
 public class TestRemoveWith extends TestBaseCrud {
 
@@ -242,5 +252,68 @@ public class TestRemoveWith extends TestBaseCrud {
 		}) ;
 	}
 	
+	
+	public void testRemoveConcurrent() throws Exception {
+		final String key = new ObjectId().toString();
+		
+		r.login("test").workspace().cddm().add(new CDDHandler() {
+			@Override
+			public String pathPattern() {
+				return "/thoth/{taskid}";
+			}
+			
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
+				return null;
+			}
+			
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
+				return null;
+			}
+		});
+		r.login("test").workspace().cddm().add(new CDDHandler() {
+			@Override
+			public String pathPattern() {
+				return "/thoth/{taskid}";
+			}
+			
+			@Override
+			public TransactionJob<Void> modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
+				return null;
+			}
+			
+			@Override
+			public TransactionJob<Void> deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
+				return null;
+			}
+		});
+		
+		ExecutorService es = Executors.newCachedThreadPool() ;
+		
+		r.login("test").tran(new TransactionJob<Void>(){
+			public Void handle(WriteSession wsession) throws Exception {
+				wsession.pathBy("/thoth/" + key).property("name", "bleujin") ;
+				return null;
+			}
+		}) ;
+		
+		es.submit(new Callable<Void>(){
+			public Void call() throws Exception {
+				session.tran(new TransactionJob<Void>(){
+					public Void handle(WriteSession wsession) throws Exception {
+						wsession.pathBy("/thoth/" + key).removeSelf() ;
+						return null;
+					}
+					
+				}) ;
+				return null;
+			}
+		}).get() ;
+		
+		
+		r.login("test").ghostBy("/thoth").children().debugPrint();
+		Debug.line();
+	}
 	
 }
