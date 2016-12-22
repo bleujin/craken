@@ -1,0 +1,5477 @@
+{
+  "/": {
+    
+  },
+  "/scripts": {
+    
+  },
+  "/users": {
+    
+  },
+  "/indexers": {
+    
+  },
+  "/path": {
+    
+  },
+  "/searchers": {
+    
+  },
+  "/traces": {
+    
+  },
+  "/sites": {
+    
+  },
+  "/scripts/dddd": {
+    "running": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    },
+    "content": {
+      "vtype": "STR",
+      "vals": [
+        ""
+      ]
+    }
+  },
+  "/users/admin": {
+    "password": {
+      "vtype": "STR",
+      "vals": [
+        "success"
+      ]
+    },
+    "name": {
+      "vtype": "STR",
+      "vals": [
+        "admin"
+      ]
+    }
+  },
+  "/indexers/other": {
+    "created": {
+      "vtype": "LONG",
+      "vals": [
+        1457682621833
+      ]
+    }
+  },
+  "/indexers/newindex": {
+    "created": {
+      "vtype": "LONG",
+      "vals": [
+        1457597858812
+      ]
+    }
+  },
+  "/indexers/some": {
+    "created": {
+      "vtype": "LONG",
+      "vals": [
+        1457685936290
+      ]
+    }
+  },
+  "/path/hello": {
+    "vm": {
+      "vtype": "STR",
+      "vals": [
+        "Hi, ${username}... this is some template!"
+      ]
+    }
+  },
+  "/searchers/newsearcher": {
+    "target": {
+      "vtype": "STR",
+      "vals": [
+        "newindex"
+      ]
+    },
+    "applystopword": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    },
+    "queryanalyzer": {
+      "vtype": "STR",
+      "vals": [
+        "org.apache.lucene.analysis.standard.StandardAnalyzer"
+      ]
+    },
+    "created": {
+      "vtype": "LONG",
+      "vals": [
+        1457598141787
+      ]
+    },
+    "stopword": {
+      "vtype": "STR",
+      "vals": [
+        ""
+      ]
+    },
+    "template": {
+      "vtype": "STR",
+      "vals": [
+        "\n<ul>\n\t<li>elapsedTime : $response.elapsedTime()\n\t<li>size : $response.size()\n\t<li>totalCount : $response.totalCount()\n\t<li>params : $params\n</ul>\n\n<table border=1>\n<tr>\n\t<th>capture</th>\n\t<th>Id</th>\n\t<th>Title</th>\n</tr>\n\n#foreach($doc in $response.getDocument())\n<tr>\n\t<td><a href=\"$doc.getField(\"relurl\").stringValue()\"><img src=\"/admin/sites/first/capture_thumbnail/${doc.getField(\"crawlid\").stringValue()}/${doc.getField(\"relurl\").stringValue()}.png\" width=100 height=70 /></a></td>\n\t<td>$doc.getField(\"title\").stringValue()</td>\n\t<td>$doc.getField(\"relurl\").stringValue()</td>\n</tr>\n#end\n</table>"
+      ]
+    },
+    "handler": {
+      "vtype": "STR",
+      "vals": [
+        ""
+      ]
+    },
+    "applyhandler": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    }
+  },
+  "/traces/admin": {
+    
+  },
+  "/sites/first": {
+    "created": {
+      "vtype": "LONG",
+      "vals": [
+        1475576740450
+      ]
+    },
+    "captured": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "siteurl": {
+      "vtype": "STR",
+      "vals": [
+        "http://www.meidensha.co.jp/"
+      ]
+    }
+  },
+  "/indexers/other/schema": {
+    
+  },
+  "/indexers/newindex/schema": {
+    
+  },
+  "/indexers/some/schema": {
+    
+  },
+  "/searchers/newsearcher/popularquery": {
+    "transformed": {
+      "vtype": "STR",
+      "vals": [
+        "[{id:''}, {id:''}, {id:''}, {id:''}, {id:''}]"
+      ]
+    }
+  },
+  "/searchers/newsearcher/schema": {
+    
+  },
+  "/traces/admin/57f48f2a638b84048d9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645226049
+      ]
+    }
+  },
+  "/traces/admin/57f768178353cfb4c1cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f767e88353cfb4b...\",\"removeindex\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831831782
+      ]
+    }
+  },
+  "/traces/admin/57f4a8adba6a8404c3e5b501": {
+    "exception": {
+      "vtype": "STR",
+      "vals": [
+        "java.lang.NoSuchFieldError: INSTANCE"
+      ]
+    },
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475651757803
+      ]
+    }
+  },
+  "/traces/admin/57f7682b8353cfb4c9cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831851744
+      ]
+    }
+  },
+  "/traces/admin/57f7684a8353cfb4dacb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f7683c8353cfb4d...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831882383
+      ]
+    }
+  },
+  "/traces/admin/57f47420550e840408ee3a06": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475638304523
+      ]
+    }
+  },
+  "/traces/admin/57fb0ae99c3acfb47404a4f9": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476070121928
+      ]
+    }
+  },
+  "/traces/admin/56e278bd92be35808be26156": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/other"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457682621889
+      ]
+    }
+  },
+  "/traces/admin/57f485aa32ee840415ce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642794018
+      ]
+    }
+  },
+  "/traces/admin/57f4aafc9ffd84045b6c1ece": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475652348724
+      ]
+    }
+  },
+  "/traces/admin/57ee137915e1cfb4cf887a9d": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220345525
+      ]
+    }
+  },
+  "/traces/admin/57f485d732ee84041ace5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"title\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"true\",\"schematype\":\"text\",\"boost\":null,\"store\":\"false\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642839159
+      ]
+    }
+  },
+  "/traces/admin/577c3fb01d942d03e9a46b88": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/schema/codename"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1467760560068
+      ]
+    }
+  },
+  "/traces/admin/57ee150115e1cfb4db887a9d": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220737495
+      ]
+    }
+  },
+  "/traces/admin/57fb0a989c3acfb46f04a4f9": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476070040515
+      ]
+    }
+  },
+  "/traces/admin/57f383c85d34cfb4fa05d649": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475576776767
+      ]
+    }
+  },
+  "/traces/admin/57f4ab8c9ffd8404656c1ece": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475652492004
+      ]
+    }
+  },
+  "/traces/admin/57f608ae5f6dcfb4bc982fea": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475741870437
+      ]
+    }
+  },
+  "/traces/admin/57f485f232ee84041fce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"cno\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"number\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642866153
+      ]
+    }
+  },
+  "/traces/admin/57f767e88353cfb4b7cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831784184
+      ]
+    }
+  },
+  "/traces/admin/57fafac38353cfb4f8cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f76b7c8353cfb4e...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476065987207
+      ]
+    }
+  },
+  "/traces/admin/57f48e79638b8404749f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f383ed5d34cfb4f...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645049103
+      ]
+    }
+  },
+  "/traces/admin/57f48fb3638b8404a39f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645363431
+      ]
+    }
+  },
+  "/traces/admin/57ee1298f520cfb4085caaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220120172
+      ]
+    }
+  },
+  "/traces/admin/57ee130515e1cfb4c4887a9d": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220229226
+      ]
+    }
+  },
+  "/traces/admin/57f7681a8353cfb4c6cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f767e88353cfb4b...\",\"removeindex\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831834959
+      ]
+    }
+  },
+  "/traces/admin/577c3aba1d942d03d3a46b88": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"codename\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"keyword\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1467759290436
+      ]
+    }
+  },
+  "/traces/admin/57f484aa550e84040bee3a06": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642538218
+      ]
+    }
+  },
+  "/traces/admin/57ee0d60f520cfb4e95baaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475218784210
+      ]
+    }
+  },
+  "/traces/admin/57fb07887c4acfb4e1ab8816": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476069256711
+      ]
+    }
+  },
+  "/traces/admin/57ee12a1f520cfb40d5caaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220129260
+      ]
+    }
+  },
+  "/traces/admin/57f48f26638b84048a9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"refurl\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"manual\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645222240
+      ]
+    }
+  },
+  "/traces/admin/57fafb2b8353cfb411cc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476066091463
+      ]
+    }
+  },
+  "/traces/admin/57f4903a21c28404208bdb2a": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645498145
+      ]
+    }
+  },
+  "/traces/admin/57f484c3550e840411ee3a06": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642563482
+      ]
+    }
+  },
+  "/traces/admin/57f31ea19b64cfb41a73502c": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee12e515e1cfb4b...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475550881011
+      ]
+    }
+  },
+  "/traces/admin/57f48eaa638b8404859f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645098768
+      ]
+    }
+  },
+  "/traces/admin/56e278d392be358090e26156": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/other/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"name\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"keyword\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457682643336
+      ]
+    }
+  },
+  "/traces/admin/57f4921f21c284042a8bdb2a": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema/cno"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645983806
+      ]
+    }
+  },
+  "/traces/admin/57f4866e32ee84042ece5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"title\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"manual\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642990745
+      ]
+    }
+  },
+  "/traces/admin/57fafb0c8353cfb40ccc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/schema/refurl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476066060446
+      ]
+    }
+  },
+  "/traces/admin/56e2874492be3580a1e26156": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/scripters/dddd/define"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457686340920
+      ]
+    }
+  },
+  "/traces/admin/57f4a04c83578404842eaf1b": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475649612232
+      ]
+    }
+  },
+  "/traces/admin/57f383a45d34cfb4f505d649": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"siteurl\":\"http://www.meiden...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475576740463
+      ]
+    }
+  },
+  "/traces/admin/57f48e66638b84046b9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f383ed5d34cfb4f...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645030557
+      ]
+    }
+  },
+  "/traces/admin/57f7685a8353cfb4dfcb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f7683c8353cfb4d...\",\"removeindex\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831898059
+      ]
+    }
+  },
+  "/traces/admin/57f318cc9b64cfb41573502c": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee137915e1cfb4c...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475549388188
+      ]
+    }
+  },
+  "/traces/admin/57f48bc31fcd84044439c14e": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475644355428
+      ]
+    }
+  },
+  "/traces/admin/57f4a55483578404872eaf1b": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        404
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475650900709
+      ]
+    }
+  },
+  "/traces/admin/57f767fc8353cfb4bccb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f767e88353cfb4b...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831804108
+      ]
+    }
+  },
+  "/traces/admin/57f48fa5638b8404a09f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645349345
+      ]
+    }
+  },
+  "/traces/admin/57f4adf79ffd8404706c1ece": {
+    "exception": {
+      "vtype": "STR",
+      "vals": [
+        "org.openqa.selenium.TimeoutException: timeout: cannot determine loading status\nfrom timeout: Timed out receiving message from renderer: -0.005\n  (Session info: chrome=53.0.2785.116)\n  (Driver info: chromedriver=2.24.417431 (9aea000394714d2fbb20850021f6204f2256b9cf),platform=Windows NT 6.1.7601 SP1 x86_64) (WARNING: The server did not provide any stacktrace information)\nCommand duration or timeout: 300.02 seconds\nBuild info: version: '3.0.0-beta3', revision: 'c7b525d', time: '2016-09-01 14:57:03 -0700'\nSystem info: host: 'bleujin-SV', ip: '125.131.88.157', os.name: 'Windows 7', os.arch: 'amd64', os.version: '6.1', java.version: '1.8.0_40'\nDriver info: org.openqa.selenium.chrome.ChromeDriver\nCapabilities [{applicationCacheEnabled=false, rotatable=false, mobileEmulationEnabled=false, networkConnectionEnabled=false, chrome={chromedriverVersion=2.24.417431 (9aea000394714d2fbb20850021f6204f2256b9cf), userDataDir=C:\\Users\\bleujin\\AppData\\Local\\Temp\\scoped_dir8536_15371}, takesHeapSnapshot=true, pageLoadStrategy=normal, databaseEnabled=false, handlesAlerts=true, hasTouchScreen=false, version=53.0.2785.116, platform=XP, browserConnectionEnabled=false, nativeEvents=true, acceptSslCerts=true, locationContextEnabled=true, webStorageEnabled=true, browserName=chrome, takesScreenshot=true, javascriptEnabled=true, cssSelectorsEnabled=true}]\nSession ID: d3dcb8dfc82ef4f0ea44777ff4dbc52c"
+      ]
+    },
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475653111303
+      ]
+    }
+  },
+  "/traces/admin/57ee130815e1cfb4c9887a9d": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220232702
+      ]
+    }
+  },
+  "/traces/admin/57f486ac32ee840436ce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475643052352
+      ]
+    }
+  },
+  "/traces/admin/57f484c1550e84040eee3a06": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642561154
+      ]
+    }
+  },
+  "/traces/admin/57ee0809d8378404a020d807": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475217417031
+      ]
+    }
+  },
+  "/traces/admin/57f48e96638b84047d9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"change_me,\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645078467
+      ]
+    }
+  },
+  "/traces/admin/57f4a8dfba6a8404c6e5b501": {
+    "exception": {
+      "vtype": "STR",
+      "vals": [
+        "java.lang.NoClassDefFoundError: Could not initialize class org.apache.http.conn.ssl.SSLConnectionSocketFactory"
+      ]
+    },
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475651807953
+      ]
+    }
+  },
+  "/traces/admin/57f76b7c8353cfb4e7cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475832700539
+      ]
+    }
+  },
+  "/traces/admin/57ee27a754c7cfb4619fb687": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee0f1ff520cfb4e...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475225511817
+      ]
+    }
+  },
+  "/traces/admin/57fb087dfaf8cfb41751031e": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476069501949
+      ]
+    }
+  },
+  "/traces/admin/577c3ad41d942d03d6a46b88": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/index.json"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"documents\":\"{\\\"id\\\":\\\"change_me\\\"...\",\"within\":\"1000\",\"boost\":\"1.0\",\"overwrite\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1467759316307
+      ]
+    }
+  },
+  "/traces/admin/56e285b092be358097e26156": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/some"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457685936314
+      ]
+    }
+  },
+  "/traces/admin/57f383ed5d34cfb40006d649": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475576813928
+      ]
+    }
+  },
+  "/traces/admin/57f75cfaf446cfb45df71fbd": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f4b3ec157684047...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475828986181
+      ]
+    }
+  },
+  "/traces/admin/57f318c99b64cfb40b73502c": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee150115e1cfb4d...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475549385780
+      ]
+    }
+  },
+  "/traces/admin/57fb2a393abdcfb48b7995e7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476078137124
+      ]
+    }
+  },
+  "/traces/admin/57f7683c8353cfb4d5cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831868820
+      ]
+    }
+  },
+  "/traces/admin/57fb0b009c3acfb47904a4f9": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476070144617
+      ]
+    }
+  },
+  "/traces/admin/57f47416550e840405ee3a06": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475638294294
+      ]
+    }
+  },
+  "/traces/admin/57ee102df520cfb4015caaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475219501338
+      ]
+    }
+  },
+  "/traces/admin/57fb04318353cfb425cc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476068401694
+      ]
+    }
+  },
+  "/traces/admin/57f4865832ee840424ce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema/codename"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642968492
+      ]
+    }
+  },
+  "/traces/admin/57f4866132ee840429ce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema/title"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642977144
+      ]
+    }
+  },
+  "/traces/admin/57f318ca9b64cfb41073502c": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee2755a040cfb4a...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475549386902
+      ]
+    }
+  },
+  "/traces/admin/57f4869032ee840433ce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema/age"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475643024890
+      ]
+    }
+  },
+  "/traces/admin/57f48e8b638b8404779f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645067802
+      ]
+    }
+  },
+  "/traces/admin/57ee0ff5f520cfb4f55baaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475219445936
+      ]
+    }
+  },
+  "/traces/admin/57f48e72638b8404719f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f383ed5d34cfb4f...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645042888
+      ]
+    }
+  },
+  "/traces/admin/577c3b4d1d942d03dda46b88": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/define"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"queryanalyzer\":\"org.apache.lucene...\",\"handler\":null,\"stopword\":null,\"applyhandler\":\"false\",\"applystopword\":\"false\",\"target\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1467759437903
+      ]
+    }
+  },
+  "/traces/admin/57f318c89b64cfb40673502c": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee13d715e1cfb4d...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475549384501
+      ]
+    }
+  },
+  "/traces/admin/57fafb098353cfb407cc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"relurl\",\"analyzer\":\"org.apache.lucene...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476066057686
+      ]
+    }
+  },
+  "/traces/admin/56e12da36dd93580a9b3fa58": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457597859041
+      ]
+    }
+  },
+  "/traces/admin/57f606cb5f6dcfb4b2982fea": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475741387985
+      ]
+    }
+  },
+  "/traces/admin/57f4921521c28404258bdb2a": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema/path"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645973159
+      ]
+    }
+  },
+  "/traces/admin/57fb03888353cfb41bcc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476068232032
+      ]
+    }
+  },
+  "/traces/admin/57f48e94638b84047a9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645076896
+      ]
+    }
+  },
+  "/traces/admin/57f48f83638b84049a9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"relurl\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"manual\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645315734
+      ]
+    }
+  },
+  "/traces/admin/57f4abb49ffd84046a6c1ece": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475652532127
+      ]
+    }
+  },
+  "/traces/admin/57f48e19638b8404639f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475644953906
+      ]
+    }
+  },
+  "/traces/admin/56e12ebd6dd93580b3b3fa58": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457598141803
+      ]
+    }
+  },
+  "/traces/admin/57fafaf38353cfb402cc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"title\",\"analyzer\":\"org.apache.lucene...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476066035816
+      ]
+    }
+  },
+  "/traces/admin/57f48e09638b84045d9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475644937876
+      ]
+    }
+  },
+  "/traces/admin/56e285ba92be35809ce26156": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/some/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"name\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"keyword\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457685946478
+      ]
+    }
+  },
+  "/traces/admin/57ee1005f520cfb4fb5baaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475219461798
+      ]
+    }
+  },
+  "/traces/admin/57f485a932ee840412ce5a40": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475642793488
+      ]
+    }
+  },
+  "/traces/admin/57f48e32638b8404669f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475644979000
+      ]
+    }
+  },
+  "/traces/admin/57ee0790d83784049c20d807": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475217296132
+      ]
+    }
+  },
+  "/traces/admin/57f4ab6d9ffd8404606c1ece": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475652461343
+      ]
+    }
+  },
+  "/traces/admin/57ee2755a040cfb4a78271cf": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee127bf520cfb40...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475225429164
+      ]
+    }
+  },
+  "/traces/admin/57f37e555d34cfb4f005d649": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475575381701
+      ]
+    }
+  },
+  "/traces/admin/57f48ea4638b8404829f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"path\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"manual\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645092276
+      ]
+    }
+  },
+  "/traces/admin/57fb0b4a9c3acfb48304a4f9": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476070218717
+      ]
+    }
+  },
+  "/traces/admin/57ee13d715e1cfb4d5887a9d": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475220439498
+      ]
+    }
+  },
+  "/traces/admin/57f48f7c638b8404959f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema/refurl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645308767
+      ]
+    }
+  },
+  "/traces/admin/57f4a93eba6a8404c9e5b501": {
+    "exception": {
+      "vtype": "STR",
+      "vals": [
+        "java.lang.NoClassDefFoundError: Could not initialize class org.apache.http.conn.ssl.SSLConnectionSocketFactory"
+      ]
+    },
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":null}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475651902364
+      ]
+    }
+  },
+  "/traces/admin/57f48e6c638b84046e9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f383ed5d34cfb4f...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645036407
+      ]
+    }
+  },
+  "/traces/admin/57f768358353cfb4cfcb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831861844
+      ]
+    }
+  },
+  "/traces/admin/57ee058ad83784049320d807": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "DELETE"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475216778031
+      ]
+    }
+  },
+  "/traces/admin/57fafa938353cfb4eecb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f76b7c8353cfb4e...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476065939465
+      ]
+    }
+  },
+  "/traces/admin/57fb03f28353cfb420cc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476068338072
+      ]
+    }
+  },
+  "/traces/admin/57f48f3a638b8404909f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645242953
+      ]
+    }
+  },
+  "/traces/admin/57f767958353cfb4accb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f606cb5f6dcfb4a...\",\"removeindex\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831701324
+      ]
+    }
+  },
+  "/traces/admin/57fb03598353cfb416cc35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476068185940
+      ]
+    }
+  },
+  "/traces/admin/57ee05c8d83784049820d807": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"siteurl\":\"http://www.meiden...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475216840562
+      ]
+    }
+  },
+  "/traces/admin/57f48f88638b84049d9f668f": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475645320524
+      ]
+    }
+  },
+  "/traces/admin/57fafaec8353cfb4fdcb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"refurl\",\"analyzer\":\"org.apache.lucene...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476066028178
+      ]
+    }
+  },
+  "/traces/admin/57f318c69b64cfb40173502c": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57ee12eb15e1cfb4c...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475549382953
+      ]
+    }
+  },
+  "/traces/admin/57f48bc31fcd84044739c14e": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475644355769
+      ]
+    }
+  },
+  "/traces/admin/57ee0d2fd8378404a420d807": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475218735777
+      ]
+    }
+  },
+  "/traces/admin/57f4b3ec15768404827fdac2": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475654636760
+      ]
+    }
+  },
+  "/traces/admin/57f767bf8353cfb4b1cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawllist"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"removeindex\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831743713
+      ]
+    }
+  },
+  "/traces/admin/57f6077e5f6dcfb4b7982fea": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475741566096
+      ]
+    }
+  },
+  "/traces/admin/57edfde9d83784048e20d807": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"siteurl\":\"first\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475214825390
+      ]
+    }
+  },
+  "/traces/admin/57f48b3d1fcd84043f39c14e": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/index"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f383ed5d34cfb4f...\",\"iid\":\"newindex\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475644221240
+      ]
+    }
+  },
+  "/traces/admin/57fb0b6e9c3acfb48804a4f9": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476070254616
+      ]
+    }
+  },
+  "/traces/admin/57ee0f1ff520cfb4ef5baaa3": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "127.0.0.1"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475219231887
+      ]
+    }
+  },
+  "/traces/admin/57fb0b359c3acfb47e04a4f9": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/template"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"template\":\"\\n<ul>\\n\\t<li>elapse...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476070197837
+      ]
+    }
+  },
+  "/traces/admin/57fafac38353cfb4f3cb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f76b7c8353cfb4e...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1476065987207
+      ]
+    }
+  },
+  "/traces/admin/57f4ad879ffd84046d6c1ece": {
+    "exception": {
+      "vtype": "STR",
+      "vals": [
+        "org.openqa.selenium.TimeoutException: timeout: cannot determine loading status\nfrom timeout: Timed out receiving message from renderer: -0.005\n  (Session info: chrome=53.0.2785.116)\n  (Driver info: chromedriver=2.24.417431 (9aea000394714d2fbb20850021f6204f2256b9cf),platform=Windows NT 6.1.7601 SP1 x86_64) (WARNING: The server did not provide any stacktrace information)\nCommand duration or timeout: 300.01 seconds\nBuild info: version: '3.0.0-beta3', revision: 'c7b525d', time: '2016-09-01 14:57:03 -0700'\nSystem info: host: 'bleujin-SV', ip: '125.131.88.157', os.name: 'Windows 7', os.arch: 'amd64', os.version: '6.1', java.version: '1.8.0_40'\nDriver info: org.openqa.selenium.chrome.ChromeDriver\nCapabilities [{applicationCacheEnabled=false, rotatable=false, mobileEmulationEnabled=false, networkConnectionEnabled=false, chrome={chromedriverVersion=2.24.417431 (9aea000394714d2fbb20850021f6204f2256b9cf), userDataDir=C:\\Users\\bleujin\\AppData\\Local\\Temp\\scoped_dir4980_22014}, takesHeapSnapshot=true, pageLoadStrategy=normal, databaseEnabled=false, handlesAlerts=true, hasTouchScreen=false, version=53.0.2785.116, platform=XP, browserConnectionEnabled=false, nativeEvents=true, acceptSslCerts=true, locationContextEnabled=true, webStorageEnabled=true, browserName=chrome, takesScreenshot=true, javascriptEnabled=true, cssSelectorsEnabled=true}]\nSession ID: e0eddcc8064cc4ae5502ab4c5859079c"
+      ]
+    },
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/capture"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"crawlid\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475652999833
+      ]
+    }
+  },
+  "/traces/admin/577c3b7d1d942d03e2a46b88": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/searchers/newsearcher/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"codename\",\"analyzer\":\"org.apache.lucene...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1467759485610
+      ]
+    }
+  },
+  "/traces/admin/57f768318353cfb4cccb35a7": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/browsing"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"indexIds\":\"57f48e19638b84045...\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475831857604
+      ]
+    }
+  },
+  "/traces/admin/56e12dd06dd93580aeb3fa58": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/indexers/newindex/schema"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{\"schemaid\":\"age\",\"analyzer\":\"org.apache.lucene...\",\"analyze\":\"false\",\"schematype\":\"number\",\"boost\":null,\"store\":\"true\"}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1457597904990
+      ]
+    }
+  },
+  "/traces/admin/57f4b3849ffd8404756c1ece": {
+    "status": {
+      "vtype": "INT",
+      "vals": [
+        200
+      ]
+    },
+    "address": {
+      "vtype": "STR",
+      "vals": [
+        "125.131.88.157"
+      ]
+    },
+    "uri": {
+      "vtype": "STR",
+      "vals": [
+        "/admin/sites/first/crawl"
+      ]
+    },
+    "method": {
+      "vtype": "STR",
+      "vals": [
+        "POST"
+      ]
+    },
+    "params": {
+      "vtype": "STR",
+      "vals": [
+        "{}"
+      ]
+    },
+    "time": {
+      "vtype": "LONG",
+      "vals": [
+        1475654532901
+      ]
+    }
+  },
+  "/sites/first/57f76b7c8353cfb4e3cb35a7": {
+    "created": {
+      "vtype": "LONG",
+      "vals": [
+        1475832700539
+      ]
+    },
+    "creuserid": {
+      "vtype": "STR",
+      "vals": [
+        "admin"
+      ]
+    },
+    "captured": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "indexed": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "iid": {
+      "vtype": "STR",
+      "vals": [
+        "newindex"
+      ]
+    }
+  },
+  "/indexers/other/schema/name": {
+    "schematype": {
+      "vtype": "STR",
+      "vals": [
+        "keyword"
+      ]
+    },
+    "analyze": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    },
+    "analyzer": {
+      "vtype": "STR",
+      "vals": [
+        ""
+      ]
+    },
+    "store": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "boost": {
+      "vtype": "DOUB",
+      "vals": [
+        1.0
+      ]
+    }
+  },
+  "/indexers/newindex/schema/title": {
+    "schematype": {
+      "vtype": "STR",
+      "vals": [
+        "manual"
+      ]
+    },
+    "analyze": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    },
+    "analyzer": {
+      "vtype": "STR",
+      "vals": [
+        "org.apache.lucene.analysis.cjk.CJKAnalyzer"
+      ]
+    },
+    "store": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "boost": {
+      "vtype": "DOUB",
+      "vals": [
+        1.0
+      ]
+    }
+  },
+  "/indexers/newindex/schema/relurl": {
+    "schematype": {
+      "vtype": "STR",
+      "vals": [
+        "manual"
+      ]
+    },
+    "analyze": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    },
+    "analyzer": {
+      "vtype": "STR",
+      "vals": [
+        "org.apache.lucene.analysis.standard.StandardAnalyzer"
+      ]
+    },
+    "store": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "boost": {
+      "vtype": "DOUB",
+      "vals": [
+        1.0
+      ]
+    }
+  },
+  "/indexers/some/schema/name": {
+    "schematype": {
+      "vtype": "STR",
+      "vals": [
+        "keyword"
+      ]
+    },
+    "analyze": {
+      "vtype": "BOOL",
+      "vals": [
+        false
+      ]
+    },
+    "analyzer": {
+      "vtype": "STR",
+      "vals": [
+        ""
+      ]
+    },
+    "store": {
+      "vtype": "BOOL",
+      "vals": [
+        true
+      ]
+    },
+    "boost": {
+      "vtype": "DOUB",
+      "vals": [
+        1.0
+      ]
+    }
+  },
+  "/searchers/newsearcher/schema/title": {
+    "analyzer": {
+      "vtype": "STR",
+      "vals": [
+        "org.apache.lucene.analysis.cjk.CJKAnalyzer"
+      ]
+    }
+  },
+  "/searchers/newsearcher/schema/relurl": {
+    "analyzer": {
+      "vtype": "STR",
+      "vals": [
+        "org.apache.lucene.analysis.core.KeywordAnalyzer"
+      ]
+    }
+  }
+}

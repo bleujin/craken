@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="lib/reflib/infinispan-embedded-query-7.2.2.Final.jar"/>
 	<classpathentry kind="lib" path="lib/reflib/apache_extend_fat.jar"/>
 	<classpathentry kind="lib" path="lib/ref/iframework_2.7.jar"/>
+	<classpathentry kind="lib" path="lib/imsi/postgresql-9.4.1208.jre7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
